@@ -44,12 +44,12 @@ class GeoFile(Resource):
         with open(file_path, 'rb') as f:
             return send_file(f, attachment_filename=path)
 
-@api.route("/tile/<string:path>/<int:zoom>/<int:x>/<int:y>")
-class TileServer(Resource):
+@api.route("/geofile/preview/<string:path>")
+class PreviewTileServer(Resource):
     @api.produces(['image/png'])
-    def get(self, path, zoom, x, y):
-        image = mapnik.Image(600, 300)
-        mp = mapnik.Map(600, 300)
+    def get(self, path):
+        image = mapnik.Image(3134, 3134)
+        mp = mapnik.Map(3134, 3134)
         #mp.background = mapnik.Color('steelblue')
         lyr = mapnik.Layer('world')
         file_path = safe_join(get_user_upload(), path)
