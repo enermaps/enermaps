@@ -1,21 +1,24 @@
 import os
 import io
 
-from flask import Flask, safe_join, send_file, Response
+from flask import Flask, safe_join, send_file, Response, send_from_directory
 from flask_restx import Api, Resource
 from werkzeug.datastructures import FileStorage
 import mapnik
 
 app = Flask(__name__)
 app.config["UPLOAD_DIR"] = "/tmp/upload_dir"
+app.config["TILE_DIR"] = "/tmp/tiles"
 api = Api(app)
 
 def get_user_upload(user="user"):
     user_dir = safe_join(app.config["UPLOAD_DIR"], user)
-    try:
-        os.makedirs(user_dir)
-    except FileExistsError:
-        pass
+    os.makedirs(user_dir, exist_ok=True)
+    return user_dir
+
+def get_tile_dir(user="user"):
+    user_dir = safe_join(app.config["TILE_DIR"], user)
+    os.makedirs(user_dir, exist_ok=True)
     return user_dir
 
 upload_parser = api.parser()
@@ -33,9 +36,15 @@ class GeoFiles(Resource):
     def post(self):
         args = upload_parser.parse_args()
         uploaded_file = args['file']  # This is FileStorage instance
-        safe_join(get_user_upload(), uploaded_file.filename)
+        output_filepath = safe_join(get_user_upload(), uploaded_file.filename)
+        uploaded_file.save(output_filepath)
         return {"status": "upload succeeded"}
 
+MIN_ZOOM = 1
+MAX_ZOOM = 7
+
+def generate_tiles(geofile_path):
+    GDAL2Tiles('--leaflet',  'geofile_path', '-z', '{!s}-{!s}'.join(MIN_ZOOM, MAX_ZOOM)), geofile_path, 
 
 @api.route("/geofile/<string:path>")
 class GeoFile(Resource):
@@ -44,7 +53,24 @@ class GeoFile(Resource):
         with open(file_path, 'rb') as f:
             return send_file(f, attachment_filename=path)
 
-@api.route("/geofile/preview/<string:path>")
+    def put(self, path):
+        file_path = safe_join(get_user_upload(), path)
+        with open(file_path, 'rb') as f:
+            return send_file(f, attachment_filename=path)
+
+    @api.expect(upload_parser)
+    def put(self):
+        args = upload_parser.parse_args()
+        uploaded_file = args['file']  # This is FileStorage instance
+        output_filepath = safe_join(get_user_upload(), uploaded_file.filename)
+        uploaded_file.save(output_filepath)
+        return {"status": "upload succeeded, file updated"}
+
+@api.route("/geofile/stats/<string:type>")
+class RasterStats(Resource):
+    pass
+    
+@api.route("/geofile/tile/<string:path>")
 class PreviewTileServer(Resource):
     @api.produces(['image/png'])
     def get(self, path):
@@ -65,6 +91,21 @@ class PreviewTileServer(Resource):
         mp.zoom_to_box(lyr.envelope())
         mapnik.render(mp, image)
         return Response(image.tostring('png'), mimetype='image/png')
+
+def num2deg(xtile, ytile, zoom):
+    n = 2.0 ** zoom
+    lon_deg = xtile / n * 360.0 - 180.0
+    lat_rad = math.atan(math.sinh(math.pi * (1 - 2 * ytile / n)))
+    lat_deg = math.degrees(lat_rad)
+    return (lat_deg, lon_deg)
+
+@api.route("/geofile/tile/<string:path>/<int:zoom>/<int:x>/<int:y>")
+class TileServingServer(Resource):
+    @api.produces(['image/png'])
+    def get(self, path, zoom, x, y):
+        tile_dir = safe_join(get_tile_dir(user=""), path)
+        tile_file = safe_join(str(zoom), str(x), str(y) + '.png')
+        return send_from_directory(tile_dir, tile_file)
 
 if __name__ == "__main__":
     app.run(debug=True)
