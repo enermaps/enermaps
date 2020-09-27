@@ -1,8 +1,10 @@
 import mapnik
 import sys
 from collections import namedtuple
+import gdal
+gdal.UseExceptions()    # Enable exceptions
 
-TILE_SIZE = 256
+TILE_SIZE = 3026
 S = namedtuple("S", ['x', 'y'])
 
 def get_bbox():
@@ -19,17 +21,25 @@ def render_tile(layer, z, x, y):
         image = mapnik.Image(TILE_SIZE, TILE_SIZE)
         mp = mapnik.Map(TILE_SIZE, TILE_SIZE)
         #mp.srs = '+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs'
-        #mp.background = mapnik.Color('steelblue')
+        mp.background = mapnik.Color('steelblue')
         lyr = mapnik.Layer('gdal')
-        lyr.datasource = mapnik.Gdal(file=layer)
+        #band = dataset.GetRasterBand(1)
+        lyr.datasource = mapnik.Gdal(file=layer, band=1)#, band=20)
         lyr.styles.append('My Style')
-        mp.background = mapnik.Color('transparent')
+        #mp.background = mapnik.Color('steelblue')
         s = mapnik.Style()
         r = mapnik.Rule()
-        r.symbols.append(mapnik.RasterSymbolizer())
+        rs = mapnik.RasterSymbolizer()
+        rs.colorizer = mapnik.RasterColorizer(mapnik.COLORIZER_DISCRETE, mapnik.Color(0, 0, 0, 0))
+        rs.colorizer.add_stop(-417, mapnik.Color(0, 0, 0))
+        rs.colorizer.add_stop(68, mapnik.Color(255, 255, 255))
+        rs.colorizer.add_stop(234, mapnik.Color(255, 0, 0))
+        rs.colorizer.add_stop(461, mapnik.Color(0, 0, 255))
+        rs.colorizer.add_stop(720, mapnik.Color(0, 255, 0))
+        r.symbols.append(rs)
         s.rules.append(r)
         mp.append_style('My Style',s)
-        #mp.layers.append(lyr)
+        mp.layers.append(lyr)
         mp.zoom_to_box(lyr.envelope())
         print(lyr.envelope())
         #mp.zoom_to_box(get_bbox())
