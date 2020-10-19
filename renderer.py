@@ -8,7 +8,7 @@ TILE_SIZE = 3026
 S = namedtuple("S", ['x', 'y'])
 
 def num2deg(xtile, ytile, zoom):
-    n = 2.0 ** zoom
+    n = 2.0 ** zoom # : the number of tiles
     lon_deg = xtile / n * 360.0 - 180.0
     lat_rad = math.atan(math.sinh(math.pi * (1 - 2 * ytile / n)))
     lat_deg = math.degrees(lat_rad)
@@ -28,7 +28,7 @@ def render_tile(layer, z, x, y):
         image = mapnik.Image(TILE_SIZE, TILE_SIZE)
         mp = mapnik.Map(TILE_SIZE, TILE_SIZE)
         mp.srs = "+proj=merc +a=6378137 +b=6378137 +lat_ts=0.0 +lon_0=0.0 +x_0=0.0 +y_0=0 +k=1.0 +units=m +nadgrids=@null +no_defs +over"
-        mp.background = mapnik.Color('steelblue')
+        #mp.background = mapnik.Color('steelblue')
         lyr = mapnik.Layer('gdal')
         #lyr.srs = "+proj=laea +lat_0=52 +lon_0=10 +x_0=4321000 +y_0=3210000 +ellps=GRS80 +units=m +no_defs"
         lyr.srs = "+proj=merc +a=6378137 +b=6378137 +lat_ts=0.0 +lon_0=0.0 +x_0=0.0 +y_0=0 +k=1.0 +units=m +nadgrids=@null +no_defs +over"
