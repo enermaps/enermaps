@@ -1,5 +1,4 @@
 import os
-import io
 
 from flask import Flask, safe_join, send_file, Response, send_from_directory
 from flask_restx import Api, Resource
@@ -66,7 +65,7 @@ class GeoFile(Resource):
         uploaded_file.save(output_filepath)
         return {"status": "upload succeeded, file updated"}
 
-@api.route("/geofile/stats/<string:type>")
+@api.route("/geofile/<string:path>")
 class RasterStats(Resource):
     pass
     
