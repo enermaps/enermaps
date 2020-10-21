@@ -1,6 +1,7 @@
 import os
 import io
 from flask import Flask, safe_join, send_file, Response, send_from_directory, request
+from lxml import etree
 from PIL import Image
 from flask_restx import Api, Resource
 from werkzeug.datastructures import FileStorage
@@ -161,7 +162,7 @@ class WMS(Resource):
         if request_name == 'GetMap':
             return self.getMap(normalized_args)
         elif request_name == 'GetCapabilities':
-            return self.getMap(normalized_args)
+            return self.getCapabilities(normalized_args)
         elif request_name == 'GetFeatureInfo':
             return self.getMap(normalized_args)
         else:
@@ -169,9 +170,43 @@ class WMS(Resource):
 
     def getCapabilities(self, normalized_args):
         #start with the xml template that also act as a configuration file
-        return Response('', mimetype='text/xml')
+        with open("capabilities.xml") as f:
+            root = etree.fromstring(f.read())
+        root_layer = root.find('Capability/Layer')
+        for crs in app.config["WMS"]["ALLOWED_PROJECTIONS"]:
+            crs_node = etree.Element('CRS')
+            crs_node.text = crs.upper()
+            root_layer.append(crs_node)
+
+        for layer in ["a", "b", "c"]:
+            layer_node = etree.Element('Layer')
+            layer_node.set(queryable, "1")
+            layer_node.set(opaque, "0")
+            layer_name= etree.Element("Name")
+            layer_name.text = layer
+            layer_node.append(layer_name)
+            abstract = etree.Element("Abstract")
+            layer_node.append(abstract)
+            layer_title = etree.Element("Title")
+            layer_title.text = "This is layer {}".format(layer)
+            layer_node.append(layer_title)
+            root_layer.append(layer_node)
+
+        #TODO: add bounding box for each layer
+        #TODO: add a reference to a legend and have an endpoint for it
+
+        get_map = root.find('Capability/Request/GetMap')
+        for map_format in app.config["WMS"]["GETMAP"]["ALLOWED_OUTPUTS"]:
+            format_node = etree.Element("Format")
+            format_node.text = map_format
+            get_map.append(format_node)
+
+        return Response(etree.tostring(root), mimetype='text/xml')
 
     def getMap(self, normalized_args):
+        #miss:
+        #bgcolor
+        #exceptions
         print(normalized_args)
         projection = parse_projection(normalized_args)
         #validate projection
@@ -211,5 +246,7 @@ class WMS(Resource):
         mapnik_format, mime_format = parse_format(normalized_args)
         return Response(image.tostring('png'), mimetype='image/png')
 
+    def getFeatureInfo(self):
+        pass
 if __name__ == "__main__":
     app.run(debug=True, host='0.0.0.0')
