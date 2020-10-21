@@ -5,11 +5,21 @@ from PIL import Image
 from flask_restx import Api, Resource
 from werkzeug.datastructures import FileStorage
 from marshmallow import Schema, fields
+from osgeo import osr, gdal
 import mapnik
 
 app = Flask(__name__)
 app.config["UPLOAD_DIR"] = "/tmp/upload_dir"
 app.config["TILE_DIR"] = "/tmp/tiles"
+app.config["WMS"] = {}
+app.config["WMS"]["ALLOWED_PROJECTIONS"] = ["ESPG:3857"]
+app.config["WMS"]["MAX_SIZE"] = 1024**2
+app.config["WMS"]["GETMAP"] = {}
+app.config["WMS"]["GETMAP"]["ALLOWED_OUTPUTS"] = ["image/png", "image/jpg"]
+MIME_TO_MAPNIK = {
+            "image/png": "png",
+            "image/jpg": "jpg"
+        }
 api = Api(app)
 
 def get_user_upload(user="user"):
@@ -75,39 +85,6 @@ def parse_layers(normalized_params):
     for layer in normalized_params['layers']:
         return layer
 
-@api.route("/geofile/tile/<string:path>")
-class PreviewTileServer(Resource):
-    @api.produces(['image/png'])
-    def get(self, path):
-        normalized_args = {k.lower(): v for k, v in request.args.items()}
-        projection = request.args.get("srs")
-        height = int(request.args.get("height"))
-        height = int(request.args.get("width"))
-        layers = parse_layers(normalized_args)
-        image = mapnik.Image(width, width)
-
-        mp = mapnik.Map()
-        mp.background = mapnik.Color('steelblue')
-        lyr = mapnik.Layer('overlay')
-        file_path = safe_join(get_user_upload(), path)
-        lyr.datasource = mapnik.Gdal(file=file_path)
-        srs_string = ""
-        #lyr.styles.append('My Style')
-        mp.background = mapnik.Color('transparent')
-        s = mapnik.Style()
-        r = mapnik.Rule()
-        r.symbols.append(mapnik.RasterSymbolizer())
-        s.rules.append(r)
-        mp.append_style('My Style',s)
-        #mp.zoom_to_box(lyr.envelope())
-        mapnik.render(mp, image)
-        return Response(image.tostring('png'), mimetype='image/png')
-
-@app.route("/test")
-def test():
-    print(request.args)
-    return ""
-
 class CRS:
     def __init__(self, namespace, code):
         self.namespace = namespace.lower()
@@ -132,48 +109,106 @@ class CRS:
             self.proj = Projection('+init=%s:%s' % (self.namespace, self.code))        
         return self.proj.forward(Coord(x, y))
 
-def to_bbox(*bbox_dim):
+def proj4_from_geotiff(path):
+    raster = gdal.Open(path)
+    prj = raster.GetProjection()
+    srs = osr.SpatialReference(wkt=prj)
+
+    return srs.ExportToProj4()
+
+def parse_envelope(params):
+    raw_extremas = params['bbox'].split(',')
+    if len(raw_extremas) != 4:
+        raise Exception()
+    bbox = [float(extrema) for extrema in raw_extremas]
+    bbox_dim = (bbox[0], bbox[1], bbox[2], bbox[3])
     if hasattr(mapnik, 'mapnik_version') and mapnik.mapnik_version() >= 800:
         bbox = mapnik.Box2d(*bbox_dim)
     else:
         bbox = mapnik.Envelope(*bbox_dim)
     return bbox
 
+def parse_layers(params):
+    raw_layers = params['layers']
+    layers = raw_layers.split(",")
+    #validation 
+    return layers
+
+def parse_projection(params):
+    return params['srs'].lower()
+
+def parse_size(params):
+    height = int(params["height"])
+    width = int(params['width'])
+    if (height * width) > app.config["WMS"]["MAX_SIZE"]:
+        raise Exception
+    return width, height
+
+def parse_format(params):
+    mime_format = params['format']
+    if mime_format not in app.config["WMS"]["GETMAP"]["ALLOWED_OUTPUTS"]:
+        raise Exception
+    return MIME_TO_MAPNIK[mime_format], mime_format
+
 @api.route("/wms")
 class WMS(Resource):
 
     def get(self):
-        normalized_args = {k.lower(): v for k, v in request.args.items()}
+        normalized_args= {k.lower(): v for k, v in request.args.items()}
+        request_name = normalized_args['request']
+        if normalized_args['service'] != 'WMS':
+            return 400
+        if request_name == 'GetMap':
+            return self.getMap(normalized_args)
+        elif request_name == 'GetCapabilities':
+            return self.getMap(normalized_args)
+        elif request_name == 'GetFeatureInfo':
+            return self.getMap(normalized_args)
+        else:
+            return 404
+
+    def getCapabilities(self, normalized_args):
+        #start with the xml template that also act as a configuration file
+        return Response('', mimetype='text/xml')
+
+    def getMap(self, normalized_args):
         print(normalized_args)
-        projection = request.args.get("srs").lower()
+        projection = parse_projection(normalized_args)
         #validate projection
         print(request.args)
-        height = int(request.args["height"])
-        width = int(request.args['width'])
-        #layers = parse_layers(normalized_args)
-        layer = mapnik.Layer('hillshade')
-        layer.srs = "+proj=laea +lat_0=52 +lon_0=10 +x_0=4321000 +y_0=3210000 +ellps=GRS80 +units=m +no_defs"
-        layer.datasource = mapnik.Gdal(file='/home/malik/Scribble/OGCServer/tiff/hotmaps-heat_tot_curr_density.tif')
-        #layer.minimum_scale_denominator
+        width, height = parse_size(normalized_args)
 
+        mp = mapnik.Map(width, height, '+init=' + projection)
+        #TODO: how do we manage style ? just have hardcoded style list in a dir ?
         s = mapnik.Style()
         r = mapnik.Rule()
         r.symbols.append(mapnik.RasterSymbolizer())
         s.rules.append(r)
+        mp.append_style('My Style', s)
 
-        mp = mapnik.Map(width, height, '+init=' + projection)
-        mp.append_style('My Style',s)
-        layer.styles.append('My Style')
-        mp.layers.append(layer)
+        #TODO read the background set it 
         #mp.background_color = 'steelblue'
-        bbox = [float(extrema) for extrema in normalized_args['bbox'].split(',')]
-        mp.zoom_to_box(to_bbox(bbox[0], bbox[1], bbox[2], bbox[3]))
+
+        layers = parse_layers(normalized_args)
+        for layer in layers:
+            #TODO: should match name from query
+            layer = mapnik.Layer(layer)
+
+            #TODO: extract this from raster in advance !
+            f = '/home/malik/Scribble/OGCServer/tiff/hotmaps-heat_tot_curr_density.tif'
+            layer.srs = proj4_from_geotiff(f)
+            #TODO: get this from the upload folder, check layer at that point ?
+            gdal_source = mapnik.Gdal(file=f)
+            layer.datasource = gdal_source
+            #layer.minimum_scale_denominator
+
+            layer.styles.append('My Style')
+            mp.layers.append(layer)
+
+        mp.zoom_to_box(parse_envelope(normalized_args))
         image = mapnik.Image(width, height)
-        #image_format = im.to 
         mapnik.render(mp, image)
-            
-        #with io.BytesIO() as output:
-        #    image.save(output, format="GIF")
+        mapnik_format, mime_format = parse_format(normalized_args)
         return Response(image.tostring('png'), mimetype='image/png')
 
 if __name__ == "__main__":
