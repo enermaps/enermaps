@@ -23,8 +23,7 @@ class TifGeofileTest(unittest.TestCase):
     def tearDown(self):
         shutil.rmtree(self.flask_app.config['UPLOAD_DIR'])
 
-    def get_testformdata(self):
-        testfile = "hotmaps-cdd_curr_adapted.tif"
+    def get_testformdata(self, testfile):
         with open(get_testdata(testfile), "rb") as f:
             testfile_content = f.read()
             testfile_io = io.BytesIO(testfile_content)
@@ -35,23 +34,13 @@ class TifGeofileTest(unittest.TestCase):
 
     def testFileEscape(self):
         testfile = "hotmaps-cdd_curr_adapted.tif"
-        with open(get_testdata(testfile), "rb") as f:
-            testfile_content = f.read()
-            testfile_io = io.BytesIO(testfile_content)
-            test_data =  {
-                    "file": (testfile_io, testfile),
-                    }
+        test_data, testfile_content = self.get_testformdata(testfile)
 
     def testTif(self):
         """Verify raster upload in geotiff format, listing and retrieval
         """
         testfile = "hotmaps-cdd_curr_adapted.tif"
-        with open(get_testdata(testfile), "rb") as f:
-            testfile_content = f.read()
-            testfile_io = io.BytesIO(testfile_content)
-            test_data =  {
-                    "file": (testfile_io, testfile),
-                    }
+        test_data, testfile_content = self.get_testformdata(testfile)
         response = self.client.post('geofile', data=test_data, content_type='multipart/form-data')
         self.assertEqual(response.status, "200 OK")
         response.close()
