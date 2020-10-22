@@ -36,7 +36,16 @@ class TifGeofileTest(unittest.TestCase):
         testfile = "hotmaps-cdd_curr_adapted.tif"
         test_data, testfile_content = self.get_testformdata(testfile)
 
-    def testTif(self):
+    def testUploadWithoutProjection(self):
+        """We refuse to work with geotiff that don't contain a projection, they can get us in trouble later
+        when serving them.
+        """
+        testfile = "no_projection.tif"
+        test_data, testfile_content = self.get_testformdata(testfile)
+        response = self.client.post('/geofile', data=test_data, content_type='multipart/form-data')
+        self.assertEqual(response.status, "400 BAD REQUEST", response.data)
+
+    def testTifUploadAndRetrieval(self):
         """Verify raster upload in geotiff format, listing and retrieval
         """
         testfile = "hotmaps-cdd_curr_adapted.tif"
