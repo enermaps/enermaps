@@ -10,5 +10,5 @@ COPY . .
 #always ensure the python test are fine before proceeding to build the image
 RUN python3 test.py
 
-EXPOSE 5000
+EXPOSE 80
 CMD ["gunicorn", "--bind", "0.0.0.0:80", "wsgi:app"]

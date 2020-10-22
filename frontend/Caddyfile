@@ -1,11 +1,12 @@
 :80
 log
 
+redir /api /api/
+reverse_proxy /api/*  api:80
+reverse_proxy /swaggerui/* api:80
+
 file_server /* {
   root /frontend/
   hide .git Dockerfile
 }
 
-redir /api /api/
-reverse_proxy /api/*  api:80
-reverse_proxy /swaggerui/* api:80
