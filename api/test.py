@@ -38,7 +38,7 @@ class TifGeofileTest(unittest.TestCase):
     def testFileEscapePost(self):
         testfile = "hotmaps-cdd_curr_adapted.tif"
         test_data, testfile_content = self.get_testformdata(testfile, testfile_name="../test.tif")
-        response = self.client.post('/geofile', data=test_data, content_type='multipart/form-data')
+        response = self.client.post('api/geofile', data=test_data, content_type='multipart/form-data')
         self.assertEqual(response.status, "404 NOT FOUND", response.data)
         #raise Exception(os.listdir(self.upload_dir + "/user"))
         
@@ -46,9 +46,9 @@ class TifGeofileTest(unittest.TestCase):
         testfile = "hotmaps-cdd_curr_adapted.tif"
         testfile_name = "⎈. tif"
         test_data, testfile_content = self.get_testformdata(testfile, testfile_name=testfile_name)
-        response = self.client.post('/geofile', data=test_data, content_type='multipart/form-data')
+        response = self.client.post('api/geofile', data=test_data, content_type='multipart/form-data')
         self.assertEqual(response.status, "200 OK", response.data)
-        response = self.client.get('/geofile')
+        response = self.client.get('api/geofile')
         self.assertEqual(response.status, "200 OK", response.data)
         json_content = json.loads(response.data)
         self.assertIn(testfile_name, json_content['files'])
@@ -59,7 +59,7 @@ class TifGeofileTest(unittest.TestCase):
         """
         testfile = "no_projection.tif"
         test_data, testfile_content = self.get_testformdata(testfile)
-        response = self.client.post('/geofile', data=test_data, content_type='multipart/form-data')
+        response = self.client.post('api/geofile', data=test_data, content_type='multipart/form-data')
         self.assertEqual(response.status, "400 BAD REQUEST", response.data)
 
     def testTifUploadAndRetrieval(self):
