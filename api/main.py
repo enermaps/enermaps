@@ -127,13 +127,13 @@ def parse_size(params):
     height = int(params["height"])
     width = int(params['width'])
     if (height * width) > app.config["WMS"]["MAX_SIZE"]:
-        raise Exception
+        raise Exception()
     return width, height
 
 def parse_format(params):
     mime_format = params['format']
     if mime_format not in app.config["WMS"]["GETMAP"]["ALLOWED_OUTPUTS"]:
-        raise Exception
+        raise Exception()
     return MIME_TO_MAPNIK[mime_format], mime_format
 
 @api.route("/wms")
@@ -216,7 +216,7 @@ class WMS(Resource):
             #TODO: should match name from query
             layer = mapnik.Layer(layer_name)
 
-            #TODO: extract this from raster in advance !
+            #TODO: extract this from raster in advance
             layer_path = safe_join(get_user_upload(), layer_name)
             layer.srs = proj4_from_geotiff(layer_path)
             print(layer.srs)
