@@ -3,7 +3,7 @@ import io
 from flask import Flask, safe_join, send_file, Response, send_from_directory, request
 from lxml import etree
 from PIL import Image
-from flask_restx import Api, Resource
+from flask_restx import Api, Resource, abort
 from werkzeug.datastructures import FileStorage
 from marshmallow import Schema, fields
 from osgeo import osr, gdal
@@ -12,7 +12,6 @@ import mapnik
 app = Flask(__name__)
 app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024
 app.config["UPLOAD_DIR"] = "/tmp/upload_dir"
-app.config["TILE_DIR"] = "/tmp/tiles"
 app.config["WMS"] = {}
 app.config["WMS"]["ALLOWED_PROJECTIONS"] = ["ESPG:3857"]
 app.config["WMS"]["MAX_SIZE"] = 1024**2
@@ -46,6 +45,9 @@ class GeoFiles(Resource):
         uploaded_file = args['file']  # This is FileStorage instance
         output_filepath = safe_join(get_user_upload(), uploaded_file.filename)
         uploaded_file.save(output_filepath)
+        projection_string = proj4_from_geotiff(output_filepath)
+        if not projection_string:
+            abort(400, "The uploaded file didn't contain a projection")
         return {"status": "upload succeeded"}
 
 @api.route("/geofile/<string:layer_name>")
@@ -94,6 +96,9 @@ class CRS:
 def proj4_from_geotiff(path):
     raster = gdal.Open(path)
     prj = raster.GetProjection()
+    prj = prj.strip()
+    if not prj:
+        return ""
     srs = osr.SpatialReference(wkt=prj)
 
     return srs.ExportToProj4()
