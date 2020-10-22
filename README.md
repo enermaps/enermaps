@@ -17,5 +17,11 @@ docker build -t api . && docker run -p 127.0.0.1:8000:80 api
 ```
 then accessed trough http://127.0.0.1:8000
 
+You can also run the debug server with 
+
+```
+python api/main.py
+```
+and access it trough http://127.0.0.1:5000
 # db
 Currently a Work in progress
