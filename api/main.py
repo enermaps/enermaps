@@ -213,10 +213,10 @@ class WMS(Resource):
             layer = mapnik.Layer(layer)
 
             #TODO: extract this from raster in advance !
-            f = '/home/malik/Scribble/OGCServer/tiff/hotmaps-heat_tot_curr_density.tif'
-            layer.srs = proj4_from_geotiff(f)
+            layer_path = safe_join(get_user_upload(), layer_name)
+            layer.srs = proj4_from_geotiff(layer_path)
             #TODO: get this from the upload folder, check layer at that point ?
-            gdal_source = mapnik.Gdal(file=f)
+            gdal_source = mapnik.Gdal(file=layer_path)
             layer.datasource = gdal_source
             #layer.minimum_scale_denominator
 
