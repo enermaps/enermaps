@@ -1,6 +1,6 @@
 import os
 import io
-from flask import Flask, safe_join, send_file, Response, send_from_directory, request
+from flask import Flask, safe_join, send_file, Response, send_from_directory, request, Blueprint
 from lxml import etree
 from PIL import Image
 from flask_restx import Api, Resource, abort
@@ -16,11 +16,15 @@ app.config["WMS"]["ALLOWED_PROJECTIONS"] = ["ESPG:3857"]
 app.config["WMS"]["MAX_SIZE"] = 1024**2
 app.config["WMS"]["GETMAP"] = {}
 app.config["WMS"]["GETMAP"]["ALLOWED_OUTPUTS"] = ["image/png", "image/jpg"]
+for k, v in app.config.items():
+    app.config[k] = os.environ.get(k, v)
 MIME_TO_MAPNIK = {
             "image/png": "png",
             "image/jpg": "jpg"
         }
-api = Api(app)
+api_bp = Blueprint("api", __name__, url_prefix="/api/")
+api = Api(api_bp)
+app.register_blueprint(api_bp)
 
 def get_user_upload(user="user"):
     user_dir = safe_join(app.config["UPLOAD_DIR"], user)

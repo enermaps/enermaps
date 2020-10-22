@@ -1,0 +1,26 @@
+version: "3.8"
+services:
+  frontend:
+    build:
+      context: ./frontend
+    ports:
+      - "127.0.0.1:7000:80"
+    restart: always
+    env_file:
+      .env
+
+  api:
+    build:
+      context: ./api
+    ports:
+      - "127.0.0.1:9000:80"
+    restart: always
+    environment:
+      UPLOAD_DIR: /upload_dir
+    volumes:
+      - upload-data:/upload-dir
+    env_file:
+      .env
+
+volumes:
+  upload-data:

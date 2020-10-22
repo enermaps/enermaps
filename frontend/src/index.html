@@ -1,0 +1,37 @@
+<html>
+<head>
+	<meta charset="utf-8">
+	 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css"
+   integrity="sha512-xodZBNTC5n17Xt2atTPuE1HxjVMSvLVW9ocqUKLsCC5CXdbqCmblAshOMAS6/keqq/sMZMZ19scR4PsZChSR7A=="
+   crossorigin=""/>
+   <link rel="stylesheet" href="deps/leaflet-search.css"/>
+   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/1.0.4/leaflet.draw.css"/>
+
+
+   <script src="deps/jquery.js"></script>
+ <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"
+   integrity="sha512-XQoYMqMTK8LvdxXYG3nZ448hOEQiglfqkJs1NOQV44cWnUrBc8PkAOcXy20w0vlaXaVUearIOBhiXZ5V3ynxwA=="
+   crossorigin=""></script>
+   <script src="deps/leaflet-search.js"></script>
+   <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/1.0.4/leaflet.draw.js"></script>
+
+   <script src="L.TileLayer.NutsLayer.js"></script>
+   <script src="L.DrawingLayer.js"></script>
+
+ <style>
+#map { height: 100%; }
+ </style>
+</head>
+<body>
+	<div id="top-toolbar">
+		<button id="indicator" autocomplete="false" disabled>
+			Show indicator
+		</button>
+	</div>
+	<div id="map">
+	</div>
+	<div id="indicator-panel">
+	</div>
+ <script src="main.js"> </script>
+</body>
+</html>
