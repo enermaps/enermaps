@@ -10,6 +10,7 @@ from osgeo import osr, gdal
 import mapnik
 
 app = Flask(__name__)
+app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024
 app.config["UPLOAD_DIR"] = "/tmp/upload_dir"
 app.config["TILE_DIR"] = "/tmp/tiles"
 app.config["WMS"] = {}
@@ -25,11 +26,6 @@ api = Api(app)
 
 def get_user_upload(user="user"):
     user_dir = safe_join(app.config["UPLOAD_DIR"], user)
-    os.makedirs(user_dir, exist_ok=True)
-    return user_dir
-
-def get_tile_dir(user="user"):
-    user_dir = safe_join(app.config["TILE_DIR"], user)
     os.makedirs(user_dir, exist_ok=True)
     return user_dir
 
@@ -52,33 +48,18 @@ class GeoFiles(Resource):
         uploaded_file.save(output_filepath)
         return {"status": "upload succeeded"}
 
-MIN_ZOOM = 1
-MAX_ZOOM = 7
-
-def generate_tiles(geofile_path):
-    GDAL2Tiles('--leaflet',  'geofile_path', '-z', '{!s}-{!s}'.join(MIN_ZOOM, MAX_ZOOM)), geofile_path, 
-
-@api.route("/geofile/<string:path>")
+@api.route("/geofile/<string:layer_name>")
 class GeoFile(Resource):
-    def get(self, path):
-        file_path = safe_join(get_user_upload(), path)
-        with open(file_path, 'rb') as f:
-            return send_file(f, attachment_filename=path)
+    def get(self, layer_name):
+        file_path = safe_join(get_user_upload(), layer_name)
+        return send_file(file_path, attachment_filename=file_path)
 
-    def put(self, path):
-        file_path = safe_join(get_user_upload(), path)
-        with open(file_path, 'rb') as f:
-            return send_file(f, attachment_filename=path)
+    def delete(self, layer_name):
+        file_path = safe_join(get_user_upload(), layer_name)
+        os.unlink(file_path)
+        return {"status": "deletion successfull"}
 
-    @api.expect(upload_parser)
-    def put(self):
-        args = upload_parser.parse_args()
-        uploaded_file = args['file']  # This is FileStorage instance
-        output_filepath = safe_join(get_user_upload(), uploaded_file.filename)
-        uploaded_file.save(output_filepath)
-        return {"status": "upload succeeded, file updated"}
-
-@api.route("/geofile/<string:path>")
+@api.route("/stat/<string:layer_name>")
 class RasterStats(Resource):
     pass
 
@@ -161,12 +142,11 @@ class WMS(Resource):
             return 400
         if request_name == 'GetMap':
             return self.getMap(normalized_args)
-        elif request_name == 'GetCapabilities':
+        if request_name == 'GetCapabilities':
             return self.getCapabilities(normalized_args)
-        elif request_name == 'GetFeatureInfo':
+        if request_name == 'GetFeatureInfo':
             return self.getMap(normalized_args)
-        else:
-            return 404
+        return 404
 
     def getCapabilities(self, normalized_args):
         #start with the xml template that also act as a configuration file
@@ -180,8 +160,8 @@ class WMS(Resource):
 
         for layer in ["a", "b", "c"]:
             layer_node = etree.Element('Layer')
-            layer_node.set(queryable, "1")
-            layer_node.set(opaque, "0")
+            layer_node.set("queryable", "1")
+            layer_node.set("opaque", "0")
             layer_name= etree.Element("Name")
             layer_name.text = layer
             layer_node.append(layer_name)
@@ -191,7 +171,7 @@ class WMS(Resource):
             layer_title.text = "This is layer {}".format(layer)
             layer_node.append(layer_title)
 
-            
+
 
             root_layer.append(layer_node)
 
@@ -251,5 +231,6 @@ class WMS(Resource):
 
     def getFeatureInfo(self):
         pass
+
 if __name__ == "__main__":
     app.run(debug=True, host='0.0.0.0')
