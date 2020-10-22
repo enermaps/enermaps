@@ -190,6 +190,9 @@ class WMS(Resource):
             layer_title = etree.Element("Title")
             layer_title.text = "This is layer {}".format(layer)
             layer_node.append(layer_title)
+
+            
+
             root_layer.append(layer_node)
 
         #TODO: add bounding box for each layer
