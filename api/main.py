@@ -5,7 +5,6 @@ from lxml import etree
 from PIL import Image
 from flask_restx import Api, Resource
 from werkzeug.datastructures import FileStorage
-from marshmallow import Schema, fields
 from osgeo import osr, gdal
 import mapnik
 
@@ -207,14 +206,15 @@ class WMS(Resource):
         #TODO read the background set it 
         #mp.background_color = 'steelblue'
 
-        layers = parse_layers(normalized_args)
-        for layer in layers:
+        layer_names = parse_layers(normalized_args)
+        for layer_name in layer_names:
             #TODO: should match name from query
-            layer = mapnik.Layer(layer)
+            layer = mapnik.Layer(layer_name)
 
             #TODO: extract this from raster in advance !
             layer_path = safe_join(get_user_upload(), layer_name)
             layer.srs = proj4_from_geotiff(layer_path)
+            print(layer.srs)
             #TODO: get this from the upload folder, check layer at that point ?
             gdal_source = mapnik.Gdal(file=layer_path)
             layer.datasource = gdal_source
