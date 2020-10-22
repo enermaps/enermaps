@@ -1,21 +1,23 @@
 enermaps2 is a rewrite of the hotmaps poc based on the previous experience.
 
+# Run a local copy
+run a 
+
+```
+docker-compose up --build
+```
+You can then access:
+
+* the frontend on http://127.0.0.1:7000
+* the api on http://127.0.0.1:7000/api
+
 # frontend
 
 app
-Run it:
-```
-docker build -t frontend . && docker run -p 127.0.0.1:8000:80 frontend
-```
 
 then accessed trough http://127.0.0.1:8000
 
 # api
-
-```
-docker build -t api . && docker run -p 127.0.0.1:8000:80 api
-```
-then accessed trough http://127.0.0.1:8000
 
 You can also run the debug server with 
 
