@@ -5,29 +5,6 @@ var base0 = L.tileLayer.wms("http://ows.mundialis.de/services/service?", {
 });
 map.addLayer(base0);
 var base_map = {};
-$.ajax({
-	url: "http://127.0.0.1:5000/geofile"
-}).done(function(data){
-	console.log("layers are :", data);
-})
-var layer_names = [
-  "SWISSALTI3D_10_TIFF_CHLV95_LN02_2600_1196.tif",
-  "reformatted.tif",
-];
-var layers = {};
-for (const layer_index in layer_names) {
-  const layer_name = layer_names[layer_index];
-  const workspace_name = layer_name.split(":")[0];
-  layers[layer_name] = L.tileLayer.wms(
-    "http://127.0.0.1:5000/wms?",
-    {
-      transparent: "true",
-      layers: layer_name,
-      format: "image/png",
-    }
-  );
-  layers[layer_name].is_overlay = true;
-}
 const workspace_name = "enermaps";
 const layer_name = "nuts";
 for (var nuts_index = 0; nuts_index < 4; nuts_index++) {
@@ -53,7 +30,27 @@ base_map["LAU"] = L.tileLayer.nutsLayer(
 var drawingLayer = new L.DrawingLayer();
 //map.addLayer(editableLayers);
 base_map["Draw"] = drawingLayer;
-L.control.layers(base_map, layers).addTo(map);
+layer_control = L.control.layers(base_map, {})
+layer_control.addTo(map);
+$.ajax({
+	url: "/api/geofile"
+}).done(function(data){
+console.log("layers are :", data.files);
+for (const layer_index in data.files) {
+  const layer_name = data.files[layer_index];
+  const layer = L.tileLayer.wms(
+    "/api/wms?",
+    {
+      transparent: "true",
+      layers: layer_name,
+      format: "image/png",
+    }
+  );
+  layer.is_overlay = true;
+  layer_control.addOverlay(layer, layer_name);
+	console.log("adding ", layer);
+}
+});
 
 map.addControl(
   new L.Control.Search({
