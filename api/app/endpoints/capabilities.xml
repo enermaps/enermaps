@@ -2,6 +2,9 @@
 <WMT_MS_Capabilities version="1.1.1" updateSequence="0" xmlns:xlink="http://www.w3.org/1999/xlink">
 <Service>
         <Name>OGC:WMS</Name>
+        <Title>Enermaps WMS</Title>
+        <Abstract>Enermaps WMS presents enermaps layer</Abstract>
+        <Fees>none</Fees>
       </Service>
       <Capability>
         <Request>
@@ -10,19 +13,16 @@
             <DCPType>
               <HTTP>
                 <Get>
-                  <OnlineResource xlink:type="simple"/>
+                  <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://hostname:port/path"/>
                 </Get>
               </HTTP>
             </DCPType>
           </GetCapabilities>
           <GetMap>
-            <Format>image/png</Format>
-            <Format>image/png8</Format>
-            <Format>image/jpeg</Format>
             <DCPType>
               <HTTP>
                 <Get>
-                  <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple"/>
+                  <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://hostname:port/path"/>
                 </Get>
               </HTTP>
             </DCPType>
@@ -32,7 +32,7 @@
             <DCPType>
               <HTTP>
                 <Get>
-                  <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple"/>
+                  <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://hostname:port/path"/>
                 </Get>
               </HTTP>
             </DCPType>
