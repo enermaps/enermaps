@@ -33,13 +33,15 @@ class BaseApiTest(unittest.TestCase):
         shutil.rmtree(self.flask_app.config["UPLOAD_DIR"])
 
     def get_testformdata(self, testfile, testfile_name=None):
+        """Return 
+        """
         with open(get_testdata(testfile), "rb") as f:
             testfile_content = f.read()
             testfile_io = io.BytesIO(testfile_content)
             if not testfile_name:
                 testfile_name = testfile
-            test_form = {"file": (testfile_io, testfile_name)}
-        return test_form, testfile_content
+            test_data = {"file": (testfile_io, testfile_name)}
+        return test_data, testfile_content
 
     def import_testdata(self, testfile_name):
         """Helper function that upload the testfile to the api."""
@@ -50,3 +52,8 @@ class BaseApiTest(unittest.TestCase):
         )
         self.assertEqual(response.status, "200 OK", response.data)
         return response
+
+    def import_nuts(self):
+        for nuts_level in range(4):
+            filename = "nuts{!s}.zip".format(nuts_level)
+            self.import_testdata(filename)

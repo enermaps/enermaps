@@ -68,7 +68,7 @@ L.TileLayer.NutsLayer = L.TileLayer.WMS.extend({
       params = {
         request: "GetFeatureInfo",
         service: "WMS",
-        srs: "EPSG:4326",
+        srs: this.wmsParams.srs,//"EPSG:4326",
         styles: this.wmsParams.styles,
         transparent: this.wmsParams.transparent,
         version: this.wmsParams.version,

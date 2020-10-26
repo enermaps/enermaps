@@ -9,12 +9,11 @@ const workspace_name = "enermaps";
 const layer_name = "nuts";
 for (var nuts_index = 0; nuts_index < 4; nuts_index++) {
   base_map[layer_name.toUpperCase() + " " + nuts_index] = L.tileLayer.nutsLayer(
-    "http://127.0.0.1:2000/geoserver/" + workspace_name + "/wms?",
+    "/api/wms?",
     {
       transparent: "true",
-      layers: "enermaps:nuts",
+      layers: "nuts" + nuts_index + ".zip",
       format: "image/png",
-      cql_filter: "stat_levl_ =" + nuts_index + " AND year='2013-01-01'",
     }
   );
 }

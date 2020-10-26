@@ -1,4 +1,5 @@
 import io
+import json
 
 from app.common.test import BaseApiTest
 from lxml import etree
@@ -9,18 +10,26 @@ import app.common.xml as xml
 GETCAPABILITIES_ARGS = {"service": "WMS", "request": "GetCapabilities"}
 
 
-class BaseWMSTEst(BaseApiTest):
-    def testFailWhenNoService(self):
-        response = self.client.get("api/wms", query_string={"request": "GetMap"})
-        self.assertEqual(response.status, "400 BAD REQUEST", response.data)
+class BaseWMSTest(BaseApiTest):
 
-    def testFailWhenNoRequest(self):
+    def testFailWhenNoRequestSpecified(self):
         response = self.client.get("api/wms", query_string={"service": "WMS"})
-        self.assertEqual(response.status, "404 NOT FOUND", response.data)
-
+        self.assertEqual(response.status, "400 BAD REQUEST", response.data)
 
 class WMSGetCapabilitiesTest(BaseApiTest):
     """Test the get capabilities (a list of all endpoint and layer)"""
+    def testSucceedWithUppercaseParameters(self):
+        args = {}
+        for k, v in GETCAPABILITIES_ARGS.items():
+            args[k.upper()] = v
+        response = self.client.get("api/wms", query_string=args)
+        self.assertEqual(response.status, "200 OK", response.data)
+
+    def testSucceedWhenNoService(self):
+        args = GETCAPABILITIES_ARGS
+        del args['service']
+        response = self.client.get("api/wms", query_string={"request": args})
+        self.assertEqual(response.status, "400 BAD REQUEST", response.data)
 
     def testLayerLessCall(self):
         """Test the call to getCapabilities"""
@@ -99,8 +108,46 @@ class WMSGetMapTest(BaseApiTest):
 
         args = self.TILE_PARAMETERS
         args["layers"] = testfile
-        response = self.client.get("api/wms", query_string=self.TILE_PARAMETERS)
+        response = self.client.get("api/wms",
+                                   query_string=self.TILE_PARAMETERS)
         self.assertEqual(response.status, "200 OK")
         self.assertGreater(len(response.data), 0)
         Image.open(io.BytesIO(response.data))
         # test that we received an image
+
+
+class WMSGetFeatureInfoTest(BaseApiTest):
+    INFO_PARAMETERS = {
+        "REQUEST": "GetFeatureInfo",
+        "SERVICE": "WMS",
+        "SRS": "EPSG:4326",
+        "STYLES": "",
+        "TRANSPARENT": "true",
+        "VERSION": "1.1.1",
+        "FORMAT": "image/png",
+        "BBOX": "-11.777515694104215,49.29512261214822,"
+        "33.13459368089577,53.09278188623254",
+        "HEIGHT": "138",
+        "WIDTH": "1022",
+        "LAYERS": "nuts.zip",
+        "QUERY_LAYERS": "nuts.zip",
+        "INFO_FORMAT": "application/json",
+        "X": "452.003912683616",
+        "Y": "95.95292978681229",
+    }
+
+    def testGetInfoGermany(self):
+        testfile = "nuts.zip"
+        test_data, testfile_content = self.get_testformdata(testfile)
+        response = self.client.post(
+            "api/geofile/", data=test_data, content_type="multipart/form-data"
+        )
+        self.assertEqual(response.status, "200 OK", response.data)
+
+        response = self.client.get("/api/wms",
+                                   query_string=self.INFO_PARAMETERS)
+        self.assertEqual(response.status, "200 OK", response.data)
+        json_response = json.loads(response.data)
+        self.assertIn('features', json_response)
+        self.assertEqual(len(json_response['features']), 1)
+
