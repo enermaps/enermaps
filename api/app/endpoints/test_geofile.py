@@ -1,26 +1,11 @@
 import io
 import json
-import os
-import shutil
-import tempfile
 import unittest
 
-import main
-from app.common.test import get_testdata
+from app.common.test import BaseApiTest, get_testdata
 
 
-class TifGeofileTest(unittest.TestCase):
-    def setUp(self):
-        self.flask_app = main.app
-        self.flask_app.config["TESTING"] = True
-        self.upload_dir = tempfile.mkdtemp()
-        self.flask_app.config["UPLOAD_DIR"] = self.upload_dir
-        self.client = self.flask_app.test_client()
-        self.assertEqual(self.flask_app.debug, False)
-
-    def tearDown(self):
-        shutil.rmtree(self.flask_app.config["UPLOAD_DIR"])
-
+class TifGeofileTest(BaseApiTest):
     def get_testformdata(self, testfile, testfile_name=None):
         with open(get_testdata(testfile), "rb") as f:
             testfile_content = f.read()
@@ -32,7 +17,7 @@ class TifGeofileTest(unittest.TestCase):
 
     def testFileEscapePost(self):
         testfile = "hotmaps-cdd_curr_adapted.tif"
-        test_data, testfile_content = self.get_testformdata(
+        test_data, _ = self.get_testformdata(
             testfile, testfile_name="../test.tif"
         )
         response = self.client.post(
@@ -44,7 +29,7 @@ class TifGeofileTest(unittest.TestCase):
     def testTifUnicode(self):
         testfile = "hotmaps-cdd_curr_adapted.tif"
         testfile_name = "⎈. tif"
-        test_data, testfile_content = self.get_testformdata(
+        test_data, _ = self.get_testformdata(
             testfile, testfile_name=testfile_name
         )
         response = self.client.post(
@@ -61,7 +46,7 @@ class TifGeofileTest(unittest.TestCase):
         when serving them.
         """
         testfile = "no_projection.tif"
-        test_data, testfile_content = self.get_testformdata(testfile)
+        test_data, _ = self.get_testformdata(testfile)
         response = self.client.post(
             "/api/geofile/", data=test_data, content_type="multipart/form-data"
         )

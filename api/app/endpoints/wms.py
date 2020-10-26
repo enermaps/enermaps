@@ -1,10 +1,17 @@
-from flask import Response
+import os
+
+from flask import Response, abort, current_app, request, safe_join
 from flask_restx import Namespace, Resource
 from lxml import etree
-from PIL import Image
+import mapnik
+
+from app.models.geofile import get_user_upload
+from app.common.projection import proj4_from_geotiff
+
+MIME_TO_MAPNIK = {"image/png": "png", "image/jpg": "jpg"}
 
 api = Namespace("wms", "WMS compatible endpoint")
-
+current_file_dir = os.path.dirname(os.path.abspath(__file__))
 
 def parse_layers(normalized_params):
     """Extract the first layer out of the list of parameters
@@ -40,43 +47,46 @@ def parse_projection(params):
 def parse_size(params):
     height = int(params["height"])
     width = int(params["width"])
-    if (height * width) > app.config["WMS"]["MAX_SIZE"]:
+    if (height * width) > current_app.config["WMS"]["MAX_SIZE"]:
         raise Exception()
     return width, height
 
 
 def parse_format(params):
     mime_format = params["format"]
-    if mime_format not in app.config["WMS"]["GETMAP"]["ALLOWED_OUTPUTS"]:
+    if mime_format not in current_app.config["WMS"]["GETMAP"]["ALLOWED_OUTPUTS"]:
         raise Exception()
     return MIME_TO_MAPNIK[mime_format], mime_format
 
 
-@api.route("/")
+@api.route("")
 # @api.reponse(400, "Couldn't find the requested method")
 class WMS(Resource):
     def get(self):
         normalized_args = {k.lower(): v for k, v in request.args.items()}
-        request_name = normalized_args["request"]
-        if normalized_args["service"] != "WMS":
-            return 400
+        service = normalized_args.get("service")
+        if service != "WMS":
+            return abort(400, 'service parameter needs to be set to "WMS"')
+        request_name = normalized_args.get("request")
         if request_name == "GetMap":
             return self.get_map(normalized_args)
         if request_name == "GetCapabilities":
             return self.get_capabilities(normalized_args)
         if request_name == "GetFeatureInfo":
             return self.get_feature_info(normalized_args)
-        return abort(404, "Couldn't find the requested method")
+        return abort(
+            404, "Couldn't find the requested method, request parameter needs to be set"
+        )
 
     def get_capabilities(self, _):
         """Return an xml description of the capabilities of the current wms set of endpoints
 
         This method starts with a preexisting xml template parses it then insert dynamic element from the list of layers and from the flaks configuration
         """
-        with open("capabilities.xml") as f:
+        with open(os.path.join(current_file_dir, "capabilities.xml")) as f:
             root = etree.fromstring(f.read())
         root_layer = root.find("Capability/Layer")
-        for crs in app.config["WMS"]["ALLOWED_PROJECTIONS"]:
+        for crs in current_app.config["WMS"]["ALLOWED_PROJECTIONS"]:
             crs_node = etree.Element("CRS")
             crs_node.text = crs.upper()
             root_layer.append(crs_node)
@@ -100,14 +110,14 @@ class WMS(Resource):
         # TODO: add a reference to a legend and have an endpoint for it
 
         get_map = root.find("Capability/Request/GetMap")
-        for map_format in app.config["WMS"]["GETMAP"]["ALLOWED_OUTPUTS"]:
+        for map_format in current_app.config["WMS"]["GETMAP"]["ALLOWED_OUTPUTS"]:
             format_node = etree.Element("Format")
             format_node.text = map_format
             get_map.append(format_node)
 
         return Response(etree.tostring(root), mimetype="text/xml")
 
-    def getMap(self, normalized_args):
+    def get_map(self, normalized_args):
         # miss:
         # bgcolor
         # exceptions
@@ -151,7 +161,7 @@ class WMS(Resource):
         image = mapnik.Image(width, height)
         mapnik.render(mp, image)
         mapnik_format, mime_format = parse_format(normalized_args)
-        return Response(image.tostring("png"), mimetype="image/png")
+        return Response(image.tostring(mapnik_format), mimetype=mime_format)
 
     def get_feature_info(self, normalized_args):
         raise NotImplementedError()

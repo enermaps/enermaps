@@ -2,9 +2,8 @@
 """
 import os
 
-from flask import (Blueprint, Flask, Response, request, safe_join, send_file,
-                   send_from_directory)
-from flask_restx import Api, Namespace, Resource, abort
+from flask import safe_join, send_file
+from flask_restx import Namespace, Resource, abort
 from werkzeug.datastructures import FileStorage
 
 from app.common import projection

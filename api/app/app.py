@@ -1,13 +1,8 @@
-import io
 import os
 
-import mapnik
-from flask import (Blueprint, Flask, Response, request, safe_join, send_file,
-                   send_from_directory)
+from flask import Blueprint, Flask, redirect
 from flask_restx import Api
-from lxml import etree
 from osgeo import gdal, osr
-from PIL import Image
 
 from app.endpoints import geofile, wms
 
@@ -21,9 +16,13 @@ app.config["WMS"]["GETMAP"] = {}
 app.config["WMS"]["GETMAP"]["ALLOWED_OUTPUTS"] = ["image/png", "image/jpg"]
 for k, v in app.config.items():
     app.config[k] = os.environ.get(k, v)
-MIME_TO_MAPNIK = {"image/png": "png", "image/jpg": "jpg"}
-api_bp = Blueprint("api", "api", url_prefix="/api/")
+api_bp = Blueprint("api", "api", url_prefix="/api")
 api = Api(api_bp)
 api.add_namespace(geofile.api)
 api.add_namespace(wms.api)
 app.register_blueprint(api_bp)
+
+
+@app.route("/")
+def root_redirect():
+    return redirect("/api")
