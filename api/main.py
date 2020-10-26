@@ -241,11 +241,9 @@ class WMS(Resource):
     def getFeatureInfo(self):
         pass
 
-# New endpoint with fake statistics
 @api.route("/cm/<int:id_cm>/task/<int:task_id>")
-class CM_fakeoutput(Resource): #Why we have to set 'Resource' as parameter ?
+class CM_fakeoutput(Resource):
     def get(self,id_cm,task_id):
-        #return {'id_cm': id_cm, "task_id": task_id}
         return send_file('./fakeoutput.json')
 
 if __name__ == "__main__":
