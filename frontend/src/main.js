@@ -80,19 +80,26 @@ $.ajax({
           backgroundColor_array[i] = "rgba("+ Math.floor(Math.random()*256) +","+Math.floor(Math.random()*256)+","+ Math.floor(Math.random()*256)+",0.2)"
       }
 
-
       var ctx = document.getElementById('myChart').getContext('2d');
       var myChart = new Chart(ctx, {
         type: 'bar',
         data: {
             labels: result_js_labels,
             datasets: [{
-                label: 'fake data output',
+                label: 'fake data output ',
                 data: result_js_values,
                 backgroundColor: backgroundColor_array,
                 borderColor: backgroundColor_array,
-                borderWidth: 1}]
-            }})
+                borderWidth: 2}]
+            },
+        options: {
+            title : {
+                display : true,
+                text : ['Fake outputs grpah', 'Just for example'],
+                fontSize :20},
+            legend: {display : false}
+        }
+      })
   }});
 
 
