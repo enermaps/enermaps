@@ -21,3 +21,5 @@ jobs:
       - uses: jpetrucciani/black-check@master
         with:
           path: "."
+      - name: Run docker-compose stack
+        run: docker-compose build
