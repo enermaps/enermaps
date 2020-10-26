@@ -30,4 +30,4 @@ and access it trough http://127.0.0.1:5000
 
 Database initialisation schema is ran when no previous data schema is found upon starting the db image.
 
-You can access the database trough 127.0.0.1:5432
+You can access the database trough 127.0.0.1:5433

@@ -26,7 +26,7 @@ services:
     build:
       context: ./db
     ports:
-      - "127.0.0.1:5432:5432"
+      - "127.0.0.1:5433:5432"
     restart: always
     environment:
       POSTGRES_PASSWORD: example

@@ -12,29 +12,29 @@ CREATE EXTENSION IF NOT EXISTS postgis ;
 
 CREATE TABLE public.datasets
 (
-    ds_id bigint PRIMARY KEY,
+    ds_id int PRIMARY KEY,
     metadata jsonb
 );
 
 CREATE TABLE public.spatial
 (
-    "FID" text PRIMARY KEY,
-    "NAME" text,
-    "NAME_ENGL" text,
-    "CNTR_CODE" text,
-    "LEVL_CODE" bigint,
+    "FID" varchar(200) PRIMARY KEY,
+    "NAME" varchar(200),
+    "NAME_ENGL" varchar(100),
+    "CNTR_CODE" char(2),
+    "LEVL_CODE" smallint,
     geometry geometry(Geometry,4326)
 );
 
 CREATE TABLE public.data
 (
-    index bigint PRIMARY KEY,
+    index int PRIMARY KEY,
     "time" timestamp without time zone,
     fields jsonb,
-    variable text,
+    variable varchar(100),
     value double precision,
-    ds_id bigint,
-    "FID" text,
+    ds_id int,
+    "FID" varchar(200),
     dt double precision,
     z double precision,
     "Raster" boolean
