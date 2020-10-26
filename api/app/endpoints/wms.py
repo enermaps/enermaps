@@ -91,7 +91,13 @@ class WMS(Resource):
             crs_node.text = crs.upper()
             root_layer.append(crs_node)
 
-        for layer in ["a", "b", "c"]:
+        capabilities = root.findall('Capability//OnlineResource')
+        for element in capabilities:
+            element.set("{http://www.w3.org/1999/xlink}href", request.base_url)
+
+        user_dir = get_user_upload()
+        layers = os.listdir(user_dir)
+        for layer in layers:
             layer_node = etree.Element("Layer")
             layer_node.set("queryable", "1")
             layer_node.set("opaque", "0")
