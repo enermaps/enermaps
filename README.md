@@ -25,5 +25,9 @@ You can also run the debug server with
 python api/main.py
 ```
 and access it trough http://127.0.0.1:5000
+
 # db
-Currently a Work in progress
+
+Database initialisation schema is ran when no previous data schema is found upon starting the db image.
+
+You can access the database trough 127.0.0.1:5433

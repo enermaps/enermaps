@@ -1,0 +1,41 @@
+CREATE ROLE dataset WITH UNENCRYPTED PASSWORD 'dataset';
+ALTER ROLE dataset WITH LOGIN;
+CREATE DATABASE dataset OWNER 'dataset';
+REVOKE ALL PRIVILEGES ON DATABASE dataset FROM public;
+
+GRANT ALL PRIVILEGES ON DATABASE dataset TO dataset;
+
+ALTER DATABASE dataset SET search_path = public, postgis;
+\c dataset
+
+CREATE EXTENSION IF NOT EXISTS postgis ;
+
+CREATE TABLE public.datasets
+(
+    ds_id int PRIMARY KEY,
+    metadata jsonb
+);
+
+CREATE TABLE public.spatial
+(
+    "FID" varchar(200) PRIMARY KEY,
+    "NAME" varchar(200),
+    "NAME_ENGL" varchar(100),
+    "CNTR_CODE" char(2),
+    "LEVL_CODE" smallint,
+    geometry geometry(Geometry,4326)
+);
+
+CREATE TABLE public.data
+(
+    index int PRIMARY KEY,
+    "time" timestamp without time zone,
+    fields jsonb,
+    variable varchar(100),
+    value double precision,
+    ds_id int,
+    "FID" varchar(200),
+    dt double precision,
+    z double precision,
+    "Raster" boolean
+);
