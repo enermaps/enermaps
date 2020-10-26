@@ -22,5 +22,19 @@ services:
     env_file:
       .env
 
+  db:
+    build:
+      context: ./db
+    ports:
+      - "127.0.0.1::80"
+    restart: always
+    environment:
+      POSTGRES_PASSWORD: example
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    env_file:
+      .env
+
 volumes:
   upload-data:
+  db-data:
