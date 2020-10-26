@@ -10,7 +10,7 @@ ALTER DATABASE dataset SET search_path = public, postgis;
 
 CREATE EXTENSION IF NOT EXISTS postgis ;
 
-CREATE TYPE levl AS ENUM ('0', '1', '2', '3', '4', '9');
+CREATE TYPE levl AS ENUM ("country", "NUTS1", "NUTS2", "NUTS3", "LAU", 'geometry');
 
 CREATE TABLE public.datasets
 (
