@@ -4,7 +4,7 @@ from flask import Blueprint, Flask, redirect
 from flask_restx import Api
 from osgeo import gdal, osr
 
-from app.endpoints import geofile, wms
+from app.endpoints import geofile, wms, cm
 
 app = Flask(__name__)
 app.config["MAX_CONTENT_LENGTH"] = 16 * 1024 * 1024
@@ -20,6 +20,7 @@ api_bp = Blueprint("api", "api", url_prefix="/api")
 api = Api(api_bp)
 api.add_namespace(geofile.api)
 api.add_namespace(wms.api)
+api.add_namespace(cm.api)
 app.register_blueprint(api_bp)
 
 
