@@ -49,8 +49,7 @@ class TifGeofileTest(BaseApiTest):
         self.assertEqual(response.status, "400 BAD REQUEST", response.data)
 
     def testTifUploadAndRetrieval(self):
-        """Verify raster upload in geotiff format, listing and retrieval
-        """
+        """Verify raster upload in geotiff format, listing and retrieval"""
         testfile = "hotmaps-cdd_curr_adapted.tif"
         test_data, testfile_content = self.get_testformdata(testfile)
         response = self.client.post(

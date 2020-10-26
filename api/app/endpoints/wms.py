@@ -15,8 +15,7 @@ current_file_dir = os.path.dirname(os.path.abspath(__file__))
 
 
 def parse_layers(normalized_params):
-    """Extract the first layer out of the list of parameters
-    """
+    """Extract the first layer out of the list of parameters"""
     for layer in normalized_params["layers"]:
         return layer
 
