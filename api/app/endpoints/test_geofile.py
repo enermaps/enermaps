@@ -3,6 +3,7 @@ import json
 import unittest
 
 from app.common.test import BaseApiTest, get_testdata
+from app.models.geofile import RasterLayer
 
 
 class TifGeofileTest(BaseApiTest):
@@ -57,6 +58,7 @@ class TifGeofileTest(BaseApiTest):
         response = self.client.get("api/geofile/" + testfile)
         self.assertEqual(response.status, "200 OK", response.data)
         self.assertEqual(response.data, testfile_content)
+        self.assertEqual(response.mimetype, RasterLayer.MIMETYPE)
         response.close()
 
 
