@@ -1,6 +1,11 @@
+import io
+
 from lxml import etree
+from PIL import Image
 
 from app.common.test import BaseApiTest
+
+GETCAPABILITIES_ARGS = {"service": "WMS", "request": "GetCapabilities"}
 
 
 class BaseWMSTEst(BaseApiTest):
@@ -16,13 +21,64 @@ class BaseWMSTEst(BaseApiTest):
 class WMSGetCapabilitiesTest(BaseApiTest):
     """Test the get capabilities (a list of all endpoint and layer)"""
 
-    BASE_ARGS = {"service": "WMS", "request": "GetCapabilities"}
-
     def testLayerLessCall(self):
         """Test the call to getCapabilities"""
-        args = self.BASE_ARGS
-
         # help(self.client.get)
-        response = self.client.get("api/wms", query_string=args)
+        response = self.client.get("api/wms", query_string=GETCAPABILITIES_ARGS)
         self.assertEqual(response.status, "200 OK", response.data)
         etree.fromstring(response.data)
+
+    def testLayerList(self):
+        """Upon adding a layer, we should see that layer in the capability layer list"""
+        testfile = "hotmaps-cdd_curr_adapted.tif"
+        test_data, testfile_content = self.get_testformdata(testfile)
+        response = self.client.post(
+            "api/geofile/", data=test_data, content_type="multipart/form-data"
+        )
+        self.assertEqual(response.status, "200 OK", response.data)
+        response.close()
+
+        response = self.client.get("api/wms", query_string=GETCAPABILITIES_ARGS)
+        self.assertEqual(response.status, "200 OK", response.data)
+        root = etree.fromstring(response.data)
+        layer_names = root.findall(".//Layer/Name")
+        self.assertEqual(len(layer_names), 1)
+        self.assertEqual(layer_names[0].text, testfile)
+
+
+class WMSGetMapTest(BaseApiTest):
+    """Test the wms GetMap endpoint"""
+
+    TILE_PARAMETERS = {
+        "service": "WMS",
+        "request": "GetMap",
+        "layers": "",
+        "styles": "",
+        "format": "image/png",
+        "transparent": "true",
+        "version": "1.1.1",
+        "width": "256",
+        "height": "256",
+        "srs": "EPSG:3857",
+        "bbox": "19567.87924100512,6809621.975869781,39135.75848201024,6829189.85511079",
+    }
+
+    GETMAP_ARGS = {"service": "WMS", "request": "GetMap"}
+
+    def testTileWorkflow(self):
+        """Upload a raster, then check that the tile request is not empty"""
+        testfile = "hotmaps-cdd_curr_adapted.tif"
+        test_data, testfile_content = self.get_testformdata(testfile)
+        response = self.client.post(
+            "api/geofile/", data=test_data, content_type="multipart/form-data"
+        )
+        self.assertEqual(response.status, "200 OK", response.data)
+        response.close()
+
+        args = self.TILE_PARAMETERS
+        args["layers"] = testfile
+        response = self.client.get("api/wms", query_string=self.TILE_PARAMETERS)
+        self.assertEqual(response.status, "200 OK")
+        self.assertGreater(len(response.data), 0)
+        Image.open(io.BytesIO(response.data))
+        # test that we received an image

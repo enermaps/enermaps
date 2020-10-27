@@ -1,5 +1,6 @@
-from app.common.test import BaseApiTest
 import json
+
+from app.common.test import BaseApiTest
 
 
 class FakeOuputTest(BaseApiTest):

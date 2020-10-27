@@ -4,7 +4,7 @@ from flask import Blueprint, Flask, redirect
 from flask_restx import Api
 from osgeo import gdal, osr
 
-from app.endpoints import geofile, wms, cm
+from app.endpoints import cm, geofile, wms
 
 app = Flask(__name__)
 app.config["MAX_CONTENT_LENGTH"] = 16 * 1024 * 1024

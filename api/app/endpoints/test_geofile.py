@@ -6,15 +6,6 @@ from app.common.test import BaseApiTest, get_testdata
 
 
 class TifGeofileTest(BaseApiTest):
-    def get_testformdata(self, testfile, testfile_name=None):
-        with open(get_testdata(testfile), "rb") as f:
-            testfile_content = f.read()
-            testfile_io = io.BytesIO(testfile_content)
-            if not testfile_name:
-                testfile_name = testfile
-            test_data = {"file": (testfile_io, testfile_name)}
-        return test_data, testfile_content
-
     def testFileEscapePost(self):
         testfile = "hotmaps-cdd_curr_adapted.tif"
         test_data, _ = self.get_testformdata(testfile, testfile_name="../test.tif")
@@ -22,7 +13,6 @@ class TifGeofileTest(BaseApiTest):
             "api/geofile/", data=test_data, content_type="multipart/form-data"
         )
         self.assertEqual(response.status, "404 NOT FOUND", response.data)
-        # raise Exception(os.listdir(self.upload_dir + "/user"))
 
     def testTifUnicode(self):
         testfile = "hotmaps-cdd_curr_adapted.tif"
