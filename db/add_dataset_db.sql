@@ -10,6 +10,8 @@ ALTER DATABASE dataset SET search_path = public, postgis;
 
 CREATE EXTENSION IF NOT EXISTS postgis ;
 
+CREATE TYPE levl AS ENUM ('country', 'NUTS1', 'NUTS2', 'NUTS3', 'LAU', 'geometry');
+
 CREATE TABLE public.datasets
 (
     ds_id int PRIMARY KEY,
@@ -22,7 +24,7 @@ CREATE TABLE public.spatial
     "NAME" varchar(200),
     "NAME_ENGL" varchar(100),
     "CNTR_CODE" char(2),
-    "LEVL_CODE" smallint,
+    "LEVL_CODE" levl,
     geometry geometry(Geometry,4326)
 );
 
