@@ -17,9 +17,7 @@ class TifGeofileTest(BaseApiTest):
 
     def testFileEscapePost(self):
         testfile = "hotmaps-cdd_curr_adapted.tif"
-        test_data, _ = self.get_testformdata(
-            testfile, testfile_name="../test.tif"
-        )
+        test_data, _ = self.get_testformdata(testfile, testfile_name="../test.tif")
         response = self.client.post(
             "api/geofile/", data=test_data, content_type="multipart/form-data"
         )
@@ -29,9 +27,7 @@ class TifGeofileTest(BaseApiTest):
     def testTifUnicode(self):
         testfile = "hotmaps-cdd_curr_adapted.tif"
         testfile_name = "⎈. tif"
-        test_data, _ = self.get_testformdata(
-            testfile, testfile_name=testfile_name
-        )
+        test_data, _ = self.get_testformdata(testfile, testfile_name=testfile_name)
         response = self.client.post(
             "api/geofile/", data=test_data, content_type="multipart/form-data"
         )
@@ -53,8 +49,7 @@ class TifGeofileTest(BaseApiTest):
         self.assertEqual(response.status, "400 BAD REQUEST", response.data)
 
     def testTifUploadAndRetrieval(self):
-        """Verify raster upload in geotiff format, listing and retrieval
-        """
+        """Verify raster upload in geotiff format, listing and retrieval"""
         testfile = "hotmaps-cdd_curr_adapted.tif"
         test_data, testfile_content = self.get_testformdata(testfile)
         response = self.client.post(

@@ -13,9 +13,9 @@ MIME_TO_MAPNIK = {"image/png": "png", "image/jpg": "jpg"}
 api = Namespace("wms", "WMS compatible endpoint")
 current_file_dir = os.path.dirname(os.path.abspath(__file__))
 
+
 def parse_layers(normalized_params):
-    """Extract the first layer out of the list of parameters
-    """
+    """Extract the first layer out of the list of parameters"""
     for layer in normalized_params["layers"]:
         return layer
 
@@ -91,7 +91,7 @@ class WMS(Resource):
             crs_node.text = crs.upper()
             root_layer.append(crs_node)
 
-        capabilities = root.findall('Capability//OnlineResource')
+        capabilities = root.findall("Capability//OnlineResource")
         for element in capabilities:
             element.set("{http://www.w3.org/1999/xlink}href", request.base_url)
 

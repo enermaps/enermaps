@@ -18,12 +18,10 @@ upload_parser.add_argument("file", location="files", type=FileStorage, required=
 
 @api.route("/")
 class GeoFiles(Resource):
-    """Listing and creation of raster/shapefile
-    """
+    """Listing and creation of raster/shapefile"""
 
     def get(self):
-        """Return a list of all geofile known by the system and accessible by the user making the request.
-        """
+        """Return a list of all geofile known by the system and accessible by the user making the request."""
         user_dir = get_user_upload()
         files = os.listdir(user_dir)
         return {"files": files}
@@ -47,14 +45,12 @@ class GeoFiles(Resource):
 @api.route("/<string:layer_name>")
 class GeoFile(Resource):
     def get(self, layer_name):
-        """Add a geofile, currently only raster is supported in a geotiff format.
-        """
+        """Add a geofile, currently only raster is supported in a geotiff format."""
         file_path = safe_join(get_user_upload(), layer_name)
         return send_file(file_path, attachment_filename=file_path)
 
     def delete(self, layer_name):
-        """Remove a geofile by name.
-        """
+        """Remove a geofile by name."""
         file_path = safe_join(get_user_upload(), layer_name)
         os.unlink(file_path)
         return {"status": "deletion successfull"}

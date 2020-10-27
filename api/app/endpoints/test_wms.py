@@ -14,14 +14,12 @@ class BaseWMSTEst(BaseApiTest):
 
 
 class WMSGetCapabilitiesTest(BaseApiTest):
-    """Test the get capabilities (a list of all endpoint and layer)
-    """
+    """Test the get capabilities (a list of all endpoint and layer)"""
 
     BASE_ARGS = {"service": "WMS", "request": "GetCapabilities"}
 
     def testLayerLessCall(self):
-        """Test the call to getCapabilities
-        """
+        """Test the call to getCapabilities"""
         args = self.BASE_ARGS
 
         # help(self.client.get)
