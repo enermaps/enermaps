@@ -16,7 +16,7 @@ services:
       - "127.0.0.1:9000:80"
     restart: always
     environment:
-      UPLOAD_DIR: /upload_dir
+      UPLOAD_DIR: /upload-dir
     volumes:
       - upload-data:/upload-dir
     env_file:
