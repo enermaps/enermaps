@@ -1,12 +1,11 @@
 import os
 
 import mapnik
-from flask import Response, abort, current_app, request, safe_join
+from flask import Response, abort, current_app, request
 from flask_restx import Namespace, Resource
 from lxml import etree
 
-from app.common.projection import proj4_from_geotiff
-from app.models.geofile import get_user_upload
+from app.models.geofile import Layer, RasterLayer
 
 MIME_TO_MAPNIK = {"image/png": "png", "image/jpg": "jpg"}
 
@@ -86,19 +85,18 @@ class WMS(Resource):
         for element in capabilities:
             element.set("{http://www.w3.org/1999/xlink}href", request.base_url)
 
-        user_dir = get_user_upload()
-        layers = os.listdir(user_dir)
+        layers = Layer.list_layers()
         for layer in layers:
             layer_node = etree.Element("Layer")
             layer_node.set("queryable", "1")
             layer_node.set("opaque", "0")
             layer_name = etree.Element("Name")
-            layer_name.text = layer
+            layer_name.text = layer.name
             layer_node.append(layer_name)
             abstract = etree.Element("Abstract")
             layer_node.append(abstract)
             layer_title = etree.Element("Title")
-            layer_title.text = "This is layer {}".format(layer)
+            layer_title.text = "This is layer {}".format(layer.name)
             layer_node.append(layer_title)
 
             root_layer.append(layer_node)
@@ -137,20 +135,11 @@ class WMS(Resource):
 
         layer_names = parse_layers(normalized_args)
         for layer_name in layer_names:
-            # TODO: should match name from query
-            layer = mapnik.Layer(layer_name)
-
-            # TODO: extract this from raster in advance
-            layer_path = safe_join(get_user_upload(), layer_name)
-            if not os.path.isfile(layer_path):
-                abort(404, "layer not found")
-            layer.srs = proj4_from_geotiff(layer_path)
-            print(layer.srs)
-            # TODO: get this from the upload folder, check layer at that point ?
-            gdal_source = mapnik.Gdal(file=layer_path)
-            layer.datasource = gdal_source
-            # layer.minimum_scale_denominator
-
+            try:
+                layer = RasterLayer(layer_name)
+            except FileNotFoundError as e:
+                abort(404, e.strerror)
+            mapnik_layer = layer.get_mapnik_layer()
             layer.styles.append("My Style")
             mp.layers.append(layer)
 
