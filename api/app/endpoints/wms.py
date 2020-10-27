@@ -116,10 +116,8 @@ class WMS(Resource):
         # miss:
         # bgcolor
         # exceptions
-        print(normalized_args)
         projection = parse_projection(normalized_args)
         # validate projection
-        print(request.args)
         width, height = parse_size(normalized_args)
 
         mp = mapnik.Map(width, height, "+init=" + projection)

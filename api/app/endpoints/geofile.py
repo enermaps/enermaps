@@ -7,7 +7,7 @@ from flask_restx import Namespace, Resource, abort
 from werkzeug.datastructures import FileStorage
 
 from app.common import projection
-from app.models.geofile import get_user_upload
+from app.models.geofile import Layer, get_user_upload
 
 api = Namespace("geofile", description="Data management related endpoints")
 
@@ -22,9 +22,8 @@ class GeoFiles(Resource):
 
     def get(self):
         """Return a list of all geofile known by the system and accessible by the user making the request."""
-        user_dir = get_user_upload()
-        files = os.listdir(user_dir)
-        return {"files": files}
+        layers = Layer.list_layers()
+        return {"files": [layer.name for layer in layers]}
 
     @api.expect(upload_parser)
     def post(self):
@@ -34,10 +33,9 @@ class GeoFiles(Resource):
         """
         args = upload_parser.parse_args()
         uploaded_file = args["file"]  # This is FileStorage instance
-        output_filepath = safe_join(get_user_upload(), uploaded_file.filename)
-        uploaded_file.save(output_filepath)
-        projection_string = projection.proj4_from_geotiff(output_filepath)
-        if not projection_string:
+        layer = Layer.save(uploaded_file)
+        if not layer.projection:
+            layer.delete()
             abort(400, "The uploaded file didn't contain a projection")
         return {"status": "upload succeeded"}
 
@@ -46,11 +44,11 @@ class GeoFiles(Resource):
 class GeoFile(Resource):
     def get(self, layer_name):
         """Add a geofile, currently only raster is supported in a geotiff format."""
+        Layer(layer_name)
         file_path = safe_join(get_user_upload(), layer_name)
         return send_file(file_path, attachment_filename=file_path)
 
     def delete(self, layer_name):
         """Remove a geofile by name."""
-        file_path = safe_join(get_user_upload(), layer_name)
-        os.unlink(file_path)
+        Layer(layer_name).delete()
         return {"status": "deletion successfull"}
