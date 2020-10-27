@@ -1,4 +1,5 @@
 <html>
+
 <head>
 	<meta charset="utf-8">
 	 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css"
@@ -22,9 +23,9 @@
    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.min.js" integrity="sha512-d9xgZrVZpmmQlfonhQUvTR7lMPtO7NkZMkA0ABN3PHCbKA5nqylQ/yWlFAyY6hYgdF1Qh6nYiuADWwKB4C2WSw==" crossorigin="anonymous"></script>
 
 
-<style>
-#map { height: 100%; }
-</style>
+    <style>
+        #map { height: 100%; }
+    </style>
 
 </head>
 
@@ -38,11 +39,42 @@
 
 	<div id="map"></div>
 
-    <div id="graph">
-	    <canvas id="myChart" width="400" height="400"></canvas>
+    <!--
+    <div class="container" id="graph">
+
+        <div class="row">
+            <div class="col-sm-3">
+                <canvas id="myChart" width="400" height="400"></canvas>
+            </div>
+
+            <div class="col-sm-3">
+                <canvas id="myChart2" width="400" height="400"></canvas>
+            </div>
+        </div>
+
     </div>
+    -->
+    <div class="container">
+  <div class="row">
+    <div class="col-xs-6">
+      <canvas id="myChart" width="200" height="200"></canvas>
+
+    </div>
+    <div class="col-xs-6">
+      <canvas id="myChart2" width="200" height="200"></canvas>
+    </div>
+  </div>
+  <canvas id="canvas"></canvas>
+</div>
+
+    <script>
+        Chart.defaults.global.legend.display = false
+        Chart.defaults.global.title.display = true
+        Chart.defaults.global.title.text = "NO TITLE"
+    </script>
 
     <script src="main.js"> </script>
 
 </body>
+
 </html>
