@@ -5,7 +5,7 @@ from flask import Response, abort, current_app, request
 from flask_restx import Namespace, Resource
 from lxml import etree
 
-from app.models.geofile import Layer, RasterLayer
+import app.models.geofile as geofile
 
 MIME_TO_MAPNIK = {"image/png": "png", "image/jpg": "jpg"}
 
@@ -85,7 +85,7 @@ class WMS(Resource):
         for element in capabilities:
             element.set("{http://www.w3.org/1999/xlink}href", request.base_url)
 
-        layers = Layer.list_layers()
+        layers = geofile.list_layers()
         for layer in layers:
             layer_node = etree.Element("Layer")
             layer_node.set("queryable", "1")
@@ -121,12 +121,14 @@ class WMS(Resource):
         width, height = parse_size(normalized_args)
 
         mp = mapnik.Map(width, height, "+init=" + projection)
-        # TODO: how do we manage style ? just have hardcoded style list in a dir ?
+        # TODO: how do we manage style ? just have hardcoded
+        # style list in a dir ?
         s = mapnik.Style()
         r = mapnik.Rule()
         r.symbols.append(mapnik.RasterSymbolizer())
         s.rules.append(r)
-        mp.append_style("My Style", s)
+        style_name = "My Style"
+        mp.append_style(style_name, s)
 
         # TODO read the background set it
         # mp.background_color = 'steelblue'
@@ -134,11 +136,11 @@ class WMS(Resource):
         layer_names = parse_layers(normalized_args)
         for layer_name in layer_names:
             try:
-                layer = RasterLayer(layer_name)
+                layer = geofile.load(layer_name)
             except FileNotFoundError as e:
                 abort(404, e.strerror)
-            mapnik_layer = layer.get_mapnik_layer()
-            mapnik_layer.styles.append("My Style")
+            mapnik_layer = layer.as_mapnik_layer()
+            mapnik_layer.styles.append(style_name)
             mp.layers.append(mapnik_layer)
 
         mp.zoom_to_box(parse_envelope(normalized_args))
