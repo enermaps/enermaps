@@ -53,12 +53,12 @@ class RasterLayer(Layer):
 
     @property
     def projection(self):
-        proj4_from_geotiff(self._get_raster_path())
+        return proj4_from_geotiff(self._get_raster_path())
 
 
     def get_mapnik_layer(self):
         # TODO: extract this from raster in advance
-        RasterLayer(self.name)
+        layer = mapnik.Layer(self.name)
         layer_path = self._get_raster_path()
         layer.srs = self.projection
         print(layer.srs)

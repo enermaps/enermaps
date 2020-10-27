@@ -140,8 +140,8 @@ class WMS(Resource):
             except FileNotFoundError as e:
                 abort(404, e.strerror)
             mapnik_layer = layer.get_mapnik_layer()
-            layer.styles.append("My Style")
-            mp.layers.append(layer)
+            mapnik_layer.styles.append("My Style")
+            mp.layers.append(mapnik_layer)
 
         mp.zoom_to_box(parse_envelope(normalized_args))
         image = mapnik.Image(width, height)
