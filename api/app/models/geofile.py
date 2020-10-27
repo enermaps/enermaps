@@ -39,22 +39,21 @@ def create(file_upload: FileStorage):
 
 
 def load(name):
-    """Create a new instance of RasterLayer based on its name
-    """
+    """Create a new instance of RasterLayer based on its name"""
     return RasterLayer(name)
 
 
 class Layer(ABC):
-
     def as_fd(self):
         pass
 
     def as_mapnik_layer(self):
         pass
 
+
 class RasterLayer(Layer):
 
-    MIMETYPE = 'image/geotiff'
+    MIMETYPE = "image/geotiff"
 
     def __init__(self, name):
         self.name = name
@@ -69,15 +68,14 @@ class RasterLayer(Layer):
         return map(RasterLayer, layers)
 
     def _get_raster_path(self):
-        """Return the path 
-        """
+        """Return the path"""
         layer_path = safe_join(get_user_upload(), self.name)
         return layer_path
 
     @property
     def projection(self):
         """Return the projection of the raster layer,
-        currently this approach is quite naive as we read 
+        currently this approach is quite naive as we read
         from the disk to only extract the projection.
         """
         return proj4_from_geotiff(self._get_raster_path())
@@ -108,16 +106,14 @@ class RasterLayer(Layer):
         return layer
 
     def as_fd(self):
-        """Return a tuple filedescriptor/mimetype for the given layer
-        """
+        """Return a tuple filedescriptor/mimetype for the given layer"""
         return open(self._get_raster_path(), "rb"), self.MIMETYPE
 
 
 class VectorLayer(Layer):
-    """Future implementation of a vector layer.
-    """
+    """Future implementation of a vector layer."""
+
     @staticmethod
     def list_layers():
-        """Currently there for return an empty vector layer.
-        """
+        """Currently there for return an empty vector layer."""
         return []
