@@ -1,23 +1,17 @@
 import os
 
+import mapnik
 from flask import Response, abort, current_app, request, safe_join
 from flask_restx import Namespace, Resource
 from lxml import etree
-import mapnik
 
-from app.models.geofile import get_user_upload
 from app.common.projection import proj4_from_geotiff
+from app.models.geofile import get_user_upload
 
 MIME_TO_MAPNIK = {"image/png": "png", "image/jpg": "jpg"}
 
 api = Namespace("wms", "WMS compatible endpoint")
 current_file_dir = os.path.dirname(os.path.abspath(__file__))
-
-
-def parse_layers(normalized_params):
-    """Extract the first layer out of the list of parameters"""
-    for layer in normalized_params["layers"]:
-        return layer
 
 
 def parse_envelope(params):
@@ -26,10 +20,7 @@ def parse_envelope(params):
         raise Exception()
     bbox = [float(extrema) for extrema in raw_extremas]
     bbox_dim = (bbox[0], bbox[1], bbox[2], bbox[3])
-    if hasattr(mapnik, "mapnik_version") and mapnik.mapnik_version() >= 800:
-        bbox = mapnik.Box2d(*bbox_dim)
-    else:
-        bbox = mapnik.Envelope(*bbox_dim)
+    bbox = mapnik.Box2d(*bbox_dim)
     return bbox
 
 

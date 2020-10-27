@@ -1,6 +1,7 @@
+import os
+
 from flask import send_file
 from flask_restx import Namespace, Resource
-import os
 
 api = Namespace("cm", "Calculation module endpoint")
 current_file_dir = os.path.dirname(os.path.abspath(__file__))

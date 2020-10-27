@@ -1,7 +1,7 @@
 """Simplified entrypoint for discovering and running all test of the project
 """
-import unittest
 import sys
+import unittest
 
 import app
 

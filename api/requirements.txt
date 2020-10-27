@@ -1,3 +1,4 @@
 flask-restx
 lxml
 GDAL
+Pillow

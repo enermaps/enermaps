@@ -1,3 +1,4 @@
+import io
 import os
 import shutil
 import tempfile
@@ -24,3 +25,12 @@ class BaseApiTest(unittest.TestCase):
 
     def tearDown(self):
         shutil.rmtree(self.flask_app.config["UPLOAD_DIR"])
+
+    def get_testformdata(self, testfile, testfile_name=None):
+        with open(get_testdata(testfile), "rb") as f:
+            testfile_content = f.read()
+            testfile_io = io.BytesIO(testfile_content)
+            if not testfile_name:
+                testfile_name = testfile
+            test_data = {"file": (testfile_io, testfile_name)}
+        return test_data, testfile_content
