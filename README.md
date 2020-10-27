@@ -1,33 +1,34 @@
 enermaps2 is a rewrite of the hotmaps poc based on the previous experience.
 
-# Run a local copy
-run a 
+# Development
+First you need to have docker installed on your machine.
+
+Then run
 
 ```
 docker-compose up --build
 ```
+This will start the frontend, the api and the database
+
 You can then access:
 
 * the frontend on http://127.0.0.1:7000
 * the api on http://127.0.0.1:7000/api
+* the database on 127.0.0.1:5433
 
-# frontend
+The initial database schema will be created following the step in ![](db/README.md).
 
-app
-
-then accessed trough http://127.0.0.1:8000
-
-# api
-
-You can also run the debug server with 
+For updating a service, you will need to run:
 
 ```
-python api/main.py
+docker-compose up --build -d $service
 ```
-and access it trough http://127.0.0.1:5000
 
-# db
+where service can be one of frontend, api or db.
 
-Database initialisation schema is ran when no previous data schema is found upon starting the db image.
+You can also rebuild the set of all service, and docker will only rebuilt the 
+changed images with the following command:
 
-You can access the database trough 127.0.0.1:5433
+```
+docker-compose up --build -d
+```
