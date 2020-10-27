@@ -13,13 +13,27 @@ jobs:
   # This workflow contains a single job called "build"
   build:
     # The type of runner that the job will run on
-    runs-on: ubuntu-latest
+    runs-on: 'ubuntu-18.04'
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
-      - uses: actions/checkout@master
-      - uses: jpetrucciani/black-check@20.8b1
+      - uses: actions/checkout@v2
+      - run: |
+          # Hack to get setup-python to work on act
+          if [ ! -f "/etc/lsb-release" ] ; then
+            echo "DISTRIB_RELEASE=18.04" > /etc/lsb-release
+          fi
+      - name: Set up Python
+        uses: actions/setup-python@v2
         with:
-          path: "."
+          python-version: 3.x
+      - name: install linters
+        run: pip install -r api/linter-requirements.txt -r api/requirements.txt
+
+      - name: check-lint with black
+        run: black --check api
+      - name: check-lint with isort
+        run: isort --check --verbose api
+
       - name: Run docker-compose stack
         run: docker-compose build --parallel
