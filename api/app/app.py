@@ -7,6 +7,7 @@ from app.endpoints import cm, geofile, wms
 
 app = Flask(__name__)
 app.config["MAX_CONTENT_LENGTH"] = 16 * 1024 * 1024
+app.config["MAX_PROJECTION_LENGTH"] = 1024
 app.config["UPLOAD_DIR"] = "/tmp/upload_dir"
 app.config["WMS"] = {}
 app.config["WMS"]["ALLOWED_PROJECTIONS"] = ["ESPG:3857"]

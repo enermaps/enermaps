@@ -1,21 +1,27 @@
 """Description of each set of gis informations.
 
 Modification of layer are made quite slow, so we don't
-really prevent race condition on list vs delete. We 
+really prevent race condition on list vs delete. We
 also catch those on accessing the layer.
 
 """
 import os
-from abc import ABC
+from glob import glob
+import shutil
+import zipfile
+from abc import ABC, abstractmethod
 
 import mapnik
-from app.common.projection import proj4_from_geotiff
 from flask import current_app, safe_join
 from werkzeug.datastructures import FileStorage
 
+from app.common.projection import proj4_from_geotiff, proj4_from_shapefile
 
-def get_user_upload(user="user"):
-    user_dir = safe_join(current_app.config["UPLOAD_DIR"], user)
+
+def get_user_upload(prefix_path):
+    """Return the location of a subdirectory for uploads. this also uses a prefix
+    """
+    user_dir = safe_join(current_app.config["UPLOAD_DIR"], prefix_path)
     os.makedirs(user_dir, exist_ok=True)
     return user_dir
 
@@ -34,25 +40,63 @@ def create(file_upload: FileStorage):
     """Take an instance of a fileupload and create a layer from it.
     Return the resulting layer
     """
-    return RasterLayer.save(file_upload)
+    if file_upload.mimetype in VectorLayer.MIMETYPE:
+        return VectorLayer.save(file_upload)
+    elif file_upload.mimetype in RasterLayer.MIMETYPE:
+        return RasterLayer.save(file_upload)
+    raise Exception("Unknown file format {}".format(file_upload.mimetype))
 
 
 def load(name):
     """Create a new instance of RasterLayer based on its name"""
-    return RasterLayer(name)
+    if name.endswith("zip"):
+        return VectorLayer(name)
+    else:
+        return RasterLayer(name)
 
 
 class Layer(ABC):
+    @abstractmethod
     def as_fd(self):
         pass
 
+    @abstractmethod
     def as_mapnik_layer(self):
+        pass
+
+    @property
+    @abstractmethod
+    def projection(self):
+        pass
+
+    @property
+    @abstractmethod
+    def is_queryable(self):
+        """Return true if the layer has features, this allow the layer to be
+        queried for feature at a given location
+        """
+        pass
+
+    @staticmethod
+    @abstractmethod
+    def save(file_upload: FileStorage):
+        pass
+
+    @staticmethod
+    @abstractmethod
+    def list_layers(file_upload: FileStorage):
+        pass
+
+    @abstractmethod
+    def delete(self):
         pass
 
 
 class RasterLayer(Layer):
 
-    MIMETYPE = "image/geotiff"
+    # mimetype for a rasterlayer, the first mimetype is the one
+    # chosen by default for exposing the file
+    MIMETYPE = ["image/geotiff", "image/tiff"]
 
     def __init__(self, name):
         self.name = name
@@ -62,14 +106,18 @@ class RasterLayer(Layer):
         """As we store rasters on disk, we only want to list
         files in the directory.
         """
-        user_dir = get_user_upload()
+        user_dir = get_user_upload("raster")
         layers = os.listdir(user_dir)
         return map(RasterLayer, layers)
 
     def _get_raster_path(self):
-        """Return the path"""
-        layer_path = safe_join(get_user_upload(), self.name)
+        """Return the path where a raster is stored on disk."""
+        layer_path = safe_join(get_user_upload("raster"), self.name)
         return layer_path
+
+    @property
+    def is_queryable(self):
+        return False
 
     @property
     def projection(self):
@@ -89,7 +137,7 @@ class RasterLayer(Layer):
 
     @staticmethod
     def save(file_upload: FileStorage):
-        output_filepath = safe_join(get_user_upload(), file_upload.filename)
+        output_filepath = safe_join(get_user_upload("raster"), file_upload.filename)
         file_upload.save(output_filepath)
         return RasterLayer(file_upload.filename)
 
@@ -106,13 +154,58 @@ class RasterLayer(Layer):
 
     def as_fd(self):
         """Return a tuple filedescriptor/mimetype for the given layer"""
-        return open(self._get_raster_path(), "rb"), self.MIMETYPE
+        return open(self._get_raster_path(), "rb"), self.MIMETYPE[0]
 
 
 class VectorLayer(Layer):
     """Future implementation of a vector layer."""
 
+    MIMETYPE = "application/zip"
+
+    def __init__(self, name):
+        self.name = name
+
+    def as_fd(self):
+        """For shapefile, rezip the directory and send it
+        """
+
+    def as_mapnik_layer(self):
+        layer = mapnik.Layer(self.name)
+        shapefiles = glob(os.path.join(self._get_vector_dir(), '*.shp'))
+        if not shapefiles:
+            raise FileNotFoundError("Shapefile was not found")
+        layer.srs = self.projection
+        layer.datasource = mapnik.Shapefile(file=shapefiles[0])
+        return layer
+
+    def _get_vector_dir(self):
+        return safe_join(get_user_upload("vectors"), self.name)
+
+    @property
+    def projection(self):
+        vector_dir = self._get_vector_dir()
+        return proj4_from_shapefile(vector_dir)
+
+    @property
+    def is_queryable(self):
+        """Return true if the layer has features, this allow the layer to be
+        queried for feature at a given location
+        """
+        return True
+
+    @staticmethod
+    def save(file_upload: FileStorage):
+        tmp_path = "/tmp/test.zip"
+        file_upload.save(tmp_path)
+        zip_ref = zipfile.ZipFile(tmp_path, 'r')
+        output_dirpath = safe_join(get_user_upload("vectors"), file_upload.filename)
+        zip_ref.extractall(output_dirpath)
+        return VectorLayer(file_upload.filename)
+
     @staticmethod
     def list_layers():
-        """Currently there for return an empty vector layer."""
-        return []
+        layers  = os.listdir(get_user_upload("vectors"))
+        return map(VectorLayer, layers)
+
+    def delete(self):
+        shutil.rmtree(self._get_vector_dir())
