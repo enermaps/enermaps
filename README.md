@@ -32,3 +32,7 @@ changed images with the following command:
 ```
 docker-compose up --build -d
 ```
+
+# Continuous Integration
+
+we use [github actions](https://github.com/features/actions) for continuous integration on the project.

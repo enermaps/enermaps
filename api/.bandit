@@ -1,0 +1,3 @@
+[bandit]
+#see app/common/xml.py
+skips: B410,B320

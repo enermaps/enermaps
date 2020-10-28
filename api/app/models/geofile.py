@@ -9,10 +9,9 @@ import os
 from abc import ABC
 
 import mapnik
+from app.common.projection import proj4_from_geotiff
 from flask import current_app, safe_join
 from werkzeug.datastructures import FileStorage
-
-from app.common.projection import proj4_from_geotiff
 
 
 def get_user_upload(user="user"):

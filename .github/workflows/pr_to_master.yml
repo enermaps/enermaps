@@ -28,12 +28,12 @@ jobs:
         with:
           python-version: 3.x
       - name: install linters
-        run: pip install -r api/linter-requirements.txt -r api/requirements.txt
+        run: pip install -r api/linter-requirements.txt
 
       - name: check-lint with black
         run: black --check api
-      - name: check-lint with isort
-        run: isort --check --verbose api
+      - name: check-lint with bandit
+        run: cd api && bandit -r .
 
       - name: Run docker-compose stack
         run: docker-compose build --parallel

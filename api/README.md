@@ -31,3 +31,7 @@ You can run them locally by first installing them:
 ```
 pip install -r linter-requirements.txt
 ```
+They are:
+
+* black for automated formatting
+* bandit for security scanning

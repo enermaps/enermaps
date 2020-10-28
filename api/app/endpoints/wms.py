@@ -6,6 +6,7 @@ from flask_restx import Namespace, Resource
 from lxml import etree
 
 import app.models.geofile as geofile
+import app.common.xml as xml
 
 MIME_TO_MAPNIK = {"image/png": "png", "image/jpg": "jpg"}
 
@@ -74,7 +75,7 @@ class WMS(Resource):
         This method starts with a preexisting xml template parses it then insert dynamic element from the list of layers and from the flaks configuration
         """
         with open(os.path.join(current_file_dir, "capabilities.xml")) as f:
-            root = etree.fromstring(f.read())
+            root = xml.etree_fromstring(f.read())
         root_layer = root.find("Capability/Layer")
         for crs in current_app.config["WMS"]["ALLOWED_PROJECTIONS"]:
             crs_node = etree.Element("CRS")
