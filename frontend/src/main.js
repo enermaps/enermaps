@@ -97,7 +97,17 @@ $.ajax({
                 display : true,
                 text : ['Graph 1 - NUMBER ONE', 'Just for example'],
                 fontSize :20},
-            legend: {display : true}}
+            legend: {display : true},
+            scales :{
+                xAxes :[{
+                    scaleLabel:{
+                        display: true,
+                        labelString:'X UNIT'}}],
+                yAxes :[{
+                    scaleLabel:{
+                        display: true,
+                        labelString:'y UNIT'}}]
+                }}
       });
 
       for(i=0; i < result_js_values.length; i++) {
