@@ -95,7 +95,7 @@ $.ajax({
         options: {
             title : {
                 display : true,
-                text : ['Graph 1', 'Just for example'],
+                text : ['Graph 1 - NUMBER ONE', 'Just for example'],
                 fontSize :20},
             legend: {display : true}
         }
@@ -104,7 +104,6 @@ $.ajax({
       for(i=0; i < result_js_values.length; i++) {
           backgroundColor_array[i] = "rgba("+ Math.floor(Math.random()*256) +","+Math.floor(Math.random()*256)+","+ Math.floor(Math.random()*256)+",0.2)"
       };
-
       var ctx2 = document.getElementById('myChart2').getContext('2d');
       var myChart2 = new Chart(ctx2, {
         type: 'bar',
@@ -120,11 +119,59 @@ $.ajax({
         options: {
             title : {
                 display : true,
-                text : ['Graph 2', 'Just for example'],
+                text : ['Graph 2 - NUMBER TWO', 'Just for example'],
                 fontSize :20},
             legend: {display : true}
         }
-      })
+      });
+
+      for(i=0; i < result_js_values.length; i++) {
+          backgroundColor_array[i] = "rgba("+ Math.floor(Math.random()*256) +","+Math.floor(Math.random()*256)+","+ Math.floor(Math.random()*256)+",0.2)"
+      };
+      var ctx3 = document.getElementById('myChart3').getContext('2d');
+      var myChart3 = new Chart(ctx3, {
+        type: 'bar',
+        data: {
+            labels: result_js_labels,
+            datasets: [{
+                label: 'fake data output ',
+                data: result_js_values,
+                backgroundColor: backgroundColor_array,
+                borderColor: backgroundColor_array,
+                borderWidth: 2}]
+            },
+        options: {
+            title : {
+                display : true,
+                text : ['Graph 3 - NUMBER THREE', 'Just for example'],
+                fontSize :20},
+            legend: {display : true}
+        }
+      });
+
+      for(i=0; i < result_js_values.length; i++) {
+          backgroundColor_array[i] = "rgba("+ Math.floor(Math.random()*256) +","+Math.floor(Math.random()*256)+","+ Math.floor(Math.random()*256)+",0.2)"
+      };
+      var ctx4 = document.getElementById('myChart4').getContext('2d');
+      var myChart4 = new Chart(ctx4, {
+        type: 'bar',
+        data: {
+            labels: result_js_labels,
+            datasets: [{
+                label: 'fake data output ',
+                data: result_js_values,
+                backgroundColor: backgroundColor_array,
+                borderColor: backgroundColor_array,
+                borderWidth: 2}]
+            },
+        options: {
+            title : {
+                display : true,
+                text : ['Graph 4 - NUMBER FOUR', 'Just for example'],
+                fontSize :20},
+            legend: {display : true}
+        }
+      });
 
   }});
 
