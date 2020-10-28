@@ -1,6 +1,5 @@
 import os
 
-from app.endpoints import cm, geofile, wms
 from flask import Blueprint, Flask, redirect
 from flask_restx import Api
 
