@@ -115,15 +115,15 @@ $.ajax({
       };
       var ctx2 = document.getElementById('myChart2').getContext('2d');
       var myChart2 = new Chart(ctx2, {
-        type: 'bar',
+        type: 'line',
         data: {
             labels: result_js_labels,
             datasets: [{
                 label: 'fake data output ',
                 data: result_js_values,
-                backgroundColor: backgroundColor_array,
-                borderColor: backgroundColor_array,
-                borderWidth: 2}]
+                backgroundColor : "rgb(154, 6, 71,0.2)",
+                pointRadius : 2
+                }]
             },
         options: {
             title : {
@@ -163,7 +163,7 @@ $.ajax({
       };
       var ctx4 = document.getElementById('myChart4').getContext('2d');
       var myChart4 = new Chart(ctx4, {
-        type: 'bar',
+        type: 'horizontalBar',
         data: {
             labels: result_js_labels,
             datasets: [{
