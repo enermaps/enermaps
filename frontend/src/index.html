@@ -24,6 +24,8 @@
 
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
 
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+
     <style>
         #map { height: 100%; }
     </style>
@@ -43,10 +45,10 @@
     <script>
         Chart.defaults.global.legend.display = false
         Chart.defaults.global.title.display = true
-        Chart.defaults.global.title.text = "NO TITLE"
+        Chart.defaults.global.title.text = "TITLE IS MISSING"
     </script>
 
-    <div class="container">
+    <div class="container" style="display:none">
         <div class="row">
             <div class="col-6 chart">
                 <canvas id="myChart" width="400" height="400"  ></canvas>
@@ -65,7 +67,9 @@
         </div>
     </div>
 
-<script src="main.js"> </script>
+    <button id="graph_hider">Show graph</button>
+
+    <script src="main.js"> </script>
 
 </body>
 

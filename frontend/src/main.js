@@ -97,8 +97,7 @@ $.ajax({
                 display : true,
                 text : ['Graph 1 - NUMBER ONE', 'Just for example'],
                 fontSize :20},
-            legend: {display : true}
-        }
+            legend: {display : true}}
       });
 
       for(i=0; i < result_js_values.length; i++) {
@@ -175,6 +174,16 @@ $.ajax({
 
   }});
 
+$(function(){
+    $("#graph_hider").click(function(){
+        if( $(".container").is(':visible') ){
+            $(".container").hide(1000, function(){
+                $("#graph_hider").text("Show graph");})}
+        if( $(".container").is(':hidden') ){
+            $(".container").show(10);
+            $("#graph_hider").text("Hide graph")}
+    })
+})
 
 
 
