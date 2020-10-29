@@ -89,7 +89,6 @@ class WMS(Resource):
         layers = geofile.list_layers()
         for layer in layers:
             layer_node = etree.Element("Layer")
-
             layer_node.set("queryable", "1" if layer.is_queryable else "0")
             # all layers presented by the api are opaque
             layer_node.set("opaque", "0")
