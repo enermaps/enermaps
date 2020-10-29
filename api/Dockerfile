@@ -9,7 +9,7 @@ COPY requirements.txt requirements.txt
 RUN pip3 install -r requirements.txt
 COPY . .
 #always ensure the python test are fine before proceeding to build the image
-#RUN python3 test.py
+RUN python3 test.py
 
 EXPOSE 80
 CMD ["gunicorn", "--bind", "0.0.0.0:80", "wsgi:app"]
