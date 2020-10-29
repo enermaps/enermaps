@@ -30,6 +30,7 @@ services:
     restart: always
     environment:
       POSTGRES_PASSWORD: example
+    stop_signal: SIGINT                 # Fast Shutdown mode
     volumes:
       - db-data:/var/lib/postgresql/data
     env_file:
