@@ -131,12 +131,12 @@ class WMS(Resource):
         s.rules.append(r)
 
         polygon_symbolizer = mapnik.PolygonSymbolizer()
-        polygon_symbolizer.fill = mapnik.Color('#a0a0a0')
+        polygon_symbolizer.fill = mapnik.Color("#a0a0a0")
         polygon_symbolizer.smooth = 1.0  # very smooth
         r.symbols.append(polygon_symbolizer)
 
         line_symbolizer = mapnik.LineSymbolizer()
-        line_symbolizer.stroke = mapnik.Color('black')
+        line_symbolizer.stroke = mapnik.Color("black")
         line_symbolizer.stroke_width = 1.0
         r.symbols.append(line_symbolizer)
         s.rules.append(r)

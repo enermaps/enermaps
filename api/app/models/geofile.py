@@ -19,8 +19,7 @@ from app.common.projection import proj4_from_geotiff, proj4_from_shapefile
 
 
 def get_user_upload(prefix_path):
-    """Return the location of a subdirectory for uploads. this also uses a prefix
-    """
+    """Return the location of a subdirectory for uploads. this also uses a prefix"""
     user_dir = safe_join(current_app.config["UPLOAD_DIR"], prefix_path)
     os.makedirs(user_dir, exist_ok=True)
     return user_dir
@@ -166,12 +165,11 @@ class VectorLayer(Layer):
         self.name = name
 
     def as_fd(self):
-        """For shapefile, rezip the directory and send it
-        """
+        """For shapefile, rezip the directory and send it"""
 
     def as_mapnik_layer(self):
         layer = mapnik.Layer(self.name)
-        shapefiles = glob(os.path.join(self._get_vector_dir(), '*.shp'))
+        shapefiles = glob(os.path.join(self._get_vector_dir(), "*.shp"))
         if not shapefiles:
             raise FileNotFoundError("Shapefile was not found")
         layer.srs = self.projection
@@ -197,14 +195,14 @@ class VectorLayer(Layer):
     def save(file_upload: FileStorage):
         tmp_path = "/tmp/test.zip"
         file_upload.save(tmp_path)
-        zip_ref = zipfile.ZipFile(tmp_path, 'r')
+        zip_ref = zipfile.ZipFile(tmp_path, "r")
         output_dirpath = safe_join(get_user_upload("vectors"), file_upload.filename)
         zip_ref.extractall(output_dirpath)
         return VectorLayer(file_upload.filename)
 
     @staticmethod
     def list_layers():
-        layers  = os.listdir(get_user_upload("vectors"))
+        layers = os.listdir(get_user_upload("vectors"))
         return map(VectorLayer, layers)
 
     def delete(self):

@@ -17,7 +17,7 @@ class VectorGeofileTest(BaseApiTest):
         test_data, _ = self.get_testformdata(testfile)
         response = self.client.get("api/geofile/")
         self.assertEqual(response.status, "200 OK", response.data)
-        json_content  = json.loads(response.data)
+        json_content = json.loads(response.data)
         self.assertIn(testfile, json_content["files"])
 
 
