@@ -14,7 +14,8 @@ You can then access:
 
 * the frontend on http://127.0.0.1:7000
 * the api on http://127.0.0.1:7000/api
-* the database on 127.0.0.1:5433
+* the database is available on host 127.0.0.1 and port 5433 with the psql 
+client (see ![](db/README.md))
 
 The initial database schema will be created following the step in ![](db/README.md).
 
