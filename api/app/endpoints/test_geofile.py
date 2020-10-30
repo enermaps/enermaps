@@ -44,8 +44,8 @@ class TifGeofileTest(BaseApiTest):
         self.assertIn(testfile_name, json_content["files"])
 
     def testUploadWithoutProjection(self):
-        """We refuse to work with geotiff that don't contain a projection, they can get us in trouble later
-        when serving them.
+        """We refuse to work with geotiff that don't contain a projection, they
+        can get us in trouble later when serving them as tile.
         """
         testfile = "no_projection.tif"
         test_data, _ = self.get_testformdata(testfile)
@@ -62,19 +62,16 @@ class TifGeofileTest(BaseApiTest):
             "api/geofile/", data=test_data, content_type="multipart/form-data"
         )
         self.assertEqual(response.status, "200 OK", response.data)
-        response.close()
 
         response = self.client.get("api/geofile/")
         self.assertEqual(response.status, "200 OK", response.data)
         json_content = json.loads(response.data)
         self.assertIn(testfile, json_content["files"])
-        response.close()
 
         response = self.client.get("api/geofile/" + testfile)
         self.assertEqual(response.status, "200 OK", response.data)
         self.assertEqual(response.data, testfile_content)
         self.assertEqual(response.mimetype, RasterLayer.MIMETYPE[0])
-        response.close()
 
 
 if __name__ == "__main__":
