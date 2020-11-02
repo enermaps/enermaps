@@ -125,15 +125,14 @@ class WMSGetFeatureInfoTest(BaseApiTest):
         "TRANSPARENT": "true",
         "VERSION": "1.1.1",
         "FORMAT": "image/png",
-        "BBOX": "-11.777515694104215,49.29512261214822,"
-        "33.13459368089577,53.09278188623254",
-        "HEIGHT": "138",
+        "BBOX": "-2.8124638200947287,50.958439559875124,2.801549851780272,51.67597427003148",
+        "HEIGHT": "209",
         "WIDTH": "1022",
         "LAYERS": "nuts.zip",
         "QUERY_LAYERS": "nuts.zip",
         "INFO_FORMAT": "application/json",
-        "X": "452.003912683616",
-        "Y": "95.95292978681229",
+        "X": "343.99341364924635",
+        "Y": "134.00370991511704"
     }
 
     def testGetInfoGermany(self):

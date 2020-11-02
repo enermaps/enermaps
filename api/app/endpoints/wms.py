@@ -19,7 +19,7 @@ current_file_dir = os.path.dirname(os.path.abspath(__file__))
 def parse_envelope(params):
     raw_extremas = params["bbox"].split(",")
     if len(raw_extremas) != 4:
-        raise Exception()
+        raise abort(400, "bounding box need four extremas")
     bbox = [float(extrema) for extrema in raw_extremas]
     bbox_dim = (bbox[0], bbox[1], bbox[2], bbox[3])
     bbox = mapnik.Box2d(*bbox_dim)
