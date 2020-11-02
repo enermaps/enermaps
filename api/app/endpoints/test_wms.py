@@ -11,13 +11,14 @@ GETCAPABILITIES_ARGS = {"service": "WMS", "request": "GetCapabilities"}
 
 
 class BaseWMSTest(BaseApiTest):
-
     def testFailWhenNoRequestSpecified(self):
         response = self.client.get("api/wms", query_string={"service": "WMS"})
         self.assertEqual(response.status, "400 BAD REQUEST", response.data)
 
+
 class WMSGetCapabilitiesTest(BaseApiTest):
     """Test the get capabilities (a list of all endpoint and layer)"""
+
     def testSucceedWithUppercaseParameters(self):
         args = {}
         for k, v in GETCAPABILITIES_ARGS.items():
@@ -27,7 +28,7 @@ class WMSGetCapabilitiesTest(BaseApiTest):
 
     def testSucceedWhenNoService(self):
         args = GETCAPABILITIES_ARGS
-        del args['service']
+        del args["service"]
         response = self.client.get("api/wms", query_string={"request": args})
         self.assertEqual(response.status, "400 BAD REQUEST", response.data)
 
@@ -108,8 +109,7 @@ class WMSGetMapTest(BaseApiTest):
 
         args = self.TILE_PARAMETERS
         args["layers"] = testfile
-        response = self.client.get("api/wms",
-                                   query_string=self.TILE_PARAMETERS)
+        response = self.client.get("api/wms", query_string=self.TILE_PARAMETERS)
         self.assertEqual(response.status, "200 OK")
         self.assertGreater(len(response.data), 0)
         Image.open(io.BytesIO(response.data))
@@ -144,10 +144,8 @@ class WMSGetFeatureInfoTest(BaseApiTest):
         )
         self.assertEqual(response.status, "200 OK", response.data)
 
-        response = self.client.get("/api/wms",
-                                   query_string=self.INFO_PARAMETERS)
+        response = self.client.get("/api/wms", query_string=self.INFO_PARAMETERS)
         self.assertEqual(response.status, "200 OK", response.data)
         json_response = json.loads(response.data)
-        self.assertIn('features', json_response)
-        self.assertEqual(len(json_response['features']), 1)
-
+        self.assertIn("features", json_response)
+        self.assertEqual(len(json_response["features"]), 1)

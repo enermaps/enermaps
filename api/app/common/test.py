@@ -33,8 +33,7 @@ class BaseApiTest(unittest.TestCase):
         shutil.rmtree(self.flask_app.config["UPLOAD_DIR"])
 
     def get_testformdata(self, testfile, testfile_name=None):
-        """Return 
-        """
+        """Return"""
         with open(get_testdata(testfile), "rb") as f:
             testfile_content = f.read()
             testfile_io = io.BytesIO(testfile_content)

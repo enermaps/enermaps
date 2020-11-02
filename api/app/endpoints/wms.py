@@ -70,8 +70,7 @@ def parse_position(params) -> Size:
 
 
 def parse_format(params):
-    """Parse the map return format, check that it is in the allowed list of format
-    """
+    """Parse the map return format, check that it is in the allowed list of format"""
     mime_format = params["format"]
     if mime_format not in current_app.config["WMS"]["GETMAP"]["ALLOWED_OUTPUTS"]:
         raise Exception()
@@ -94,7 +93,10 @@ class WMS(Resource):
         if request_name == "GetFeatureInfo":
             return self.get_feature_info(normalized_args)
         return abort(
-            400, "Couldn't find the requested method {}, request parameter needs to be set".format(request_name)
+            400,
+            "Couldn't find the requested method {}, request parameter needs to be set".format(
+                request_name
+            ),
         )
 
     def get_capabilities(self, _):
@@ -222,9 +224,7 @@ class WMS(Resource):
                 )
             position = parse_position(normalized_args)
             # carefull here, this is a WMS 1.1.1 query maybe ?
-            featureset = mp.query_map_point(
-                layerindex, position.x, position.y
-            )
+            featureset = mp.query_map_point(layerindex, position.x, position.y)
             features = {"features": []}
             for feature in featureset:
                 features["features"].append(json.loads(feature.to_geojson()))
