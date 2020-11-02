@@ -31,9 +31,9 @@ class WMSGetCapabilitiesTest(BaseApiTest):
         layer_names = root.findall(".//Layer/Name")
         self.assertEqual(len(layer_names), 0)
 
-    def testLayerList(self):
-        """Upon adding a layer, we should see that layer in the capability layer list"""
-        testfile = "hotmaps-cdd_curr_adapted.tif"
+    def _testLayerList(self, testfile, is_queryable):
+        """Upon adding a layer, we should see that layer
+        in the capability layer list"""
         test_data, testfile_content = self.get_testformdata(testfile)
         response = self.client.post(
             "api/geofile/", data=test_data, content_type="multipart/form-data"
@@ -43,10 +43,20 @@ class WMSGetCapabilitiesTest(BaseApiTest):
 
         response = self.client.get("api/wms", query_string=GETCAPABILITIES_ARGS)
         self.assertEqual(response.status, "200 OK", response.data)
-        root = xml.etree_fromstring(response.data)
-        layer_names = root.findall(".//Layer/Name")
-        self.assertEqual(len(layer_names), 1)
-        self.assertEqual(layer_names[0].text, testfile)
+        root = etree.fromstring(response.data)
+        layers = root.findall(".//Layer/Layer")
+        self.assertEqual(len(layers), 1)
+        layer = layers[0]
+        self.assertEqual(layer.get("queryable"), is_queryable)
+
+        self.assertEqual(layer.find("Name").text, testfile)
+
+    def testVectorLayerList(self):
+        self._testLayerList("nuts.zip", is_queryable="1")
+
+    def testRasterLayerList(self):
+        testfile = "hotmaps-cdd_curr_adapted.tif"
+        self._testLayerList(testfile, is_queryable="0")
 
 
 class WMSGetMapTest(BaseApiTest):
@@ -63,12 +73,28 @@ class WMSGetMapTest(BaseApiTest):
         "width": "256",
         "height": "256",
         "srs": "EPSG:3857",
-        "bbox": "19567.87924100512,6809621.975869781,39135.75848201024,6829189.85511079",
+        "bbox": "19567.87924100512,6809621.975869781,"
+        "39135.75848201024,6829189.85511079",
     }
 
     GETMAP_ARGS = {"service": "WMS", "request": "GetMap"}
 
-    def testTileWorkflow(self):
+    def testVectorTileWorkflow(self):
+        testfile = "nuts.zip"
+        test_data, testfile_content = self.get_testformdata(testfile)
+        response = self.client.post(
+            "api/geofile/", data=test_data, content_type="multipart/form-data"
+        )
+        self.assertEqual(response.status, "200 OK", response.data)
+        response.close()
+        args = self.TILE_PARAMETERS
+        args["layers"] = testfile
+        response = self.client.get("api/wms", query_string=self.TILE_PARAMETERS)
+        self.assertEqual(response.status, "200 OK")
+        self.assertGreater(len(response.data), 0)
+        Image.open(io.BytesIO(response.data))
+
+    def testRasterTileWorkflow(self):
         """Upload a raster, then check that the tile request is not empty"""
         testfile = "hotmaps-cdd_curr_adapted.tif"
         test_data, testfile_content = self.get_testformdata(testfile)

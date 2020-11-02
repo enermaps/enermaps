@@ -89,7 +89,8 @@ class WMS(Resource):
         layers = geofile.list_layers()
         for layer in layers:
             layer_node = etree.Element("Layer")
-            layer_node.set("queryable", "1")
+            layer_node.set("queryable", "1" if layer.is_queryable else "0")
+            # all layers presented by the api are opaque
             layer_node.set("opaque", "0")
             layer_name = etree.Element("Name")
             layer_name.text = layer.name
@@ -128,6 +129,18 @@ class WMS(Resource):
         r = mapnik.Rule()
         r.symbols.append(mapnik.RasterSymbolizer())
         s.rules.append(r)
+
+        polygon_symbolizer = mapnik.PolygonSymbolizer()
+        polygon_symbolizer.fill = mapnik.Color("#a0a0a0")
+        polygon_symbolizer.smooth = 1.0  # very smooth
+        r.symbols.append(polygon_symbolizer)
+
+        line_symbolizer = mapnik.LineSymbolizer()
+        line_symbolizer.stroke = mapnik.Color("black")
+        line_symbolizer.stroke_width = 1.0
+        r.symbols.append(line_symbolizer)
+        s.rules.append(r)
+
         style_name = "My Style"
         mp.append_style(style_name, s)
 

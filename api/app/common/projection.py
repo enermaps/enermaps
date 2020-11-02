@@ -1,5 +1,24 @@
+import glob
+import os
+
 import gdal
 import osr
+from flask import current_app
+
+
+def proj4_from_shapefile(path):
+    proj_files = glob.glob(os.path.join(path, "*prj"))
+    if not proj_files:
+        return ""
+    proj_file = proj_files[0]
+    try:
+        with open(proj_file) as f:
+            wkt = f.read(current_app.config["MAX_PROJECTION_LENGTH"])
+    except FileNotFoundError:
+        return ""
+    srs = osr.SpatialReference()
+    srs.ImportFromWkt(wkt)
+    return srs.ExportToProj4()
 
 
 def proj4_from_geotiff(path):
