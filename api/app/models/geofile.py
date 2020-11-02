@@ -148,6 +148,7 @@ class RasterLayer(Layer):
         # TODO: get this from the upload folder, check layer at that point ?
         gdal_source = mapnik.Gdal(file=layer_path)
         layer.datasource = gdal_source
+        layer.queryable = False
         # layer.minimum_scale_denominator
         return layer
 
@@ -174,6 +175,7 @@ class VectorLayer(Layer):
             raise FileNotFoundError("Shapefile was not found")
         layer.srs = self.projection
         layer.datasource = mapnik.Shapefile(file=shapefiles[0])
+        layer.queryable = True
         return layer
 
     def _get_vector_dir(self):

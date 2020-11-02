@@ -1,4 +1,6 @@
 import os
+from collections import namedtuple
+import json
 
 import mapnik
 from flask import Response, abort, current_app, request
@@ -17,7 +19,7 @@ current_file_dir = os.path.dirname(os.path.abspath(__file__))
 def parse_envelope(params):
     raw_extremas = params["bbox"].split(",")
     if len(raw_extremas) != 4:
-        raise Exception()
+        raise abort(400, "bounding box need four extremas")
     bbox = [float(extrema) for extrema in raw_extremas]
     bbox_dim = (bbox[0], bbox[1], bbox[2], bbox[3])
     bbox = mapnik.Box2d(*bbox_dim)
@@ -35,15 +37,40 @@ def parse_projection(params):
     return params["srs"].lower()
 
 
-def parse_size(params):
+Size = namedtuple(
+    "Size",
+    (
+        "width",
+        "height",
+    ),
+)
+
+
+def parse_size(params) -> Size:
     height = int(params["height"])
     width = int(params["width"])
     if (height * width) > current_app.config["WMS"]["MAX_SIZE"]:
         raise Exception()
-    return width, height
+    return Size(width=width, height=height)
+
+
+Position = namedtuple(
+    "Position",
+    (
+        "x",
+        "y",
+    ),
+)
+
+
+def parse_position(params) -> Size:
+    x = float(params["x"])
+    y = float(params["y"])
+    return Position(x=x, y=y)
 
 
 def parse_format(params):
+    """Parse the map return format, check that it is in the allowed list of format"""
     mime_format = params["format"]
     if mime_format not in current_app.config["WMS"]["GETMAP"]["ALLOWED_OUTPUTS"]:
         raise Exception()
@@ -57,7 +84,7 @@ class WMS(Resource):
         normalized_args = {k.lower(): v for k, v in request.args.items()}
         service = normalized_args.get("service")
         if service != "WMS":
-            return abort(400, 'service parameter needs to be set to "WMS"')
+            normalized_args["service"] = "WMS"
         request_name = normalized_args.get("request")
         if request_name == "GetMap":
             return self.get_map(normalized_args)
@@ -66,7 +93,10 @@ class WMS(Resource):
         if request_name == "GetFeatureInfo":
             return self.get_feature_info(normalized_args)
         return abort(
-            404, "Couldn't find the requested method, request parameter needs to be set"
+            400,
+            "Couldn't find the requested method {}, request parameter needs to be set".format(
+                request_name
+            ),
         )
 
     def get_capabilities(self, _):
@@ -114,15 +144,15 @@ class WMS(Resource):
 
         return Response(etree.tostring(root), mimetype="text/xml")
 
-    def get_map(self, normalized_args):
+    def _get_map(self, normalized_args):
         # miss:
         # bgcolor
         # exceptions
         projection = parse_projection(normalized_args)
         # validate projection
-        width, height = parse_size(normalized_args)
+        size = parse_size(normalized_args)
 
-        mp = mapnik.Map(width, height, "+init=" + projection)
+        mp = mapnik.Map(size.width, size.height, "+init=" + projection)
         # TODO: how do we manage style ? just have hardcoded
         # style list in a dir ?
         s = mapnik.Style()
@@ -132,7 +162,6 @@ class WMS(Resource):
 
         polygon_symbolizer = mapnik.PolygonSymbolizer()
         polygon_symbolizer.fill = mapnik.Color("#a0a0a0")
-        polygon_symbolizer.smooth = 1.0  # very smooth
         r.symbols.append(polygon_symbolizer)
 
         line_symbolizer = mapnik.LineSymbolizer()
@@ -156,12 +185,41 @@ class WMS(Resource):
             mapnik_layer = layer.as_mapnik_layer()
             mapnik_layer.styles.append(style_name)
             mp.layers.append(mapnik_layer)
+        return mp
 
-        mp.zoom_to_box(parse_envelope(normalized_args))
-        image = mapnik.Image(width, height)
-        mapnik.render(mp, image)
+    def get_map(self, normalized_args):
         mapnik_format, mime_format = parse_format(normalized_args)
+        size = parse_size(normalized_args)
+        mp = self._get_map(normalized_args)
+        mp.zoom_to_box(parse_envelope(normalized_args))
+        image = mapnik.Image(size.width, size.height)
+        mapnik.render(mp, image)
         return Response(image.tostring(mapnik_format), mimetype=mime_format)
 
     def get_feature_info(self, normalized_args):
-        raise NotImplementedError()
+        """Implement the GetFeatureInfo entrypoint for the WMS endpoint"""
+        # TODO: fix this to output text, xml and json !
+        # currently, only support application/json as mimetype
+        if normalized_args["info_format"] != "application/json":
+            abort(400, "this endpoint doesn't support non json return value")
+        mp = self._get_map(normalized_args)
+        mp.zoom_to_box(parse_envelope(normalized_args))
+        raw_query_layers = normalized_args.get("query_layers", "")
+        query_layers = raw_query_layers.split(",")
+        if set(query_layers) != {layer.name for layer in mp.layers}:
+            abort(400, "Requested layer didnt match the query_layers " "parameter")
+        features = {"features": []}
+        for layerindex, mapnick_layer in enumerate(mp.layers):
+            layer_name = mapnick_layer.name
+            layer = geofile.load(layer_name)
+            if not layer.is_queryable:
+                abort(
+                    400, "Requested query layer {} is not queryable.".format(layer.name)
+                )
+            mapnick_layer.queryable = True
+            position = parse_position(normalized_args)
+            # carefull here, this is a WMS 1.1.1 query maybe ?
+            featureset = mp.query_map_point(layerindex, position.x, position.y)
+            for feature in featureset:
+                features["features"].append(json.loads(feature.to_geojson()))
+        return features
