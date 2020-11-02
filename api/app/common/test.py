@@ -4,7 +4,7 @@ import shutil
 import tempfile
 import unittest
 
-import app.app as app_module
+from app import create_app
 
 
 def get_testdata(filename):
@@ -21,8 +21,7 @@ class BaseApiTest(unittest.TestCase):
         * set the upload directory to a temporary directory
         * ensure we don't run the test in debug
         """
-        self.flask_app = app_module.app
-        self.flask_app.config["TESTING"] = True
+        self.flask_app = create_app(testing=True)
         self.upload_dir = tempfile.mkdtemp()
         self.flask_app.config["UPLOAD_DIR"] = self.upload_dir
         self.client = self.flask_app.test_client()

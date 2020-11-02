@@ -2,3 +2,4 @@ flask-restx==0.2.0
 lxml==4.5.2
 GDAL==3.0.4
 Pillow==7.2.0
+requests

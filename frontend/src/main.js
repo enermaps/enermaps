@@ -18,10 +18,10 @@ for (let nuts_index = 0; nuts_index < 4; nuts_index++) {
   );
 }
 base_map['LAU'] = L.tileLayer.nutsLayer(
-    'http://127.0.0.1:2000/geoserver/enermaps/wms?',
+    '/api/wms?',
     {
       transparent: 'true',
-      layers: 'enermaps:tbl_lau1_2',
+      layers: 'lau.zip',
       format: 'image/png',
     },
 );
