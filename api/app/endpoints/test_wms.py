@@ -132,7 +132,7 @@ class WMSGetFeatureInfoTest(BaseApiTest):
         "QUERY_LAYERS": "nuts.zip",
         "INFO_FORMAT": "application/json",
         "X": "343.99341364924635",
-        "Y": "134.00370991511704"
+        "Y": "134.00370991511704",
     }
 
     def testGetInfoGermany(self):

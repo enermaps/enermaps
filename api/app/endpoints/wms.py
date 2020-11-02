@@ -207,14 +207,15 @@ class WMS(Resource):
         raw_query_layers = normalized_args.get("query_layers", "")
         query_layers = raw_query_layers.split(",")
         if set(query_layers) != {layer.name for layer in mp.layers}:
-            abort(400, "Requested layer didnt match the query_layers "
-                       "parameter")
+            abort(400, "Requested layer didnt match the query_layers " "parameter")
         features = {"features": []}
         for layerindex, mapnick_layer in enumerate(mp.layers):
             layer_name = mapnick_layer.name
             layer = geofile.load(layer_name)
             if not layer.is_queryable:
-                abort(400, "Requested query layer {} is not queryable.".format(layer.name))
+                abort(
+                    400, "Requested query layer {} is not queryable.".format(layer.name)
+                )
             mapnick_layer.queryable = True
             position = parse_position(normalized_args)
             # carefull here, this is a WMS 1.1.1 query maybe ?

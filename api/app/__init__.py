@@ -21,8 +21,8 @@ def init_dataset():
     """
     print("Ensure we have the initial dataset")
     existing_layers_name = [layer.name for layer in list_layers()]
-    nuts_base_url = 'https://geoserver.hotmaps.eu/geoserver/hotmaps/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=hotmaps:nuts&outputFormat=SHAPE-ZIP&CQL_FILTER=stat_levl_=%27{!s}%27%20AND%20year=%272013-01-01%27'
-    lau_url = 'https://geoserver.hotmaps.eu/geoserver/hotmaps/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=hotmaps:tbl_lau1_2&outputFormat=SHAPE-ZIP'
+    nuts_base_url = "https://geoserver.hotmaps.eu/geoserver/hotmaps/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=hotmaps:nuts&outputFormat=SHAPE-ZIP&CQL_FILTER=stat_levl_=%27{!s}%27%20AND%20year=%272013-01-01%27"
+    lau_url = "https://geoserver.hotmaps.eu/geoserver/hotmaps/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=hotmaps:tbl_lau1_2&outputFormat=SHAPE-ZIP"
     for i in range(4):
         filename = "nuts{!s}.zip".format(i)
         if filename in existing_layers_name:
@@ -69,4 +69,3 @@ def create_app(environment="production", testing=False):
         if not app.testing:
             init_dataset()
     return app
-
