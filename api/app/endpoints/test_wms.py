@@ -39,7 +39,6 @@ class WMSGetCapabilitiesTest(BaseApiTest):
             "api/geofile/", data=test_data, content_type="multipart/form-data"
         )
         self.assertEqual(response.status, "200 OK", response.data)
-        response.close()
 
         response = self.client.get("api/wms", query_string=GETCAPABILITIES_ARGS)
         self.assertEqual(response.status, "200 OK", response.data)
@@ -48,7 +47,6 @@ class WMSGetCapabilitiesTest(BaseApiTest):
         self.assertEqual(len(layers), 1)
         layer = layers[0]
         self.assertEqual(layer.get("queryable"), is_queryable)
-
         self.assertEqual(layer.find("Name").text, testfile)
 
     def testVectorLayerList(self):
@@ -97,12 +95,7 @@ class WMSGetMapTest(BaseApiTest):
     def testRasterTileWorkflow(self):
         """Upload a raster, then check that the tile request is not empty"""
         testfile = "hotmaps-cdd_curr_adapted.tif"
-        test_data, testfile_content = self.get_testformdata(testfile)
-        response = self.client.post(
-            "api/geofile/", data=test_data, content_type="multipart/form-data"
-        )
-        self.assertEqual(response.status, "200 OK", response.data)
-        response.close()
+        response = self.import_testdata(testfile)
 
         args = self.TILE_PARAMETERS
         args["layers"] = testfile
