@@ -204,28 +204,21 @@ class WMS(Resource):
             abort(400, "this endpoint doesn't support non json return value")
         mp = self._get_map(normalized_args)
         mp.zoom_to_box(parse_envelope(normalized_args))
-        map_layers = parse_layers(normalized_args)
         raw_query_layers = normalized_args.get("query_layers", "")
         query_layers = raw_query_layers.split(",")
-        if not query_layers:
-            # we don't specify query_layer, just take all the layer
-            query_layers = mp.layers
-        for layerindex, layer_name in enumerate(query_layers):
+        if set(query_layers) != {layer.name for layer in mp.layers}:
+            abort(400, "Requested layer didnt match the query_layers "
+                       "parameter")
+        features = {"features": []}
+        for layerindex, mapnick_layer in enumerate(mp.layers):
+            layer_name = mapnick_layer.name
             layer = geofile.load(layer_name)
             if not layer.is_queryable:
-                abort(400, "Requested query layer {} is not queryable.".format(layer))
-            if layer_name not in map_layers:
-                # TODO rewrite this, it's super bogus
-                abort(
-                    400,
-                    "Requested query layer {} is not in the LAYERS parameter.".format(
-                        layer
-                    ),
-                )
+                abort(400, "Requested query layer {} is not queryable.".format(layer.name))
+            mapnick_layer.queryable = True
             position = parse_position(normalized_args)
             # carefull here, this is a WMS 1.1.1 query maybe ?
             featureset = mp.query_map_point(layerindex, position.x, position.y)
-            features = {"features": []}
             for feature in featureset:
                 features["features"].append(json.loads(feature.to_geojson()))
-            return features
+        return features
