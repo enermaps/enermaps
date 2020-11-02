@@ -1,9 +1,9 @@
 var map = L.map("map").setView([51.505, -0.09], 13);
 
-var base0 = L.tileLayer.wms("http://ows.mundialis.de/services/service?", {
-  layers: "TOPO-OSM-WMS",
-});
-map.addLayer(base0);
+var baseLayer = new L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+      attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, &copy; <a href="http://cartodb.com/attributions">CartoDB</a>'
+})
+map.addLayer(baseLayer);
 var base_map = {};
 const workspace_name = "enermaps";
 const layer_name = "nuts";

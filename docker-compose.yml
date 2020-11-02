@@ -30,6 +30,9 @@ services:
     restart: always
     environment:
       POSTGRES_PASSWORD: example
+    # Fast Shutdown mode
+    # see https://github.com/docker-library/postgres/issues/714
+    stop_signal: SIGINT
     volumes:
       - db-data:/var/lib/postgresql/data
     env_file:
