@@ -11,8 +11,7 @@ GETCAPABILITIES_ARGS = {"service": "WMS", "request": "GetCapabilities"}
 
 class BaseWMSTEst(BaseApiTest):
     def testFailWhenNoService(self):
-        response = self.client.get("api/wms",
-                                   query_string={"request": "GetMap"})
+        response = self.client.get("api/wms", query_string={"request": "GetMap"})
         self.assertEqual(response.status, "400 BAD REQUEST", response.data)
 
     def testFailWhenNoRequest(self):
@@ -26,8 +25,7 @@ class WMSGetCapabilitiesTest(BaseApiTest):
     def testLayerLessCall(self):
         """Test the call to getCapabilities"""
         # help(self.client.get)
-        response = self.client.get("api/wms",
-                                   query_string=GETCAPABILITIES_ARGS)
+        response = self.client.get("api/wms", query_string=GETCAPABILITIES_ARGS)
         self.assertEqual(response.status, "200 OK", response.data)
         root = xml.etree_fromstring(response.data)
         layer_names = root.findall(".//Layer/Name")
@@ -42,8 +40,7 @@ class WMSGetCapabilitiesTest(BaseApiTest):
         )
         self.assertEqual(response.status, "200 OK", response.data)
 
-        response = self.client.get("api/wms",
-                                   query_string=GETCAPABILITIES_ARGS)
+        response = self.client.get("api/wms", query_string=GETCAPABILITIES_ARGS)
         self.assertEqual(response.status, "200 OK", response.data)
         root = etree.fromstring(response.data)
         layers = root.findall(".//Layer/Layer")
