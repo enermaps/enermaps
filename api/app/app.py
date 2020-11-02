@@ -2,7 +2,6 @@ import os
 
 from flask import Blueprint, Flask, redirect
 from flask_restx import Api
-from osgeo import gdal, osr
 
 from app.endpoints import cm, geofile, wms
 

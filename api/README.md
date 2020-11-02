@@ -25,5 +25,13 @@ You should then be able to run main.py for running the webserver locally or test
 
 # Linting
 
-We run black on version 20.8b1.
-We advise you to run isort to take care of the order of dependencies.
+We run a series of linter which are listed in linter-requirements.txt with their version. 
+You can run them locally by first installing them:
+
+```
+pip install -r linter-requirements.txt
+```
+They are:
+
+* black for automated formatting
+* bandit for security scanning

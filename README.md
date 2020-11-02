@@ -33,7 +33,6 @@ changed images with the following command:
 ```
 docker-compose up --build -d
 ```
-
 ## Cleanup
 
 You can stop the entire stack with
@@ -48,4 +47,8 @@ You can remove all data and images, if for example you wanna start from scratch 
 docker-compose rm
 docker volume prune
 ```
+# Continuous Integration
+
+we use [github actions](https://github.com/features/actions) for continuous integration on the project.
+=======
 

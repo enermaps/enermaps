@@ -1,9 +1,10 @@
 import io
 
+from app.common.test import BaseApiTest
 from lxml import etree
 from PIL import Image
 
-from app.common.test import BaseApiTest
+import app.common.xml as xml
 
 GETCAPABILITIES_ARGS = {"service": "WMS", "request": "GetCapabilities"}
 
@@ -26,7 +27,9 @@ class WMSGetCapabilitiesTest(BaseApiTest):
         # help(self.client.get)
         response = self.client.get("api/wms", query_string=GETCAPABILITIES_ARGS)
         self.assertEqual(response.status, "200 OK", response.data)
-        etree.fromstring(response.data)
+        root = xml.etree_fromstring(response.data)
+        layer_names = root.findall(".//Layer/Name")
+        self.assertEqual(len(layer_names), 0)
 
     def testLayerList(self):
         """Upon adding a layer, we should see that layer in the capability layer list"""
@@ -40,7 +43,7 @@ class WMSGetCapabilitiesTest(BaseApiTest):
 
         response = self.client.get("api/wms", query_string=GETCAPABILITIES_ARGS)
         self.assertEqual(response.status, "200 OK", response.data)
-        root = etree.fromstring(response.data)
+        root = xml.etree_fromstring(response.data)
         layer_names = root.findall(".//Layer/Name")
         self.assertEqual(len(layer_names), 1)
         self.assertEqual(layer_names[0].text, testfile)
