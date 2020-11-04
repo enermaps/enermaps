@@ -46,14 +46,15 @@ L.TileLayer.NutsLayer = L.TileLayer.WMS.extend({
     );
   },
   getFeatureInfo: function (evt) {
-    // Make an AJAX request to the server and hope for the best
-    var url = this.getFeatureInfoUrl(evt.latlng),
+    var point = this._map.latLngToContainerPoint(evt.latlng, this._map.getZoom());
+
+    var url = this.getFeatureInfoUrl(point);
       showResults = L.Util.bind(this.onClickSelect, this);
     $.ajax({
       url: url,
       success: function (data, status, xhr) {
         var err = typeof data === "string" ? null : data;
-        showResults(err, evt.latlng, data);
+        showResults(err, data);
       },
       error: function (xhr, status, error) {
         showResults(error);
@@ -61,19 +62,28 @@ L.TileLayer.NutsLayer = L.TileLayer.WMS.extend({
     });
   },
 
-  getFeatureInfoUrl: function (latlng) {
-    // Construct a GetFeatureInfo request URL given a point
-    var point = this._map.latLngToContainerPoint(latlng, this._map.getZoom()),
+  getFeatureInfoUrl: function (point) {
+       // Construct a GetFeatureInfo request URL given a point
+      //TODO this one is way trickier than it seems for WMS 1.1.1 vs 1.3.0,
+      // currently the backend and the frontend understand that:  
+      // * the bounding box in the map coordinate
+      // * the X and Y position are pixels offset
+      // This behaviour changes between WMS version, so verify that the backend is 
+      // talking version 1.1.1 of the WMS
       size = this._map.getSize(),
+      var crs = this._map.options.crs;
+      var mapBounds =  this._map.getBounds();
+      var nw = crs.project(mapBounds.getNorthWest());
+      var se = crs.project(mapBounds.getSouthEast());
       params = {
         request: "GetFeatureInfo",
         service: "WMS",
-        srs: "EPSG:4326",//this.wmsParams.srs,//"EPSG:4326",
+        srs: crs.code,
         styles: this.wmsParams.styles,
         transparent: this.wmsParams.transparent,
         version: this.wmsParams.version,
         format: this.wmsParams.format,
-        bbox: this._map.getBounds().toBBoxString(),
+        bbox: nw.x + ',' + se.y + ',' + se.x + ',' + nw.y,
         height: size.y,
         width: size.x,
         layers: this.wmsParams.layers,
@@ -84,8 +94,8 @@ L.TileLayer.NutsLayer = L.TileLayer.WMS.extend({
       params.cql_filter = this.wmsParams.cql_filter;
     }
 
-    params[params.version === "1.3.0" ? "i" : "x"] = point.x;
-    params[params.version === "1.3.0" ? "j" : "y"] = point.y;
+    params[params.version === "1.3.0" ? "i" : "x"] = Math.floor(point.x);
+    params[params.version === "1.3.0" ? "j" : "y"] = Math.floor(point.y);
 
     return this._url + L.Util.getParamString(params, this._url, true);
   },
@@ -98,7 +108,7 @@ L.TileLayer.NutsLayer = L.TileLayer.WMS.extend({
   onError: function (err) {
     console.log(err);
   },
-  onClickSelect: function (content, latlng, content) {
+  onClickSelect: function (content, content) {
     //if (err) { console.log(err); return; } // do nothing if there's an error
     // Otherwise show the content in a popup, or something.
     //this._map.getLayer("selection")
