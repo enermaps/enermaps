@@ -161,7 +161,7 @@ class WMS(Resource):
         s.rules.append(r)
 
         polygon_symbolizer = mapnik.PolygonSymbolizer()
-        polygon_symbolizer.fill = mapnik.Color("#a0a0a0")
+        polygon_symbolizer.fill = mapnik.Color(0, 0, 0, 0)
         r.symbols.append(polygon_symbolizer)
 
         line_symbolizer = mapnik.LineSymbolizer()
