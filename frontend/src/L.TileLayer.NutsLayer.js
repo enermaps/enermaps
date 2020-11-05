@@ -70,7 +70,7 @@ L.TileLayer.NutsLayer = L.TileLayer.WMS.extend({
       // * the X and Y position are pixels offset
       // This behaviour changes between WMS version, so verify that the backend is 
       // talking version 1.1.1 of the WMS
-      size = this._map.getSize(),
+      size = this._map.getSize();
       var crs = this._map.options.crs;
       var mapBounds =  this._map.getBounds();
       var nw = crs.project(mapBounds.getNorthWest());
