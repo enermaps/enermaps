@@ -18,6 +18,10 @@ from werkzeug.datastructures import FileStorage
 from app.common.projection import proj4_from_geotiff, proj4_from_shapefile
 
 
+class SaveException(Exception):
+    pass
+
+
 def get_user_upload(prefix_path):
     """Return the location of a subdirectory for uploads. this also uses a prefix"""
     user_dir = safe_join(current_app.config["UPLOAD_DIR"], prefix_path)
@@ -195,17 +199,32 @@ class VectorLayer(Layer):
 
     @staticmethod
     def save(file_upload: FileStorage):
-        tmp_path = "/tmp/test.zip"
-        file_upload.save(tmp_path)
-        zip_ref = zipfile.ZipFile(tmp_path, "r")
-        output_dirpath = safe_join(get_user_upload("vectors"), file_upload.filename)
-        zip_ref.extractall(output_dirpath)
+        """This is an atomic operation for saving the shapefile as a zip.
+        We first unzipit to a tmp file in the same filesystem
+        """
+        try:
+            zip_ref = zipfile.ZipFile(file_upload, "r")
+        except zipfile.BadZipFile:
+            raise SaveException("File is an invalid zip file.")
+        # Use a temp file in the same directory as the ginal vector location
+        # The point here is to have an atomic replace which is only possible if
+        # the origin and the destination are in the same filesystem.
+        upload_dir = get_user_upload("vectors")
+        tmp_output = safe_join(upload_dir, "." + file_upload.filename)
+        output_dirpath = safe_join(upload_dir, file_upload.filename)
+        zip_ref.extractall(tmp_output)
+        os.replace(tmp_output, output_dirpath)
         return VectorLayer(file_upload.filename)
 
     @staticmethod
     def list_layers():
+        """List file in the vector directory
+        Ignore hidden file as they are used for unzipping destination and don't
+        provide ondisk consistency.
+        """
         layers = os.listdir(get_user_upload("vectors"))
-        return map(VectorLayer, layers)
+        non_hidden_layers = filter(lambda a: not a.startswith("."), layers)
+        return map(VectorLayer, non_hidden_layers)
 
     def delete(self):
         shutil.rmtree(self._get_vector_dir())
