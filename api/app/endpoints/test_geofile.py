@@ -20,6 +20,14 @@ class VectorGeofileTest(BaseApiTest):
         json_content = json.loads(response.data)
         self.assertIn(testfile, json_content["files"])
 
+    def testUploadBadZip(self):
+        testfile = "hotmaps-cdd_curr_adapted.tif"
+        test_data, _ = self.get_testformdata(testfile, testfile_name="test.zip")
+        response = self.client.post(
+            "api/geofile/", data=test_data, content_type="multipart/form-data"
+        )
+        self.assertEqual(response.status, "400 BAD REQUEST", response.data)
+
 
 class TifGeofileTest(BaseApiTest):
     def testFileEscapePost(self):

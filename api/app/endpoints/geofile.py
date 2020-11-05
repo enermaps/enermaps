@@ -27,12 +27,15 @@ class GeoFiles(Resource):
         """Add a geofile, currently only raster is supported in a geotiff format.
 
         Later we plan on supporting
-        * csv linking a NUTS to a value and shapefile.
-        * shapefiles
+        * csv: linking a NUTS to a value and shapefile.
         """
         args = upload_parser.parse_args()
         uploaded_file = args["file"]  # This is FileStorage instance
-        layer = geofile.create(uploaded_file)
+        # TODO this should be in the error handler instead
+        try:
+            layer = geofile.create(uploaded_file)
+        except geofile.SaveException as e:
+            abort(400, str(e))
         if not layer.projection:
             layer.delete()
             abort(400, "The uploaded file didn't contain a projection")
