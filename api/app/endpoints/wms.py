@@ -107,6 +107,13 @@ class WMS(Resource):
         with open(os.path.join(current_file_dir, "capabilities.xml")) as f:
             root = xml.etree_fromstring(f.read())
         root_layer = root.find("Capability/Layer")
+        layer_name = etree.Element("Name")
+        root_layer.append(layer_name)
+        abstract = etree.Element("Abstract")
+        root_layer.append(abstract)
+        layer_title = etree.Element("Title")
+        root_layer.append(layer_title)
+
         for crs in current_app.config["WMS"]["ALLOWED_PROJECTIONS"]:
             crs_node = etree.Element("CRS")
             crs_node.text = crs.upper()
@@ -127,9 +134,33 @@ class WMS(Resource):
             layer_node.append(layer_name)
             abstract = etree.Element("Abstract")
             layer_node.append(abstract)
+            keyword_list = etree.Element("KeywordList")
+            layer_node.append(keyword_list)
             layer_title = etree.Element("Title")
             layer_title.text = "This is layer {}".format(layer.name)
             layer_node.append(layer_title)
+
+            mapnik_layer = layer.as_mapnik_layer()
+            bbox = mapnik_layer.envelope()
+            projected_bbox = etree.Element("LatLonBoundingBox")
+            # Should be projected first
+            projected_bbox.set('minx', str(bbox.minx))
+            projected_bbox.set('maxx', str(bbox.maxx))
+            projected_bbox.set('miny', str(bbox.miny))
+            projected_bbox.set('maxy', str(bbox.maxy))
+            layer_node.append(projected_bbox)
+
+            layer_bbox = etree.Element('BoundingBox')
+            if hasattr(layer, 'wms_srs'):
+                layer_bbox.set('SRS', layer.wms_srs)
+            else:
+                layer_bbox.set('SRS', 'EPSG:3857')
+            layer_bbox.set('minx', str(bbox.minx))
+            layer_bbox.set('maxx', str(bbox.maxx))
+            layer_bbox.set('miny', str(bbox.miny))
+            layer_bbox.set('maxy', str(bbox.maxy))
+            layer_node.append(layer_bbox)
+            #bbox_node.set("CRS", layer.wms_srs)
 
             root_layer.append(layer_node)
 
@@ -141,8 +172,9 @@ class WMS(Resource):
             format_node = etree.Element("Format")
             format_node.text = map_format
             get_map.append(format_node)
+        etree.indent(root, space="    ")
 
-        return Response(etree.tostring(root), mimetype="text/xml")
+        return Response(etree.tostring(root, pretty_print=True), mimetype="text/xml")
 
     def _get_map(self, normalized_args):
         # miss:
