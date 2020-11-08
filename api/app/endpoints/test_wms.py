@@ -19,26 +19,37 @@ class WMSGetCapabilitiesTest(BaseApiTest):
     """Test the get capabilities (a list of all endpoint and layer)"""
 
     def testSucceedWithUppercaseParameters(self):
+        """Test that lowercase parameters produces the same result as uppercase
+        get parameters
+        """
         args = {}
         for k, v in GETCAPABILITIES_ARGS.items():
             args[k.upper()] = v
-        response = self.client.get("api/wms", query_string=args)
-        self.assertEqual(response.status, "200 OK", response.data)
+        response_lower = self.client.get("api/wms", query_string=args)
+        response_upper = self.client.get("api/wms", query_string=GETCAPABILITIES_ARGS)
+        self.assertEqual(response_lower.data, response_upper.data)
+        self._validate_xml_string(response_lower.data)
 
-    def testSucceedWhenNoService(self):
+    def testFailsWhenNoService(self):
+        """Test that the call to getcapabilities fails when no service
+        parameter is passed as argument
+        """
         args = GETCAPABILITIES_ARGS
         del args["service"]
         response = self.client.get("api/wms", query_string={"request": args})
         self.assertEqual(response.status, "400 BAD REQUEST", response.data)
 
     def testLayerLessCall(self):
-        """Test the call to getCapabilities"""
+        """Test that the call to getCapabilities with no layers defined
+        returns an empty list of layers.
+        """
         # help(self.client.get)
         response = self.client.get("api/wms", query_string=GETCAPABILITIES_ARGS)
         self.assertEqual(response.status, "200 OK", response.data)
         root = xml.etree_fromstring(response.data)
         layer_names = root.findall(".//Layer/Layer/Name")
-        self.assertEqual(len(layer_names), 0, "Found a layer, expect none")
+        self.assertEqual(len(layer_names), 0, "Found a layer, expected none")
+        self._validate_xml(root)
 
     def _testLayerList(self, testfile, is_queryable):
         """Upon adding a layer, we should see that layer
@@ -60,21 +71,21 @@ class WMSGetCapabilitiesTest(BaseApiTest):
         #finally test the response compatiblity using the dtd, a xml schema
         self._validate_xml(root)
 
-    def testDTDCompliance(self):
-        response = self.client.get("api/wms", query_string=GETCAPABILITIES_ARGS)
-        self.assertEqual(response.status, "200 OK", response.data)
-        root = etree.fromstring(response.data)
-        dtd_path = get_testdata("WMS_MS_Capabilities_1.1.1.dtd")
-        dtd = etree.DTD(open(dtd_path))
-        valid = dtd.validate(root)
-        self.assertTrue(valid, dtd.error_log.filter_from_errors())
-
     def testVectorLayerList(self):
+        """Verify that upon uploading a non-raster layer, we return a
+        list of layers containing the uploaded non-raster layer with
+        the queryable attribute.
+        This means that this layer supports the getfeatureinfo endpoint.
+        """
         self._testLayerList("nuts.zip", is_queryable="1")
 
     def testRasterLayerList(self):
         testfile = "hotmaps-cdd_curr_adapted.tif"
         self._testLayerList(testfile, is_queryable="0")
+
+    def _validate_xml_string(self, xml_string):
+        root = etree.fromstring(xml_string)
+        self._validate_xml(root)
 
     def _validate_xml(self, xml_root):
         dtd_path = get_testdata("WMS_MS_Capabilities_1.1.1.dtd")
