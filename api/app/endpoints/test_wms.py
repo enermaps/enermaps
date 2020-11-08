@@ -9,6 +9,7 @@ import app.common.xml as xml
 
 GETCAPABILITIES_ARGS = {"service": "WMS", "request": "GetCapabilities"}
 
+
 class BaseWMSTest(BaseApiTest):
     def testFailWhenNoRequestSpecified(self):
         response = self.client.get("api/wms", query_string={"service": "WMS"})
@@ -68,7 +69,7 @@ class WMSGetCapabilitiesTest(BaseApiTest):
         layer = layers[0]
         self.assertEqual(layer.get("queryable"), is_queryable)
         self.assertEqual(layer.find("Name").text, testfile)
-        #finally test the response compatiblity using the dtd, a xml schema
+        # finally test the response compatiblity using the dtd, a xml schema
         self._validate_xml(root)
 
     def testVectorLayerList(self):

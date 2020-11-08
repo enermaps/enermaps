@@ -23,8 +23,11 @@ def parse_envelope(params):
     try:
         minx, miny, maxx, maxy = [float(extrema) for extrema in raw_extremas]
     except ValueError:
-        abort(400, "Excepted the bounding box to be a comma separated "
-              "list of floating point numbers")
+        abort(
+            400,
+            "Excepted the bounding box to be a comma separated "
+            "list of floating point numbers",
+        )
     if (minx == maxx) or (miny == maxy):
         abort(400, "envelope area shouldn't be 0")
     bbox = mapnik.Box2d(minx, miny, maxx, maxy)
@@ -42,7 +45,7 @@ def parse_layers(params):
 
 def parse_projection(params):
     try:
-        srs = params['srs']
+        srs = params["srs"]
     except KeyError:
         abort(400, "Parameter srs was not found")
     return srs.lower()
@@ -62,8 +65,11 @@ def parse_size(params) -> Size:
         height = int(params["height"])
         width = int(params["width"])
     except (KeyError, ValueError):
-        abort(400, "Size parameter (height or width) couldn't be extracted "
-              "correctly from the list of parameters ")
+        abort(
+            400,
+            "Size parameter (height or width) couldn't be extracted "
+            "correctly from the list of parameters ",
+        )
     if (height * width) > current_app.config["WMS"]["MAX_SIZE"]:
         abort(400, "Total size is bigger than the maximaml allowed size")
     return Size(width=width, height=height)
@@ -83,8 +89,11 @@ def parse_position(params) -> Size:
         x = float(params["x"])
         y = float(params["y"])
     except (ValueError, KeyError):
-        abort(400, "Position parameter (x or y) couldn't be extracted "
-              "correctly from the list of parameters")
+        abort(
+            400,
+            "Position parameter (x or y) couldn't be extracted "
+            "correctly from the list of parameters",
+        )
     return Position(x=x, y=y)
 
 
@@ -180,23 +189,23 @@ class WMS(Resource):
             bbox = mapnik_layer.envelope()
             projected_bbox = etree.Element("LatLonBoundingBox")
             # Should be projected first
-            projected_bbox.set('minx', str(bbox.minx))
-            projected_bbox.set('maxx', str(bbox.maxx))
-            projected_bbox.set('miny', str(bbox.miny))
-            projected_bbox.set('maxy', str(bbox.maxy))
+            projected_bbox.set("minx", str(bbox.minx))
+            projected_bbox.set("maxx", str(bbox.maxx))
+            projected_bbox.set("miny", str(bbox.miny))
+            projected_bbox.set("maxy", str(bbox.maxy))
             layer_node.append(projected_bbox)
 
-            layer_bbox = etree.Element('BoundingBox')
-            if hasattr(layer, 'wms_srs'):
-                layer_bbox.set('SRS', layer.wms_srs)
+            layer_bbox = etree.Element("BoundingBox")
+            if hasattr(layer, "wms_srs"):
+                layer_bbox.set("SRS", layer.wms_srs)
             else:
-                layer_bbox.set('SRS', 'EPSG:3857')
-            layer_bbox.set('minx', str(bbox.minx))
-            layer_bbox.set('maxx', str(bbox.maxx))
-            layer_bbox.set('miny', str(bbox.miny))
-            layer_bbox.set('maxy', str(bbox.maxy))
+                layer_bbox.set("SRS", "EPSG:3857")
+            layer_bbox.set("minx", str(bbox.minx))
+            layer_bbox.set("maxx", str(bbox.maxx))
+            layer_bbox.set("miny", str(bbox.miny))
+            layer_bbox.set("maxy", str(bbox.maxy))
             layer_node.append(layer_bbox)
-            #bbox_node.set("CRS", layer.wms_srs)
+            # bbox_node.set("CRS", layer.wms_srs)
 
             root_layer.append(layer_node)
 
