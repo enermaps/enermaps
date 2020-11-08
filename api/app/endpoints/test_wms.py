@@ -1,14 +1,13 @@
 import io
 import json
 
-from app.common.test import BaseApiTest
+from app.common.test import BaseApiTest, get_testdata
 from lxml import etree
 from PIL import Image
 
 import app.common.xml as xml
 
 GETCAPABILITIES_ARGS = {"service": "WMS", "request": "GetCapabilities"}
-
 
 class BaseWMSTest(BaseApiTest):
     def testFailWhenNoRequestSpecified(self):
@@ -38,8 +37,8 @@ class WMSGetCapabilitiesTest(BaseApiTest):
         response = self.client.get("api/wms", query_string=GETCAPABILITIES_ARGS)
         self.assertEqual(response.status, "200 OK", response.data)
         root = xml.etree_fromstring(response.data)
-        layer_names = root.findall(".//Layer/Name")
-        self.assertEqual(len(layer_names), 0)
+        layer_names = root.findall(".//Layer/Layer/Name")
+        self.assertEqual(len(layer_names), 0, "Found a layer, expect none")
 
     def _testLayerList(self, testfile, is_queryable):
         """Upon adding a layer, we should see that layer
@@ -58,6 +57,15 @@ class WMSGetCapabilitiesTest(BaseApiTest):
         layer = layers[0]
         self.assertEqual(layer.get("queryable"), is_queryable)
         self.assertEqual(layer.find("Name").text, testfile)
+
+    def testDTDCompliance(self):
+        response = self.client.get("api/wms", query_string=GETCAPABILITIES_ARGS)
+        self.assertEqual(response.status, "200 OK", response.data)
+        root = etree.fromstring(response.data)
+        dtd_path = get_testdata("WMS_MS_Capabilities_1.1.1.dtd")
+        dtd = etree.DTD(open(dtd_path))
+        valid = dtd.validate(root)
+        self.assertTrue(valid, dtd.error_log.filter_from_errors())
 
     def testVectorLayerList(self):
         self._testLayerList("nuts.zip", is_queryable="1")
