@@ -21,7 +21,12 @@ Then proceed to install the requirement with:
 pip install -r requirements.txt
 ```
 
-You should then be able to run main.py for running the webserver locally or test.py for running all tests.
+You should then be able to run main.py for running the webserver locally or test.py for running all tests using on unix platform:
+
+```
+python $(pwd)/main.py
+```
+The api will listen http://127.0.0.1:7000
 
 # Linting
 
