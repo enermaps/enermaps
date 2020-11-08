@@ -57,6 +57,8 @@ class WMSGetCapabilitiesTest(BaseApiTest):
         layer = layers[0]
         self.assertEqual(layer.get("queryable"), is_queryable)
         self.assertEqual(layer.find("Name").text, testfile)
+        #finally test the response compatiblity using the dtd, a xml schema
+        self._validate_xml(root)
 
     def testDTDCompliance(self):
         response = self.client.get("api/wms", query_string=GETCAPABILITIES_ARGS)
@@ -73,6 +75,12 @@ class WMSGetCapabilitiesTest(BaseApiTest):
     def testRasterLayerList(self):
         testfile = "hotmaps-cdd_curr_adapted.tif"
         self._testLayerList(testfile, is_queryable="0")
+
+    def _validate_xml(self, xml_root):
+        dtd_path = get_testdata("WMS_MS_Capabilities_1.1.1.dtd")
+        dtd = etree.DTD(open(dtd_path))
+        valid = dtd.validate(xml_root)
+        self.assertTrue(valid, dtd.error_log.filter_from_errors())
 
 
 class WMSGetMapTest(BaseApiTest):
