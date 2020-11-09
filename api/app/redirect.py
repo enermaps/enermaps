@@ -1,9 +1,9 @@
-import os
+"""Redirect / to /api
 
-from flask import Blueprint, Flask, redirect
-from flask_restx import Api
-
-from app.endpoints import cm, geofile, wms
+As we expect all api access to go trough /api and the / is shielded
+by the reverse proxy, we redirect / to /api.
+"""
+from flask import Blueprint, redirect
 
 redirect_to_api = Blueprint("redirect_to_api", __name__)
 
