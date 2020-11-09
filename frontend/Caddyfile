@@ -4,6 +4,9 @@ log
 redir /api /api/
 reverse_proxy /api/*  api:80
 reverse_proxy /swaggerui/* api:80
+header {
+	Access-Control-Allow-Origin *
+}
 
 file_server /* {
   root /frontend/
