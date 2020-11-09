@@ -1,5 +1,5 @@
-from app.common.test import (BaseApiTest,
-        skipUnlessDockerComposeCanBeExecuted)
+from app.common.test import BaseApiTest, skipUnlessDockerComposeCanBeExecuted
+
 
 @skipUnlessDockerComposeCanBeExecuted
 class FakeOuputTest(BaseApiTest):
