@@ -1,7 +1,7 @@
 import io
 import os
 import shutil
-import subprocess
+import subprocess  # nosec
 import tempfile
 import unittest
 
@@ -20,7 +20,7 @@ def skipUnlessDockerComposeCanBeExecuted(f):
     when the docker-compose executable was not found.
     """
     try:
-        subprocess.check_call(["docker-compose", "--version"])
+        subprocess.check_call(["docker-compose", "--version"], shell=False)  # nosec
     except FileNotFoundError:
         return unittest.skip("Couldn't find docker-compose, skipping test")
     return lambda func: func
