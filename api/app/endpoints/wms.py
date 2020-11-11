@@ -20,21 +20,35 @@ def parse_envelope(params):
     raw_extremas = params["bbox"].split(",")
     if len(raw_extremas) != 4:
         raise abort(400, "bounding box need four extremas")
-    bbox = [float(extrema) for extrema in raw_extremas]
-    bbox_dim = (bbox[0], bbox[1], bbox[2], bbox[3])
-    bbox = mapnik.Box2d(*bbox_dim)
+    try:
+        minx, miny, maxx, maxy = [float(extrema) for extrema in raw_extremas]
+    except ValueError:
+        abort(
+            400,
+            "Excepted the bounding box to be a comma separated "
+            "list of floating point numbers",
+        )
+    if (minx == maxx) or (miny == maxy):
+        abort(400, "envelope area shouldn't be 0")
+    bbox = mapnik.Box2d(minx, miny, maxx, maxy)
     return bbox
 
 
 def parse_layers(params):
-    raw_layers = params["layers"]
+    try:
+        raw_layers = params["layers"]
+    except KeyError:
+        abort(400, "Parameter layers was not found")
     layers = raw_layers.split(",")
-    # validation
     return layers
 
 
 def parse_projection(params):
-    return params["srs"].lower()
+    try:
+        srs = params["srs"]
+    except KeyError:
+        abort(400, "Parameter srs was not found")
+    return srs.lower()
 
 
 Size = namedtuple(
@@ -47,10 +61,17 @@ Size = namedtuple(
 
 
 def parse_size(params) -> Size:
-    height = int(params["height"])
-    width = int(params["width"])
+    try:
+        height = int(params["height"])
+        width = int(params["width"])
+    except (KeyError, ValueError):
+        abort(
+            400,
+            "Size parameter (height or width) couldn't be extracted "
+            "correctly from the list of parameters ",
+        )
     if (height * width) > current_app.config["WMS"]["MAX_SIZE"]:
-        raise Exception()
+        abort(400, "Total size is bigger than the maximaml allowed size")
     return Size(width=width, height=height)
 
 
@@ -64,17 +85,33 @@ Position = namedtuple(
 
 
 def parse_position(params) -> Size:
-    x = float(params["x"])
-    y = float(params["y"])
+    try:
+        x = float(params["x"])
+        y = float(params["y"])
+    except (ValueError, KeyError):
+        abort(
+            400,
+            "Position parameter (x or y) couldn't be extracted "
+            "correctly from the list of parameters",
+        )
     return Position(x=x, y=y)
 
 
 def parse_format(params):
-    """Parse the map return format, check that it is in the allowed list of format"""
-    mime_format = params["format"]
-    if mime_format not in current_app.config["WMS"]["GETMAP"]["ALLOWED_OUTPUTS"]:
+    """Parse the map return format, check that it is in the allowed list of
+    format"""
+    try:
+        mime_format = params["format"]
+    except KeyError:
+        abort(400, "Couldn't find the format parameters")
+    allowed_outputs = current_app.config["WMS"]["GETMAP"]["ALLOWED_OUTPUTS"]
+    if mime_format not in allowed_outputs:
         raise Exception()
-    return MIME_TO_MAPNIK[mime_format], mime_format
+    try:
+        mapnik_format = MIME_TO_MAPNIK[mime_format]
+    except ValueError:
+        abort(400, "return format is not supported")
+    return mapnik_format, mime_format
 
 
 @api.route("")
@@ -107,8 +144,17 @@ class WMS(Resource):
         with open(os.path.join(current_file_dir, "capabilities.xml")) as f:
             root = xml.etree_fromstring(f.read())
         root_layer = root.find("Capability/Layer")
+        layer_name = etree.Element("Name")
+        root_layer.append(layer_name)
+        layer_title = etree.Element("Title")
+        root_layer.append(layer_title)
+        abstract = etree.Element("Abstract")
+        root_layer.append(abstract)
+        keyword_list = etree.Element("KeywordList")
+        root_layer.append(keyword_list)
+
         for crs in current_app.config["WMS"]["ALLOWED_PROJECTIONS"]:
-            crs_node = etree.Element("CRS")
+            crs_node = etree.Element("SRS")
             crs_node.text = crs.upper()
             root_layer.append(crs_node)
 
@@ -116,33 +162,56 @@ class WMS(Resource):
         for element in capabilities:
             element.set("{http://www.w3.org/1999/xlink}href", request.base_url)
 
+        get_map = root.find("Capability/Request/GetMap")
+        for get_map_format in current_app.config["WMS"]["GETMAP"]["ALLOWED_OUTPUTS"]:
+            format_node = etree.Element("Format")
+            format_node.text = get_map_format
+            get_map.insert(0, format_node)
+        etree.indent(root, space="    ")
         layers = geofile.list_layers()
         for layer in layers:
             layer_node = etree.Element("Layer")
             layer_node.set("queryable", "1" if layer.is_queryable else "0")
             # all layers presented by the api are opaque
             layer_node.set("opaque", "0")
-            layer_name = etree.Element("Name")
-            layer_name.text = layer.name
-            layer_node.append(layer_name)
+            name_node = etree.Element("Name")
+            name_node.text = layer.name
+            layer_node.append(name_node)
+            title_node = etree.Element("Title")
+            title_node.text = "This is layer {}".format(layer.name)
+            layer_node.append(title_node)
             abstract = etree.Element("Abstract")
             layer_node.append(abstract)
-            layer_title = etree.Element("Title")
-            layer_title.text = "This is layer {}".format(layer.name)
-            layer_node.append(layer_title)
+            keyword_list = etree.Element("KeywordList")
+            layer_node.append(keyword_list)
+
+            mapnik_layer = layer.as_mapnik_layer()
+            bbox = mapnik_layer.envelope()
+            projected_bbox = etree.Element("LatLonBoundingBox")
+            # Should be projected first
+            projected_bbox.set("minx", str(bbox.minx))
+            projected_bbox.set("maxx", str(bbox.maxx))
+            projected_bbox.set("miny", str(bbox.miny))
+            projected_bbox.set("maxy", str(bbox.maxy))
+            layer_node.append(projected_bbox)
+
+            layer_bbox = etree.Element("BoundingBox")
+            if hasattr(layer, "wms_srs"):
+                layer_bbox.set("SRS", layer.wms_srs)
+            else:
+                layer_bbox.set("SRS", "EPSG:3857")
+            layer_bbox.set("minx", str(bbox.minx))
+            layer_bbox.set("maxx", str(bbox.maxx))
+            layer_bbox.set("miny", str(bbox.miny))
+            layer_bbox.set("maxy", str(bbox.maxy))
+            layer_node.append(layer_bbox)
+            # bbox_node.set("CRS", layer.wms_srs)
 
             root_layer.append(layer_node)
 
-        # TODO: add bounding box for each layer
         # TODO: add a reference to a legend and have an endpoint for it
 
-        get_map = root.find("Capability/Request/GetMap")
-        for map_format in current_app.config["WMS"]["GETMAP"]["ALLOWED_OUTPUTS"]:
-            format_node = etree.Element("Format")
-            format_node.text = map_format
-            get_map.append(format_node)
-
-        return Response(etree.tostring(root), mimetype="text/xml")
+        return Response(etree.tostring(root, pretty_print=True), mimetype="text/xml")
 
     def _get_map(self, normalized_args):
         # miss:
