@@ -4,6 +4,7 @@ import commonjs from '@rollup/plugin-commonjs';
 import livereload from 'rollup-plugin-livereload';
 import image from '@rollup/plugin-image';
 import { terser } from 'rollup-plugin-terser';
+import copy from 'rollup-plugin-copy'
 import css from 'rollup-plugin-css-only';
 
 const production = !process.env.ROLLUP_WATCH;
@@ -40,6 +41,11 @@ export default {
 	plugins: [
 		css({ output: 'public/build/vendor.css' }),
 		image(),
+		copy({
+			targets: [
+				{src: './node_modules/*/dist/images', dest: './public/build'}
+			]
+		}),
 		svelte({
 			// enable run-time checks when not in production
 			dev: !production,
