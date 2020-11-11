@@ -38,6 +38,11 @@ services:
     env_file:
       .env
 
+  redis:
+    image: redis:6-alpine
+    ports:
+      - "127.0.0.1:6379:6379"
+
 volumes:
   upload-data:
   db-data:

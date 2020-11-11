@@ -1,0 +1,89 @@
+import re
+import json
+from celery import Celery, result
+
+
+# TODO; migrate this to pyparsing maybe ?
+INFO_STRING = re.compile("^(?P<task_id>[a-zA-Z._]+) \\[cm_info=(?P<task_info>.+)\\]$")
+
+
+def get_celery_app():
+    app = Celery(broker="redis://guest@localhost//", backend="redis://localhost")
+    app.conf.update(
+        task_serializer="json",
+        accept_content=["json"],  # Ignore other content
+        result_serializer="json",
+        timezone="Europe/Zurich",
+        enable_utc=True,
+    )
+    return app
+
+
+def task_by_id(task_id, cm_name):
+    app = get_celery_app()
+    res = app.AsyncResult(task_id, task_name=cm_name)
+    return res
+
+
+def list_cms():
+    app = get_celery_app()
+    app_inspector = app.control.inspect()
+    nodes = app_inspector.registered("cm_info")
+    print(nodes)
+    if not nodes:
+        nodes = {}
+    cms = {}
+    for node in nodes.values():
+        for entry in node:
+            task = from_registration_string(entry, app)
+            cms[task.task_id] = task
+    return cms
+
+
+def cm_by_name(cm_name):
+    cms = list_cms()
+    try:
+        cm = cms[cm_name]
+    except KeyError:
+        raise Exception("Cannot find calculation module {}".format(cm_name))
+    return cm
+
+
+def from_registration_string(registration_string):
+    r = INFO_STRING.match(registration_string)
+    if not r:
+        raise Exception(
+            "invalid parameters used for creating a CM:" + registration_string
+        )
+
+    task_id = r.group("task_id")
+    raw_task_info = r.group("task_info")
+    try:
+        task_info = json.loads(raw_task_info)
+    except json.JSONDecodeError:
+        raise Exception(
+            "invalid task_info property when creating a CM:"
+            + raw_task_info
+            + " for cm "
+            + task_id
+        )
+    return CalculationModule(task_id, **task_info)
+
+
+class CalculationModule:
+    def __init__(self, task_id, **kwargs):
+        self.app = get_celery_app()
+        self.task_id = task_id
+        self.params = kwargs
+        self.__doc__ = kwargs.get(
+            "doc", "no documentation available for this calculation module"
+        )
+
+    def call(self, *args, **kwargs):
+        return self.app.send_task(self.task_id, args, kwargs)
+
+    def get_task(self, task_id):
+        pass
+
+    def __dict__(self):
+        {"name": self.task_id}

@@ -6,7 +6,7 @@ from flask_restx import Api
 import requests
 from werkzeug.datastructures import FileStorage
 
-from app.endpoints import cm, geofile, wms
+from app.endpoints import calculation_module, geofile, wms
 from app.redirect import redirect_to_api
 from app.models.geofile import create, list_layers
 
@@ -62,7 +62,7 @@ def create_app(environment="production", testing=False):
     api = Api(api_bp)
     api.add_namespace(geofile.api)
     api.add_namespace(wms.api)
-    api.add_namespace(cm.api)
+    api.add_namespace(calculation_module.api)
     app.register_blueprint(api_bp)
     app.register_blueprint(redirect_to_api)
     with app.app_context():

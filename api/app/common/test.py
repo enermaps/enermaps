@@ -1,6 +1,7 @@
 import io
 import os
 import shutil
+import subprocess  # nosec
 import tempfile
 import unittest
 
@@ -12,6 +13,17 @@ def get_testdata(filename):
     current_file_dir = os.path.dirname(os.path.abspath(__file__))
     testdata_dir = os.path.join(os.path.dirname(current_file_dir), "testdata")
     return os.path.join(testdata_dir, filename)
+
+
+def skipUnlessDockerComposeCanBeExecuted(f):
+    """This decorator can be used to skip integration test
+    when the docker-compose executable was not found.
+    """
+    try:
+        subprocess.check_call(["docker-compose", "--version"], shell=False)  # nosec
+    except FileNotFoundError:
+        return unittest.skip("Couldn't find docker-compose, skipping test")
+    return lambda func: func
 
 
 class BaseApiTest(unittest.TestCase):
