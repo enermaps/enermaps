@@ -1,12 +1,13 @@
 <script>
 	import { onMount } from 'svelte';
 	import './L.TileLayer.NutsLayer.js'
-	export let layers = [];
-	export let activated_layer;
-	export let search; 
+	import './L.DrawingLayer.js'
+	export let selection_layers = [];
+	export let selection_layer;
 	let layer_count = 0
 	onMount(async () => {
-		layers = await fetchLayers();
+		selection_layers = await fetchLayers();
+		selection_layers.push(getDrawingLayer());
 	});
 	async function fetchLayers() {
 		//document.domain = "geoserver.hotmaps.eu";
@@ -15,7 +16,7 @@
 			console.log(err);
 			return [];
 		}
-		var layers_resp = await response.json();
+		let layers_resp = await response.json();
 		return layers_resp.files.map(to_leaflet_layer);
 	}
 	function to_leaflet_layer(layer_name) {
@@ -29,15 +30,17 @@
 		  );
 		return layer;
 	}
+	function getDrawingLayer() {
+		return new L.DrawingLayer();
+	}
 	function activateLayer(layer) {
-		activated_layer = layer;
+		selection_layer = layer;
 	}
 	function removeLayer(layer) {
 	}
 </script>
 <div>
-	<input bind:value={search}>
-	{#each layers as layer}
+	{#each selection_layers as layer}
 	<button on:click={() => activateLayer(layer)}>
 			Activate {layer.options.layers}
 		</button>

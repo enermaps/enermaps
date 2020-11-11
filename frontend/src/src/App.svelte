@@ -17,8 +17,7 @@
 	import TopBar from './TopBar.svelte';
 
 	let map;
-	let layers = [];
-	let activated_layer;
+	let selection_layer;
 	let search = "";
 	onMount(async() => {
 		map = L.map('map').setView([51.505, -0.09], 13);
@@ -29,11 +28,19 @@
 	});
 
 	$: {
-		console.log(`layer was changed: ${layers}`)
-		console.log(`activated layer was changed: ${activated_layer}`)
-		if (activated_layer !== undefined) {
-		  activated_layer.addTo(map);
+		console.log(`selected layer was changed: ${selection_layer}`)
+		removeAllLayer();
+		if (selection_layer !== undefined) {
+		  selection_layer.addTo(map);
 		}
+	}
+	function removeAllLayer() {
+		if (!!!map) {
+			return;
+		}
+		map.eachLayer(function (layer) {
+		    map.removeLayer(layer);
+		});
 	}
 </script>
 
@@ -43,13 +50,10 @@
 	height: 100%;
 }
 </style>
-<TopBar bind:layers={layers} bind:activated_layer={activated_layer}/>
+<TopBar bind:selection_layer={selection_layer}/>
 {#if search}
 <br/>
 search is {search}
 {/if}
 <div id="map">
-</div>
-<div id="layers">
-	{layers}
 </div>

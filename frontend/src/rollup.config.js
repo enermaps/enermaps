@@ -2,6 +2,7 @@ import svelte from 'rollup-plugin-svelte';
 import resolve from '@rollup/plugin-node-resolve';
 import commonjs from '@rollup/plugin-commonjs';
 import livereload from 'rollup-plugin-livereload';
+import image from '@rollup/plugin-image';
 import { terser } from 'rollup-plugin-terser';
 import css from 'rollup-plugin-css-only';
 
@@ -38,6 +39,7 @@ export default {
 	},
 	plugins: [
 		css({ output: 'public/build/vendor.css' }),
+		image(),
 		svelte({
 			// enable run-time checks when not in production
 			dev: !production,
