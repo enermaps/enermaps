@@ -15,9 +15,11 @@
 
 	import { onMount } from 'svelte';
 	import TopBar from './TopBar.svelte';
+	import BottomBar from './BottomBar.svelte';
 
 	let map;
-	let selection_layer;
+	let active_selection_layer = undefined;
+	let active_overlay_layers = [];
 	let search = "";
 	onMount(async() => {
 		map = L.map('map').setView([51.505, -0.09], 13);
@@ -28,10 +30,14 @@
 	});
 
 	$: {
-		console.log(`selected layer was changed: ${selection_layer}`)
+		console.log(`selected layer was changed: ${active_selection_layer}`)
 		removeAllLayer();
-		if (selection_layer !== undefined) {
-		  selection_layer.addTo(map);
+		if (!!active_selection_layer) {
+			active_selection_layer.addTo(map)
+		}
+		for (const overlay_layer of active_overlay_layers) {
+			console.log(overlay_layer);
+			overlay_layer.addTo(map)
 		}
 	}
 	function removeAllLayer() {
@@ -50,10 +56,11 @@
 	height: 100%;
 }
 </style>
-<TopBar bind:selection_layer={selection_layer}/>
+<TopBar bind:active_selection_layer={active_selection_layer} bind:active_overlay_layers={active_overlay_layers}/>
 {#if search}
 <br/>
 search is {search}
 {/if}
 <div id="map">
 </div>
+<BottomBar bind:active_selection_layer={active_selection_layer} bind:active_overlay_layers={active_overlay_layers}/>
