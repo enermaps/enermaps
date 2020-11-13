@@ -4,7 +4,7 @@
 	let cms = []
 </script>
 
-<div>
+<footer class="page-footer grey darken-4">
 	{#each cms as cm}
 	{cm}
 	{/each}
@@ -14,4 +14,4 @@
 	{#if active_selection_layer}
 	{active_selection_layer.name}
 	{/if}
-</div>
+</footer>

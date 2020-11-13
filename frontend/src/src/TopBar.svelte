@@ -54,18 +54,22 @@
 		return new L.DrawingLayer();
 	}
 </script>
-<div>
+<ul id="slide-out" class="sidenav">
 	{#each overlay_layers as overlay_layer}
+	<li>
 	<label>
 				<input type=checkbox bind:group={active_overlay_layers} value={overlay_layer}>
 			{overlay_layer.name}
 		</label>
+	</li>
 	{/each}
 
 	{#each selection_layers as selection_layer}
+	<li>
 	<label>
 		<input type=radio bind:group={active_selection_layer} value={selection_layer}>
-			{selection_layer.name}
-		</label>
+		{selection_layer.name}
+	</label>
+	</li>
 	{/each}
-</div>
+</ul>

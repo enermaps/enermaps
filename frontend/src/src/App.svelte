@@ -13,6 +13,8 @@
 	import 'leaflet.markercluster/dist/leaflet.markercluster';
 	import 'leaflet.gridlayer.googlemutant/Leaflet.GoogleMutant';
 
+	import '../node_modules/materialize-css/dist/css/materialize.css'
+
 	import { onMount } from 'svelte';
 	import TopBar from './TopBar.svelte';
 	import BottomBar from './BottomBar.svelte';
@@ -23,10 +25,11 @@
 	let search = "";
 	onMount(async() => {
 		map = L.map('map').setView([51.505, -0.09], 13);
-
-		const layer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-		    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-		}).addTo(map);
+		let layer = L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png', {
+    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy;' +
+    ' <a href="https://cartodb.com/attributions">CartoDB</a>'
+  });
+		layer.addTo(map);
 	});
 
 	$: {
@@ -61,6 +64,6 @@
 <br/>
 search is {search}
 {/if}
-<div id="map">
+<div class="container" id="map">
 </div>
 <BottomBar bind:active_selection_layer={active_selection_layer} bind:active_overlay_layers={active_overlay_layers}/>
