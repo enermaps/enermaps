@@ -46,14 +46,14 @@ def list_cms():
     except (redis.exceptions.ConnectionError, kombu.exceptions.OperationalError) as err:
         # If redis is down, we just don't expose any calculation module
         logging.error("Connection to celery broken resulted in an error: ", err)
-        return {}
+        return []
     if not nodes:
-        nodes = {}
-    cms = {}
+        nodes = []
+    cms = []
     for node in nodes.values():
         for entry in node:
-            task = from_registration_string(entry)
-            cms[task.task_id] = task
+            cm = from_registration_string(entry)
+            cms.append(cm)
     return cms
 
 
@@ -90,7 +90,7 @@ def from_registration_string(registration_string):
 class CalculationModule:
     def __init__(self, task_id, **kwargs):
         self.app = get_celery_app()
-        self.task_id = task_id
+        self.name = task_id
         self.params = kwargs
         self.__doc__ = kwargs.get(
             "doc", "no documentation available for this calculation module"
@@ -101,6 +101,3 @@ class CalculationModule:
 
     def get_task(self, task_id):
         pass
-
-    def __dict__(self):
-        {"name": self.task_id}

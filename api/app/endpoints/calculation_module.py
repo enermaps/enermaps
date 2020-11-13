@@ -13,7 +13,13 @@ current_file_dir = os.path.dirname(os.path.abspath(__file__))
 class CMList(Resource):
     def get(self):
         cms = CM.list_cms()
-        return {"cms": list(cms.keys())}
+
+        def cm_as_dict(cm):
+            ret = {}
+            ret['params'] = cm.params
+            ret['name'] = cm.name
+            return ret
+        return {"cms": [cm_as_dict(cm) for cm in cms]}
 
 
 @api.route("/<string:cm_name>/task")
