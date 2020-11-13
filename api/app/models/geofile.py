@@ -179,7 +179,7 @@ class VectorLayer(Layer):
         The created zipfile this will use in memory zip."""
         zipbuffer = io.BytesIO()
         vector_dir = self._get_vector_dir()
-        with zipfile.ZipFile(zipbuffer, 'a') as zip_file:
+        with zipfile.ZipFile(zipbuffer, "a") as zip_file:
             for file_name in os.listdir(vector_dir):
                 file_path = safe_join(vector_dir, file_name)
                 with open(file_path, "rb") as fd:

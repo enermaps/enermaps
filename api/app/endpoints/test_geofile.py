@@ -18,8 +18,16 @@ class VectorGeofileTest(BaseApiTest):
         resp = self.client.get("api/geofile/" + testfile)
         initial_zip = zipfile.ZipFile(io.BytesIO(initial_data))
         returned_zip = zipfile.ZipFile(io.BytesIO(resp.data))
-        #self.assertEqual(initial_zip.filelist, returned_zip.filelist)
+        initial_files = initial_zip.filelist
+        returned_files = returned_zip.filelist
+        self.assertEqual(len(initial_files), len(returned_files))
 
+        def get_filename(zipinfo):
+            return zipinfo.filename
+
+        initial_filenames = set(map(get_filename, initial_files))
+        returned_filenames = set(map(get_filename, returned_files))
+        self.assertEqual(initial_filenames, returned_filenames)
 
     def testUploadShapefile(self):
         testfile = "nuts.zip"

@@ -11,6 +11,18 @@ from app.redirect import redirect_to_api
 from app.models.geofile import create, list_layers
 
 
+def fetch_dataset(url, filename):
+    existing_layers_name = [layer.name for layer in list_layers()]
+    if filename in existing_layers_name:
+        print("Not fetching {}, we already have it locally".format(filename))
+        return
+    print("Fetching " + filename)
+    with requests.get(url, stream=True) as resp:
+        resp_data = io.BytesIO(resp.content)
+    file_upload = FileStorage(resp_data, filename, content_type="application/zip")
+    create(file_upload)
+
+
 def init_dataset():
     """If the dataset was found to be empty, initialize the datasets for
     the selection of:
@@ -20,32 +32,15 @@ def init_dataset():
     Currently, we fetch the dataset from hotmaps.eu
     """
     print("Ensure we have the initial dataset")
-    existing_layers_name = [layer.name for layer in list_layers()]
     nuts_base_url = "https://geoserver.hotmaps.eu/geoserver/hotmaps/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=hotmaps:nuts&outputFormat=SHAPE-ZIP&CQL_FILTER=stat_levl_=%27{!s}%27%20AND%20year=%272013-01-01%27"
     lau_url = "https://geoserver.hotmaps.eu/geoserver/hotmaps/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=hotmaps:tbl_lau1_2&outputFormat=SHAPE-ZIP"
     for i in range(4):
-        filename = "nuts{!s}.zip".format(i)
-        if filename in existing_layers_name:
-            print("Not fetching {}, we already have it locally".format(filename))
-            continue
         url = nuts_base_url.format(i)
-        print("Fetching " + filename + " on url " + url)
-        with requests.get(url, stream=True) as resp:
-            resp_data = io.BytesIO(resp.raw.read())
-        file_upload = FileStorage(resp_data, filename, content_type="application/zip")
-        create(file_upload)
+        filename = "nuts{!s}.zip".format(i)
+        fetch_dataset(url, filename)
 
     filename = "lau.zip"
-    if filename in existing_layers_name:
-        print("Not fetching {}, we already have it locally".format(filename))
-        return
-    print("Fetching lau")
-    with requests.get(lau_url, stream=True) as resp:
-        resp_data = io.BytesIO(resp.raw.read())
-        
-    file_upload = FileStorage(resp.raw, "lau.zip", content_type="application/zip")
-    create(file_upload)
-    return
+    fetch_dataset(lau_url, filename)
 
 
 def create_app(environment="production", testing=False):
