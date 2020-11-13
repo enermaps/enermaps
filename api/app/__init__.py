@@ -28,10 +28,11 @@ def init_dataset():
         if filename in existing_layers_name:
             print("Not fetching {}, we already have it locally".format(filename))
             continue
-        print("Fetching " + filename)
         url = nuts_base_url.format(i)
-        resp = requests.get(url, stream=True)
-        file_upload = FileStorage(resp.raw, filename)
+        print("Fetching " + filename + " on url " + url)
+        with requests.get(url, stream=True) as resp:
+            resp_data = io.BytesIO(resp.raw.read())
+        file_upload = FileStorage(resp_data, filename, content_type="application/zip")
         create(file_upload)
 
     filename = "lau.zip"
@@ -39,8 +40,10 @@ def init_dataset():
         print("Not fetching {}, we already have it locally".format(filename))
         return
     print("Fetching lau")
-    resp = requests.get(lau_url, stream=True)
-    file_upload = FileStorage(resp.raw, "lau.zip")
+    with requests.get(lau_url, stream=True) as resp:
+        resp_data = io.BytesIO(resp.raw.read())
+        
+    file_upload = FileStorage(resp.raw, "lau.zip", content_type="application/zip")
     create(file_upload)
     return
 

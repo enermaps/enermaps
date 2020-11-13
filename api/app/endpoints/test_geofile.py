@@ -1,4 +1,6 @@
 import json
+import io
+import zipfile
 import unittest
 
 from app.common.test import BaseApiTest
@@ -6,6 +8,19 @@ from app.models.geofile import RasterLayer
 
 
 class VectorGeofileTest(BaseApiTest):
+    def testUploadThenDownload(self):
+        testfile = "nuts.zip"
+        test_data, initial_data = self.get_testformdata(testfile)
+        response = self.client.post(
+            "api/geofile/", data=test_data, content_type="multipart/form-data"
+        )
+        self.assertEqual(response.status, "200 OK", response.data)
+        resp = self.client.get("api/geofile/" + testfile)
+        initial_zip = zipfile.ZipFile(io.BytesIO(initial_data))
+        returned_zip = zipfile.ZipFile(io.BytesIO(resp.data))
+        #self.assertEqual(initial_zip.filelist, returned_zip.filelist)
+
+
     def testUploadShapefile(self):
         testfile = "nuts.zip"
         test_data, _ = self.get_testformdata(testfile)

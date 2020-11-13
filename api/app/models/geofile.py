@@ -6,6 +6,7 @@ also catch those on accessing the layer.
 
 """
 import os
+import io
 from glob import glob
 import shutil
 import zipfile
@@ -157,20 +158,34 @@ class RasterLayer(Layer):
         return layer
 
     def as_fd(self):
-        """Return a tuple filedescriptor/mimetype for the given layer"""
-        return open(self._get_raster_path(), "rb"), self.MIMETYPE[0]
+        """Return a tuple (filedescriptor, mimetype) for the given layer
+        raises:
+            any error that can be raised by the open call.
+        """
+        file_descriptor = open(self._get_raster_path(), "rb")
+        return file_descriptor, self.MIMETYPE[0]
 
 
 class VectorLayer(Layer):
     """Future implementation of a vector layer."""
 
-    MIMETYPE = "application/zip"
+    MIMETYPE = ["application/zip"]
 
     def __init__(self, name):
         self.name = name
 
     def as_fd(self):
-        """For shapefile, rezip the directory and send it"""
+        """For shapefile, rezip the directory and send it.
+        The created zipfile this will use in memory zip."""
+        zipbuffer = io.BytesIO()
+        vector_dir = self._get_vector_dir()
+        with zipfile.ZipFile(zipbuffer, 'a') as zip_file:
+            for file_name in os.listdir(vector_dir):
+                file_path = safe_join(vector_dir, file_name)
+                with open(file_path, "rb") as fd:
+                    zip_file.writestr(file_name, fd.read())
+        zipbuffer.seek(0)
+        return zipbuffer, self.MIMETYPE[0]
 
     def as_mapnik_layer(self):
         layer = mapnik.Layer(self.name)
