@@ -24,10 +24,10 @@ def get_celery_app():
         enable_utc=True,
     )
     transport_options = {}
-    transport_options['max_retries'] = 3
-    transport_options['interval_start'] = 0.5
-    transport_options['interval_step'] = 1
-    transport_options['interval_max'] = 2
+    transport_options["max_retries"] = 3
+    transport_options["interval_start"] = 0.5
+    transport_options["interval_step"] = 1
+    transport_options["interval_max"] = 2
     app.conf.update(broker_transport_options=transport_options)
     return app
 

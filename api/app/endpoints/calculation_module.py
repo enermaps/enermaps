@@ -16,9 +16,10 @@ class CMList(Resource):
 
         def cm_as_dict(cm):
             ret = {}
-            ret['params'] = cm.params
-            ret['name'] = cm.name
+            ret["params"] = cm.params
+            ret["name"] = cm.name
             return ret
+
         return {"cms": [cm_as_dict(cm) for cm in cms]}
 
 
