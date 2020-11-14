@@ -42,6 +42,12 @@ services:
     image: redis:6-alpine
     ports:
       - "127.0.0.1:6379:6379"
+  flower:
+    image: mher/flower:0.9.4
+    ports:
+      - "127.0.0.1:5555:5555"
+    env_file:
+      .env
 
 volumes:
   upload-data:
