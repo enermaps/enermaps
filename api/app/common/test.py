@@ -60,10 +60,16 @@ class BaseApiTest(unittest.TestCase):
         response = self.client.post(
             "api/geofile/", data=form_content, content_type="multipart/form-data"
         )
-        self.assertEqual(response.status, "200 OK", response.data)
+        self.assertStatusCodeEqual(response, 200)
         return response
 
     def import_nuts(self):
         for nuts_level in range(4):
             filename = "nuts{!s}.zip".format(nuts_level)
             self.import_testdata(filename)
+
+    def assertStatusCodeEqual(self, response, status_code):
+        """Assert that a flask client test status code is 
+        equal to the status_code
+        """
+        self.assertEqual(response.status_code, status_code, response.data)

@@ -35,11 +35,11 @@ class VectorGeofileTest(BaseApiTest):
         response = self.client.post(
             "api/geofile/", data=test_data, content_type="multipart/form-data"
         )
-        self.assertEqual(response.status, "200 OK", response.data)
+        self.assertStatusCodeEqual(response, 200)
 
         test_data, _ = self.get_testformdata(testfile)
         response = self.client.get("api/geofile/")
-        self.assertEqual(response.status, "200 OK", response.data)
+        self.assertStatusCodeEqual(response, 200)
         json_content = json.loads(response.data)
         self.assertIn(testfile, json_content["files"])
 
@@ -68,9 +68,9 @@ class TifGeofileTest(BaseApiTest):
         response = self.client.post(
             "api/geofile/", data=test_data, content_type="multipart/form-data"
         )
-        self.assertEqual(response.status, "200 OK", response.data)
+        self.assertStatusCodeEqual(response, 200)
         response = self.client.get("api/geofile/")
-        self.assertEqual(response.status, "200 OK", response.data)
+        self.assertStatusCodeEqual(response, 200)
         json_content = json.loads(response.data)
         self.assertIn(testfile_name, json_content["files"])
 
@@ -92,15 +92,15 @@ class TifGeofileTest(BaseApiTest):
         response = self.client.post(
             "api/geofile/", data=test_data, content_type="multipart/form-data"
         )
-        self.assertEqual(response.status, "200 OK", response.data)
+        self.assertStatusCodeEqual(response, 200)
 
         response = self.client.get("api/geofile/")
-        self.assertEqual(response.status, "200 OK", response.data)
+        self.assertStatusCodeEqual(response, 200)
         json_content = json.loads(response.data)
         self.assertIn(testfile, json_content["files"])
 
         response = self.client.get("api/geofile/" + testfile)
-        self.assertEqual(response.status, "200 OK", response.data)
+        self.assertStatusCodeEqual(response, 200)
         self.assertEqual(response.data, testfile_content)
         self.assertEqual(response.mimetype, RasterLayer.MIMETYPE[0])
 

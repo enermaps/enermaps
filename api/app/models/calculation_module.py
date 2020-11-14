@@ -1,13 +1,13 @@
 import re
 import json
-from celery import Celery, result
 import logging
-import redis
 import json
 
-import kombu
+import logging
+
 from celery import Celery
-import celery
+import redis
+import kombu
 
 
 # TODO; migrate this to pyparsing maybe ?
@@ -43,9 +43,9 @@ def list_cms():
     try:
         app_inspector = app.control.inspect()
         nodes = app_inspector.registered("cm_info")
-    except (redis.exceptions.ConnectionError, kombu.exceptions.OperationalError) as err:
+    except (redis.exceptions.ConnectionError, kombu.exceptions.OperationalError):
         # If redis is down, we just don't expose any calculation module
-        logging.error("Connection to celery broken resulted in an error: ", err)
+        logging.warning("Connection to celery broker resulted in an error")
         return []
     if not nodes:
         nodes = []

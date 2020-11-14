@@ -46,7 +46,7 @@ class WMSGetCapabilitiesTest(BaseApiTest):
         """
         # help(self.client.get)
         response = self.client.get("api/wms", query_string=GETCAPABILITIES_ARGS)
-        self.assertEqual(response.status, "200 OK", response.data)
+        self.assertStatusCodeEqual(response, 200)
         root = xml.etree_fromstring(response.data)
         layer_names = root.findall(".//Layer/Layer/Name")
         self.assertEqual(len(layer_names), 0, "Found a layer, expected none")
@@ -59,10 +59,10 @@ class WMSGetCapabilitiesTest(BaseApiTest):
         response = self.client.post(
             "api/geofile/", data=test_data, content_type="multipart/form-data"
         )
-        self.assertEqual(response.status, "200 OK", response.data)
+        self.assertStatusCodeEqual(response, 200)
 
         response = self.client.get("api/wms", query_string=GETCAPABILITIES_ARGS)
-        self.assertEqual(response.status, "200 OK", response.data)
+        self.assertStatusCodeEqual(response, 200)
         root = etree.fromstring(response.data)
         layers = root.findall(".//Layer/Layer")
         self.assertEqual(len(layers), 1)
@@ -121,12 +121,12 @@ class WMSGetMapTest(BaseApiTest):
         response = self.client.post(
             "api/geofile/", data=test_data, content_type="multipart/form-data"
         )
-        self.assertEqual(response.status, "200 OK", response.data)
+        self.assertStatusCodeEqual(response, 200)
         response.close()
         args = self.TILE_PARAMETERS
         args["layers"] = testfile
         response = self.client.get("api/wms", query_string=self.TILE_PARAMETERS)
-        self.assertEqual(response.status, "200 OK")
+        self.assertStatusCodeEqual(response, 200)
         self.assertGreater(len(response.data), 0)
         Image.open(io.BytesIO(response.data))
 
@@ -138,7 +138,7 @@ class WMSGetMapTest(BaseApiTest):
         args = self.TILE_PARAMETERS
         args["layers"] = testfile
         response = self.client.get("api/wms", query_string=self.TILE_PARAMETERS)
-        self.assertEqual(response.status, "200 OK")
+        self.assertStatusCodeEqual(response, 200)
         self.assertGreater(len(response.data), 0)
         Image.open(io.BytesIO(response.data))
         # test that we received an image
@@ -169,10 +169,10 @@ class WMSGetFeatureInfoTest(BaseApiTest):
         response = self.client.post(
             "api/geofile/", data=test_data, content_type="multipart/form-data"
         )
-        self.assertEqual(response.status, "200 OK", response.data)
+        self.assertStatusCodeEqual(response, 200)
 
         response = self.client.get("/api/wms", query_string=self.INFO_PARAMETERS)
-        self.assertEqual(response.status, "200 OK", response.data)
+        self.assertStatusCodeEqual(response, 200)
         json_response = json.loads(response.data)
         self.assertIn("features", json_response)
         self.assertEqual(len(json_response["features"]), 1)
