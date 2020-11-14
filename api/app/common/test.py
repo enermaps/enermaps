@@ -69,7 +69,7 @@ class BaseApiTest(unittest.TestCase):
             self.import_testdata(filename)
 
     def assertStatusCodeEqual(self, response, status_code):
-        """Assert that a flask client test status code is 
+        """Assert that a flask client test status code is
         equal to the status_code
         """
         self.assertEqual(response.status_code, status_code, response.data)
