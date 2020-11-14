@@ -1,3 +1,6 @@
+import logging
+from unittest.mock import patch
+
 from app.common.test import BaseApiTest
 from app.models.calculation_module import list_cms, from_registration_string
 
@@ -7,11 +10,13 @@ CM_STRING0 = 'CMName [cm_info={"doc": "doc"}]'
 
 
 class TestCMS(BaseApiTest):
-    def testListCMTimeout(self):
+    @patch("time.sleep", return_value=None)
+    def testListCMTimeout(self, _):
         """Test that a non reachable redis will
         Just return an empty list of cms.
         """
-        cms = list_cms()
+        with self.assertLogs(level=logging.ERROR):
+            cms = list_cms()
         self.assertEquals(len(cms), 0)
 
     def testFailWhenParseWrongCMInfo(self):
