@@ -3,6 +3,7 @@ FROM mhart/alpine-node:12
 # install dependencies
 WORKDIR /app
 COPY src/package.json src/package-lock.json ./
+RUN npm install
 COPY src/ .
 RUN npm run build
 
