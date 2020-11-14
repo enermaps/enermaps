@@ -16,6 +16,8 @@ You can then access:
 * the api on http://127.0.0.1:7000/api
 * the database is available on host 127.0.0.1 and port 5433 with the psql 
 client (see ![](db/README.md))
+* the broker (redis) is available on host 127.0.0.1 and port 6379 with a redis client.
+* the broker can also be monitored trough http://127.0.0.1:5555, which is running flower, a monitoring interface for long running tasks.
 
 The initial database schema will be created following the step in ![](db/README.md).
 
@@ -47,6 +49,7 @@ You can remove all data and images, if for example you wanna start from scratch 
 docker-compose rm
 docker volume prune
 ```
+
 # Continuous Integration
 
 We use [github actions](https://github.com/features/actions) for continuous integration on the project.
