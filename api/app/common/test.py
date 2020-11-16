@@ -1,18 +1,11 @@
 import io
-import os
 import shutil
 import subprocess  # nosec
 import tempfile
 import unittest
 
 from app import create_app
-
-
-def get_testdata(filename):
-    """Return the absolute location of the filename in the testdatadir"""
-    current_file_dir = os.path.dirname(os.path.abspath(__file__))
-    testdata_dir = os.path.join(os.path.dirname(current_file_dir), "testdata")
-    return os.path.join(testdata_dir, filename)
+from app.common import filepath
 
 
 def skipUnlessDockerComposeCanBeExecuted(f):
@@ -45,7 +38,7 @@ class BaseApiTest(unittest.TestCase):
 
     def get_testformdata(self, testfile, testfile_name=None):
         """Return"""
-        with open(get_testdata(testfile), "rb") as f:
+        with open(filepath.get_testdata_path(testfile), "rb") as f:
             testfile_content = f.read()
             testfile_io = io.BytesIO(testfile_content)
             if not testfile_name:

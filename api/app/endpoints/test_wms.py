@@ -5,7 +5,8 @@ from lxml import etree
 from PIL import Image
 
 import app.common.xml as xml
-from app.common.test import BaseApiTest, get_testdata
+from app.common.test import BaseApiTest
+from app.common import filepath
 
 GETCAPABILITIES_ARGS = {"service": "WMS", "request": "GetCapabilities"}
 
@@ -89,7 +90,7 @@ class WMSGetCapabilitiesTest(BaseApiTest):
         self._validate_xml(root)
 
     def _validate_xml(self, xml_root):
-        dtd_path = get_testdata("WMS_MS_Capabilities_1.1.1.dtd")
+        dtd_path = filepath.get_testdata_path("WMS_MS_Capabilities_1.1.1.dtd")
         dtd = etree.DTD(open(dtd_path))
         valid = dtd.validate(xml_root)
         self.assertTrue(valid, dtd.error_log.filter_from_errors())
