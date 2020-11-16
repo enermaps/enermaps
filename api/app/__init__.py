@@ -19,9 +19,7 @@ def fetch_dataset(base_url, get_parameters, filename):
     print("Fetching " + filename)
     with requests.get(base_url, params=get_parameters, stream=True) as resp:
         resp_data = io.BytesIO(resp.content)
-    file_upload = FileStorage(
-        resp_data, filename, content_type="application/zip"
-    )
+    file_upload = FileStorage(resp_data, filename, content_type="application/zip")
     create(file_upload)
 
 

@@ -10,9 +10,7 @@ api = Namespace("geofile", description="Data management related endpoints")
 
 
 upload_parser = api.parser()
-upload_parser.add_argument(
-    "file", location="files", type=FileStorage, required=True
-)
+upload_parser.add_argument("file", location="files", type=FileStorage, required=True)
 
 
 @api.route("/")

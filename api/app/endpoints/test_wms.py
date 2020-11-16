@@ -28,9 +28,7 @@ class WMSGetCapabilitiesTest(BaseApiTest):
         for k, v in GETCAPABILITIES_ARGS.items():
             args[k.upper()] = v
         response_lower = self.client.get("api/wms", query_string=args)
-        response_upper = self.client.get(
-            "api/wms", query_string=GETCAPABILITIES_ARGS
-        )
+        response_upper = self.client.get("api/wms", query_string=GETCAPABILITIES_ARGS)
         self.assertEqual(response_lower.data, response_upper.data)
         self._validate_xml_string(response_lower.data)
 
@@ -48,9 +46,7 @@ class WMSGetCapabilitiesTest(BaseApiTest):
         returns an empty list of layers.
         """
         # help(self.client.get)
-        response = self.client.get(
-            "api/wms", query_string=GETCAPABILITIES_ARGS
-        )
+        response = self.client.get("api/wms", query_string=GETCAPABILITIES_ARGS)
         self.assertStatusCodeEqual(response, 200)
         root = xml.etree_fromstring(response.data)
         layer_names = root.findall(".//Layer/Layer/Name")
@@ -66,9 +62,7 @@ class WMSGetCapabilitiesTest(BaseApiTest):
         )
         self.assertStatusCodeEqual(response, 200)
 
-        response = self.client.get(
-            "api/wms", query_string=GETCAPABILITIES_ARGS
-        )
+        response = self.client.get("api/wms", query_string=GETCAPABILITIES_ARGS)
         self.assertStatusCodeEqual(response, 200)
         root = etree.fromstring(response.data)
         layers = root.findall(".//Layer/Layer")
@@ -133,9 +127,7 @@ class WMSGetMapTest(BaseApiTest):
         response.close()
         args = self.TILE_PARAMETERS
         args["layers"] = testfile
-        response = self.client.get(
-            "api/wms", query_string=self.TILE_PARAMETERS
-        )
+        response = self.client.get("api/wms", query_string=self.TILE_PARAMETERS)
         self.assertStatusCodeEqual(response, 200)
         self.assertGreater(len(response.data), 0)
         Image.open(io.BytesIO(response.data))
@@ -147,9 +139,7 @@ class WMSGetMapTest(BaseApiTest):
 
         args = self.TILE_PARAMETERS
         args["layers"] = testfile
-        response = self.client.get(
-            "api/wms", query_string=self.TILE_PARAMETERS
-        )
+        response = self.client.get("api/wms", query_string=self.TILE_PARAMETERS)
         self.assertStatusCodeEqual(response, 200)
         self.assertGreater(len(response.data), 0)
         Image.open(io.BytesIO(response.data))
@@ -185,9 +175,7 @@ class WMSGetFeatureInfoTest(BaseApiTest):
         )
         self.assertStatusCodeEqual(response, 200)
 
-        response = self.client.get(
-            "/api/wms", query_string=self.INFO_PARAMETERS
-        )
+        response = self.client.get("/api/wms", query_string=self.INFO_PARAMETERS)
         self.assertStatusCodeEqual(response, 200)
         json_response = json.loads(response.data)
         self.assertIn("features", json_response)

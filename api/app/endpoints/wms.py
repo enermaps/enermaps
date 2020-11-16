@@ -165,9 +165,7 @@ class WMS(Resource):
             element.set("{http://www.w3.org/1999/xlink}href", request.base_url)
 
         get_map = root.find("Capability/Request/GetMap")
-        for get_map_format in current_app.config["WMS"]["GETMAP"][
-            "ALLOWED_OUTPUTS"
-        ]:
+        for get_map_format in current_app.config["WMS"]["GETMAP"]["ALLOWED_OUTPUTS"]:
             format_node = etree.Element("Format")
             format_node.text = get_map_format
             get_map.insert(0, format_node)
@@ -215,9 +213,7 @@ class WMS(Resource):
 
         # TODO: add a reference to a legend and have an endpoint for it
 
-        return Response(
-            etree.tostring(root, pretty_print=True), mimetype="text/xml"
-        )
+        return Response(etree.tostring(root, pretty_print=True), mimetype="text/xml")
 
     def _get_map(self, normalized_args):
         # miss:
@@ -293,9 +289,7 @@ class WMS(Resource):
             if not layer.is_queryable:
                 abort(
                     400,
-                    "Requested query layer {} is not queryable.".format(
-                        layer.name
-                    ),
+                    "Requested query layer {} is not queryable.".format(layer.name),
                 )
             mapnick_layer.queryable = True
             position = parse_position(normalized_args)

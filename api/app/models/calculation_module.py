@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 """This module abstract calculation module and task ran on those.
 A calculation module is a long ran operation (from minutes of runtime to hours)
 That uses one or multiple raster file and a multipolygon that is used as a

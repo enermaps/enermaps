@@ -52,9 +52,7 @@ if __name__ == "__main__":
     parser = get_parser()
     args = parser.parse_args()
     suite = unittest.TestSuite()
-    wmsLibTest = TestWMSLibCompliance(
-        "test_wms_content", args.url, args.wms_version
-    )
+    wmsLibTest = TestWMSLibCompliance("test_wms_content", args.url, args.wms_version)
     suite = unittest.TestSuite()
     suite.addTest(wmsLibTest)
     result = unittest.TextTestRunner().run(suite)
