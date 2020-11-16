@@ -34,6 +34,8 @@ jobs:
         run: black --check api
       - name: check-lint with bandit
         run: cd api && bandit -r .
+      - name: check-lint with isort
+        run: cd api && isort --check --diff .
 
       - name: Run docker-compose stack
         run: docker-compose build --parallel
