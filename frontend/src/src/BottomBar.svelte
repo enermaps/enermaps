@@ -30,7 +30,7 @@
 			}
 		}
 	});
-	function callCM(cm_name) {
+	async function callCM(cm_name) {
 		//alert("calling CM with overlays :" + active_overlay_layers + "and with selection:" + active_selection_layer)
 		let data = {}
 		data['selection'] = active_selection_layer.getSelection();
@@ -40,9 +40,9 @@
 			method: 'POST',
 			headers: {
 				'Content-Type': 'application/json'
-			}
+			},
 			body: JSON.stringify(data),
-		}
+		});
 	}
 	$ : {
 		console.log(`selected layer was changed: ${active_selection_layer}`);
