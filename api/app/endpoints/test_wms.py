@@ -5,8 +5,8 @@ from lxml import etree
 from PIL import Image
 
 import app.common.xml as xml
-from app.common.test import BaseApiTest
 from app.common import filepath
+from app.common.test import BaseApiTest
 
 GETCAPABILITIES_ARGS = {"service": "WMS", "request": "GetCapabilities"}
 

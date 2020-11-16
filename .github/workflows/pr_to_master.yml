@@ -31,7 +31,7 @@ jobs:
         run: pip install -r api/linter-requirements.txt
 
       - name: check-lint with black
-        run: black --diff --line-length 79 --check api
+        run: cd api && black --diff --check .
       - name: check-lint with bandit
         run: cd api && bandit -r .
       - name: check-lint with isort

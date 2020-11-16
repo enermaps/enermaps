@@ -11,6 +11,7 @@ import shutil
 import zipfile
 from abc import ABC, abstractmethod
 from glob import glob
+from tempfile import TemporaryDirectory
 
 import mapnik
 from flask import current_app, safe_join
@@ -28,10 +29,13 @@ def get_tmp_upload():
     return get_user_upload("tmp")
 
 
-def get_user_upload(prefix_path):
-    """Return the location of a subdirectory for uploads.
-    This function is safe to path injection (such as .. in filename)"""
-    user_dir = safe_join(current_app.config["UPLOAD_DIR"], prefix_path)
+def get_user_upload(subdirectory):
+    """Return the location of a subdirectory for uploads. this also uses a
+    subdirectories path component in the main user upload directory.
+    This function is safe to path injection (such as .. in filename).
+    This function will also care about directory creation if it doesn't exist
+    yet"""
+    user_dir = safe_join(current_app.config["UPLOAD_DIR"], subdirectory)
     os.makedirs(user_dir, exist_ok=True)
     return user_dir
 
@@ -150,8 +154,7 @@ class RasterLayer(Layer):
         with TemporaryDirectory(prefix=get_tmp_upload()) as tmp_dir:
             tmp_filepath = safe_join(tmp_dir, file_upload.filename)
             file_upload.save(tmp_filepath)
-            output_filepath = safe_join(get_user_upload("raster"),
-                                        file_upload.filename)
+            output_filepath = safe_join(get_user_upload("raster"), file_upload.filename)
             os.rename(tmp_filepath, output_filepath)
         return RasterLayer(file_upload.filename)
 

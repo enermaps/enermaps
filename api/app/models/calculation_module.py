@@ -3,11 +3,11 @@ A calculation module is a long ran operation (from minutes of runtime to hours)
 That uses one or multiple raster file and a multipolygon that is used as a
 selection.
 """
-import re
-import os
 import json
 import logging
-from typing import Text, Dict
+import os
+import re
+from typing import Dict, Text
 
 import kombu
 import redis
