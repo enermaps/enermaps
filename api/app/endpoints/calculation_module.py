@@ -18,9 +18,10 @@ class CMList(Resource):
             ret = {}
             ret["params"] = cm.params
             ret["name"] = cm.name
+            ret["schema"] = cm.schema
             return ret
 
-        return {"cms": [cm_as_dict(cm) for cm in cms]}
+        return {"cms": [cm_as_dict(cm) for cm in cms.values()]}
 
 
 @api.route("/<string:cm_name>/task")

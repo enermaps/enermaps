@@ -7,10 +7,13 @@ import re
 import os
 import json
 import logging
+from typing import Text, Dict
 
 import kombu
 import redis
 from celery import Celery
+
+from app.common import filepath
 
 TASK_MATCH = "(?P<task_id>[a-zA-Z._]+)"
 CM_INFO_MATCH = "\\[cm_info=(?P<task_info>.+)\\]"
@@ -51,8 +54,30 @@ def task_by_id(task_id, cm_name):
     return res
 
 
-def list_cms():
-    """List all cms"""
+class CalculationModule:
+    """This class describes a remote long running task, also called a
+    calculation module.
+    """
+
+    def __init__(self, task_id, **kwargs):
+        self.app = get_celery_app()
+        self.name = task_id
+        self.params = kwargs
+        with open(filepath.get_testdata_path("default_schema.json")) as f:
+            self.schema = kwargs.get("input_schema", json.load(f))
+        self.__doc__ = kwargs.get(
+            "doc", "no documentation available for this calculation module"
+        )
+
+    def call(self, *args, **kwargs):
+        """Call the calculation module and return the created task id as a string.
+        this task id serves as a reference for getting the status of the task
+        (failure, running or done) and its results.
+        """
+        return self.app.send_task(self.task_id, args, kwargs)
+
+
+def list_cms() -> Dict[Text, CalculationModule]:
     app = get_celery_app()
     try:
         app_inspector = app.control.inspect()
@@ -60,14 +85,15 @@ def list_cms():
     except (redis.exceptions.ConnectionError, kombu.exceptions.OperationalError) as err:
         # If redis is down, we just don't expose any calculation module
         logging.error("Connection to celery broker failed with error: %s", err)
-        return []
+        return {}
     if not nodes:
-        nodes = []
-    cms = []
+        return {}
+    cms = {}
     for node in nodes.values():
+        print(node)
         for entry in node:
             cm = from_registration_string(entry)
-            cms.append(cm)
+            cms[cm.name] = cm
     return cms
 
 
@@ -108,24 +134,3 @@ def from_registration_string(registration_string):
             + task_id
         )
     return CalculationModule(task_id, **task_info)
-
-
-class CalculationModule:
-    """This class describes a remote long running task, also called a
-    calculation module.
-    """
-
-    def __init__(self, task_id, **kwargs):
-        self.app = get_celery_app()
-        self.name = task_id
-        self.params = kwargs
-        self.__doc__ = kwargs.get(
-            "doc", "No documentation available for this calculation module"
-        )
-
-    def call(self, *args, **kwargs):
-        """Call the calculation module and return the created task id as a string.
-        this task id serves as a reference for getting the status of the task
-        (failure, running or done) and its results.
-        """
-        return self.app.send_task(self.task_id, args, kwargs)
