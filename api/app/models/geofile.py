@@ -25,8 +25,7 @@ class SaveException(Exception):
 
 
 def get_tmp_upload():
-    """Return the buffer location for fetching file locally.
-    """
+    """Return the buffer location for fetching file locally."""
     return get_user_upload("tmp")
 
 

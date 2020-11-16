@@ -80,8 +80,7 @@ class TifGeofileTest(BaseApiTest):
         """
         testfile = "hotmaps-cdd_curr_adapted.tif"
         testfile_name = ".test.tif"
-        test_data, _ = self.get_testformdata(testfile,
-                                             testfile_name=testfile_name)
+        test_data, _ = self.get_testformdata(testfile, testfile_name=testfile_name)
         response = self.client.post(
             "api/geofile/", data=test_data, content_type="multipart/form-data"
         )
