@@ -60,6 +60,8 @@ class CalculationModule:
         self.app = get_celery_app()
         self.name = task_id
         self.params = kwargs
+        with open("app/testdata/default_schema.json") as f:
+            self.schema = kwargs.get('input_schema', json.load(f))
         self.__doc__ = kwargs.get(
             "doc", "no documentation available for this calculation module"
         )
@@ -82,9 +84,10 @@ def list_cms() -> Dict[Text, CalculationModule]:
         logging.error("Connection to celery broker failed with error: %s", err)
         return {}
     if not nodes:
-        nodes = {}
+        return {}
     cms = {}
-    for node in nodes:
+    for node in nodes.values():
+        print(node)
         for entry in node:
             cm = from_registration_string(entry)
             cms[cm.name] = cm
