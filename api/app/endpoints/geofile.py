@@ -1,9 +1,10 @@
 """Endpoint for the manipulation of geofiles
 """
-import app.models.geofile as geofile
 from flask import send_file
 from flask_restx import Namespace, Resource, abort
 from werkzeug.datastructures import FileStorage
+
+import app.models.geofile as geofile
 
 api = Namespace("geofile", description="Data management related endpoints")
 

@@ -2,7 +2,7 @@ import logging
 from unittest.mock import patch
 
 from app.common.test import BaseApiTest
-from app.models.calculation_module import list_cms, from_registration_string
+from app.models.calculation_module import from_registration_string, list_cms
 
 CM_STRING_NO_INFO = "[CMName]"
 CM_STRING_BAD_JSON = "[CMName cm_info={]"

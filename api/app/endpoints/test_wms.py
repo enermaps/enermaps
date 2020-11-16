@@ -1,11 +1,11 @@
 import io
 import json
 
-from app.common.test import BaseApiTest, get_testdata
 from lxml import etree
 from PIL import Image
 
 import app.common.xml as xml
+from app.common.test import BaseApiTest, get_testdata
 
 GETCAPABILITIES_ARGS = {"service": "WMS", "request": "GetCapabilities"}
 
