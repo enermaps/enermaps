@@ -27,9 +27,8 @@
 		}
 	});
 	async function callCM(cm_name) {
-		alert("calling CM with overlays :" + active_overlay_layers + "and with selection:" + active_selection_layer)
-	}
-	function handleSubmit() {
+		//alert("calling CM with overlays :" + active_overlay_layers + "and with selection:" + active_selection_layer)
+		alert(active_selection_layer.getSelection())
 	}
 	function handleReset() {
 	}
