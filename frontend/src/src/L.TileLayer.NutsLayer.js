@@ -4,8 +4,6 @@ L.TileLayer.NutsLayer = L.TileLayer.WMS.extend({
     //   Register a click listener, then do all the upstream WMS things
     L.TileLayer.WMS.prototype.onAdd.call(this, map);
     map.on("click", this.getFeatureInfo, this);
-    $("#indicator").prop("disabled", false);
-    $("#indicator").click(L.Util.bind(this.onIndicatorClick, this));
   },
 
   onRemove: function (map) {
@@ -17,15 +15,9 @@ L.TileLayer.NutsLayer = L.TileLayer.WMS.extend({
       this._map.removeLayer(this.selection);
       this.selection = undefined;
     }
-    $("#indicator").prop("disabled", true);
-    $("#indicator").off();
   },
-  onIndicatorClick: function (evt) {
-    if (!!!this.selection) {
-      //no selection yet
-      return;
-    }
-    var selected_overlay = [];
+  getSelection: function() {
+    let selected_overlay = [];
     console.log(
       this._map.eachLayer((layer) => {
         if (!!layer.is_overlay) {
@@ -37,28 +29,20 @@ L.TileLayer.NutsLayer = L.TileLayer.WMS.extend({
       //endpoint for the calculation module
       return;
     }
-	  $.ajax({
-		url: "http://127.0.0.1:5000/raster"
-	  })
     console.log(
       this.selection.toGeoJSON().features.map(this.getFeatureId),
-      selected_overlay
     );
+    return this.selection.toGeoJSON();
   },
   getFeatureInfo: function (evt) {
-    var point = this._map.latLngToContainerPoint(evt.latlng, this._map.getZoom());
+    let point = this._map.latLngToContainerPoint(evt.latlng, this._map.getZoom());
 
-    var url = this.getFeatureInfoUrl(point);
-      showResults = L.Util.bind(this.onClickSelect, this);
-    $.ajax({
-      url: url,
-      success: function (data, status, xhr) {
-        var err = typeof data === "string" ? null : data;
-        showResults(err, data);
-      },
-      error: function (xhr, status, error) {
-        showResults(error);
-      },
+    let url = this.getFeatureInfoUrl(point);
+    const showResults = L.Util.bind(this.onClickSelect, this);
+    fetch(url).then(response => response.json()).catch((error) => {
+	  console.error('Error:', error);
+	}).then(data => {
+	    showResults(undefined, data);
     });
   },
 
@@ -70,12 +54,12 @@ L.TileLayer.NutsLayer = L.TileLayer.WMS.extend({
       // * the X and Y position are pixels offset
       // This behaviour changes between WMS version, so verify that the backend is 
       // talking version 1.1.1 of the WMS
-      size = this._map.getSize();
-      var crs = this._map.options.crs;
-      var mapBounds =  this._map.getBounds();
-      var nw = crs.project(mapBounds.getNorthWest());
-      var se = crs.project(mapBounds.getSouthEast());
-      params = {
+      const size = this._map.getSize();
+      const crs = this._map.options.crs;
+      const mapBounds =  this._map.getBounds();
+      const nw = crs.project(mapBounds.getNorthWest());
+      const se = crs.project(mapBounds.getSouthEast());
+      let params = {
         request: "GetFeatureInfo",
         service: "WMS",
         srs: crs.code,
@@ -108,11 +92,11 @@ L.TileLayer.NutsLayer = L.TileLayer.WMS.extend({
   onError: function (err) {
     console.log(err);
   },
-  onClickSelect: function (content, content) {
+  onClickSelect: function (err, content) {
     //if (err) { console.log(err); return; } // do nothing if there's an error
     // Otherwise show the content in a popup, or something.
     //this._map.getLayer("selection")
-    var myStyle = {
+    const myStyle = {
       color: "#ff7800",
       weight: 10,
       opacity: 1,

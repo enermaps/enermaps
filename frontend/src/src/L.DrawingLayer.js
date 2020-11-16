@@ -1,9 +1,19 @@
+import "leaflet-draw/dist/leaflet.draw.js";
+import "leaflet-draw/dist/leaflet.draw.css";
+import "leaflet-draw/dist/images/spritesheet.svg";
+import "leaflet-draw/dist/images/marker-shadow.png"
+import "leaflet-draw/dist/images/layers-2x.png";
+import "leaflet-draw/dist/images/marker-icon-2x.png";
+import "leaflet-draw/dist/images/spritesheet.png";
+import "leaflet-draw/dist/images/spritesheet-2x.png";
+import "leaflet-draw/dist/images/marker-icon.png";
+import "leaflet-draw/dist/images/layers.png";
+
+console.log(L.Control.Draw);
 L.DrawingLayer = L.FeatureGroup.extend({
   onRemove: function(map) {
 	  map.removeControl(this.drawControl);
 	  this.clearLayers();
-	    $('#indicator').prop('disabled', true);
-	    $('#indicator').off();
   },
   onAdd: function(map) {
     const drawPluginOptions = {
@@ -39,8 +49,6 @@ L.DrawingLayer = L.FeatureGroup.extend({
     this.drawControl = new L.Control.Draw(drawPluginOptions);
     map.addControl(this.drawControl);
     map.on(L.Draw.Event.CREATED, L.Util.bind(this.drawCreated, this));
-    $('#indicator').prop('disabled', false);
-    $('#indicator').click(L.Util.bind(this.onIndicatorClick, this));
   },
   drawCreated: function(e) {
     const type = e.layerType;
