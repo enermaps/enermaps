@@ -118,9 +118,9 @@ class RasterLayer(Layer):
         """As we store rasters on disk, we only want to list
         files in the directory.
         """
-        user_dir = get_user_upload("raster")
-        layers = os.listdir(user_dir)
-        return map(RasterLayer, layers)
+        layers = os.listdir(get_user_upload("raster"))
+        non_hidden_layers = filter(lambda a: not a.startswith("."), layers)
+        return map(RasterLayer, non_hidden_layers)
 
     def _get_raster_path(self):
         """Return the path where a raster is stored on disk."""

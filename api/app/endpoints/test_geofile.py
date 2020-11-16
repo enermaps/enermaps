@@ -74,6 +74,24 @@ class TifGeofileTest(BaseApiTest):
         json_content = json.loads(response.data)
         self.assertIn(testfile_name, json_content["files"])
 
+    def testHiddenFile(self):
+        """Hidden shapefile are a bit special, they don't appear in the listing but are
+        still available when the geofile name is known.
+        """
+        testfile = "hotmaps-cdd_curr_adapted.tif"
+        testfile_name = ".test.tif"
+        test_data, _ = self.get_testformdata(testfile,
+                                             testfile_name=testfile_name)
+        response = self.client.post(
+            "api/geofile/", data=test_data, content_type="multipart/form-data"
+        )
+        self.assertStatusCodeEqual(response, 200)
+        response = self.client.get("api/geofile/")
+        self.assertStatusCodeEqual(response, 200)
+        json_content = json.loads(response.data)
+        self.assertNotIn(testfile_name, json_content["files"])
+        self.assertEqual(json_content["files"], [])
+
     def testUploadWithoutProjection(self):
         """We refuse to work with geotiff that don't contain a projection, they
         can get us in trouble later when serving them as tile.
