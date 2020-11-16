@@ -1,7 +1,7 @@
-import json
 import io
-import zipfile
+import json
 import unittest
+import zipfile
 
 from app.common.test import BaseApiTest
 from app.models.geofile import RasterLayer

@@ -9,7 +9,6 @@ from typing import Text
 
 from owslib.wms import WebMapService
 
-
 DEFAULT_URL = "http://127.0.0.1:7000/api/wms"
 DEFAULT_WMS_VERSION = "1.1.1"
 

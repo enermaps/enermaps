@@ -8,10 +8,9 @@ import os
 import json
 import logging
 
-from celery import Celery
-import redis
 import kombu
-
+import redis
+from celery import Celery
 
 TASK_MATCH = "(?P<task_id>[a-zA-Z._]+)"
 CM_INFO_MATCH = "\\[cm_info=(?P<task_info>.+)\\]"

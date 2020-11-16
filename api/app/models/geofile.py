@@ -5,13 +5,13 @@ really prevent race condition on list vs delete. We
 also catch those on accessing the layer.
 
 """
-import os
 import io
-from glob import glob
+import os
 import shutil
-from tempfile import TemporaryDirectory
 import zipfile
 from abc import ABC, abstractmethod
+from glob import glob
+from tempfile import TemporaryDirectory
 
 import mapnik
 from flask import current_app, safe_join

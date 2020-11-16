@@ -1,14 +1,14 @@
-import os
 import io
+import os
 
+import requests
 from flask import Blueprint, Flask
 from flask_restx import Api
-import requests
 from werkzeug.datastructures import FileStorage
 
 from app.endpoints import calculation_module, geofile, wms
-from app.redirect import redirect_to_api
 from app.models.geofile import create, list_layers
+from app.redirect import redirect_to_api
 
 
 def fetch_dataset(url, filename):

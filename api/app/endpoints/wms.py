@@ -1,14 +1,14 @@
+import json
 import os
 from collections import namedtuple
-import json
 
 import mapnik
 from flask import Response, abort, current_app, request
 from flask_restx import Namespace, Resource
 from lxml import etree
 
-import app.models.geofile as geofile
 import app.common.xml as xml
+import app.models.geofile as geofile
 
 MIME_TO_MAPNIK = {"image/png": "png", "image/jpg": "jpg"}
 
