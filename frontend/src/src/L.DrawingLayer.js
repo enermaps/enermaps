@@ -56,10 +56,6 @@ L.DrawingLayer = L.FeatureGroup.extend({
     const type = e.layerType;
     const layer = e.layer;
 
-    if (type === 'marker') {
-      layer.bindPopup('A popup!');
-    }
-
     this.addLayer(layer);
   },
 });
