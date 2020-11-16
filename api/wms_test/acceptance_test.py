@@ -18,7 +18,8 @@ class TestWMSLibCompliance(unittest.TestCase):
         """Initialize the testcase, allowing options to be passed.
 
         url: the url of the wms as a string
-        version: the version of the wms (1.1.1 or 1.3.0 are the most common versions)
+        version: the version of the wms (1.1.1 or
+        1.3.0 are the most common versions)
         """
         self.url = url
         self.version = version
@@ -51,7 +52,9 @@ if __name__ == "__main__":
     parser = get_parser()
     args = parser.parse_args()
     suite = unittest.TestSuite()
-    wmsLibTest = TestWMSLibCompliance("test_wms_content", args.url, args.wms_version)
+    wmsLibTest = TestWMSLibCompliance(
+        "test_wms_content", args.url, args.wms_version
+    )
     suite = unittest.TestSuite()
     suite.addTest(wmsLibTest)
     result = unittest.TextTestRunner().run(suite)

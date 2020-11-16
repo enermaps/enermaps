@@ -3,7 +3,7 @@
 import sys
 import unittest
 
-import app
+import app  # NOQA
 
 if __name__ == "__main__":
     loader = unittest.TestLoader()

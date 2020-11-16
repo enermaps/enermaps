@@ -31,11 +31,13 @@ jobs:
         run: pip install -r api/linter-requirements.txt
 
       - name: check-lint with black
-        run: black --check api
+        run: black --diff --line-length 79 --check api
       - name: check-lint with bandit
         run: cd api && bandit -r .
       - name: check-lint with isort
         run: cd api && isort --check --diff .
+      - name: check-lint with pyflakes
+        run: cd api && flake8 **/*py
 
       - name: Run docker-compose stack
         run: docker-compose build --parallel

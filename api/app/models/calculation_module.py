@@ -83,7 +83,10 @@ def list_cms() -> Dict[Text, CalculationModule]:
     try:
         app_inspector = app.control.inspect()
         nodes = app_inspector.registered("cm_info")
-    except (redis.exceptions.ConnectionError, kombu.exceptions.OperationalError) as err:
+    except (
+        redis.exceptions.ConnectionError,
+        kombu.exceptions.OperationalError,
+    ) as err:
         # If redis is down, we just don't expose any calculation module
         logging.error("Connection to celery broker failed with error: %s", err)
         return {}

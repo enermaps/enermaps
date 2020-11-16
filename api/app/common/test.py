@@ -13,7 +13,9 @@ def skipUnlessDockerComposeCanBeExecuted(f):
     when the docker-compose executable was not found.
     """
     try:
-        subprocess.check_call(["docker-compose", "--version"], shell=False)  # nosec
+        subprocess.check_call(  # nosec
+            ["docker-compose", "--version"], shell=False  # nosec
+        )  # nosec
     except FileNotFoundError:
         return unittest.skip("Couldn't find docker-compose, skipping test")
     return lambda func: func
@@ -51,7 +53,9 @@ class BaseApiTest(unittest.TestCase):
         form_content, _ = self.get_testformdata(testfile_name)
         self.client.post("/api/geofile")
         response = self.client.post(
-            "api/geofile/", data=form_content, content_type="multipart/form-data"
+            "api/geofile/",
+            data=form_content,
+            content_type="multipart/form-data",
         )
         self.assertStatusCodeEqual(response, 200)
         return response

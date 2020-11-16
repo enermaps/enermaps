@@ -11,7 +11,6 @@ import shutil
 import zipfile
 from abc import ABC, abstractmethod
 from glob import glob
-from tempfile import TemporaryDirectory
 
 import mapnik
 from flask import current_app, safe_join
@@ -151,7 +150,8 @@ class RasterLayer(Layer):
         with TemporaryDirectory(prefix=get_tmp_upload()) as tmp_dir:
             tmp_filepath = safe_join(tmp_dir, file_upload.filename)
             file_upload.save(tmp_filepath)
-            output_filepath = safe_join(get_user_upload("raster"), file_upload.filename)
+            output_filepath = safe_join(get_user_upload("raster"),
+                                        file_upload.filename)
             os.rename(tmp_filepath, output_filepath)
         return RasterLayer(file_upload.filename)
 
