@@ -22,9 +22,6 @@ class CM_fakeoutput(Resource):
 @api.route("/0/task/1")
 class CM_fakeoutput(Resource):
     def get(self):
-        #GEOJSON_PROJ = 'EPSG:4326'
-        #PROJ_4326 = 'EPSG:4326'
-        #PROJ_2056 = 'EPSG:2056'
         def add_rasterstats(path_geojson = os.path.join(file_test_dirr, "selection_shapefile.geojson"),
                             path1 = os.path.join(file_test_dirr, "GeoTIFF_test.tif"),
                             path2 = os.path.join(file_test_dirr, "GeoTIFF_test.tif"),
