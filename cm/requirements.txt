@@ -1,0 +1,5 @@
+celery
+rasterstats
+rasterio
+requests
+
