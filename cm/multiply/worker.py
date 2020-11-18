@@ -3,6 +3,7 @@ import inspect
 import marshmallow
 from celery import Celery, Task
 from multiply_raster import MultiplyRasterstats
+import IPython
 
 app = Celery(__name__, broker="redis://guest@localhost//", backend="redis://localhost")
 
@@ -43,6 +44,8 @@ def MultiplyRaster():
     return val_multiply
 
 if __name__ == "__main__":
-    res = MultiplyRaster()
-    print('\n' + 'result')
-    print(res)
+    app.worker_main()
+    #print(help(app))
+    #import time
+    #time.sleep(400)
+    #IPython.embed()

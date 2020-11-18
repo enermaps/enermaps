@@ -2,6 +2,7 @@ from rasterstats import zonal_stats
 import rasterio
 from time import time
 
+
 def MultiplyRasterstats(path_geojson, path, factor = 2, evaluate = False):
     now = time()
     with rasterio.open(path) as src:
