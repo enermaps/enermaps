@@ -30,10 +30,10 @@ class BaseTask(Task):
         return json.dumps(d)
 
 @app.task(base=BaseTask)
-def MultiplyRaster(path_selection, path_tif,factor, evaluate):
+def MultiplyRaster(path_selection, path_tif, factor):
     """This is a calculation module that multiplies the raster by an factor.
     """
-    val_multiply = MultiplyRasterstats(path_selection, path_tif,factor, evaluate)
+    val_multiply = MultiplyRasterstats(path_selection, path_tif,factor)
     return val_multiply
 
 if __name__ == "__main__":
