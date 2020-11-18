@@ -5,7 +5,7 @@ from celery import Celery, Task
 from celery.worker import worker
 #from multiply_raster import MultiplyRasterstats
 
-app = Celery(__name__, broker="redis://guest@localhost//", backend="redis://localhost")
+app = Celery(__name__, broker="redis://redis//", backend="redis://redis")
 
 app.conf.update(
     task_serializer="json",
