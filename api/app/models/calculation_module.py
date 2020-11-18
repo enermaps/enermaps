@@ -3,11 +3,11 @@ A calculation module is a long ran operation (from minutes of runtime to hours)
 That uses one or multiple raster file and a multipolygon that is used as a
 selection.
 """
-import re
-import os
 import json
 import logging
-from typing import Text, Dict
+import os
+import re
+from typing import Dict, Text
 
 import kombu
 import redis
@@ -82,7 +82,10 @@ def list_cms() -> Dict[Text, CalculationModule]:
     try:
         app_inspector = app.control.inspect()
         nodes = app_inspector.registered("cm_info")
-    except (redis.exceptions.ConnectionError, kombu.exceptions.OperationalError) as err:
+    except (
+        redis.exceptions.ConnectionError,
+        kombu.exceptions.OperationalError,
+    ) as err:
         # If redis is down, we just don't expose any calculation module
         logging.error("Connection to celery broker failed with error: %s", err)
         return {}

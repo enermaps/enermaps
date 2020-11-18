@@ -29,10 +29,13 @@ def get_tmp_upload():
     return get_user_upload("tmp")
 
 
-def get_user_upload(prefix_path):
-    """Return the location of a subdirectory for uploads.
-    This function is safe to path injection (such as .. in filename)"""
-    user_dir = safe_join(current_app.config["UPLOAD_DIR"], prefix_path)
+def get_user_upload(subdirectory):
+    """Return the location of a subdirectory for uploads. this also uses a
+    subdirectories path component in the main user upload directory.
+    This function is safe to path injection (such as .. in filename).
+    This function will also care about directory creation if it doesn't exist
+    yet"""
+    user_dir = safe_join(current_app.config["UPLOAD_DIR"], subdirectory)
     os.makedirs(user_dir, exist_ok=True)
     return user_dir
 

@@ -11,13 +11,13 @@ from app.models.geofile import create, list_layers
 from app.redirect import redirect_to_api
 
 
-def fetch_dataset(url, filename):
+def fetch_dataset(base_url, get_parameters, filename):
     existing_layers_name = [layer.name for layer in list_layers()]
     if filename in existing_layers_name:
         print("Not fetching {}, we already have it locally".format(filename))
         return
     print("Fetching " + filename)
-    with requests.get(url, stream=True) as resp:
+    with requests.get(base_url, params=get_parameters, stream=True) as resp:
         resp_data = io.BytesIO(resp.content)
     file_upload = FileStorage(resp_data, filename, content_type="application/zip")
     create(file_upload)
@@ -32,15 +32,28 @@ def init_dataset():
     Currently, we fetch the dataset from hotmaps.eu
     """
     print("Ensure we have the initial dataset")
-    nuts_base_url = "https://geoserver.hotmaps.eu/geoserver/hotmaps/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=hotmaps:nuts&outputFormat=SHAPE-ZIP&CQL_FILTER=stat_levl_=%27{!s}%27%20AND%20year=%272013-01-01%27"
-    lau_url = "https://geoserver.hotmaps.eu/geoserver/hotmaps/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=hotmaps:tbl_lau1_2&outputFormat=SHAPE-ZIP"
+    base_url = "https://geoserver.hotmaps.eu/geoserver/hotmaps/ows"
+    base_query_params = {
+        "service": "WFS",
+        "version": "1.0.0",
+        "request": "GetFeature",
+        "outputFormat": "SHAPE-ZIP",
+    }
+    nuts_query = {
+        **base_query_params,
+        **{
+            "typeName": "hotmaps:nuts",
+            "CQL_FILTER": "stat_levl_: '{!s}' AND year: '2013-01-01'",
+        },
+    }
+    lau_query = {**base_query_params, **{"typeName": "hotmaps:tbl_lau1_2"}}
     for i in range(4):
-        url = nuts_base_url.format(i)
+        nuts_query["CQL_FILTER"] = nuts_query["CQL_FILTER"].format(i)
         filename = "nuts{!s}.zip".format(i)
-        fetch_dataset(url, filename)
+        fetch_dataset(base_url, nuts_query, filename)
 
     filename = "lau.zip"
-    fetch_dataset(lau_url, filename)
+    fetch_dataset(base_url, lau_query, filename)
 
 
 def create_app(environment="production", testing=False):

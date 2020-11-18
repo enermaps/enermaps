@@ -18,7 +18,8 @@ class TestWMSLibCompliance(unittest.TestCase):
         """Initialize the testcase, allowing options to be passed.
 
         url: the url of the wms as a string
-        version: the version of the wms (1.1.1 or 1.3.0 are the most common versions)
+        version: the version of the wms (1.1.1 or
+        1.3.0 are the most common versions)
         """
         self.url = url
         self.version = version
