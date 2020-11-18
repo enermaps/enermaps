@@ -39,8 +39,10 @@ class CMSchema(marshmallow.Schema):
 def MultiplyRaster():
     """This is a calculation module that multiplies the raster by an factor.
     """
-    val_multiply = MultiplyRasterstats("selection_shapefile.geojson", "GeoTIFF_test.tif")
+    val_multiply = MultiplyRasterstats("selection_shapefile.geojson", "GeoTIFF_test.tif",factor =3, evaluate = False)
     return val_multiply
 
 if __name__ == "__main__":
-    app.worker_main()
+    res = MultiplyRaster()
+    print('\n' + 'result')
+    print(res)
