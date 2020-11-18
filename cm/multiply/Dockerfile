@@ -5,5 +5,5 @@ RUN apt-get update && \
 WORKDIR /cm
 COPY requirements.txt requirements.txt
 RUN pip3 install -r requirements.txt
-COPY . .
-RUN python3 test.py
+COPY .. .
+#RUN python3 test.py
