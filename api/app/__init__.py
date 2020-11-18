@@ -39,13 +39,14 @@ def init_dataset():
         "request": "GetFeature",
         "outputFormat": "SHAPE-ZIP",
     }
-    nuts_query = base_query_params.update(
-        {
+    nuts_query = {
+        **base_query_params,
+        **{
             "typeName": "hotmaps:nuts",
             "CQL_FILTER": "stat_levl_: '{!s}' AND year: '2013-01-01'",
-        }
-    )
-    lau_query = base_query_params.update({"typeName": "hotmaps:tbl_lau1_2"})
+        },
+    }
+    lau_query = {**base_query_params, **{"typeName": "hotmaps:tbl_lau1_2"}}
     for i in range(4):
         nuts_query["CQL_FILTER"] = nuts_query["CQL_FILTER"].format(i)
         filename = "nuts{!s}.zip".format(i)
