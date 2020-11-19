@@ -5,7 +5,7 @@ import rasterio
 from rasterstats import zonal_stats
 
 
-def MultiplyRasterstats(path_geojson, path, factor):
+def MultiplyRasterStats(path_geojson, path, factor):
     now = time()
     with rasterio.open(path) as src:
         raster_array = src.read(1) * factor
@@ -23,7 +23,7 @@ def MultiplyRasterstats(path_geojson, path, factor):
 
 
 if __name__ == "__main__":
-    val_multiply = MultiplyRasterstats(
+    val_multiply = MultiplyRasterStats(
         "selection_shapefile.geojson", "GeoTIFF_test.tif"
     )
     print(val_multiply)

@@ -1,10 +1,10 @@
-import json
 import inspect
-import marshmallow
+import json
+
 from celery import Celery, Task
 from celery.worker import worker
 
-# from multiply_raster import MultiplyRasterstats
+# from multiply_raster import MultiplyRasterStats
 
 app = Celery(__name__, broker="redis://redis//", backend="redis://redis")
 
@@ -34,9 +34,9 @@ class BaseTask(Task):
 
 
 @app.task(base=BaseTask)
-def MultiplyRaster(path_selection, path_tif, factor):
+def multiply_raster(path_selection, path_tif, factor):
     """This is a calculation module that multiplies the raster by an factor."""
-    val_multiply = MultiplyRasterstats(path_selection, path_tif, factor)
+    val_multiply = MultiplyRasterStats(path_selection, path_tif, factor)
     return val_multiply
 
 
