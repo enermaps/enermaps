@@ -17,18 +17,6 @@ L.TileLayer.NutsLayer = L.TileLayer.WMS.extend({
     }
   },
   getSelection: function() {
-    let selected_overlay = [];
-    console.log(
-      this._map.eachLayer((layer) => {
-        if (!!layer.is_overlay) {
-          selected_overlay.push(layer.wmsParams.layers);
-        }
-      })
-    );
-    if (selected_overlay.length == 0) {
-      //endpoint for the calculation module
-      return;
-    }
     console.log(
       this.selection.toGeoJSON().features.map(this.getFeatureId),
     );

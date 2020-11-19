@@ -44,19 +44,17 @@ L.DrawingLayer = L.FeatureGroup.extend({
         remove: true,
       },
     };
-
     // Initialise the draw control and pass it the FeatureGroup of editable layers
     this.drawControl = new L.Control.Draw(drawPluginOptions);
     map.addControl(this.drawControl);
     map.on(L.Draw.Event.CREATED, L.Util.bind(this.drawCreated, this));
   },
+  getSelection: function() {
+    return this.toGeoJSON();
+  },
   drawCreated: function(e) {
     const type = e.layerType;
     const layer = e.layer;
-
-    if (type === 'marker') {
-      layer.bindPopup('A popup!');
-    }
 
     this.addLayer(layer);
   },

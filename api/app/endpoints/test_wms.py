@@ -1,11 +1,12 @@
 import io
 import json
 
-from app.common.test import BaseApiTest, get_testdata
 from lxml import etree
 from PIL import Image
 
 import app.common.xml as xml
+from app.common import filepath
+from app.common.test import BaseApiTest
 
 GETCAPABILITIES_ARGS = {"service": "WMS", "request": "GetCapabilities"}
 
@@ -89,7 +90,7 @@ class WMSGetCapabilitiesTest(BaseApiTest):
         self._validate_xml(root)
 
     def _validate_xml(self, xml_root):
-        dtd_path = get_testdata("WMS_MS_Capabilities_1.1.1.dtd")
+        dtd_path = filepath.get_testdata_path("WMS_MS_Capabilities_1.1.1.dtd")
         dtd = etree.DTD(open(dtd_path))
         valid = dtd.validate(xml_root)
         self.assertTrue(valid, dtd.error_log.filter_from_errors())
@@ -109,7 +110,8 @@ class WMSGetMapTest(BaseApiTest):
         "width": "256",
         "height": "256",
         "srs": "EPSG:3857",
-        "bbox": "19567.87924100512,6809621.975869781,"
+        "bbox": "19567.87924100512,6809621.975869781"
+        ","
         "39135.75848201024,6829189.85511079",
     }
 
@@ -153,7 +155,9 @@ class WMSGetFeatureInfoTest(BaseApiTest):
         "TRANSPARENT": "true",
         "VERSION": "1.1.1",
         "FORMAT": "image/png",
-        "BBOX": "-2.8124638200947287,50.958439559875124,2.801549851780272,51.67597427003148",
+        "BBOX": "-2.8124638200947287,50.958439559875124"
+        ","
+        "2.801549851780272,51.67597427003148",
         "HEIGHT": "209",
         "WIDTH": "1022",
         "LAYERS": "nuts.zip",

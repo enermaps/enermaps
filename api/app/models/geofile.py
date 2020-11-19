@@ -5,12 +5,13 @@ really prevent race condition on list vs delete. We
 also catch those on accessing the layer.
 
 """
-import os
 import io
-from glob import glob
+import os
 import shutil
 import zipfile
 from abc import ABC, abstractmethod
+from glob import glob
+from tempfile import TemporaryDirectory
 
 import mapnik
 from flask import current_app, safe_join
@@ -23,9 +24,18 @@ class SaveException(Exception):
     pass
 
 
-def get_user_upload(prefix_path):
-    """Return the location of a subdirectory for uploads. this also uses a prefix"""
-    user_dir = safe_join(current_app.config["UPLOAD_DIR"], prefix_path)
+def get_tmp_upload():
+    """Return the buffer location for fetching file locally."""
+    return get_user_upload("tmp")
+
+
+def get_user_upload(subdirectory):
+    """Return the location of a subdirectory for uploads. this also uses a
+    subdirectories path component in the main user upload directory.
+    This function is safe to path injection (such as .. in filename).
+    This function will also care about directory creation if it doesn't exist
+    yet"""
+    user_dir = safe_join(current_app.config["UPLOAD_DIR"], subdirectory)
     os.makedirs(user_dir, exist_ok=True)
     return user_dir
 
@@ -110,9 +120,9 @@ class RasterLayer(Layer):
         """As we store rasters on disk, we only want to list
         files in the directory.
         """
-        user_dir = get_user_upload("raster")
-        layers = os.listdir(user_dir)
-        return map(RasterLayer, layers)
+        layers = os.listdir(get_user_upload("raster"))
+        non_hidden_layers = filter(lambda a: not a.startswith("."), layers)
+        return map(RasterLayer, non_hidden_layers)
 
     def _get_raster_path(self):
         """Return the path where a raster is stored on disk."""
@@ -141,8 +151,11 @@ class RasterLayer(Layer):
 
     @staticmethod
     def save(file_upload: FileStorage):
-        output_filepath = safe_join(get_user_upload("raster"), file_upload.filename)
-        file_upload.save(output_filepath)
+        with TemporaryDirectory(prefix=get_tmp_upload()) as tmp_dir:
+            tmp_filepath = safe_join(tmp_dir, file_upload.filename)
+            file_upload.save(tmp_filepath)
+            output_filepath = safe_join(get_user_upload("raster"), file_upload.filename)
+            os.rename(tmp_filepath, output_filepath)
         return RasterLayer(file_upload.filename)
 
     def as_mapnik_layer(self):
@@ -224,11 +237,11 @@ class VectorLayer(Layer):
         # Use a temp file in the same directory as the ginal vector location
         # The point here is to have an atomic replace which is only possible if
         # the origin and the destination are in the same filesystem.
-        upload_dir = get_user_upload("vectors")
-        tmp_output = safe_join(upload_dir, "." + file_upload.filename)
-        output_dirpath = safe_join(upload_dir, file_upload.filename)
-        zip_ref.extractall(tmp_output)
-        os.replace(tmp_output, output_dirpath)
+        with TemporaryDirectory(prefix=get_tmp_upload()) as tmp_dir:
+            zip_ref.extractall(tmp_dir)
+            upload_dir = get_user_upload("vectors")
+            output_dirpath = safe_join(upload_dir, file_upload.filename)
+            os.rename(tmp_dir, output_dirpath)
         return VectorLayer(file_upload.filename)
 
     @staticmethod

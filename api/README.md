@@ -40,6 +40,8 @@ They are:
 
 * black for automated formatting
 * bandit for security scanning
+* isort for the order of the import
+* flake8 for line length, unused variable and others.
 
 # acceptance test 
 

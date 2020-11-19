@@ -1,18 +1,11 @@
 import io
-import os
 import shutil
 import subprocess  # nosec
 import tempfile
 import unittest
 
 from app import create_app
-
-
-def get_testdata(filename):
-    """Return the absolute location of the filename in the testdatadir"""
-    current_file_dir = os.path.dirname(os.path.abspath(__file__))
-    testdata_dir = os.path.join(os.path.dirname(current_file_dir), "testdata")
-    return os.path.join(testdata_dir, filename)
+from app.common import filepath
 
 
 def skipUnlessDockerComposeCanBeExecuted(f):
@@ -20,7 +13,9 @@ def skipUnlessDockerComposeCanBeExecuted(f):
     when the docker-compose executable was not found.
     """
     try:
-        subprocess.check_call(["docker-compose", "--version"], shell=False)  # nosec
+        subprocess.check_call(  # nosec
+            ["docker-compose", "--version"], shell=False  # nosec
+        )  # nosec
     except FileNotFoundError:
         return unittest.skip("Couldn't find docker-compose, skipping test")
     return lambda func: func
@@ -45,7 +40,7 @@ class BaseApiTest(unittest.TestCase):
 
     def get_testformdata(self, testfile, testfile_name=None):
         """Return"""
-        with open(get_testdata(testfile), "rb") as f:
+        with open(filepath.get_testdata_path(testfile), "rb") as f:
             testfile_content = f.read()
             testfile_io = io.BytesIO(testfile_content)
             if not testfile_name:
@@ -58,7 +53,9 @@ class BaseApiTest(unittest.TestCase):
         form_content, _ = self.get_testformdata(testfile_name)
         self.client.post("/api/geofile")
         response = self.client.post(
-            "api/geofile/", data=form_content, content_type="multipart/form-data"
+            "api/geofile/",
+            data=form_content,
+            content_type="multipart/form-data",
         )
         self.assertStatusCodeEqual(response, 200)
         return response
