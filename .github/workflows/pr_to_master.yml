@@ -39,5 +39,8 @@ jobs:
       - name: check-lint with flake8
         run: cd api && flake8 **/*py
 
+      - name: check-lint cms
+        run: cd cm && ./.check_cm.sh
+
       - name: Run docker-compose stack
         run: docker-compose build --parallel
