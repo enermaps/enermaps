@@ -1,0 +1,7 @@
+celery==5.0.2
+redis
+rasterstats
+rasterio
+requests
+marshmallow
+ipython

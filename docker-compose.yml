@@ -1,5 +1,9 @@
 version: "3.8"
 services:
+  cm:
+    build:
+      context: ./cm/multiply
+
   frontend:
     build:
       context: ./frontend
