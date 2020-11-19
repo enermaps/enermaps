@@ -1,7 +1,8 @@
 import unittest
 
-from multiply_raster import MultiplyRasterStats
 from rasterstats import zonal_stats
+
+from multiply_raster import MultiplyRasterStats
 
 
 class TestCM(unittest.TestCase):
