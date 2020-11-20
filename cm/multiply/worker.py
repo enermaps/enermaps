@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 import inspect
 import json
 
@@ -22,20 +23,28 @@ class BaseTask(Task):
         super(BaseTask, self).__init__(*args, **kwargs)
         signature = inspect.signature(self.__wrapped__)
         self.parameters = [p for p in signature.parameters]
-        # self.schema = CMSSchema
+        with open("schema.json") as f:
+            self.schema = json.load(f)
+        raw_name = self.__wrapped__.__name__
+        spaced_name = raw_name.replace('_', ' ').replace('-', ' ')
+        self.name = spaced_name.capitalize()
+
+
 
     @property
     def cm_info(self):
         d = {}
         d["parameters"] = self.parameters
-        d["schema"] = {}
+        d["schema"] = self.schema
         d["doc"] = self.__doc__
+        d["name"] = self.name
         return json.dumps(d)
 
 
 @app.task(base=BaseTask)
-def multiply_raster(path_selection, path_tif, factor):
+def multiply_raster(path_selection, path_tif, params):
     """This is a calculation module that multiplies the raster by an factor."""
+    factor = params["factor"]
     val_multiply = MultiplyRasterStats(path_selection, path_tif, factor)
     return val_multiply
 
