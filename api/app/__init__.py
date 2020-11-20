@@ -12,6 +12,7 @@ from app.redirect import redirect_to_api
 
 
 def fetch_dataset(base_url, get_parameters, filename):
+    """Get a single zip dataset and import it into enermaps."""
     existing_layers_name = [layer.name for layer in list_layers()]
     if filename in existing_layers_name:
         print("Not fetching {}, we already have it locally".format(filename))
@@ -43,7 +44,7 @@ def init_dataset():
         **base_query_params,
         **{
             "typeName": "hotmaps:nuts",
-            "CQL_FILTER": "stat_levl_: '{!s}' AND year: '2013-01-01'",
+            "CQL_FILTER": "stat_levl_='{!s}' AND year='2013-01-01'",
         },
     }
     lau_query = {**base_query_params, **{"typeName": "hotmaps:tbl_lau1_2"}}
