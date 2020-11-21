@@ -8,7 +8,7 @@ also catch those on accessing the layer.
 import io
 import os
 import shutil
-import subprocess
+import subprocess  # nosec
 import zipfile
 from abc import ABC, abstractmethod
 from glob import glob
@@ -286,7 +286,12 @@ class GeoJSONLayer(VectorLayer):
             shapefile_filepath = safe_join(tmp_dir, shape_name + ".shp")
             args = ["ogr2ogr", "-f", "ESRI Shapefile", shapefile_filepath, tmp_filepath]
             try:
-                subprocess.check_call(args)
+                # This call is safe, as
+                # * we don't call a shell
+                # * we always prepend the location, thus we end up with
+                #   absolute path that don't start with - or --
+                # * all joins are contained in the subdirectories
+                subprocess.check_call(args)  # nosec
             except subprocess.CalledProcessError:
                 raise SaveException("File cannot be encoded into a shapefile")
             proj_filepath = safe_join(tmp_dir, shape_name + ".prj")
