@@ -23,7 +23,6 @@ class TestCMS(BaseApiTest):
     def testSuccessWhenParsingWithSpace(self):
         from_registration_string(CM_STRING1)
 
-
     def testFailWhenParseWrongCMInfo(self):
         """Test some parsing error of the info string"""
         with self.assertRaises(Exception):

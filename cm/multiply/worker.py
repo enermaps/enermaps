@@ -23,13 +23,18 @@ class BaseTask(Task):
         super(BaseTask, self).__init__(*args, **kwargs)
         signature = inspect.signature(self.__wrapped__)
         self.parameters = [p for p in signature.parameters]
-        with open("schema.json") as f:
-            self.schema = json.load(f)
-        raw_name = self.__wrapped__.__name__
-        spaced_name = raw_name.replace('_', ' ').replace('-', ' ')
-        self.pretty_name = spaced_name.capitalize()
+        self.pretty_name = BaseTask.format_function(self.__wrapped__)
+        with open("schema.json") as fd:
+            self.schema = json.load(fd)
 
-
+    @staticmethod
+    def format_function(function):
+        """From a named callable  extract its name then
+        format it to be human readable.
+        """
+        raw_name = function.__name__
+        spaced_name = raw_name.replace("_", " ").replace("-", " ")
+        return spaced_name.capitalize()
 
     @property
     def cm_info(self):
