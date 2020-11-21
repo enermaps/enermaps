@@ -27,7 +27,7 @@ class BaseTask(Task):
             self.schema = json.load(f)
         raw_name = self.__wrapped__.__name__
         spaced_name = raw_name.replace('_', ' ').replace('-', ' ')
-        self.name = spaced_name.capitalize()
+        self.pretty_name = spaced_name.capitalize()
 
 
 
@@ -37,7 +37,7 @@ class BaseTask(Task):
         d["parameters"] = self.parameters
         d["schema"] = self.schema
         d["doc"] = self.__doc__
-        d["name"] = self.name
+        d["pretty_name"] = self.name
         return json.dumps(d)
 
 

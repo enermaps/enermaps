@@ -61,7 +61,8 @@ class CalculationModule:
 
     def __init__(self, task_id, **kwargs):
         self.app = get_celery_app()
-        self.name = task_id
+        self.task_id = task_id
+        self.name = kwargs.get("name", task_id)
         self.params = kwargs
         self.schema = kwargs.get("schema", {})
         self.__doc__ = kwargs.get(

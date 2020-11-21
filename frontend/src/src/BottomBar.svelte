@@ -32,16 +32,20 @@
 	});
 	async function callCM(cm_name) {
 		//alert("calling CM with overlays :" + active_overlay_layers + "and with selection:" + active_selection_layer)
-		let data = {}
-		data['selection'] = active_selection_layer.getSelection();
-		data['overlays'] = active_overlay_layers;
-		data['input'] = brutusin_forms[cm_name].getData();
-		const response = await fetch(url, {
+		let new_task_params = {}
+		if (!!active_selection_layer) {
+			new_task_params['selection'] = active_selection_layer.getSelection();
+		} else {
+			new_task_params['selection'] = {}
+		}
+		new_task_params['layers'] = active_overlay_layers;
+		new_task_params['parameters'] = brutusin_forms[cm_name].getData();
+		const response = await fetch("api/cm/" + cm_name + "/task", {
 			method: 'POST',
 			headers: {
 				'Content-Type': 'application/json'
 			},
-			body: JSON.stringify(data),
+			body: JSON.stringify(new_task_params),
 		});
 	}
 	$ : {
@@ -58,7 +62,7 @@
 	<li>
 		<form id="form{cm.name}">
 		</form>
-		<button type=submit on:click={() => callCM(cm.name)}>{cm.name}</button>
+		<button type=submit on:click={() => callCM(cm.name)} disabled={!active_selection_layer}>{cm.name}</button>
 	</li>
 	{/each}
 	</ul>
