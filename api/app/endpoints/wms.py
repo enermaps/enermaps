@@ -231,6 +231,9 @@ class WMS(Resource):
         r.symbols.append(mapnik.RasterSymbolizer())
         s.rules.append(r)
 
+        r.symbols.append(mapnik.PointSymbolizer())
+        s.rules.append(r)
+
         polygon_symbolizer = mapnik.PolygonSymbolizer()
         polygon_symbolizer.fill = mapnik.Color(0, 0, 0, 0)
         r.symbols.append(polygon_symbolizer)
