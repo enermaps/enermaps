@@ -22,6 +22,13 @@ class BaseWMSTest(BaseApiTest):
 class WMSGetCapabilitiesTest(BaseApiTest):
     """Test the get capabilities (a list of all endpoint and layer)"""
 
+    @classmethod
+    def setUpClass(cl):
+        schema_path = filepath.get_testdata_path("WMS_MS_Capabilities_1.3.0.xsd")
+        with open(schema_path) as schema_fd:
+            xmlschema = etree.parse(schema_fd)
+            cl.schema = etree.XMLSchema(xmlschema)
+
     def testSucceedWithUppercaseParameters(self):
         """Test that lowercase parameters produces the same result as uppercase
         get parameters
@@ -51,7 +58,7 @@ class WMSGetCapabilitiesTest(BaseApiTest):
         response = self.client.get("api/wms", query_string=GETCAPABILITIES_ARGS)
         self.assertStatusCodeEqual(response, 200)
         root = xml.etree_fromstring(response.data)
-        layer_names = root.findall(".//Layer/Layer/Name")
+        layer_names = root.findall(".//Layer/Layer/Name", root.nsmap)
         self.assertEqual(len(layer_names), 0, "Found a layer, expected none")
         self._validate_xml(root)
 
@@ -67,11 +74,11 @@ class WMSGetCapabilitiesTest(BaseApiTest):
         response = self.client.get("api/wms", query_string=GETCAPABILITIES_ARGS)
         self.assertStatusCodeEqual(response, 200)
         root = etree.fromstring(response.data)
-        layers = root.findall(".//Layer/Layer")
+        layers = root.findall(".//Layer/Layer", root.nsmap)
         self.assertEqual(len(layers), 1)
         layer = layers[0]
-        self.assertEqual(layer.get("queryable"), is_queryable)
-        self.assertEqual(layer.find("Name").text, testfile)
+        self.assertEqual(layer.get("queryable", root.nsmap), is_queryable)
+        self.assertEqual(layer.find("Name", root.nsmap).text, testfile)
         # finally test the response compatiblity using the dtd, a xml schema
         self._validate_xml(root)
 
@@ -92,10 +99,8 @@ class WMSGetCapabilitiesTest(BaseApiTest):
         self._validate_xml(root)
 
     def _validate_xml(self, xml_root):
-        dtd_path = filepath.get_testdata_path("WMS_MS_Capabilities_1.1.1.dtd")
-        dtd = etree.DTD(open(dtd_path))
-        valid = dtd.validate(xml_root)
-        self.assertTrue(valid, dtd.error_log.filter_from_errors())
+        valid = self.schema.validate(xml_root)
+        self.assertTrue(valid, self.schema.error_log.filter_from_errors())
 
 
 class WMSGetMapTest(BaseApiTest):
