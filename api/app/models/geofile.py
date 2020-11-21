@@ -18,8 +18,7 @@ import mapnik
 from flask import current_app, safe_join
 from werkzeug.datastructures import FileStorage
 
-from app.common.projection import (epsg_to_wkt, proj4_from_geotiff,
-                                   proj4_from_shapefile)
+from app.common.projection import epsg_to_wkt, proj4_from_geotiff, proj4_from_shapefile
 
 
 class SaveException(Exception):
