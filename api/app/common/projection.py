@@ -49,8 +49,41 @@ def proj4_from_geotiff(path):
     return srs.ExportToProj4()
 
 
-def epsg_to_wkt(epsg_code: int):
-    """Map a integer epsg code to a wkt projection."""
+def epsg_to_wkt(epsg_code: int) -> str:
+    """Return a wkt description from an epsg integer
+    code
+    """
     srs = osr.SpatialReference()
     srs.ImportFromEPSG(epsg_code)
     return srs.ExportToWkt()
+
+
+def epsg_string_to_epsg(epsg_string: str) -> int:
+    """From a string of the form 'EPSG:${code}' return
+    the epsg code as a integer
+    Raise a ValueError if the epsg_string cannot
+    be decoded
+    """
+    epsg_string = epsg_string.lower()
+    epsg_string = epsg_string.strip()
+    epsg_string = epsg_string.replace("epsg:", "")
+
+    return int(epsg_string)
+
+
+def epsg_to_proj4(epsg_code: int) -> str:
+    """Craft a proj4 string from a epsg code as an integer
+    this is actually pretty simple as epsg code can be
+    expressed as proj4
+    """
+    srs = osr.SpatialReference()
+    srs.ImportFromEPSG(epsg_code)
+    return srs.ExportToProj4()
+
+
+def epsg_string_to_proj4(epsg_string: str) -> str:
+    """from an epsg string in the form "EPSG:${code}
+    return the proj4 format.
+    """
+    epsg = epsg_string_to_epsg(epsg_string)
+    return epsg_to_proj4(epsg)

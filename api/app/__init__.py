@@ -78,7 +78,7 @@ def create_app(environment="production", testing=False):
     app.config["MAX_PROJECTION_LENGTH"] = 1024
     app.config["UPLOAD_DIR"] = "/tmp/upload_dir"
     app.config["WMS"] = {}
-    app.config["WMS"]["ALLOWED_PROJECTIONS"] = ["ESPG:3857"]
+    app.config["WMS"]["ALLOWED_PROJECTIONS"] = ["EPSG:3857"]
     app.config["WMS"]["MAX_SIZE"] = 1024 ** 2
     app.config["WMS"]["GETMAP"] = {}
     app.config["WMS"]["GETMAP"]["ALLOWED_OUTPUTS"] = ["image/png", "image/jpg"]

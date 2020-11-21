@@ -7,6 +7,7 @@ from flask import Response, abort, current_app, request
 from flask_restx import Namespace, Resource
 from lxml import etree
 
+import app.common.projection as projection
 import app.common.xml as xml
 import app.models.geofile as geofile
 
@@ -131,33 +132,28 @@ class WMS(Resource):
         insert dynamic element from the list of layers and from the flask
         configuration.
         """
-        with open(os.path.join(current_file_dir, "capabilities.xml")) as f:
+        with open(os.path.join(current_file_dir, "capabilities.xml"), "rb") as f:
             root = xml.etree_fromstring(f.read())
-        root_layer = root.find("Capability/Layer")
+        root_layer = root.find("Capability/Layer", root.nsmap)
         layer_name = etree.Element("Name")
-        root_layer.append(layer_name)
+        root_layer.insert(0, layer_name)
         layer_title = etree.Element("Title")
-        root_layer.append(layer_title)
-        abstract = etree.Element("Abstract")
-        root_layer.append(abstract)
-        keyword_list = etree.Element("KeywordList")
-        root_layer.append(keyword_list)
-
+        root_layer.insert(1, layer_title)
         for crs in current_app.config["WMS"]["ALLOWED_PROJECTIONS"]:
-            crs_node = etree.Element("SRS")
+            crs_node = etree.Element("CRS")
             crs_node.text = crs.upper()
-            root_layer.append(crs_node)
+            root_layer.insert(2, crs_node)
 
-        capabilities = root.findall("Capability//OnlineResource")
+        capabilities = root.findall("Capability//OnlineResource", root.nsmap)
+        capabilities += root.findall("Service//OnlineResource", root.nsmap)
         for element in capabilities:
             element.set("{http://www.w3.org/1999/xlink}href", request.base_url)
 
-        get_map = root.find("Capability/Request/GetMap")
+        get_map = root.find("Capability/Request/GetMap", root.nsmap)
         for get_map_format in current_app.config["WMS"]["GETMAP"]["ALLOWED_OUTPUTS"]:
             format_node = etree.Element("Format")
             format_node.text = get_map_format
             get_map.insert(0, format_node)
-        etree.indent(root, space="    ")
         layers = geofile.list_layers()
         for layer in layers:
             layer_node = etree.Element("Layer")
@@ -175,32 +171,48 @@ class WMS(Resource):
             keyword_list = etree.Element("KeywordList")
             layer_node.append(keyword_list)
 
+            for crs in current_app.config["WMS"]["ALLOWED_PROJECTIONS"]:
+                crs_node = etree.Element("CRS")
+                crs_node.text = crs.upper()
+                layer_node.append(crs_node)
+
             mapnik_layer = layer.as_mapnik_layer()
+            layerproj = mapnik.Projection(mapnik_layer.srs)
             bbox = mapnik_layer.envelope()
-            projected_bbox = etree.Element("LatLonBoundingBox")
-            # Should be projected first
-            projected_bbox.set("minx", str(bbox.minx))
-            projected_bbox.set("maxx", str(bbox.maxx))
-            projected_bbox.set("miny", str(bbox.miny))
-            projected_bbox.set("maxy", str(bbox.maxy))
+            low_left = layerproj.inverse(mapnik.Coord(bbox.minx, bbox.miny))
+            upper_right = layerproj.inverse(mapnik.Coord(bbox.maxx, bbox.maxy))
+            projected_bbox = etree.Element("EX_GeographicBoundingBox")
+            west_bound = etree.Element("westBoundLongitude")
+            west_bound.text = str(low_left.x)
+            projected_bbox.append(west_bound)
+            east_bound = etree.Element("eastBoundLongitude")
+            east_bound.text = str(upper_right.x)
+            projected_bbox.append(east_bound)
+            south_bound = etree.Element("southBoundLatitude")
+            south_bound.text = str(low_left.y)
+            projected_bbox.append(south_bound)
+            north_bound = etree.Element("northBoundLatitude")
+            north_bound.text = str(upper_right.y)
+            projected_bbox.append(north_bound)
             layer_node.append(projected_bbox)
 
-            layer_bbox = etree.Element("BoundingBox")
-            if hasattr(layer, "wms_srs"):
-                layer_bbox.set("SRS", layer.wms_srs)
-            else:
-                layer_bbox.set("SRS", "EPSG:3857")
-            layer_bbox.set("minx", str(bbox.minx))
-            layer_bbox.set("maxx", str(bbox.maxx))
-            layer_bbox.set("miny", str(bbox.miny))
-            layer_bbox.set("maxy", str(bbox.maxy))
-            layer_node.append(layer_bbox)
-            # bbox_node.set("CRS", layer.wms_srs)
+            for crs in current_app.config["WMS"]["ALLOWED_PROJECTIONS"]:
+                bbox_node = etree.Element("BoundingBox")
+                proj4 = projection.epsg_string_to_proj4(crs)
+                proj_low_left = low_left.forward(mapnik.Projection(proj4))
+                proj_upper_right = upper_right.forward(mapnik.Projection(proj4))
+                bbox_node.set("minx", str(proj_low_left.x))
+                bbox_node.set("maxx", str(proj_upper_right.x))
+                bbox_node.set("miny", str(proj_low_left.y))
+                bbox_node.set("maxy", str(proj_upper_right.y))
+                bbox_node.set("CRS", crs)
+                layer_node.append(bbox_node)
 
             root_layer.append(layer_node)
 
         # TODO: add a reference to a legend and have an endpoint for it
 
+        etree.indent(root, space="    ")
         return Response(etree.tostring(root, pretty_print=True), mimetype="text/xml")
 
     def _get_map(self, normalized_args):
