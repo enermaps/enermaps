@@ -57,7 +57,7 @@
 <div>
 	{#each overlay_layers as overlay_layer}
 	<label>
-				<input type=checkbox bind:group={active_overlay_layers} value={overlay_layer}>
+		<input type=checkbox bind:group={active_overlay_layers} value={overlay_layer}>
 			{overlay_layer.name}
 		</label>
 	{/each}

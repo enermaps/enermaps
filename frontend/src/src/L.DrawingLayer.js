@@ -1,13 +1,5 @@
 import "leaflet-draw/dist/leaflet.draw.js";
 import "leaflet-draw/dist/leaflet.draw.css";
-import "leaflet-draw/dist/images/spritesheet.svg";
-import "leaflet-draw/dist/images/marker-shadow.png"
-import "leaflet-draw/dist/images/layers-2x.png";
-import "leaflet-draw/dist/images/marker-icon-2x.png";
-import "leaflet-draw/dist/images/spritesheet.png";
-import "leaflet-draw/dist/images/spritesheet-2x.png";
-import "leaflet-draw/dist/images/marker-icon.png";
-import "leaflet-draw/dist/images/layers.png";
 
 console.log(L.Control.Draw);
 L.DrawingLayer = L.FeatureGroup.extend({

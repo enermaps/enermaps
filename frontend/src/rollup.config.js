@@ -2,7 +2,6 @@ import svelte from 'rollup-plugin-svelte';
 import resolve from '@rollup/plugin-node-resolve';
 import commonjs from '@rollup/plugin-commonjs';
 import livereload from 'rollup-plugin-livereload';
-import image from '@rollup/plugin-image';
 import { terser } from 'rollup-plugin-terser';
 import copy from 'rollup-plugin-copy'
 import css from 'rollup-plugin-css-only';
@@ -39,11 +38,12 @@ export default {
 		file: 'public/build/bundle.js'
 	},
 	plugins: [
-		css({ output: 'public/build/vendor.css' }),
-		image(),
+		css({ output: 'vendor.css' }),
+		//image(),
 		copy({
 			targets: [
-				{src: './node_modules/*/dist/images', dest: './public/build'}
+				{src: './node_modules/*/dist/images/*', dest: './public/build/images'},
+				{src: './node_modules/*/images/*', dest: './public/images'},
 			]
 		}),
 		svelte({

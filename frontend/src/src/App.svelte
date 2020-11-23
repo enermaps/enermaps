@@ -12,6 +12,8 @@
 	import 'leaflet/dist/leaflet';
 	import 'leaflet.markercluster/dist/leaflet.markercluster';
 	import 'leaflet.gridlayer.googlemutant/Leaflet.GoogleMutant';
+	import "leaflet-search/dist/leaflet-search.src.js"
+	import "leaflet-search/dist/leaflet-search.src.css"
 
 	import { onMount } from 'svelte';
 	import TopBar from './TopBar.svelte';
@@ -32,6 +34,7 @@
 
 		base_layer.addTo(map);
 		base_layers.add(base_layer);
+		map.addControl(getSearchControl());
 	});
 
 	function resizeMap() {
@@ -58,6 +61,19 @@
 			    map.removeLayer(layer);
 			}
 		});
+	}
+	function getSearchControl() {
+		const search_control = new L.Control.Search({
+			url: 'https://nominatim.openstreetmap.org/search?format=json&q={s}',
+			jsonpParam: 'json_callback',
+			propertyName: 'display_name',
+			propertyLoc: ['lat', 'lon'],
+			marker: false, // L.circleMarker([0, 0], { radius: 30 }),
+			autoCollapse: true,
+			autoType: false,
+			minLength: 2,
+		});
+		return search_control;
 	}
 </script>
 
