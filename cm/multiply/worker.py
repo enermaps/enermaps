@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 import inspect
 import json
 
@@ -22,20 +23,33 @@ class BaseTask(Task):
         super(BaseTask, self).__init__(*args, **kwargs)
         signature = inspect.signature(self.__wrapped__)
         self.parameters = [p for p in signature.parameters]
-        # self.schema = CMSSchema
+        self.pretty_name = BaseTask.format_function(self.__wrapped__)
+        with open("schema.json") as fd:
+            self.schema = json.load(fd)
+
+    @staticmethod
+    def format_function(function):
+        """From a named callable  extract its name then
+        format it to be human readable.
+        """
+        raw_name = function.__name__
+        spaced_name = raw_name.replace("_", " ").replace("-", " ")
+        return spaced_name.capitalize()
 
     @property
     def cm_info(self):
         d = {}
         d["parameters"] = self.parameters
-        d["schema"] = {}
+        d["schema"] = self.schema
         d["doc"] = self.__doc__
+        d["pretty_name"] = self.name
         return json.dumps(d)
 
 
 @app.task(base=BaseTask)
-def multiply_raster(path_selection, path_tif, factor):
+def multiply_raster(path_selection, path_tif, params):
     """This is a calculation module that multiplies the raster by an factor."""
+    factor = params["factor"]
     val_multiply = MultiplyRasterStats(path_selection, path_tif, factor)
     return val_multiply
 

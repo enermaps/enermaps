@@ -7,6 +7,7 @@ from app.models.calculation_module import from_registration_string, list_cms
 CM_STRING_NO_INFO = "[CMName]"
 CM_STRING_BAD_JSON = "[CMName cm_info={]"
 CM_STRING0 = 'CMName [cm_info={"doc": "doc"}]'
+CM_STRING1 = 'CM Name [cm_info={"doc": "doc"}]'
 
 
 class TestCMS(BaseApiTest):
@@ -18,6 +19,9 @@ class TestCMS(BaseApiTest):
         with self.assertLogs(level=logging.ERROR):
             cms = list_cms()
         self.assertEquals(len(cms), 0)
+
+    def testSuccessWhenParsingWithSpace(self):
+        from_registration_string(CM_STRING1)
 
     def testFailWhenParseWrongCMInfo(self):
         """Test some parsing error of the info string"""

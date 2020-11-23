@@ -16,7 +16,7 @@ class CMList(Resource):
 
         def cm_as_dict(cm):
             ret = {}
-            ret["params"] = cm.params
+            ret["parameters"] = cm.params
             ret["name"] = cm.name
             ret["schema"] = cm.schema
             return ret
@@ -28,7 +28,11 @@ class CMList(Resource):
 class TaskCreator(Resource):
     def post(self, cm_name):
         cm = CM.cm_by_name(cm_name)
-        task = cm.call(**request.params)
+        create_task_parameters = request.get_json()
+        selection = create_task_parameters["selection"]
+        layers = create_task_parameters["layers"]
+        parameters = create_task_parameters["parameters"]
+        task = cm.call(selection, layers, parameters)
         return {"task_id": task.id}
 
 

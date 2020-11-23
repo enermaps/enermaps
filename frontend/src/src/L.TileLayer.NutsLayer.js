@@ -1,5 +1,8 @@
 L.TileLayer.NutsLayer = L.TileLayer.WMS.extend({
   onAdd: function (map) {
+    this.selection = L.geoJSON();
+    this.selection.style = myStyle;
+    this.selection.addTo(this._map);
     // Triggered when the layer is added to a map.
     //   Register a click listener, then do all the upstream WMS things
     L.TileLayer.WMS.prototype.onAdd.call(this, map);
@@ -11,16 +14,11 @@ L.TileLayer.NutsLayer = L.TileLayer.WMS.extend({
     //   Unregister a click listener, then do all the upstream WMS things
     L.TileLayer.WMS.prototype.onRemove.call(this, map);
     map.off("click", this.getFeatureInfo, this);
-    if (!!this.selection) {
-      this._map.removeLayer(this.selection);
-      this.selection = undefined;
-    }
+    this._map.removeLayer(this.selection);
+    this.selection = undefined;
   },
   getSelection: function() {
-    console.log(
-      this.selection.toGeoJSON().features.map(this.getFeatureId),
-    );
-    return this.selection.toGeoJSON();
+      return this.selection.toGeoJSON();
   },
   getFeatureInfo: function (evt) {
     let point = this._map.latLngToContainerPoint(evt.latlng, this._map.getZoom());
@@ -89,11 +87,6 @@ L.TileLayer.NutsLayer = L.TileLayer.WMS.extend({
       weight: 10,
       opacity: 1,
     };
-    if (!!!this.selection) {
-      this.selection = L.geoJSON();
-      this.selection.style = myStyle;
-      this.selection.addTo(this._map);
-    }
     //check if we already clicked to toggle the selection
     console.log("check click");
     //this._map.removeLayer(this.selection);

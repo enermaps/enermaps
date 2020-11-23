@@ -15,7 +15,7 @@ from celery import Celery
 
 from app.common import filepath
 
-TASK_MATCH = "(?P<task_id>[a-zA-Z._]+)"
+TASK_MATCH = "(?P<task_id>[ a-zA-Z._]+)"
 CM_INFO_MATCH = "\\[cm_info=(?P<task_info>.+)\\]"
 INFO_STRING = re.compile("^" + TASK_MATCH + " " + CM_INFO_MATCH + "$")
 
@@ -61,10 +61,10 @@ class CalculationModule:
 
     def __init__(self, task_id, **kwargs):
         self.app = get_celery_app()
-        self.name = task_id
+        self.task_id = task_id
+        self.name = kwargs.get("name", task_id)
         self.params = kwargs
-        with open(filepath.get_testdata_path("default_schema.json")) as f:
-            self.schema = kwargs.get("input_schema", json.load(f))
+        self.schema = kwargs.get("schema", {})
         self.__doc__ = kwargs.get(
             "doc", "no documentation available for this calculation module"
         )
