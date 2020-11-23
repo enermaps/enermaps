@@ -39,7 +39,9 @@ class BaseApiTest(unittest.TestCase):
         shutil.rmtree(self.flask_app.config["UPLOAD_DIR"])
 
     def get_testformdata(self, testfile, testfile_name=None):
-        """Return"""
+        """Return the formdata for uploading a new geofile and the content of
+        the testfile given in argument.
+        """
         with open(filepath.get_testdata_path(testfile), "rb") as f:
             testfile_content = f.read()
             testfile_io = io.BytesIO(testfile_content)

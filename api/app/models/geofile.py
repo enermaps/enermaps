@@ -8,6 +8,7 @@ also catch those on accessing the layer.
 import io
 import os
 import shutil
+import subprocess  # nosec
 import zipfile
 from abc import ABC, abstractmethod
 from glob import glob
@@ -17,7 +18,7 @@ import mapnik
 from flask import current_app, safe_join
 from werkzeug.datastructures import FileStorage
 
-from app.common.projection import proj4_from_geotiff, proj4_from_shapefile
+from app.common.projection import epsg_to_wkt, proj4_from_geotiff, proj4_from_shapefile
 
 
 class SaveException(Exception):
@@ -54,6 +55,8 @@ def create(file_upload: FileStorage):
     """Take an instance of a fileupload and create a layer from it.
     Return the resulting layer
     """
+    if file_upload.mimetype in GeoJSONLayer.MIMETYPE:
+        return GeoJSONLayer.save(file_upload)
     if file_upload.mimetype in VectorLayer.MIMETYPE:
         return VectorLayer.save(file_upload)
     elif file_upload.mimetype in RasterLayer.MIMETYPE:
@@ -63,13 +66,20 @@ def create(file_upload: FileStorage):
 
 def load(name):
     """Create a new instance of RasterLayer based on its name"""
-    if name.endswith("zip"):
+    if name.endswith("zip") or name.endswith("geojson"):
         return VectorLayer(name)
     else:
         return RasterLayer(name)
 
 
 class Layer(ABC):
+    """This is a baseclass for the layers
+    Each layer subclass have the set of method declared underneath.
+    Each layer subclass also has a MIMETYPE constant which is a list
+    of string mimetype. The first index of that array is the default
+    mimetype of that layer used upon retrieving that layer.
+    """
+
     @abstractmethod
     def as_fd(self):
         pass
@@ -155,7 +165,7 @@ class RasterLayer(Layer):
             tmp_filepath = safe_join(tmp_dir, file_upload.filename)
             file_upload.save(tmp_filepath)
             output_filepath = safe_join(get_user_upload("raster"), file_upload.filename)
-            os.rename(tmp_filepath, output_filepath)
+            os.replace(tmp_filepath, output_filepath)
         return RasterLayer(file_upload.filename)
 
     def as_mapnik_layer(self):
@@ -241,7 +251,7 @@ class VectorLayer(Layer):
             zip_ref.extractall(tmp_dir)
             upload_dir = get_user_upload("vectors")
             output_dirpath = safe_join(upload_dir, file_upload.filename)
-            os.rename(tmp_dir, output_dirpath)
+            os.replace(tmp_dir, output_dirpath)
         return VectorLayer(file_upload.filename)
 
     @staticmethod
@@ -256,3 +266,43 @@ class VectorLayer(Layer):
 
     def delete(self):
         shutil.rmtree(self._get_vector_dir())
+
+
+class GeoJSONLayer(VectorLayer):
+    """This is just a shim to the VectorLayer, we take a geojson as input in the
+    save method, then transform it to a shapefile directory containing a proj file
+    and a shp file.
+    """
+
+    MIMETYPE = ["application/json", "application/geojson", "application/geo+json"]
+    DEFAULT_PROJECTION = epsg_to_wkt(4326)
+
+    def save(file_upload: FileStorage):
+        """This method takes a geojson as input and present it as a raster file"""
+        with TemporaryDirectory(prefix=get_tmp_upload()) as tmp_dir:
+            tmp_filepath = safe_join(tmp_dir, file_upload.filename)
+            file_upload.save(tmp_filepath)
+            shape_name, _ = os.path.splitext(file_upload.filename)
+            shapefile_filepath = safe_join(tmp_dir, shape_name + ".shp")
+            args = ["ogr2ogr", "-f", "ESRI Shapefile", shapefile_filepath, tmp_filepath]
+            try:
+                # This call is safe, as
+                # * we don't call a shell
+                # * we always prepend the location, thus we end up with
+                #   absolute path that don't start with - or --
+                # * all joins are contained in the subdirectories
+                subprocess.check_call(args)  # nosec
+            except subprocess.CalledProcessError:
+                raise SaveException("File cannot be encoded into a shapefile")
+            proj_filepath = safe_join(tmp_dir, shape_name + ".prj")
+            # geojson can use a single projection,
+            # so create that file with the standard geojson projection
+            with open(proj_filepath, "w") as fd:
+                fd.write(GeoJSONLayer.DEFAULT_PROJECTION)
+            os.remove(tmp_filepath)
+
+            # everything went fine, symlink and return the corresponding VectorLayer
+            upload_dir = get_user_upload("vectors")
+            output_dirpath = safe_join(upload_dir, shape_name + ".geojson")
+            os.replace(tmp_dir, output_dirpath)
+        return VectorLayer(shape_name + ".geojson")

@@ -1,5 +1,6 @@
 import glob
 import os
+from typing import Text
 
 import gdal
 import osr
@@ -32,3 +33,9 @@ def proj4_from_geotiff(path):
     srs = osr.SpatialReference(wkt=prj)
 
     return srs.ExportToProj4()
+
+
+def epsg_to_wkt(epsg_code: int):
+    srs = osr.SpatialReference()
+    srs.ImportFromEPSG(epsg_code)
+    return srs.ExportToWkt()

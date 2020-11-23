@@ -46,8 +46,8 @@ class GeoFiles(Resource):
 @api.route("/<string:layer_name>")
 class GeoFile(Resource):
     def get(self, layer_name):
-        """Get a geofile, currently only raster is
-        supported in a geotiff format."""
+        """Get a geofile, currently shapefile as zip
+        and raster as geotiff is supported."""
         layer = geofile.load(layer_name)
         layer_fd, mimetype = layer.as_fd()
         return send_file(layer_fd, mimetype=mimetype)

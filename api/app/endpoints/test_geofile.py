@@ -7,6 +7,16 @@ from app.common.test import BaseApiTest
 from app.models.geofile import RasterLayer
 
 
+class GeoJSONfileTest(BaseApiTest):
+    def testUploadThenDownload(self):
+        testfile = "example.geojson"
+        test_data, initial_data = self.get_testformdata(testfile, "example.json")
+        response = self.client.post(
+            "api/geofile/", data=test_data, content_type="multipart/form-data"
+        )
+        self.assertStatusCodeEqual(response, 200)
+
+
 class VectorGeofileTest(BaseApiTest):
     def testUploadThenDownload(self):
         testfile = "nuts.zip"
