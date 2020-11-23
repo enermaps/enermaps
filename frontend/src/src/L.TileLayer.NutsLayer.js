@@ -1,6 +1,11 @@
 L.TileLayer.NutsLayer = L.TileLayer.WMS.extend({
   onAdd: function (map) {
     this.selection = L.geoJSON();
+    const myStyle = {
+      color: "#ff7800",
+      weight: 10,
+      opacity: 1,
+    };
     this.selection.style = myStyle;
     this.selection.addTo(this._map);
     // Triggered when the layer is added to a map.
@@ -82,11 +87,6 @@ L.TileLayer.NutsLayer = L.TileLayer.WMS.extend({
     //if (err) { console.log(err); return; } // do nothing if there's an error
     // Otherwise show the content in a popup, or something.
     //this._map.getLayer("selection")
-    const myStyle = {
-      color: "#ff7800",
-      weight: 10,
-      opacity: 1,
-    };
     //check if we already clicked to toggle the selection
     console.log("check click");
     //this._map.removeLayer(this.selection);
@@ -106,10 +106,7 @@ L.TileLayer.NutsLayer = L.TileLayer.WMS.extend({
         this.selection.addData(feature);
       }
     }
-    //this.selection_by_id[content.properties.nuts_id] = content;
     console.log(this.selection.toGeoJSON().features.map(this.getFeatureId));
-    //this.selection = L.geoJSON(content, {style: myStyle});
-    //this.selection.id = "selection";
   },
 });
 
