@@ -26,7 +26,7 @@ You should then be able to run main.py for running the webserver locally or test
 ```
 python $(pwd)/main.py
 ```
-The api will listen http://127.0.0.1:7000
+The api will listen http://127.0.0.1:7000 after a short initialisation period.
 
 # Linting
 
