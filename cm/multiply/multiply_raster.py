@@ -10,6 +10,7 @@ def MultiplyRasterStats(geojson, rasters, factor):
     Rasters are selected from the frontend.
     Factor should be an integrer.
     """
+    now = time()
     with rasterio.open(rasters) as src:
         raster_array = src.read(1) * factor
     fetch_done = time()
