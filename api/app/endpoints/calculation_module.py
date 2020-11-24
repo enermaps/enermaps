@@ -50,7 +50,7 @@ class CM_fakeoutput(Resource):
         try:
             result = task.get(timeout=0.5)
         except Exception as e:
-            if task.status == 'FAILURE':
+            if task.status == "FAILURE":
                 # this is an expected failure
                 return {"status": task.status, "exception": str(e)}
         return {"status": task.status, "result": result}
