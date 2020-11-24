@@ -47,10 +47,10 @@ class BaseTask(Task):
 
 
 @app.task(base=BaseTask)
-def multiply_raster(path_selection, path_tif, params):
+def multiply_raster(selection, rasters, params):
     """This is a calculation module that multiplies the raster by an factor."""
     factor = params["factor"]
-    val_multiply = MultiplyRasterStats(path_selection, path_tif, factor)
+    val_multiply = MultiplyRasterStats(selection, rasters, factor)
     return val_multiply
 
 
