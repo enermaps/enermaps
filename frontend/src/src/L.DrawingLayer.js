@@ -1,7 +1,6 @@
 import "leaflet-draw/dist/leaflet.draw.js";
 import "leaflet-draw/dist/leaflet.draw.css";
 
-console.log(L.Control.Draw);
 L.DrawingLayer = L.FeatureGroup.extend({
   onRemove: function(map) {
 	  map.removeControl(this.drawControl);

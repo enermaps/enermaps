@@ -27,9 +27,7 @@
 		drawing_layer.name = "selection";
 		selection_layers.push(drawing_layer);
 		selection_layers = selection_layers;
-		console.log(selection_layers);
 		overlay_layers = overlay_layers;
-		console.log(overlay_layers);
 		setSelectionFromGetParameter();
 	});
 	function setSelectionFromGetParameter() {

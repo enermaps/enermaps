@@ -16,7 +16,6 @@
 	async function fetchCMs() {
 		let response = await fetch('/api/cm/');
 		if (!response.ok) {
-			console.log(response);
 			return [];
 		}
 		let cms_resp = await response.json();
@@ -26,7 +25,6 @@
 		for (const cm of cms) {
 			if (!(cm.name in brutusin_forms)) {
 				const container = document.getElementById('form' + cm.name);
-				console.log(cm);
 				const form = BrutusinForms.create(cm.schema);
 				form.render(container, {});
 				brutusin_forms[cm.name] = form;
