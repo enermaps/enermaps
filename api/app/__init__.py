@@ -44,12 +44,12 @@ def init_dataset():
         **base_query_params,
         **{
             "typeName": "hotmaps:nuts",
-            "CQL_FILTER": "stat_levl_='{!s}' AND year='2013-01-01'",
         },
     }
+    cql_filter = "stat_levl_='{!s}' AND year='2013-01-01'"
     lau_query = {**base_query_params, **{"typeName": "hotmaps:tbl_lau1_2"}}
     for i in range(4):
-        nuts_query["CQL_FILTER"] = nuts_query["CQL_FILTER"].format(i)
+        nuts_query["CQL_FILTER"] = cql_filter.format(i)
         filename = "nuts{!s}.zip".format(i)
         fetch_dataset(base_url, nuts_query, filename)
 
