@@ -1,6 +1,7 @@
-from app.common.test import BaseApiTest, skipUnlessDockerComposeCanBeExecuted
+from app.common.test import BaseApiTest, labeledTest
 
 
-@skipUnlessDockerComposeCanBeExecuted
+@labeledTest("integration")
 class FakeOuputTest(BaseApiTest):
-    pass
+    def testStuff(self):
+        pass
