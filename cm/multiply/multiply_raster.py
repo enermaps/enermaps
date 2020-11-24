@@ -28,6 +28,6 @@ def MultiplyRasterStats(geojson, rasters, factor):
 
 if __name__ == "__main__":
     val_multiply = MultiplyRasterStats(
-        "selection_shapefile.geojson", "GeoTIFF_test.tif"
+        "selection_shapefile.geojson", "GeoTIFF_test.tif", 2
     )
     print(val_multiply)
