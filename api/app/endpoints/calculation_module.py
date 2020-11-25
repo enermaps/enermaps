@@ -45,7 +45,7 @@ class CM_fakeoutput(Resource):
 
     def get(self, cm_name, task_id):
         task = CM.task_by_id(task_id, cm_name=cm_name)
-        if not task.ready():
+        if not task.ready() or task.status == "REVOKED":
             return {"status": task.status}
         try:
             result = task.get(timeout=0.5)

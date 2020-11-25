@@ -48,11 +48,21 @@ class BaseTask(Task):
 
 
 @app.task(base=BaseTask)
-def multiply_raster(selection, rasters, params):
-    """This is a calculation module that multiplies the raster by an factor."""
-    os.chdir(os.environ['UPLOAD_DIR'] + "/raster")
+def multiply_raster(selection: dict, rasters: list, params: dict):
+    """This is a calculation module that multiplies the raster by an factor.
+    If there is no raster, we raise a value error.
+    If there are many rasters, we select the first one.
+    """
+    if not rasters:
+        raise ValueError("Raster list must be non-empty.")
+    if "features" not in selection:
+        raise ValueError("The selection must be a feature set.")
+    if not selection["features"]:
+        raise ValueError("The selection must be non-empty.")
+    raster_dir = os.path.join(os.environ["UPLOAD_DIR"], "raster")
+    raster_path = os.path.join(raster_dir, rasters[0])
     factor = params["factor"]
-    val_multiply = MultiplyRasterStats(selection, rasters, factor)
+    val_multiply = MultiplyRasterStats(selection, raster_path, factor)
     return val_multiply
 
 

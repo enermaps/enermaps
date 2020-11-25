@@ -5,6 +5,7 @@
 	import 'brutusin-json-forms'
 	export let active_overlay_layers;
 	export let active_selection_layer;
+	let disabled = true;
 	let brutusin_forms = {};
 	const BrutusinForms = brutusin["json-forms"];
 	let cms =[];
@@ -40,8 +41,9 @@
 		} else {
 			new_task_params['selection'] = {}
 		}
-		new_task_params['layers'] = active_overlay_layers;
+		new_task_params['layers'] = active_overlay_layers.map(layer=>layer.name);
 		new_task_params['parameters'] = brutusin_forms[cm_name].getData();
+		console.log(new_task_params);
 		const response = await fetch("api/cm/" + cm_name + "/task", {
 			method: 'POST',
 			headers: {
@@ -55,6 +57,8 @@
 	}
 	$ : {
 		console.log(`selected layer was changed: ${active_selection_layer}`);
+		disabled = !active_overlay_layers.length || !active_selection_layer;
+
 	}
 	function handleReset() {
 	}
@@ -67,7 +71,7 @@
 	<li>
 		<form id="form{cm.name}">
 		</form>
-		<button type=submit on:click={() => callCM(cm)} disabled={!active_selection_layer}>{cm.name}</button>
+		<button type=submit on:click={() => callCM(cm)} disabled={disabled}>{cm.name}</button>
 	</li>
 	{/each}
 	</ul>
