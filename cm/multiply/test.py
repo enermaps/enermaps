@@ -13,9 +13,7 @@ class TestCM(unittest.TestCase):
         test_geojson = "selection_shapefile.geojson"
         with open(test_geojson) as fd:
             selection = json.load(fd)
-        val_double = MultiplyRasterStats(
-            selection, "GeoTIFF_test.tif", factor
-        )
+        val_double = MultiplyRasterStats(selection, "GeoTIFF_test.tif", factor)
         stats = zonal_stats(
             test_geojson,
             "GeoTIFF_test.tif",
