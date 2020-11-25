@@ -1,3 +1,4 @@
+import collections
 import io
 import json
 
@@ -99,6 +100,7 @@ class WMSGetCapabilitiesTest(BaseApiTest):
 class WMSGetMapTest(BaseApiTest):
     """Test the wms GetMap endpoint"""
 
+    TILE_SIZE = (256, 256)
     TILE_PARAMETERS = {
         "service": "WMS",
         "request": "GetMap",
@@ -107,8 +109,8 @@ class WMSGetMapTest(BaseApiTest):
         "format": "image/png",
         "transparent": "true",
         "version": "1.1.1",
-        "width": "256",
-        "height": "256",
+        "width": str(TILE_SIZE[0]),
+        "height": str(TILE_SIZE[1]),
         "srs": "EPSG:3857",
         "bbox": "19567.87924100512,6809621.975869781"
         ","
@@ -130,7 +132,29 @@ class WMSGetMapTest(BaseApiTest):
         response = self.client.get("api/wms", query_string=self.TILE_PARAMETERS)
         self.assertStatusCodeEqual(response, 200)
         self.assertGreater(len(response.data), 0)
-        Image.open(io.BytesIO(response.data))
+        image = Image.open(io.BytesIO(response.data))
+        self.assertEqual(image.size, self.TILE_SIZE)
+        self.assertEqual(image.size, self.TILE_SIZE)
+        self.assertEqual(image.format, "PNG")
+        empty_pixel = 0
+        for x in range(image.width):
+            for y in range(image.height):
+                pixel = image.getpixel(
+                    (
+                        x,
+                        y,
+                    )
+                )
+                if pixel == (
+                    0,
+                    0,
+                    0,
+                    0,
+                ):
+                    empty_pixel += 1
+        total_pixel = image.width * image.height
+        non_empty_pixel = total_pixel - empty_pixel
+        self.assertNotEqual(non_empty_pixel, 0)
 
     def testRasterTileWorkflow(self):
         """Upload a raster, then check that the tile request is not empty"""
