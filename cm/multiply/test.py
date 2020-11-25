@@ -1,3 +1,4 @@
+import json
 import unittest
 
 from rasterstats import zonal_stats
@@ -9,11 +10,14 @@ class TestCM(unittest.TestCase):
     def test_multiply_raster_stats(self):
         """Testing to multiply the raster by a factor."""
         factor = 2
+        test_geojson = "selection_shapefile.geojson"
+        with open(test_geojson) as fd:
+            selection = json.load(fd)
         val_double = MultiplyRasterStats(
-            "selection_shapefile.geojson", "GeoTIFF_test.tif", factor
+            selection, "GeoTIFF_test.tif", factor
         )
         stats = zonal_stats(
-            "selection_shapefile.geojson",
+            test_geojson,
             "GeoTIFF_test.tif",
             stats="count min mean max",
         )

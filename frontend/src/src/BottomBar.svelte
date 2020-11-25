@@ -41,8 +41,9 @@
 		} else {
 			new_task_params['selection'] = {}
 		}
-		new_task_params['layers'] = active_overlay_layers;
+		new_task_params['layers'] = active_overlay_layers.map(layer=>layer.name);
 		new_task_params['parameters'] = brutusin_forms[cm_name].getData();
+		console.log(new_task_params);
 		const response = await fetch("api/cm/" + cm_name + "/task", {
 			method: 'POST',
 			headers: {

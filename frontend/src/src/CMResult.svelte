@@ -7,13 +7,19 @@
 		getTaskResult();
 	});
 	async function getTaskResult() {
-		const result = await fetch('/api/cm/' + cm_task.cm.name + '/task/' + cm_task.task_id);
-		cm_status = await result.json();
+		const task_response = await fetch('/api/cm/' + cm_task.cm.name + '/task/' + cm_task.task_id);
+		const task_status = await task_response.json();
 		console.log(cm_status);
-		cm_status = cm_status;
+		cm_status = task_status;
+		if (task_status.status === 'PENDING') {
+		    setTimeout(getTaskResult, 500)
+        }
 	}
 </script>
 
 task_id: {cm_task.task_id}
 task_name: {cm_task.cm.name}
 status: {JSON.stringify(cm_status)}
+<!--
+results: {JSON.stringify(cm_task.result)}
+-->
