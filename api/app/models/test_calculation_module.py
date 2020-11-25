@@ -11,7 +11,7 @@ CM_STRING1 = 'CM Name [cm_info={"doc": "doc"}]'
 
 
 class TestCMS(BaseApiTest):
-    @patch("time.sleep", return_value=None)
+    @patch("kombu.utils.functional.sleep", return_value=None)
     def testListCMTimeout(self, _):
         """Test that a non reachable redis will
         Just return an empty list of cms.
@@ -21,7 +21,8 @@ class TestCMS(BaseApiTest):
         self.assertEquals(len(cms), 0)
 
     def testSuccessWhenParsingWithSpace(self):
-        from_registration_string(CM_STRING1)
+        cm = from_registration_string(CM_STRING1)
+        self.assertEqual(cm.__doc__, "doc")
 
     def testFailWhenParseWrongCMInfo(self):
         """Test some parsing error of the info string"""
@@ -29,9 +30,6 @@ class TestCMS(BaseApiTest):
             from_registration_string("[")
         with self.assertRaises(Exception):
             from_registration_string("[]")
-        with self.assertRaises(Exception):
-            # String missing the cm_info
-            from_registration_string(CM_STRING_NO_INFO)
         with self.assertRaises(Exception):
             # String missing the cm_info
             from_registration_string(CM_STRING_NO_INFO)
