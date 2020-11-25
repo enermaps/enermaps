@@ -1,4 +1,7 @@
 import io
+import os
+import logging
+import requests
 import shutil
 import tempfile
 import unittest
@@ -125,3 +128,15 @@ class LabelTestRunner(unittest.runner.TextTestRunner):
 
         # Resume normal TextTestRunner function with the created test suite
         return super().run(suite)
+
+
+@labeledTest("integration")
+class BaseIntegrationTest(unittest.TestCase):
+    def __init__(self, *args, **kwargs):
+        try:
+            self.url = os.environ['API_URL']
+        except KeyError:
+            logging.fatal("Cannot find the API_URL environment variable"
+                          "this is needed to run the integration tests")
+        self.session = requests.Session()
+        super().__init__(*args, **kwargs)
