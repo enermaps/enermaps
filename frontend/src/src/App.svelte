@@ -48,7 +48,6 @@
 			active_selection_layer.addTo(map)
 		}
 		for (const overlay_layer of active_overlay_layers) {
-			console.log(overlay_layer);
 			overlay_layer.addTo(map)
 		}
 	}

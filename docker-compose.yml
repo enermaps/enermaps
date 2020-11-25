@@ -3,6 +3,10 @@ services:
   cm:
     build:
       context: ./cm/multiply
+    environment:
+      UPLOAD_DIR: /upload-dir
+    volumes:
+      - upload-data:/upload-dir
 
   frontend:
     build:

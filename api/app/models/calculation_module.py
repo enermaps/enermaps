@@ -13,8 +13,6 @@ import kombu
 import redis
 from celery import Celery
 
-from app.common import filepath
-
 TASK_MATCH = "(?P<task_id>[ a-zA-Z._]+)"
 CM_INFO_MATCH = "\\[cm_info=(?P<task_info>.+)\\]"
 INFO_STRING = re.compile("^" + TASK_MATCH + " " + CM_INFO_MATCH + "$")

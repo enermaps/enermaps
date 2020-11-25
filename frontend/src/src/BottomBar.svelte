@@ -1,11 +1,14 @@
 <script>
 	import { afterUpdate, onMount } from 'svelte';
+
+	import CMResult from './CMResult.svelte';
 	import 'brutusin-json-forms'
 	export let active_overlay_layers;
 	export let active_selection_layer;
 	let brutusin_forms = {};
 	const BrutusinForms = brutusin["json-forms"];
 	let cms =[];
+	let cm_tasks =[];
 	onMount(async() => {
 		cms = await fetchCMs();
 	});
@@ -13,7 +16,6 @@
 	async function fetchCMs() {
 		let response = await fetch('/api/cm/');
 		if (!response.ok) {
-			console.log(response);
 			return [];
 		}
 		let cms_resp = await response.json();
@@ -23,16 +25,16 @@
 		for (const cm of cms) {
 			if (!(cm.name in brutusin_forms)) {
 				const container = document.getElementById('form' + cm.name);
-				console.log(cm);
 				const form = BrutusinForms.create(cm.schema);
 				form.render(container, {});
 				brutusin_forms[cm.name] = form;
 			}
 		}
 	});
-	async function callCM(cm_name) {
+	async function callCM(cm) {
 		//alert("calling CM with overlays :" + active_overlay_layers + "and with selection:" + active_selection_layer)
 		let new_task_params = {}
+		const cm_name = cm.name;
 		if (!!active_selection_layer) {
 			new_task_params['selection'] = active_selection_layer.getSelection();
 		} else {
@@ -47,6 +49,9 @@
 			},
 			body: JSON.stringify(new_task_params),
 		});
+		const task = await response.json()
+		cm_tasks.push({"cm": cm, "task_id": task.task_id});
+		cm_tasks = cm_tasks;
 	}
 	$ : {
 		console.log(`selected layer was changed: ${active_selection_layer}`);
@@ -62,8 +67,12 @@
 	<li>
 		<form id="form{cm.name}">
 		</form>
-		<button type=submit on:click={() => callCM(cm.name)} disabled={!active_selection_layer}>{cm.name}</button>
+		<button type=submit on:click={() => callCM(cm)} disabled={!active_selection_layer}>{cm.name}</button>
 	</li>
 	{/each}
 	</ul>
+	{#each cm_tasks as cm_task}
+		<CMResult cm_task={cm_task}/>
+		<br/>
+	{/each}
 </footer>

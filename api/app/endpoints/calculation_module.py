@@ -44,10 +44,13 @@ class CM_fakeoutput(Resource):
         return {"status": res.status}
 
     def get(self, cm_name, task_id):
-        res = CM.task_by_id(task_id, cm_name=cm_name)
-        print(res.result)
-        if res.failed():
-            return {"status": res.status, "error": res.result}
-        if res.successful():
-            return {"status": res.status, "result": res.result}
-        return {"status": res.status}
+        task = CM.task_by_id(task_id, cm_name=cm_name)
+        if not task.ready():
+            return {"status": task.status}
+        try:
+            result = task.get(timeout=0.5)
+        except Exception as e:
+            if task.status == "FAILURE":
+                # this is an expected failure
+                return {"status": task.status, "exception": str(e)}
+        return {"status": task.status, "result": result}
