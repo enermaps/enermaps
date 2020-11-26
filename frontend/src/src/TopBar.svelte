@@ -18,6 +18,8 @@
 			const leaflet_layer = to_leaflet_layer(layer);
 			leaflet_layer.name = layer;
 			if (SELECTIONS.has(layer)) {
+				//selection go on top
+				leaflet_layer.setZIndex(1000);
 				selection_layers.push(leaflet_layer);
 			} else {
 				overlay_layers.push(leaflet_layer);
@@ -55,12 +57,15 @@
 				}
 			}
 		}
+		// trigger the modification of the overlay layers to the
+		// parent component
+		active_overlay_layers = active_overlay_layers;
 	}
 	async function fetchLayers() {
 		//document.domain = "geoserver.hotmaps.eu";
 		let response = await fetch('/api/geofile');
 		if (!response.ok) {
-			console.log(err);
+			console.log(response);
 			return [];
 		}
 		let layers_resp = await response.json();
@@ -68,7 +73,7 @@
 	}
 	function to_leaflet_layer(layer_name) {
 		const layer =  L.tileLayer.nutsLayer(
-		'http://127.0.0.1:7000/api/wms?',
+		'/api/wms?',
 		{
 		transparent: 'true',
 		layers: layer_name,

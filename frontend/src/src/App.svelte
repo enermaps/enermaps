@@ -24,6 +24,10 @@
 	let active_overlay_layers = [];
 	let search = "";
 	let base_layers = new Set();
+
+	let overlays = new L.layerGroup();
+	let selections  = new L.layerGroup();
+
 	onMount(async() => {
 		console.log("init map");
 		map = L.map('map').setView([51.505, -0.09], 13);
@@ -35,6 +39,9 @@
 		base_layer.addTo(map);
 		base_layers.add(base_layer);
 		map.addControl(getSearchControl());
+
+		map.addLayer(selections);
+		map.addLayer(overlays);
 	});
 
 	function resizeMap() {
@@ -43,23 +50,35 @@
 
 	$: {
 		console.log(`selected layer was changed: ${active_selection_layer}`)
-		removeAllLayer();
-		if (!!active_selection_layer) {
-			active_selection_layer.addTo(map)
+		console.log(`overlay layer was changed: ${active_overlay_layers}`)
+		syncSelectionLayer();
+		syncOverlayLayers();
+	}
+	function syncOverlayLayers() {
+		let overlay_to_be_pruned  = new Set(overlays.getLayers());
+		for (const active_overlay_layer of active_overlay_layers) {
+			if (!overlays.hasLayer(active_overlay_layer)) {
+				overlays.addLayer(active_overlay_layer);
+			} else {
+				overlay_to_be_pruned.delete(active_overlay_layer);
+			}
 		}
-		for (const overlay_layer of active_overlay_layers) {
-			overlay_layer.addTo(map)
+		for (const overlay of overlay_to_be_pruned) {
+			overlays.removeLayer(overlay);
 		}
 	}
-	function removeAllLayer() {
-		if (!!!map) {
+	function syncSelectionLayer() {
+		if (!active_selection_layer) {
 			return;
 		}
-		map.eachLayer(function (layer) {
-			if (!base_layers.has(layer)) {
-			    map.removeLayer(layer);
-			}
-		});
+		if (!selections.hasLayer(active_selection_layer)) {
+			// currently the activated layer is not the right one
+			// so remove it
+			selections.clearLayers();
+		}
+		if (selections.getLayers().length === 0) {
+			selections.addLayer(active_selection_layer);
+		}
 	}
 	function getSearchControl() {
 		const search_control = new L.Control.Search({
