@@ -5,7 +5,7 @@ import rasterio
 from rasterstats import zonal_stats
 
 
-def MultiplyRasterStats(geojson, rasters, factor):
+def rasterstats(geojson, rasters, factor):
     """Multiply the rasters values by a factor.
     Rasters are selected from the frontend.
     Factor should be an integrer.
@@ -27,7 +27,7 @@ def MultiplyRasterStats(geojson, rasters, factor):
 
 
 if __name__ == "__main__":
-    val_multiply = MultiplyRasterStats(
+    val_multiply = rasterstats(
         "selection_shapefile.geojson", "GeoTIFF_test.tif", 2
     )
     print(val_multiply)
