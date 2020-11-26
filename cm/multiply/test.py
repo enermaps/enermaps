@@ -12,21 +12,14 @@ class TestCM(unittest.TestCase):
         """Testing to multiply the raster by a factor."""
 
         def get_testdata_path(filename):
-            """Return the absolute path of the filename.
-            """
-            #current_file_dir = os.path.dirname(os.path.abspath(os.getcwd()))
-            #testdata_dir = os.path.join(os.path.dirname(current_file_dir), "testdata")
-            #print('path')
-            #print(os.getcwd())
-            #print(os.path.abspath(os.getcwd()))
-            #print(os.path.join(testdata_dir, filename))
+            """Return the absolute path of the filename."""
             os.path.join('.', 'testdata', filename)
             return os.path.join('.', 'testdata', filename)
 
         factor = 2
-        selection_path = get_testdata_path("switzerland.geojson")
+        #selection_path = get_testdata_path("switzerland.geojson")
+        selection_path = get_testdata_path("selection_GeoTIFF.geojson")
         raster = get_testdata_path("GeoTIFF_test.tif")
-        #selection_path = os.path.join('.', 'testdata', filemane)
         with open(selection_path) as fd:
             selection = json.load(fd)
         val_double = MultiplyRasterStats(selection, raster, factor)
