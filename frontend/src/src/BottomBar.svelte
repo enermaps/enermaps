@@ -27,7 +27,7 @@
 			if (!(cm.name in brutusin_forms)) {
 				const container = document.getElementById('form' + cm.name);
 				const form = BrutusinForms.create(cm.schema);
-				form.render(container, {});
+				form.render(container);
 				brutusin_forms[cm.name] = form;
 			}
 		}

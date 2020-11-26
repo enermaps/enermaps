@@ -3,7 +3,7 @@
   "properties": {
     "factor": {
       "type": "number",
-      "default": "False"
+      "default": 1
     }
   }
 }
