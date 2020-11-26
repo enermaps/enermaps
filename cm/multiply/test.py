@@ -2,59 +2,72 @@ import json
 import os
 import unittest
 
-from rasterstats import zonal_stats
-
 from multiply_raster import rasterstats
 
 
 def get_testdata_path(filename):
     """Return the absolute path of the filename."""
-    os.path.join('.', 'testdata', filename)
-    return os.path.join('.', 'testdata', filename)
+    os.path.join(".", "testdata", filename)
+    return os.path.join(".", "testdata", filename)
+
+
+def load_geojson(test_filename):
+    test_geojson = get_testdata_path(test_filename)
+    with open(test_geojson) as fd:
+        return json.load(fd)
 
 
 class TestCM(unittest.TestCase):
-
-
-
     def test_rasterstats(self):
-
-    #def test_multiply_raster_stats(self):
-    #    """Testing to multiply the raster by a factor."""
-
-        factor = 2
-        selection = get_testdata_path("selection_GeoTIFF.geojson")
-        #selection = get_testdata_path("switzerland_bbox.geojson")
+        base_factor = 1
+        multiplicator = 1
+        selection = load_geojson("selection_GeoTIFF.geojson")
         raster = get_testdata_path("GeoTIFF_test.tif")
-        #with open(selection_path) as fd:
-            #selection = json.load(fd)
-        val_double = rasterstats(selection, raster, factor)
-        stats = zonal_stats(
+        stats = rasterstats(
             selection,
             raster,
-            stats="count min mean max",
+            base_factor,
+            stats=(
+                "min",
+                "max",
+            ),
         )
-        for key, value in stats[0].items():
-            if key != "count":
+        double_stats = rasterstats(
+            selection,
+            raster,
+            base_factor * multiplicator,
+            stats=(
+                "min",
+                "max",
+            ),
+        )
+        self.assertEqual(
+            len(stats),
+            1,
+            "a selection with a single feature "
+            "returned more stats than the number of feature.",
+        )
+        self.assertEqual(
+            len(double_stats),
+            1,
+            "a selection with a single feature "
+            "returned more stats than the number of feature.",
+        )
+        for stat, double_stat in zip(stats, double_stats):
+            for stat_type in stat.keys():
+                self.assertIn(stat_type, stat)
+                self.assertIn(stat_type, double_stat)
                 self.assertAlmostEqual(
-                    val_double[0][key], stats[0][key] * factor, places=4
+                    stat[stat_type], double_stat[stat_type] * multiplicator, places=4
                 )
 
     def test_zonal_stats_switzerlandbbox(self):
 
-        selection = get_testdata_path("switzerland_bbox.geojson")
+        selection = load_geojson("switzerland_bbox.geojson")
         raster = get_testdata_path("GeoTIFF_test.tif")
-        stats = zonal_stats(
-            selection,
-            raster,
-            stats="count min mean max",
-        )
+        stats = rasterstats(selection, raster, 1)
         for key, value in stats[0].items():
             self.assertIsNotNone(value)
-
-
-    def test_zonal_stats(self):
-        pass
 
 
 if __name__ == "__main__":

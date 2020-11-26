@@ -1,7 +1,7 @@
 celery==5.0.2
 redis
+shapely
 rasterstats
 rasterio
 requests
-marshmallow
-ipython
+pyproj
