@@ -1,17 +1,16 @@
 import requests
 
-from app.common.test import BaseApiTest, labeledTest
+from app.common.test import BaseApiTest, BaseIntegrationTest
 
 
-@labeledTest("integration")
-class FakeOuputTest(BaseApiTest):
+class FakeOuputTest(BaseIntegrationTest):
     def testCalculationModuleWorkflow(self):
         """Test for the following workflow:
         * get the list of calculation module
         * call the expected default cm (multiply)
         * check the result
         """
-        requests.get("http://127.0.0.1:8000", )
+        requests.get(self.url)
 
 
     def testCalculationModuleBrokenParameter(self):

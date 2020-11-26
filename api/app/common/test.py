@@ -130,11 +130,14 @@ class LabelTestRunner(unittest.runner.TextTestRunner):
         return super().run(suite)
 
 
+DEFAULT_API_URL = "http://127.0.0.1:7000"
+
+
 @labeledTest("integration")
 class BaseIntegrationTest(unittest.TestCase):
-    def __init__(self, *args, **kwargs):
+    def setUp(self, *args, **kwargs):
         try:
-            self.url = os.environ['API_URL']
+            self.url = os.environ.get('API_URL', DEFAULT_API_URL)
         except KeyError:
             logging.fatal("Cannot find the API_URL environment variable"
                           "this is needed to run the integration tests")
