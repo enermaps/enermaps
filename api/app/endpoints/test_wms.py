@@ -1,13 +1,16 @@
 import collections
 import io
 import json
+import sys
+from typing import Text
 
 from lxml import etree
+from owslib.wms import WebMapService
 from PIL import Image
 
 import app.common.xml as xml
 from app.common import filepath
-from app.common.test import BaseApiTest
+from app.common.test import BaseApiTest, BaseIntegrationTest
 
 GETCAPABILITIES_ARGS = {"service": "WMS", "request": "GetCapabilities"}
 
@@ -204,3 +207,13 @@ class WMSGetFeatureInfoTest(BaseApiTest):
         json_response = json.loads(response.data)
         self.assertIn("features", json_response)
         self.assertEqual(len(json_response["features"]), 1)
+
+
+WMS_VERSION = "1.1.1"
+
+
+class TestWMSLibCompliance(BaseIntegrationTest):
+    def test_wms_content(self):
+        """Verify that the content of the wms can be listed"""
+        wms = WebMapService(self.url, version=WMS_VERSION)
+        self.assertNotEqual(len(wms.contents), 0)

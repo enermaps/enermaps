@@ -1,6 +1,5 @@
 import glob
 import os
-from typing import Text
 
 import gdal
 import osr

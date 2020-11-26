@@ -1,24 +1,14 @@
 import io
+import logging
+import os
 import shutil
-import subprocess  # nosec
 import tempfile
 import unittest
 
+import requests
+
 from app import create_app
 from app.common import filepath
-
-
-def skipUnlessDockerComposeCanBeExecuted(f):
-    """This decorator can be used to skip integration test
-    when the docker-compose executable was not found.
-    """
-    try:
-        subprocess.check_call(  # nosec
-            ["docker-compose", "--version"], shell=False  # nosec
-        )  # nosec
-    except FileNotFoundError:
-        return unittest.skip("Couldn't find docker-compose, skipping test")
-    return lambda func: func
 
 
 class BaseApiTest(unittest.TestCase):
@@ -72,3 +62,87 @@ class BaseApiTest(unittest.TestCase):
         equal to the status_code
         """
         self.assertEqual(response.status_code, status_code, response.data)
+
+
+def labeledTest(*labels):
+    """This decorator mark a class as an integrationTest
+    this is used in the test call for filtering integrationTest
+    and unnittest.
+    We mark the difference by the usage of service dependency:
+    * An unittest can run without additional services.
+    * An integration test need additional services (such as
+      redis or postgres).
+
+    Usage:
+
+        @labeledTest("integration")
+        class FakeOuputTest(BaseApiTest):
+            pass
+    """
+
+    def wrapper(cl):
+        cl._label = set(labels)
+        return cl
+
+    return wrapper
+
+
+class LabelTestRunner(unittest.runner.TextTestRunner):
+    """This testrunner accept a list of whitelist_labels,
+    It will run all test without a label if no label is
+    specified. If a label is specified, all testcase class
+    decorated with labeledTest and having a label in the
+    whitelist_labels will be ran.
+    """
+
+    def __init__(self, selection_labels=[], *args, **kwargs):
+        self.selection_labels = set(*selection_labels)
+
+        super(LabelTestRunner, self).__init__(*args, **kwargs)
+
+    @classmethod
+    def flatten_tests(cls, suite):
+        """Iterate through the test in a test suite. It will
+        yield individual tests by flattening the suite into
+        a list of tests.
+        """
+        for test in suite:
+            if isinstance(test, unittest.TestSuite):
+                for t in cls.flatten_tests(test):
+                    yield t
+            else:
+                yield test
+
+    def run(self, testlist):
+        # Change given testlist into a TestSuite
+        suite = unittest.TestSuite()
+
+        # Add each test in testlist, apply skip mechanism if necessary
+        for test in self.flatten_tests(testlist):
+
+            if hasattr(test, "_label"):
+                matched_label = test._label.intersection(self.selection_labels)
+                if matched_label:
+                    suite.addTest(test)
+            elif not self.selection_labels:
+                suite.addTest(test)
+
+        # Resume normal TextTestRunner function with the created test suite
+        return super().run(suite)
+
+
+DEFAULT_API_URL = "http://127.0.0.1:7000"
+
+
+@labeledTest("integration")
+class BaseIntegrationTest(unittest.TestCase):
+    def setUp(self, *args, **kwargs):
+        try:
+            self.url = os.environ.get("API_URL", DEFAULT_API_URL)
+        except KeyError:
+            logging.fatal(
+                "Cannot find the API_URL environment variable"
+                "this is needed to run the integration tests"
+            )
+        self.session = requests.Session()
+        super().__init__(*args, **kwargs)
