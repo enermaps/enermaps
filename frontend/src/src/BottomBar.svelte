@@ -80,6 +80,6 @@
 	{/each}
 	</ul>
 	{#each cm_tasks as cm_task}
-		<CMResult cm_task={cm_task}/>
+		<CMResult task={cm_task}/>
 	{/each}
 </div>

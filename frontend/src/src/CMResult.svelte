@@ -1,10 +1,9 @@
 <script>
 	import { onMount } from 'svelte';
-	export let cm_task;
+	export let task;
 	let task_status;
 	let is_task_pending = true;
-	let update_time = 500;
-	let cm_status;
+	const update_time = 500;
 
 	onMount(async() => {
 		getTaskResult();
@@ -16,7 +15,7 @@
 		return task_status.status === 'PENDING';
 	}
 	async function getTaskResult() {
-		const task_response = await fetch('/api/cm/' + cm_task.cm.name + '/task/' + cm_task.task_id);
+		const task_response = await fetch('/api/cm/' + task.cm.name + '/task/' + task.task_id);
 		const task_json= await task_response.json();
 		task_status = task_json;
 		if (task_status.status === 'PENDING') {
@@ -26,7 +25,7 @@
 		}
 	}
 	async function cancel() {
-		const cancel_response = await fetch('/api/cm/' + cm_task.cm.name + '/task/' + cm_task.task_id, {
+		const cancel_response = await fetch('/api/cm/' + task.cm.name + '/task/' + task.task_id, {
 			method: 'DELETE',
 		});
 		const task_json = await cancel_response.json();
@@ -45,7 +44,7 @@
 Creating the task...
 {:else}
 <dl>
-	<dt>task_id</dt><dd>{shortenTaskID(cm_task.task_id)}</dd>
+	<dt>task_id</dt><dd>{shortenTaskID(task.task_id)}</dd>
 	<dt>status</dt><dd>{task_status.status}</dd>
 	results: {JSON.stringify(task_status.result)}
 </dl>
