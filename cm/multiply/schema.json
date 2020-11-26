@@ -2,7 +2,28 @@
   "type": "object",
   "properties": {
     "factor": {
-      "type": "number"
+      "type": "number",
+      "default": "False"
+    },
+    "min": {
+      "type": "boolean",
+      "default": "False"
+    },
+    "max": {
+      "type": "boolean",
+      "default": "False"
+    },
+    "mean": {
+      "type": "boolean",
+      "default": "False"
+    },
+    "median": {
+      "type": "boolean",
+      "default": "False"
+    },
+    "count": {
+      "type": "boolean",
+      "default": "False"
     }
   }
 }

@@ -53,6 +53,10 @@ def multiply_raster(selection: dict, rasters: list, params: dict):
     If there is no raster, we raise a value error.
     If there are many rasters, we select the first one.
     """
+    #def create_data_indicator_str(json_form):
+    #    for
+    #    return data_indicator
+
     if not rasters:
         raise ValueError("Raster list must be non-empty.")
     if "features" not in selection:
@@ -62,7 +66,8 @@ def multiply_raster(selection: dict, rasters: list, params: dict):
     raster_dir = os.path.join(os.environ["UPLOAD_DIR"], "raster")
     raster_path = os.path.join(raster_dir, rasters[0])
     factor = params["factor"]
-    val_multiply = rasterstats(selection, raster_path, factor)
+    data_indicator = create_data_indicator_str(params)
+    val_multiply = rasterstats(selection, raster_path, factor, data_indicator)
     return val_multiply
 
 

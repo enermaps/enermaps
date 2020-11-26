@@ -5,16 +5,17 @@ import rasterio
 from rasterstats import zonal_stats
 
 
-def rasterstats(geojson, rasters, factor):
+def rasterstats(geojson, rasters, factor, data_indicator = "count min mean max median"):
     """Multiply the rasters values by a factor.
     Rasters are selected from the frontend.
     Factor should be an integrer.
+    By default, the indicators are "count min mean max median".
     """
     now = time()
     with rasterio.open(rasters) as src:
         raster_array = src.read(1) * factor
     fetch_done = time()
-    stats = zonal_stats(geojson, raster_array, affine=src.transform)
+    stats = zonal_stats(geojson, raster_array, affine=src.transform, stats=data_indicator)
     stat_done = time()
 
     logging.info(

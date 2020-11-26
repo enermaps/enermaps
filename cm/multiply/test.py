@@ -8,7 +8,7 @@ from multiply_raster import rasterstats
 
 
 class TestCM(unittest.TestCase):
-    def test_rasterstats(self):
+    def test_multiply_raster_stats(self):
         """Testing to multiply the raster by a factor."""
 
         def get_testdata_path(filename):
@@ -18,6 +18,7 @@ class TestCM(unittest.TestCase):
 
         factor = 2
         selection_path = get_testdata_path("selection_GeoTIFF.geojson")
+        #selection_path = get_testdata_path("switzerland_bbox.geojson")
         raster = get_testdata_path("GeoTIFF_test.tif")
         with open(selection_path) as fd:
             selection = json.load(fd)
