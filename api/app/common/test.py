@@ -1,10 +1,11 @@
 import io
-import os
 import logging
-import requests
+import os
 import shutil
 import tempfile
 import unittest
+
+import requests
 
 from app import create_app
 from app.common import filepath
@@ -137,9 +138,11 @@ DEFAULT_API_URL = "http://127.0.0.1:7000"
 class BaseIntegrationTest(unittest.TestCase):
     def setUp(self, *args, **kwargs):
         try:
-            self.url = os.environ.get('API_URL', DEFAULT_API_URL)
+            self.url = os.environ.get("API_URL", DEFAULT_API_URL)
         except KeyError:
-            logging.fatal("Cannot find the API_URL environment variable"
-                          "this is needed to run the integration tests")
+            logging.fatal(
+                "Cannot find the API_URL environment variable"
+                "this is needed to run the integration tests"
+            )
         self.session = requests.Session()
         super().__init__(*args, **kwargs)

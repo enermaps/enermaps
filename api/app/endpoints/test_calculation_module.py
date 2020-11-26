@@ -12,7 +12,6 @@ class FakeOuputTest(BaseIntegrationTest):
         """
         requests.get(self.url)
 
-
     def testCalculationModuleBrokenParameter(self):
         """Test for the following workflow:
         * get the list of calculation module
