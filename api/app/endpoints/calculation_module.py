@@ -40,7 +40,7 @@ class TaskCreator(Resource):
 class CM_fakeoutput(Resource):
     def delete(self, cm_name, task_id):
         res = CM.task_by_id(task_id, cm_name=cm_name)
-        res.revoke()
+        res.revoke(terminate=True)
         return {"status": res.status}
 
     def get(self, cm_name, task_id):
