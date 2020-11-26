@@ -63,20 +63,23 @@
 	function handleReset() {
 	}
 </script>
-
-<footer class="page-footer grey darken-4">
+<style>
+#calculation_modules {
+	border-style: groove;
+}
+</style>
+<div id="calculation_modules">
 	Call a calculation module
 	<ul>
 	{#each cms as cm}
 	<li>
 		<form id="form{cm.name}">
 		</form>
-		<button type=submit on:click={() => callCM(cm)} disabled={disabled}>{cm.name}</button>
+		<button type=submit on:click={() => callCM(cm)} disabled={disabled}>{cm.pretty_name}</button>
 	</li>
 	{/each}
 	</ul>
 	{#each cm_tasks as cm_task}
 		<CMResult cm_task={cm_task}/>
-		<br/>
 	{/each}
-</footer>
+</div>

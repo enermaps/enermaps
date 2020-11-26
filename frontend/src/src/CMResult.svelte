@@ -3,6 +3,8 @@
 	export let cm_task;
 	let task_status;
 	let is_task_pending = true;
+	let update_time = 500;
+	let cm_status;
 
 	onMount(async() => {
 		getTaskResult();
@@ -29,9 +31,24 @@
 		});
 		const task_json = await cancel_response.json();
 	}
+	function shortenTaskID(task_id) {
+		return task_id.slice(0, 5) + "...";
+	}
 </script>
-
-task_id: {cm_task.task_id}
-task_name: {cm_task.cm.name}
-status: {JSON.stringify(task_status)}
+<style>
+.cmresult {
+	border-style: solid;
+}
+</style>
+<div class="cmresult">
+{#if !task_status}
+Creating the task...
+{:else}
+<dl>
+	<dt>task_id</dt><dd>{shortenTaskID(cm_task.task_id)}</dd>
+	<dt>status</dt><dd>{task_status.status}</dd>
+	results: {JSON.stringify(task_status.result)}
+</dl>
 <button on:click|once={cancel} disabled={!is_task_pending}>Cancel task</button>
+{/if}
+</div>

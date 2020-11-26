@@ -18,6 +18,7 @@ class CMList(Resource):
             ret = {}
             ret["parameters"] = cm.params
             ret["name"] = cm.name
+            ret["pretty_name"] = cm.pretty_name
             ret["schema"] = cm.schema
             return ret
 

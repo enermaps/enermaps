@@ -81,6 +81,9 @@
 	width: 100%;
 	height: 100%;
 }
+body {
+	margin-bottom: 20px;
+}
 </style>
 <svelte:window on:resize={resizeMap} />
 <TopBar bind:active_selection_layer={active_selection_layer} bind:active_overlay_layers={active_overlay_layers}/>
