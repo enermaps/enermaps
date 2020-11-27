@@ -6,7 +6,7 @@ import os
 from celery import Celery, Task
 from celery.worker import worker
 
-from multiply_raster import MultiplyRasterStats
+from multiply_raster import rasterstats
 
 app = Celery(__name__, broker="redis://redis//", backend="redis://redis")
 
@@ -54,6 +54,10 @@ def multiply_raster(selection: dict, rasters: list, params: dict):
     If there is no raster, we raise a value error.
     If there are many rasters, we select the first one.
     """
+    # def create_data_indicator_str(json_form):
+    #    for
+    #    return data_indicator
+
     if not rasters:
         raise ValueError("Raster list must be non-empty.")
     if "features" not in selection:
@@ -63,7 +67,7 @@ def multiply_raster(selection: dict, rasters: list, params: dict):
     raster_dir = os.path.join(os.environ["UPLOAD_DIR"], "raster")
     raster_path = os.path.join(raster_dir, rasters[0])
     factor = params["factor"]
-    val_multiply = MultiplyRasterStats(selection, raster_path, factor)
+    val_multiply = rasterstats(selection, raster_path, factor)
     return val_multiply
 
 
