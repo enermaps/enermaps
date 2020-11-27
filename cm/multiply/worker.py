@@ -43,7 +43,8 @@ class BaseTask(Task):
         d["parameters"] = self.parameters
         d["schema"] = self.schema
         d["doc"] = self.__doc__
-        d["pretty_name"] = self.name
+        d["pretty_name"] = self.pretty_name
+        d["name"] = self.name
         return json.dumps(d)
 
 

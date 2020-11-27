@@ -81,7 +81,12 @@
 		return new L.DrawingLayer();
 	}
 </script>
-<div>
+<style>
+#map_selection {
+	border-style: groove;
+}
+</style>
+<div id="map_selection">
 	{#each overlay_layers as overlay_layer}
 	<label>
 		<input type=checkbox bind:group={active_overlay_layers} value={overlay_layer}>

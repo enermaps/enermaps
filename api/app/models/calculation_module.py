@@ -13,8 +13,8 @@ import kombu
 import redis
 from celery import Celery
 
-TASK_MATCH = "(?P<task_id>[ a-zA-Z._]+)"
-CM_INFO_MATCH = "\\[cm_info=(?P<task_info>.+)\\]"
+TASK_MATCH = "(?P<cm_id>[ a-zA-Z._]+)"
+CM_INFO_MATCH = "\\[cm_info=(?P<cm_info>.+)\\]"
 INFO_STRING = re.compile("^" + TASK_MATCH + " " + CM_INFO_MATCH + "$")
 
 DEFAULT_BROKER = "redis://localhost"
@@ -57,10 +57,11 @@ class CalculationModule:
     calculation module.
     """
 
-    def __init__(self, task_id, **kwargs):
+    def __init__(self, cm_id, **kwargs):
         self.app = get_celery_app()
-        self.task_id = task_id
-        self.name = kwargs.get("name", task_id)
+        self.cm_id = cm_id
+        self.name = kwargs.get("name", cm_id)
+        self.pretty_name = kwargs.get("pretty_name", self.name)
         self.params = kwargs
         self.schema = kwargs.get("schema", {})
         self.__doc__ = kwargs.get(
@@ -72,7 +73,7 @@ class CalculationModule:
         this task id serves as a reference for getting the status of the task
         (failure, running or done) and its results.
         """
-        return self.app.send_task(self.task_id, args, kwargs)
+        return self.app.send_task(self.cm_id, args, kwargs)
 
 
 def list_cms() -> Dict[Text, CalculationModule]:
@@ -123,15 +124,15 @@ def from_registration_string(registration_string):
             "invalid parameters used for creating a CM:" + registration_string
         )
 
-    task_id = registration_string_match.group("task_id")
-    raw_task_info = registration_string_match.group("task_info")
+    cm_id = registration_string_match.group("cm_id")
+    raw_cm_info = registration_string_match.group("cm_info")
     try:
-        task_info = json.loads(raw_task_info)
+        cm_info = json.loads(raw_cm_info)
     except json.JSONDecodeError:
         raise Exception(
             "invalid task_info property when creating a CM:"
-            + raw_task_info
+            + raw_cm_info
             + " for cm "
-            + task_id
+            + cm_id
         )
-    return CalculationModule(task_id, **task_info)
+    return CalculationModule(cm_id, **cm_info)

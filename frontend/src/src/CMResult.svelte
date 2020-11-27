@@ -1,8 +1,9 @@
 <script>
 	import { onMount } from 'svelte';
-	export let cm_task;
+	export let task;
 	let task_status;
 	let is_task_pending = true;
+	const update_time = 500;
 
 	onMount(async() => {
 		getTaskResult();
@@ -14,7 +15,7 @@
 		return task_status.status === 'PENDING';
 	}
 	async function getTaskResult() {
-		const task_response = await fetch('/api/cm/' + cm_task.cm.name + '/task/' + cm_task.task_id);
+		const task_response = await fetch('/api/cm/' + task.cm.name + '/task/' + task.task_id);
 		const task_json= await task_response.json();
 		task_status = task_json;
 		if (task_status.status === 'PENDING') {
@@ -24,14 +25,29 @@
 		}
 	}
 	async function cancel() {
-		const cancel_response = await fetch('/api/cm/' + cm_task.cm.name + '/task/' + cm_task.task_id, {
+		const cancel_response = await fetch('/api/cm/' + task.cm.name + '/task/' + task.task_id, {
 			method: 'DELETE',
 		});
 		const task_json = await cancel_response.json();
 	}
+	function shortenTaskID(task_id) {
+		return task_id.slice(0, 5) + "...";
+	}
 </script>
-
-task_id: {cm_task.task_id}
-task_name: {cm_task.cm.name}
-status: {JSON.stringify(task_status)}
+<style>
+.cmresult {
+	border-style: solid;
+}
+</style>
+<div class="cmresult">
+{#if !task_status}
+Creating the task...
+{:else}
+<dl>
+	<dt>task_id</dt><dd>{shortenTaskID(task.task_id)}</dd>
+	<dt>status</dt><dd>{task_status.status}</dd>
+	results: {JSON.stringify(task_status.result)}
+</dl>
 <button on:click|once={cancel} disabled={!is_task_pending}>Cancel task</button>
+{/if}
+</div>
