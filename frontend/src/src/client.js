@@ -40,7 +40,7 @@ export async function getTaskResult(cm, task) {
 }
 
 export async function deleteTaskResult(cm, task) {
-  const taskResponse = await fetch(BASE_URL + 'api/cm/' + cm.name + '/task/' + task.id, {
+  const taskResponse = await fetch(BASE_URL + 'api/cm/' + cm + '/task/' + task.id, {
     method: 'DELETE',
   });
   return await taskResponse.json();

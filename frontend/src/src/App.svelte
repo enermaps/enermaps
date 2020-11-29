@@ -2,10 +2,6 @@
 import CMList from './components/CMList.svelte';
 import Map from './components/Map.svelte';
 
-let activeSelectionLayer = undefined;
-let activeOverlayLayers = [];
-
-
 </script>
 
 <style>
@@ -15,5 +11,5 @@ body {
 	height: 100%;
 }
 </style>
-<Map bind:activeSelectionLayer bind:activeOverlayLayers/>
-<CMList bind:activeSelectionLayer bind:activeOverlayLayers/>
+<Map/>
+<CMList/>

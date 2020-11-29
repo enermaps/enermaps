@@ -2,15 +2,13 @@
   import {afterUpdate} from 'svelte';
   import {postCMTask} from '../client.js';
   import CMTask from './CMTask.svelte';
+  import { activeOverlayLayersStore, activeSelectionLayerStore } from '../stores.js'
   import 'brutusin-json-forms';
   const BrutusinForms = brutusin['json-forms'];
 
-  export let activeOverlayLayers;
-  export let activeSelectionLayer;
-
   export let cm;
   let isDisabled = true;
-  let cmTasks = [];
+  let tasks = [];
   let form = undefined;
 
   afterUpdate(async () =>{
@@ -25,30 +23,23 @@
 
   async function callCM() {
     const newTaskParams = {};
-    if (!!activeSelectionLayer) {
-      newTaskParams['selection'] = activeSelectionLayer.getSelection();
-    } else {
-      newTaskParams['selection'] = {};
-    }
-    newTaskParams['layers'] = activeOverlayLayers.map((layer)=>layer.name);
+    newTaskParams['selection'] = $activeSelectionLayerStore.getSelection();
+    newTaskParams['layers'] = $activeOverlayLayersStore.map((layer)=>layer.name);
     newTaskParams['parameters'] = form.getData();
     console.log('Creating new task with parameters: ' + newTaskParams);
     const task = await postCMTask(cm, newTaskParams);
 
-    cmTasks.push(task);
-    cmTasks = cmTasks;
+    tasks.push(task);
+    tasks = tasks;
   }
 
-  $ : {
-    console.log(`selected layer was changed: ${activeSelectionLayer}`);
-    isDisabled = !activeOverlayLayers.length || !activeSelectionLayer;
-  }
+  $ : isDisabled = !$activeOverlayLayersStore.length || !activeSelectionLayerStore;
 </script>
 <div>
   <form id="form{cm.name}">
   </form>
   <button type=submit on:click={() => callCM(cm)} disabled={isDisabled}>{cm.pretty_name}</button>
-  {#each cmTasks as task}
-    <CMTask bind:cm bind:task/>
+  {#each tasks as task}
+    <CMTask {cm} {task}/>
   {/each}
 </div>

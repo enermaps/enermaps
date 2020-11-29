@@ -94,7 +94,7 @@ L.TileLayer.NutsLayer = L.TileLayer.WMS.extend({
     // to be replaced by a dict to find the data per id
     for (const feature of content.features) {
       const newFeatureId = this.getFeatureId(feature);
-      const layerRemoved = false;
+      let layerRemoved = false;
       this.selection.eachLayer((layer) => {
         const featureId = this.getFeatureId(layer.feature);
         if (newFeatureId == featureId) {

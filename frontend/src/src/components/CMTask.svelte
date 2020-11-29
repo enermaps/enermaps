@@ -5,31 +5,32 @@
   export let task;
   export let cm;
 
-  const taskResult = {status: 'PENDING'};
-  let isCancellable = true;
+  let taskResult = {status: 'PENDING'};
   const updateTime = 500;
+  const PENDING_STATUS = 'PENDING'
+  $: isTaskPending = (taskResult.status === PENDING_STATUS);
 
   onMount(async () => {
     updateTaskResult();
   });
-  function isTaskPending() {
-    return taskResult.status === 'PENDING';
-  }
+
+
   async function updateTaskResult() {
-    const taskResponse = getTaskResult(cm.name, task.id);
+    const taskResponse = await getTaskResult(cm, task);
     taskResult = taskResponse;
-    if (isTaskPending()) {
-      setTimeout(getTaskResult, updateTime);
+    if (taskResult.status === PENDING_STATUS) {
+      setTimeout(updateTaskResult, updateTime);
     }
   }
   async function cancel() {
-    await deleteTaskResult(cm.name, task.id);
+    await deleteTaskResult(cm, task);
   }
-  function shortenTaskID(taskId) {
-    return taskId.slice(0, 5) + '...';
+  function formatTaskID(task) {
+    return task.id.slice(0, 5) + '...';
   }
   $: {
-    isCancellable = isTaskPending();
+          console.log(cm)
+          console.log(task)
   }
 </script>
 <style>
@@ -39,9 +40,11 @@
 </style>
 <div class="cmresult">
 <dl>
-  <dt>task_id</dt><dd>{shortenTaskID(task.id)}</dd>
+  <dt>task_id</dt><dd>{formatTaskID(task)}</dd>
   <dt>status</dt><dd>{taskResult.status}</dd>
+  {#if !isTaskPending}
   results: {JSON.stringify(taskResult.result)}
+  {/if}
 </dl>
-<button on:click|once={cancel} disabled={isCancellable}>Cancel task</button>
+<button on:click|once={cancel} disabled={isTaskPending}>Cancel task</button>
 </div>

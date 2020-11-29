@@ -3,9 +3,6 @@
   import {getCMs} from '../client.js';
   import CM from './CM.svelte';
 
-  export let activeOverlayLayers;
-  export let activeSelectionLayer;
-
   let cms = [];
 
   onMount(async () => {
@@ -20,6 +17,6 @@
 <div id="calculation_modules">
   Call a calculation module
   {#each cms as cm}
-    <CM bind:cm bind:activeSelectionLayer bind:activeOverlayLayers/>
+    <CM bind:cm/>
   {/each}
 </div>

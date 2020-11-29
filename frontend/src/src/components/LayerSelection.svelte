@@ -4,12 +4,14 @@
   import '../leaflet_components/L.DrawingLayer.js';
   import queryString from 'query-string';
   import {getGeofiles, WMS_URL} from '../client.js';
+  import { activeOverlayLayersStore, activeSelectionLayerStore } from '../stores.js'
 
   export const SELECTIONS = new Set(['lau.zip', 'nuts0.zip', 'nuts1.zip', 'nuts2.zip', 'nuts3.zip']);
   let selectionLayers = [];
-  export let activeSelectionLayer = undefined;
+  //export let activeSelectionLayer = ;
   let overlayLayers = [];
-  export let activeOverlayLayers = [];
+  //export let activeOverlayLayers = $activeOverlayLayersStore;
+  let isLayerListReady = false;
 
   function toLeafletLayer(layerName) {
     const layer = L.tileLayer.nutsLayer(
@@ -42,6 +44,7 @@
     selectionLayers = selectionLayers;
     overlayLayers = overlayLayers;
     setSelectionFromGetParameter();
+    isLayerListReady = true;
   });
   function setSelectionFromGetParameter() {
     if (!!!window) {
@@ -49,6 +52,7 @@
     }
     const parsed = queryString.parse(window.location.search);
     if ('selectionLayer' in parsed) {
+      let activeSelectionLayer = undefined;
       console.log('parsing selection layer from get parameters');
       for (const selectionLayer of selectionLayers) {
         if (selectionLayer.name == parsed.selectionLayer) {
@@ -56,8 +60,10 @@
           activeSelectionLayer = selectionLayer;
         }
       }
+      $activeSelectionLayerStore = activeSelectionLayer;
     }
     if ('overlayLayers' in parsed) {
+      let activeOverlayLayers = [];
       console.log('parsing overlay layer from get parameters');
       const queryOverlayLayers = new Set(parsed.overlayLayers.split(','));
       for (const overlayLayer of overlayLayers) {
@@ -66,13 +72,17 @@
           activeOverlayLayers.push(overlayLayer);
         }
       }
+      $activeOverlayLayersStore = activeOverlayLayers;
     }
     // trigger the modification of the overlay layers to the
     // parent component
-    activeOverlayLayers = activeOverlayLayers;
   }
   function getDrawingLayer() {
     return new L.DrawingLayer();
+  }
+  $: {
+          console.log("layer changed in selector to " + $activeSelectionLayerStore);
+          console.log("layer changed in selector to " + $activeOverlayLayersStore);
   }
 </script>
 <style>
@@ -81,17 +91,21 @@
 }
 </style>
 <div id="map_selection">
+  {#if !isLayerListReady}
+  Loading
+  {:else}
   {#each overlayLayers as overlayLayer}
   <label>
-    <input type=checkbox bind:group={activeOverlayLayers} value={overlayLayer}>
+    <input type=checkbox bind:group={$activeOverlayLayersStore} value={overlayLayer}>
       {overlayLayer.name}
     </label>
   {/each}
 
   {#each selectionLayers as selectionLayer}
   <label>
-    <input type=radio bind:group={activeSelectionLayer} value={selectionLayer}>
+    <input type=radio bind:group={$activeSelectionLayerStore} value={selectionLayer}>
     {selectionLayer.name}
   </label>
   {/each}
+  {/if}
 </div>

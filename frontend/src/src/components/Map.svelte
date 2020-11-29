@@ -17,12 +17,13 @@ import 'leaflet-search/dist/leaflet-search.src.js';
 import 'leaflet-search/dist/leaflet-search.src.css';
 
 import LayerSelection from './LayerSelection.svelte';
+import { activeOverlayLayersStore, activeSelectionLayerStore } from '../stores.js'
 
 import {INITIAL_MAP_CENTER, INITIAL_ZOOM} from '../settings.js';
 
 let map;
-export let activeSelectionLayer = undefined;
-export let activeOverlayLayers = [];
+$: activeSelectionLayer = $activeSelectionLayerStore;
+$: activeOverlayLayers = $activeOverlayLayersStore;
 
 const overlaysGroup = L.layerGroup();
 const selectionsGroup = L.layerGroup();
@@ -33,7 +34,6 @@ onMount(async () => {
   console.log('init map');
   map = L.map('map').setView(INITIAL_MAP_CENTER, INITIAL_ZOOM);
 
-  map.addControl(getSearchControl());
 
   map.addLayer(baseLayersGroup);
   map.addLayer(selectionsGroup);
@@ -43,6 +43,9 @@ onMount(async () => {
     attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy;' +
 ' <a href="https://cartodb.com/attributions">CartoDB</a>'});
   baseLayersGroup.addLayer(baseLayer);
+
+  map.addControl(makeSearchControl());
+  map.addControl(makeLayerControl());
 });
 
 function resizeMap() {
@@ -83,7 +86,17 @@ function syncSelectionLayer() {
     selectionsGroup.addLayer(activeSelectionLayer);
   }
 }
-function getSearchControl() {
+function makeLayerControl() {
+  let layerControl = L.control({ position: "topright" });
+  layerControl.onAdd = (map) => {
+    let div = L.DomUtil.create("div");
+    L.DomUtil.addClass(div, "leaflet-control-layers");
+    toolbar = new LayerSelection({ target: div});
+    return div;
+  };
+  return layerControl;
+}
+function makeSearchControl() {
   const searchControl = new L.Control.Search({
     url: 'https://nominatim.openstreetmap.org/search?format=json&q={s}',
     jsonpParam: 'json_callback',
@@ -106,5 +119,4 @@ function getSearchControl() {
 
 <svelte:window on:resize={resizeMap} />
 
-<LayerSelection bind:activeSelectionLayer={activeSelectionLayer} bind:activeOverlayLayers={activeOverlayLayers}/>
 <div id="map"></div>
