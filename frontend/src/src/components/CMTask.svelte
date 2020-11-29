@@ -7,7 +7,7 @@
 
   let taskResult = {status: 'PENDING'};
   const updateTime = 500;
-  const PENDING_STATUS = 'PENDING'
+  const PENDING_STATUS = 'PENDING';
   $: isTaskPending = (taskResult.status === PENDING_STATUS);
 
   onMount(async () => {
@@ -29,8 +29,8 @@
     return task.id.slice(0, 5) + '...';
   }
   $: {
-          console.log(cm)
-          console.log(task)
+    console.log(cm);
+    console.log(task);
   }
 </script>
 <style>
@@ -46,5 +46,5 @@
   results: {JSON.stringify(taskResult.result)}
   {/if}
 </dl>
-<button on:click|once={cancel} disabled={isTaskPending}>Cancel task</button>
+<button on:click|once={cancel} disabled={!isTaskPending}>Cancel task</button>
 </div>

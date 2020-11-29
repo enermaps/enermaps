@@ -2,7 +2,7 @@
   import {afterUpdate} from 'svelte';
   import {postCMTask} from '../client.js';
   import CMTask from './CMTask.svelte';
-  import { activeOverlayLayersStore, activeSelectionLayerStore } from '../stores.js'
+  import {activeOverlayLayersStore, activeSelectionLayerStore} from '../stores.js';
   import 'brutusin-json-forms';
   const BrutusinForms = brutusin['json-forms'];
 
@@ -35,11 +35,18 @@
 
   $ : isDisabled = !$activeOverlayLayersStore.length || !activeSelectionLayerStore;
 </script>
+<style>
+.tasks {
+  overflow: auto;
+}
+</styl>
 <div>
   <form id="form{cm.name}">
   </form>
   <button type=submit on:click={() => callCM(cm)} disabled={isDisabled}>{cm.pretty_name}</button>
+  <div class="tasks">
   {#each tasks as task}
     <CMTask {cm} {task}/>
   {/each}
+  </div>
 </div>

@@ -17,7 +17,8 @@ import 'leaflet-search/dist/leaflet-search.src.js';
 import 'leaflet-search/dist/leaflet-search.src.css';
 
 import LayerSelection from './LayerSelection.svelte';
-import { activeOverlayLayersStore, activeSelectionLayerStore } from '../stores.js'
+import CMToggle from './CMToggle.svelte';
+import {activeOverlayLayersStore, activeSelectionLayerStore} from '../stores.js';
 
 import {INITIAL_MAP_CENTER, INITIAL_ZOOM} from '../settings.js';
 
@@ -46,6 +47,7 @@ onMount(async () => {
 
   map.addControl(makeSearchControl());
   map.addControl(makeLayerControl());
+  map.addControl(makeCMToggleControl());
 });
 
 function resizeMap() {
@@ -87,14 +89,24 @@ function syncSelectionLayer() {
   }
 }
 function makeLayerControl() {
-  let layerControl = L.control({ position: "topright" });
+  const layerControl = L.control({position: 'topleft'});
   layerControl.onAdd = (map) => {
-    let div = L.DomUtil.create("div");
-    L.DomUtil.addClass(div, "leaflet-control-layers");
-    toolbar = new LayerSelection({ target: div});
+    const div = L.DomUtil.create('div');
+    L.DomUtil.addClass(div, 'leaflet-control-layers');
+    toolbar = new LayerSelection({target: div});
     return div;
   };
   return layerControl;
+}
+function makeCMToggleControl() {
+  const CMToggleControl = L.control({position: 'topright'});
+  CMToggleControl.onAdd = (map) => {
+    const div = L.DomUtil.create('div');
+    L.DomUtil.addClass(div, 'leaflet-control-zoom');
+    toolbar = new CMToggle({target: div});
+    return div;
+  };
+  return CMToggleControl;
 }
 function makeSearchControl() {
   const searchControl = new L.Control.Search({
