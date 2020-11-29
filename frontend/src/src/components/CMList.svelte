@@ -2,6 +2,7 @@
 	import { afterUpdate, onMount } from 'svelte';
 
 	import CMResult from './CMResult.svelte';
+	import { BASE_URL } from '../settings.js'
 	import 'brutusin-json-forms'
 	export let active_overlay_layers;
 	export let active_selection_layer;
@@ -15,7 +16,7 @@
 	});
 
 	async function fetchCMs() {
-		let response = await fetch('/api/cm/');
+		let response = await fetch(BASE_URL + 'api/cm/');
 		if (!response.ok) {
 			return [];
 		}
@@ -44,7 +45,7 @@
 		new_task_params['layers'] = active_overlay_layers.map(layer=>layer.name);
 		new_task_params['parameters'] = brutusin_forms[cm_name].getData();
 		console.log(new_task_params);
-		const response = await fetch("api/cm/" + cm_name + "/task", {
+		const response = await fetch(BASE_URL + "api/cm/" + cm_name + "/task", {
 			method: 'POST',
 			headers: {
 				'Content-Type': 'application/json'

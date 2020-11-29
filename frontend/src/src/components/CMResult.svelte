@@ -1,5 +1,6 @@
 <script>
 	import { onMount } from 'svelte';
+	import { BASE_URL } from '../settings.js'
 	export let task;
 	let task_status;
 	let is_task_pending = true;
@@ -15,7 +16,7 @@
 		return task_status.status === 'PENDING';
 	}
 	async function getTaskResult() {
-		const task_response = await fetch('/api/cm/' + task.cm.name + '/task/' + task.task_id);
+		const task_response = await fetch(BASE_URL + 'api/cm/' + task.cm.name + '/task/' + task.task_id);
 		const task_json= await task_response.json();
 		task_status = task_json;
 		if (task_status.status === 'PENDING') {
@@ -25,7 +26,7 @@
 		}
 	}
 	async function cancel() {
-		const cancel_response = await fetch('/api/cm/' + task.cm.name + '/task/' + task.task_id, {
+		const cancel_response = await fetch(BASE_URL + 'api/cm/' + task.cm.name + '/task/' + task.task_id, {
 			method: 'DELETE',
 		});
 		const task_json = await cancel_response.json();

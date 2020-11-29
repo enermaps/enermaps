@@ -40,10 +40,10 @@ L.TileLayer.NutsLayer = L.TileLayer.WMS.extend({
   getFeatureInfoUrl: function (point) {
        // Construct a GetFeatureInfo request URL given a point
       //TODO this one is way trickier than it seems for WMS 1.1.1 vs 1.3.0,
-      // currently the backend and the frontend understand that:  
+      // currently the backend and the frontend understand that:
       // * the bounding box in the map coordinate
       // * the X and Y position are pixels offset
-      // This behaviour changes between WMS version, so verify that the backend is 
+      // This behaviour changes between WMS version, so verify that the backend is
       // talking version 1.1.1 of the WMS
       const size = this._map.getSize();
       const crs = this._map.options.crs;
