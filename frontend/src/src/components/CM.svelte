@@ -39,7 +39,7 @@
 .tasks {
   overflow: auto;
 }
-</styl>
+</style>
 <div>
   <form id="form{cm.name}">
   </form>

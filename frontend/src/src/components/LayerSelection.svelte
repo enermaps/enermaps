@@ -87,13 +87,25 @@
 </script>
 <style>
 #map_selection {
-  border-style: groove;
+  padding: 4px;
+}
+#map_selection h3 {
+        margin: 0px;
 }
 </style>
 <div id="map_selection">
   {#if !isLayerListReady}
   Loading
   {:else}
+  <h3>Selection</h3>
+  {#each selectionLayers as selectionLayer}
+  <label>
+    <input type=radio bind:group={$activeSelectionLayerStore} value={selectionLayer}>
+    {selectionLayer.name}
+  </label>
+  {/each}
+
+  <h3>Overlays</h3>
   {#each overlayLayers as overlayLayer}
   <label>
     <input type=checkbox bind:group={$activeOverlayLayersStore} value={overlayLayer}>
@@ -101,11 +113,5 @@
     </label>
   {/each}
 
-  {#each selectionLayers as selectionLayer}
-  <label>
-    <input type=radio bind:group={$activeSelectionLayerStore} value={selectionLayer}>
-    {selectionLayer.name}
-  </label>
-  {/each}
   {/if}
 </div>
