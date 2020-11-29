@@ -1,0 +1,54 @@
+<script>
+  import {afterUpdate} from 'svelte';
+  import {postCMTask} from '../client.js';
+  import CMTask from './CMTask.svelte';
+  import 'brutusin-json-forms';
+  const BrutusinForms = brutusin['json-forms'];
+
+  export let activeOverlayLayers;
+  export let activeSelectionLayer;
+
+  export let cm;
+  let isDisabled = true;
+  let cmTasks = [];
+  let form = undefined;
+
+  afterUpdate(async () =>{
+    // was the form already rendered ?
+    if (!!form) {
+      return;
+    }
+    const container = document.getElementById('form' + cm.name);
+    form = BrutusinForms.create(cm.schema);
+    form.render(container);
+  });
+
+  async function callCM() {
+    const newTaskParams = {};
+    if (!!activeSelectionLayer) {
+      newTaskParams['selection'] = activeSelectionLayer.getSelection();
+    } else {
+      newTaskParams['selection'] = {};
+    }
+    newTaskParams['layers'] = activeOverlayLayers.map((layer)=>layer.name);
+    newTaskParams['parameters'] = form.getData();
+    console.log('Creating new task with parameters: ' + newTaskParams);
+    const task = await postCMTask(cm, newTaskParams);
+
+    cmTasks.push(task);
+    cmTasks = cmTasks;
+  }
+
+  $ : {
+    console.log(`selected layer was changed: ${activeSelectionLayer}`);
+    isDisabled = !activeOverlayLayers.length || !activeSelectionLayer;
+  }
+</script>
+<div>
+  <form id="form{cm.name}">
+  </form>
+  <button type=submit on:click={() => callCM(cm)} disabled={isDisabled}>{cm.pretty_name}</button>
+  {#each cmTasks as task}
+    <CMTask bind:cm bind:task/>
+  {/each}
+</div>

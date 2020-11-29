@@ -1,109 +1,97 @@
 <script>
-	import { onMount } from 'svelte';
-	import '../leaflet_components/L.TileLayer.NutsLayer.js'
-	import '../leaflet_components/L.DrawingLayer.js'
-	import queryString from "query-string";
-	import { BASE_URL } from '../settings.js'
+  import {onMount} from 'svelte';
+  import '../leaflet_components/L.TileLayer.NutsLayer.js';
+  import '../leaflet_components/L.DrawingLayer.js';
+  import queryString from 'query-string';
+  import {getGeofiles, WMS_URL} from '../client.js';
 
-	export const SELECTIONS = new Set(['lau.zip', 'nuts0.zip', 'nuts1.zip', 'nuts2.zip' ,'nuts3.zip'])
-	let selection_layers = [];
-	export let active_selection_layer = undefined;
-	let overlay_layers = [];
-	export let active_overlay_layers = [];
-	let test = [];
-	let layer_count = 0
+  export const SELECTIONS = new Set(['lau.zip', 'nuts0.zip', 'nuts1.zip', 'nuts2.zip', 'nuts3.zip']);
+  let selectionLayers = [];
+  export let activeSelectionLayer = undefined;
+  let overlayLayers = [];
+  export let activeOverlayLayers = [];
 
-	onMount(async () => {
-		const layers = await fetchLayers();
-		for (const layer of layers) {
-			const leaflet_layer = to_leaflet_layer(layer);
-			leaflet_layer.name = layer;
-			if (SELECTIONS.has(layer)) {
-				//selection go on top
-				leaflet_layer.setZIndex(1000);
-				selection_layers.push(leaflet_layer);
-			} else {
-				overlay_layers.push(leaflet_layer);
-			}
-		}
-		let drawing_layer = get_drawing_layer();
-		drawing_layer.name = "selection";
-		selection_layers.push(drawing_layer);
-		selection_layers = selection_layers;
-		overlay_layers = overlay_layers;
-		setSelectionFromGetParameter();
-	});
-	function setSelectionFromGetParameter() {
-		if (!!!window) {
-			return;
-		}
-		const parsed = queryString.parse(window.location.search);
-		if ("selection_layer" in parsed) {
-			for (const selection_layer of selection_layers) {
-				console.log(selection_layer);
-				console.log(selection_layer.name, parsed.selection_layer);
-				if (selection_layer.name == parsed.selection_layer) {
-					console.log("adding selection layer from get parameters");
-					active_selection_layer = selection_layer;
-				}
-			}
-		}
-		if ("overlay_layers" in parsed) {
-			console.log("parsing overlay layer");
-			const query_overlay_layers = new Set(parsed.overlay_layers.split(","));
-			for (const overlay_layer of overlay_layers) {
-				if (query_overlay_layers.has(overlay_layer.name)) {
-					console.log("adding overlay layer from get parameters");
-					active_overlay_layers.push(overlay_layer);
-				}
-			}
-		}
-		// trigger the modification of the overlay layers to the
-		// parent component
-		active_overlay_layers = active_overlay_layers;
-	}
-	async function fetchLayers() {
-		//document.domain = "geoserver.hotmaps.eu";
-		let response = await fetch(BASE_URL + 'api/geofile');
-		if (!response.ok) {
-			console.log(response);
-			return [];
-		}
-		let layers_resp = await response.json();
-		return layers_resp.files;
-	}
-	function to_leaflet_layer(layer_name) {
-		const layer =  L.tileLayer.nutsLayer(
-		BASE_URL + 'api/wms?',
-		{
-		transparent: 'true',
-		layers: layer_name,
-			format: 'image/png',
-		},
-		);
-		return layer;
-	}
-	function get_drawing_layer() {
-		return new L.DrawingLayer();
-	}
+  function toLeafletLayer(layerName) {
+    const layer = L.tileLayer.nutsLayer(
+        WMS_URL,
+        {
+          transparent: 'true',
+          layers: layerName,
+          format: 'image/png',
+        },
+    );
+    return layer;
+  }
+
+  onMount(async () => {
+    const layers = await getGeofiles();
+    for (const layer of layers) {
+      const leafletLayer = toLeafletLayer(layer);
+      leafletLayer.name = layer;
+      if (SELECTIONS.has(layer)) {
+        // selection go on top
+        leafletLayer.setZIndex(1000);
+        selectionLayers.push(leafletLayer);
+      } else {
+        overlayLayers.push(leafletLayer);
+      }
+    }
+    const drawingLayer = getDrawingLayer();
+    drawingLayer.name = 'selection';
+    selectionLayers.push(drawingLayer);
+    selectionLayers = selectionLayers;
+    overlayLayers = overlayLayers;
+    setSelectionFromGetParameter();
+  });
+  function setSelectionFromGetParameter() {
+    if (!!!window) {
+      return;
+    }
+    const parsed = queryString.parse(window.location.search);
+    if ('selectionLayer' in parsed) {
+      console.log('parsing selection layer from get parameters');
+      for (const selectionLayer of selectionLayers) {
+        if (selectionLayer.name == parsed.selectionLayer) {
+          console.log('adding selection layer from get parameters');
+          activeSelectionLayer = selectionLayer;
+        }
+      }
+    }
+    if ('overlayLayers' in parsed) {
+      console.log('parsing overlay layer from get parameters');
+      const queryOverlayLayers = new Set(parsed.overlayLayers.split(','));
+      for (const overlayLayer of overlayLayers) {
+        if (queryOverlayLayers.has(overlayLayer.name)) {
+          console.log('adding overlay layer from get parameters');
+          activeOverlayLayers.push(overlayLayer);
+        }
+      }
+    }
+    // trigger the modification of the overlay layers to the
+    // parent component
+    activeOverlayLayers = activeOverlayLayers;
+  }
+  function getDrawingLayer() {
+    return new L.DrawingLayer();
+  }
 </script>
 <style>
 #map_selection {
-	border-style: groove;
+  border-style: groove;
 }
 </style>
 <div id="map_selection">
-	{#each overlay_layers as overlay_layer}
-	<label>
-		<input type=checkbox bind:group={active_overlay_layers} value={overlay_layer}>
-			{overlay_layer.name}
-		</label>
-	{/each}
+  {#each overlayLayers as overlayLayer}
+  <label>
+    <input type=checkbox bind:group={activeOverlayLayers} value={overlayLayer}>
+      {overlayLayer.name}
+    </label>
+  {/each}
 
-	{#each selection_layers as selection_layer}
-	<label>
-		<input type=radio bind:group={active_selection_layer} value={selection_layer}>
-		{selection_layer.name}
-	</label>
-	{/each}
+  {#each selectionLayers as selectionLayer}
+  <label>
+    <input type=radio bind:group={activeSelectionLayer} value={selectionLayer}>
+    {selectionLayer.name}
+  </label>
+  {/each}
 </div>

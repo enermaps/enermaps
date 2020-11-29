@@ -1,29 +1,24 @@
-import "leaflet-draw/dist/leaflet.draw.js";
-import "leaflet-draw/dist/leaflet.draw.css";
+import 'leaflet-draw/dist/leaflet.draw.js';
+import 'leaflet-draw/dist/leaflet.draw.css';
 
 L.DrawingLayer = L.FeatureGroup.extend({
   onRemove: function(map) {
-	  map.removeControl(this.drawControl);
-	  this.clearLayers();
+    map.removeControl(this.drawControl);
+    this.clearLayers();
   },
   onAdd: function(map) {
     const drawPluginOptions = {
       position: 'topright',
       draw: {
         polygon: {
-          allowIntersection: false, // Restricts shapes to simple polygons
-          drawError: {
-            color: '#e1e100', // Color the shape will turn when intersects
-            message:
-              '<strong>Polygon draw does not allow intersections!<strong> (allowIntersection: false)', // Message that will show when intersect
-          },
+          allowIntersection: true, // Restricts shapes to simple polygons
           shapeOptions: {
             color: '#bada55',
           },
         },
-	      polyline: false,
-	      circlemarker: false,
-	      marker: false,
+        polyline: false,
+        circlemarker: false,
+        marker: false,
         rectangle: {
           shapeOptions: {
             clickable: false,
@@ -44,9 +39,7 @@ L.DrawingLayer = L.FeatureGroup.extend({
     return this.toGeoJSON();
   },
   drawCreated: function(e) {
-    const type = e.layerType;
     const layer = e.layer;
-
     this.addLayer(layer);
   },
 });
