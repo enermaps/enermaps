@@ -71,5 +71,6 @@ Currently, we only have an integration testsuite, that can be run with.
 
 
 ```python
-python test.py integration
+docker-compose up --build
+docker-compose exec api ./test.py integration
 ```
