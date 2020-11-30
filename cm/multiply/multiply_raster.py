@@ -20,11 +20,12 @@ def scale_stat(stats_list, factor):
     """From a list of stats, take the factor into account and
     modify the stats accordingly.
     """
+    scaled_stats = []
     for stats in stats_list:
         for k in ("min", "max", "mean"):
             stats[k] = stats[k] * factor
         yield stats
-
+    return scaled_stats
 
 def rasterstats(geojson, raster_path, factor, stats=None):
     """Multiply the rasters values by a factor.
@@ -52,11 +53,9 @@ def rasterstats(geojson, raster_path, factor, stats=None):
     stat_done = time()
 
     logging.info("We took {!s} to calculate stats".format(stat_done - start))
-
     logging.info(stats)
     return aggregated_stats
 
 
 if __name__ == "__main__":
     val_multiply = rasterstats("selection_shapefile.geojson", "GeoTIFF_test.tif", 2)
-    print(val_multiply)

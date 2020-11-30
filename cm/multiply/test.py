@@ -20,7 +20,7 @@ def load_geojson(test_filename):
 class TestCM(unittest.TestCase):
     def test_rasterstats(self):
         base_factor = 1
-        multiplicator = 1
+        multiplicator = 2
         selection = load_geojson("selection_GeoTIFF.geojson")
         raster = get_testdata_path("GeoTIFF_test.tif")
         stats = rasterstats(
@@ -40,7 +40,7 @@ class TestCM(unittest.TestCase):
                 "min",
                 "max",
             ),
-        )
+        ); print(stats, double_stats)
         self.assertEqual(
             len(stats),
             1,
@@ -55,6 +55,7 @@ class TestCM(unittest.TestCase):
         )
         for stat, double_stat in zip(stats, double_stats):
             for stat_type in stat.keys():
+                print(stat[stat_type], double_stat[stat_type])
                 self.assertIn(stat_type, stat)
                 self.assertIn(stat_type, double_stat)
                 self.assertAlmostEqual(
