@@ -53,5 +53,5 @@ class CM_fakeoutput(Resource):
         except Exception as e:
             if task.status == "FAILURE":
                 # this is an expected failure
-                return {"status": task.status, "exception": str(e)}
+                return {"status": task.status, "result": str(e)}
         return {"status": task.status, "result": result}

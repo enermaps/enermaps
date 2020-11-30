@@ -6,6 +6,7 @@ reverse_proxy /api/*  api:80
 reverse_proxy /swaggerui/* api:80
 header {
 	Access-Control-Allow-Origin *
+	Access-Control-Allow-Headers *
 }
 
 file_server /* {
