@@ -10,7 +10,7 @@ class FakeOuputTest(BaseIntegrationTest):
         * call the expected default cm (multiply)
         * check the result
         """
-        resp = requests.get(self.url + '/cm')
+        resp = requests.get(self.url + "/cm")
         cms = resp.json()
         self.assertGreaterEqual(len(cms), 0)
 

@@ -52,8 +52,7 @@ docker-compose stop
 You can remove all data and images, if for example you wanna start from scratch with:
 
 ```
-docker-compose rm
-docker volume prune
+docker-compose down -v
 ```
 
 # Continuous Integration

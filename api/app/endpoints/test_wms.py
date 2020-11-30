@@ -1,6 +1,6 @@
-import unittest
 import io
 import json
+import unittest
 from typing import Text
 
 from lxml import etree
