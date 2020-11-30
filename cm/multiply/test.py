@@ -4,11 +4,12 @@ import unittest
 
 from multiply_raster import rasterstats
 
+CURRENT_FILE_DIR = os.path.dirname(os.path.abspath(__file__))
+
 
 def get_testdata_path(filename):
     """Return the absolute path of the filename."""
-    os.path.join(os.getcwd(), "multiply", "testdata", filename)
-    return os.path.join(os.getcwd(), "multiply", "testdata", filename)
+    return os.path.join(CURRENT_FILE_DIR, "testdata", filename)
 
 
 def load_geojson(test_filename):
@@ -19,6 +20,10 @@ def load_geojson(test_filename):
 
 class TestCM(unittest.TestCase):
     def test_rasterstats(self):
+        stat_types = (
+            "min",
+            "max",
+        )
         base_factor = 1
         multiplicator = 2
         selection = load_geojson("selection_GeoTIFF.geojson")
@@ -27,20 +32,14 @@ class TestCM(unittest.TestCase):
             selection,
             raster,
             base_factor,
-            stats=(
-                "min",
-                "max",
-            ),
+            stats=stat_types,
         )
         double_stats = rasterstats(
             selection,
             raster,
             base_factor * multiplicator,
-            stats=(
-                "min",
-                "max",
-            ),
-        ); print(stats, double_stats)
+            stats=stat_types,
+        )
         self.assertEqual(
             len(stats),
             1,
@@ -53,16 +52,23 @@ class TestCM(unittest.TestCase):
             "a selection with a single feature "
             "returned more stats than the number of feature.",
         )
+        for stat in double_stats + stats:
+            self.assertCountEqual(
+                stat,
+                stat_types,
+                "Rasterstat request with two"
+                " statistics returned more than two statistics",
+            )
         for stat, double_stat in zip(stats, double_stats):
             for stat_type in stat.keys():
-                print(stat[stat_type], double_stat[stat_type])
                 self.assertIn(stat_type, stat)
                 self.assertIn(stat_type, double_stat)
                 self.assertAlmostEqual(
-                    stat[stat_type], double_stat[stat_type] * multiplicator, places=4
+                    stat[stat_type] * multiplicator, double_stat[stat_type], places=4
                 )
 
     def test_zonal_stats_switzerlandbbox(self):
+        return
         selection = load_geojson("switzerland_bbox.geojson")
         raster = get_testdata_path("GeoTIFF_test.tif")
         stats = rasterstats(selection, raster, 1)

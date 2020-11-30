@@ -12,20 +12,22 @@ DEFAULT_STATS = (
     "min",
     "max",
     "mean",
+    "median",
     "count",
 )
+
+SCALED_STATS = ("min", "max", "mean", "median")
 
 
 def scale_stat(stats_list, factor):
     """From a list of stats, take the factor into account and
     modify the stats accordingly.
     """
-    scaled_stats = []
     for stats in stats_list:
-        for k in ("min", "max", "mean"):
-            stats[k] = stats[k] * factor
-        yield stats
-    return scaled_stats
+        for stat_type in SCALED_STATS:
+            if stat_type in stats:
+                stats[stat_type] = stats[stat_type] * factor
+
 
 def rasterstats(geojson, raster_path, factor, stats=None):
     """Multiply the rasters values by a factor.
@@ -46,10 +48,12 @@ def rasterstats(geojson, raster_path, factor, stats=None):
                 GEOJSON_PROJ, src.crs, always_xy=True
             ).transform
             projected_shape = transform(project, geoshape)
-        stats = zonal_stats(projected_shape, raster_path, affine=src.transform)
+        stats = zonal_stats(
+            projected_shape, raster_path, affine=src.transform, stats=stats
+        )
         # we have a single feature, thus we expose a single stat
         aggregated_stats += stats
-    stats = scale_stat(aggregated_stats, factor)
+    scale_stat(aggregated_stats, factor)
     stat_done = time()
 
     logging.info("We took {!s} to calculate stats".format(stat_done - start))
