@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 """Simplified entrypoint for discovering and running all test of the project
 """
 import argparse

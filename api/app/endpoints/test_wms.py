@@ -1,7 +1,6 @@
-import collections
+import unittest
 import io
 import json
-import sys
 from typing import Text
 
 from lxml import etree
@@ -213,6 +212,7 @@ WMS_VERSION = "1.1.1"
 
 
 class TestWMSLibCompliance(BaseIntegrationTest):
+    @unittest.skip("Currently not compatible")
     def test_wms_content(self):
         """Verify that the content of the wms can be listed"""
         wms = WebMapService(self.url, version=WMS_VERSION)

@@ -1,0 +1,14 @@
+on:
+  pull_request_review:
+    types: [submitted]
+
+jobs:
+  build:
+    if: github.event.review.state == 'approved'
+    runs-on: 'ubuntu-18.04'
+steps:
+  - uses: actions/checkout@v2
+  - name: start the stack
+    run: docker-compose up -d --build
+  - name: run integration test
+    run: docker-compose exec api ./test.py integration
