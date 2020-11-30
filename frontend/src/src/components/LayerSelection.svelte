@@ -13,7 +13,19 @@
   // export let activeOverlayLayers = $activeOverlayLayersStore;
   let isLayerListReady = false;
 
-  function toLeafletLayer(layerName) {
+  function toOverlayLayer(layerName) {
+    const layer = L.tileLayer.wms(
+        WMS_URL,
+        {
+          transparent: 'true',
+          layers: layerName,
+          format: 'image/png',
+        },
+    );
+    return layer;
+  }
+
+  function toNutsLayer(layerName) {
     const layer = L.tileLayer.nutsLayer(
         WMS_URL,
         {
@@ -28,13 +40,16 @@
   onMount(async () => {
     const layers = await getGeofiles();
     for (const layer of layers) {
-      const leafletLayer = toLeafletLayer(layer);
-      leafletLayer.name = layer;
+      let leafletLayer;
       if (SELECTIONS.has(layer)) {
+        leafletLayer = toNutsLayer(layer);
+        leafletLayer.name = layer;
         // selection go on top
         leafletLayer.setZIndex(1000);
         selectionLayers.push(leafletLayer);
       } else {
+        leafletLayer = toOverlayLayer(layer);
+        leafletLayer.name = layer;
         overlayLayers.push(leafletLayer);
       }
     }
