@@ -59,7 +59,7 @@ def create(file_upload: FileStorage):
         return GeoJSONLayer.save(file_upload)
     if file_upload.mimetype in VectorLayer.MIMETYPE:
         return VectorLayer.save(file_upload)
-    elif file_upload.mimetype in RasterLayer.MIMETYPE:
+    if file_upload.mimetype in RasterLayer.MIMETYPE:
         return RasterLayer.save(file_upload)
     raise Exception("Unknown file format {}".format(file_upload.mimetype))
 
