@@ -2,7 +2,7 @@ version: "3.8"
 services:
   cm:
     build:
-      context: ./cm/multiply
+      context: ./cm
     environment:
       UPLOAD_DIR: /upload-dir
     volumes:

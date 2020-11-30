@@ -7,8 +7,8 @@ from multiply_raster import rasterstats
 
 def get_testdata_path(filename):
     """Return the absolute path of the filename."""
-    os.path.join(".", "testdata", filename)
-    return os.path.join(".", "testdata", filename)
+    os.path.join(os.getcwd(), "multiply", "testdata", filename)
+    return os.path.join(os.getcwd(), "multiply", "testdata", filename)
 
 
 def load_geojson(test_filename):
@@ -62,7 +62,6 @@ class TestCM(unittest.TestCase):
                 )
 
     def test_zonal_stats_switzerlandbbox(self):
-
         selection = load_geojson("switzerland_bbox.geojson")
         raster = get_testdata_path("GeoTIFF_test.tif")
         stats = rasterstats(selection, raster, 1)
