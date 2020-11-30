@@ -14,6 +14,8 @@ function toggleCM() {
   display: inline-block;
 }
 #cm_toggle_container {
+  height: 30px;
+  width: 30px;
   background-color: white;
   padding: 4px;
   border-radius: 4px;
