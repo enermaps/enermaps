@@ -11,7 +11,7 @@ L.DrawingLayer = L.FeatureGroup.extend({
       position: 'topright',
       draw: {
         polygon: {
-          allowIntersection: true, // Restricts shapes to simple polygons
+          allowIntersection: true,
           shapeOptions: {
             color: '#bada55',
           },
@@ -19,11 +19,8 @@ L.DrawingLayer = L.FeatureGroup.extend({
         polyline: false,
         circlemarker: false,
         marker: false,
-        rectangle: {
-          shapeOptions: {
-            clickable: false,
-          },
-        },
+        rectangle: false,
+        circle: false,
       },
       edit: {
         featureGroup: this, // REQUIRED!!
