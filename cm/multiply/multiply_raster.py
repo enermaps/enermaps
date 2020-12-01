@@ -28,6 +28,23 @@ def scale_stat(stats_list, factor):
             if stat_type in stats:
                 stats[stat_type] = stats[stat_type] * factor
 
+def get_graph_dataset(result_list):
+    labels = [] # name of the bar
+    data  = []
+    graph_dataset = {}
+    dataset_num = 1
+    for result in result_list:
+        for stat_indicator in result:
+            labels.append(stat_indicator)
+            data.append(result[stat_indicator])
+        graph_dataset['Dataset ' + str(dataset_num)] = {}
+        graph_dataset['Dataset ' + str(dataset_num)]["title"] = 'Dataset ' + str(dataset_num)
+        graph_dataset['Dataset ' + str(dataset_num)]["labels"] = list(labels)
+        graph_dataset['Dataset ' + str(dataset_num)]["data"] = list(data)
+        dataset_num += 1
+        labels.clear()
+        data.clear()
+    return graph_dataset
 
 def rasterstats(geojson, raster_path, factor, stats=None):
     """Multiply the rasters values by a factor.
@@ -62,4 +79,22 @@ def rasterstats(geojson, raster_path, factor, stats=None):
 
 
 if __name__ == "__main__":
-    val_multiply = rasterstats("selection_shapefile.geojson", "GeoTIFF_test.tif", 2)
+    import json
+    import os
+
+    CURRENT_FILE_DIR = os.path.dirname(os.path.abspath(__file__))
+
+    def get_testdata_path(filename):
+        """Return the absolute path of the filename."""
+        return os.path.join(CURRENT_FILE_DIR, "testdata", filename)
+
+    def load_geojson(test_filename):
+        test_geojson = get_testdata_path(test_filename)
+        with open(test_geojson) as fd:
+            return json.load(fd)
+
+    sel = load_geojson("selection_GeoTIFF.geojson")
+    raster =get_testdata_path("GeoTIFF_test.tif")
+    val_multiply = rasterstats(sel, raster, 2)
+    dataset = get_graph_dataset(val_multiply)
+    print(dataset)
