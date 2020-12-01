@@ -10,7 +10,9 @@ class FakeOuputTest(BaseIntegrationTest):
         * call the expected default cm (multiply)
         * check the result
         """
-        requests.get(self.url)
+        resp = requests.get(self.url + "/cm")
+        cms = resp.json()
+        self.assertGreaterEqual(len(cms), 0)
 
     def testCalculationModuleBrokenParameter(self):
         """Test for the following workflow:
