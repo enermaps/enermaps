@@ -1,3 +1,10 @@
+"""Set of function for extracting projection from file
+and changing projection from one format to another.
+
+
+This link gives a good introduction to coordinate description formats:
+https://www.earthdatascience.org/courses/use-data-open-source-python/intro-vector-data-python/spatial-data-vector-shapefiles/epsg-proj4-coordinate-reference-system-formats-python/
+"""
 import glob
 import os
 
@@ -7,6 +14,11 @@ from flask import current_app
 
 
 def proj4_from_shapefile(path):
+    """Extract the proj4 formatted projection description
+    from a extracted shapefile. This function will look
+    for a prj file then map the content of that file
+    to a proj4 string description.
+    """
     proj_files = glob.glob(os.path.join(path, "*prj"))
     if not proj_files:
         return ""
@@ -22,6 +34,9 @@ def proj4_from_shapefile(path):
 
 
 def proj4_from_geotiff(path):
+    """Extract the proj4 formatted projection descrition
+    from a geotiff file.
+    """
     raster = gdal.Open(path)
     if not raster:
         return ""
@@ -35,6 +50,7 @@ def proj4_from_geotiff(path):
 
 
 def epsg_to_wkt(epsg_code: int):
+    """Map a integer epsg code to a wkt projection."""
     srs = osr.SpatialReference()
     srs.ImportFromEPSG(epsg_code)
     return srs.ExportToWkt()

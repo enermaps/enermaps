@@ -14,7 +14,7 @@ class TestCMS(BaseApiTest):
     @patch("kombu.utils.functional.sleep", return_value=None)
     def testListCMTimeout(self, _):
         """Test that a non reachable redis will
-        Just return an empty list of cms.
+        just return an empty list of cms.
         """
         with self.assertLogs(level=logging.ERROR):
             cms = list_cms()
