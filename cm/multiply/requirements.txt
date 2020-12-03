@@ -5,3 +5,4 @@ rasterstats
 rasterio
 requests
 pyproj
+jsonschema
