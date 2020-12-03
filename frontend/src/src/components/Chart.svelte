@@ -1,4 +1,3 @@
-<canvas id="myChart" width="400" height="400"></canvas>
 <script>
 import {onMount} from 'svelte';
 function createChart(){
@@ -42,3 +41,5 @@ function createChart(){
 }
 onMount(createChart())
 </script>
+
+<canvas id="myChart" width="400" height="400"></canvas>
