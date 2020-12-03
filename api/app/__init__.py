@@ -1,3 +1,7 @@
+"""Entrypoint for the application.
+This contains the initial creation of dataset in dev
+mode and the initialisation of the applicaton.
+"""
 import io
 import os
 
@@ -40,12 +44,7 @@ def init_datasets():
         "request": "GetFeature",
         "outputFormat": "SHAPE-ZIP",
     }
-    nuts_query = {
-        **base_query_params,
-        **{
-            "typeName": "hotmaps:nuts",
-        },
-    }
+    nuts_query = {**base_query_params, **{"typeName": "hotmaps:nuts"}}
     cql_filter = "stat_levl_='{!s}' AND year='2013-01-01'"
     lau_query = {**base_query_params, **{"typeName": "hotmaps:tbl_lau1_2"}}
     for i in range(4):

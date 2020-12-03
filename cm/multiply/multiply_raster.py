@@ -8,13 +8,7 @@ from shapely.geometry import shape
 from shapely.ops import transform
 
 GEOJSON_PROJ = "EPSG:4326"
-DEFAULT_STATS = (
-    "min",
-    "max",
-    "mean",
-    "median",
-    "count",
-)
+DEFAULT_STATS = ("min", "max", "mean", "median", "count")
 
 SCALED_STATS = ("min", "max", "mean", "median")
 

@@ -1,6 +1,8 @@
+"""Test for the calculation modules
+"""
 import requests
 
-from app.common.test import BaseApiTest, BaseIntegrationTest
+from app.common.test import BaseIntegrationTest
 
 
 class FakeOuputTest(BaseIntegrationTest):

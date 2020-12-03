@@ -1,3 +1,6 @@
+"""Common classes used as base for the integration test
+and the unittest.
+"""
 import io
 import logging
 import os
@@ -45,9 +48,7 @@ class BaseApiTest(unittest.TestCase):
         form_content, _ = self.get_testformdata(testfile_name)
         self.client.post("/api/geofile")
         response = self.client.post(
-            "api/geofile/",
-            data=form_content,
-            content_type="multipart/form-data",
+            "api/geofile/", data=form_content, content_type="multipart/form-data"
         )
         self.assertStatusCodeEqual(response, 200)
         return response

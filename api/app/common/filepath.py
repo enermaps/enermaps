@@ -1,3 +1,5 @@
+"""Common module for path manipulation.
+"""
 import os
 
 

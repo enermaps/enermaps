@@ -1,3 +1,8 @@
+"""Set of endpoints for the management of calculation module.
+
+Calculation modules are long running tasks ran on a raster
+with a selection.
+"""
 import os
 
 from flask import request
