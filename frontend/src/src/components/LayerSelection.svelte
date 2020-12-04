@@ -5,8 +5,8 @@
   import queryString from 'query-string';
   import {getGeofiles, WMS_URL} from '../client.js';
   import {activeOverlayLayersStore, activeSelectionLayerStore} from '../stores.js';
-
-  export const SELECTIONS = new Set(['lau.zip', 'nuts0.zip', 'nuts1.zip', 'nuts2.zip', 'nuts3.zip']);
+  export const SELECTIONS_LIST= ['nuts0.zip', 'nuts1.zip', 'nuts2.zip', 'nuts3.zip', 'lau.zip'];
+  export const SELECTIONS = new Set(SELECTIONS_LIST);
   let selectionLayers = [];
   // export let activeSelectionLayer = ;
   let overlayLayers = [];
@@ -36,7 +36,6 @@
     );
     return layer;
   }
-
   onMount(async () => {
     const layers = await getGeofiles();
     for (const layer of layers) {
@@ -46,6 +45,7 @@
         leafletLayer.name = layer;
         // selection go on top
         leafletLayer.setZIndex(1000);
+        //
         selectionLayers.push(leafletLayer);
       } else {
         leafletLayer = toOverlayLayer(layer);
@@ -53,10 +53,15 @@
         overlayLayers.push(leafletLayer);
       }
     }
+    function compareSelectionLayer(a, b) {
+      const a_name = a.name
+      const b_name = b.name
+      return SELECTIONS_LIST.indexOf(a_name) > SELECTIONS_LIST.indexOf(b_name);
+    }
+    selectionLayers.sort(compareSelectionLayer)
     const drawingLayer = getDrawingLayer();
     drawingLayer.name = 'selection';
     selectionLayers.push(drawingLayer);
-    selectionLayers.sort((a, b) => a.name > b.name)
     selectionLayers = selectionLayers;
     overlayLayers = overlayLayers;
     setSelectionFromGetParameter();
