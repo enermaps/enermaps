@@ -1,6 +1,6 @@
 import logging
-from typing import Optional, List, Text
 from time import time
+from typing import List, Optional, Text
 
 import pyproj
 import rasterio
