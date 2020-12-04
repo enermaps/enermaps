@@ -25,17 +25,9 @@ class TestCM(unittest.TestCase):
         multiplicator = 2
         selection = load_geojson("selection_GeoTIFF.geojson")
         raster = get_testdata_path("GeoTIFF_test.tif")
-        stats = rasterstats(
-            selection,
-            raster,
-            base_factor,
-            stat_types=stat_types,
-        )
+        stats = rasterstats(selection, raster, base_factor, stat_types=stat_types)
         double_stats = rasterstats(
-            selection,
-            raster,
-            base_factor * multiplicator,
-            stat_types=stat_types,
+            selection, raster, base_factor * multiplicator, stat_types=stat_types
         )
         self.assertEqual(
             len(stats),
