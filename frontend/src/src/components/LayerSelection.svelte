@@ -56,6 +56,7 @@
     const drawingLayer = getDrawingLayer();
     drawingLayer.name = 'selection';
     selectionLayers.push(drawingLayer);
+    selectionLayers.sort((a, b) => a.name > b.name)
     selectionLayers = selectionLayers;
     overlayLayers = overlayLayers;
     setSelectionFromGetParameter();
