@@ -1,6 +1,7 @@
 <script>
-import CMList from './components/CMList.svelte';
-import Map from './components/Map.svelte';
+    import CMList from './components/CMList.svelte';
+    import Map from './components/Map.svelte';
+    import Chart from './components/Chart.svelte';
 
 </script>
 
@@ -20,4 +21,8 @@ body {
 <div id="main">
 <Map/>
 <CMList/>
+</div>
+
+<div class="div">
+    <Chart/>
 </div>

@@ -1,7 +1,6 @@
 <script>
   import {onMount} from 'svelte';
   import {deleteTaskResult, getTaskResult} from '../client.js';
-  import Chart from './Chart.svelte'
 
   export let task;
   export let cm;
@@ -45,9 +44,6 @@
   <dt>status</dt><dd>{taskResult.status}</dd>
   {#if !isTaskPending}
   results: {JSON.stringify(taskResult.result)}
-  {/if}
-  {#if isTaskPending}
-    <Chart />
   {/if}
 </dl>
 <button on:click|once={cancel} disabled={!isTaskPending}>Cancel task</button>
