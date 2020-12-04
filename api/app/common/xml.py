@@ -1,4 +1,4 @@
-"""xml helpers
+"""xml helper functions.
 """
 from lxml import etree
 

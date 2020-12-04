@@ -1,5 +1,8 @@
 #!/usr/bin/env python3
-"""Simplified entrypoint for discovering and running all test of the project
+"""Simplified entrypoint for discovering and running all test of the api.
+This script can accept a list of space separated tags that act as
+a whitelist for specific set of tests. (see app/common/test.py for more
+information)
 """
 import argparse
 import sys

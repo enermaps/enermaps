@@ -1,7 +1,6 @@
 import io
 import json
 import unittest
-from typing import Text
 
 from lxml import etree
 from owslib.wms import WebMapService
@@ -141,18 +140,8 @@ class WMSGetMapTest(BaseApiTest):
         empty_pixel = 0
         for x in range(image.width):
             for y in range(image.height):
-                pixel = image.getpixel(
-                    (
-                        x,
-                        y,
-                    )
-                )
-                if pixel == (
-                    0,
-                    0,
-                    0,
-                    0,
-                ):
+                pixel = image.getpixel((x, y))
+                if pixel == (0, 0, 0, 0):
                     empty_pixel += 1
         total_pixel = image.width * image.height
         non_empty_pixel = total_pixel - empty_pixel
