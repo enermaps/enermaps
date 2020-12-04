@@ -44,9 +44,8 @@ def parse_layers(params):
 
 
 def parse_projection(params):
-    try:
-        srs = params["srs"]
-    except KeyError:
+    srs = params.get("srs", params.get("crs"))
+    if not srs:
         abort(400, "Parameter srs was not found")
     return srs.lower()
 
@@ -223,7 +222,7 @@ class WMS(Resource):
         s.rules.append(r)
 
         polygon_symbolizer = mapnik.PolygonSymbolizer()
-        polygon_symbolizer.fill = mapnik.Color(0, 0, 0, 0)
+        polygon_symbolizer.fill = mapnik.Color("black")
         r.symbols.append(polygon_symbolizer)
 
         line_symbolizer = mapnik.LineSymbolizer()
