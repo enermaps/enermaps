@@ -25,9 +25,17 @@ class TestCM(unittest.TestCase):
         multiplicator = 2
         selection = load_geojson("selection_GeoTIFF.geojson")
         raster = get_testdata_path("GeoTIFF_test.tif")
-        stats = rasterstats(selection, raster, base_factor, stats=stat_types)
+        stats = rasterstats(
+            selection,
+            raster,
+            base_factor,
+            stat_types=stat_types,
+        )
         double_stats = rasterstats(
-            selection, raster, base_factor * multiplicator, stats=stat_types
+            selection,
+            raster,
+            base_factor * multiplicator,
+            stat_types=stat_types,
         )
         self.assertEqual(
             len(stats),
@@ -56,8 +64,12 @@ class TestCM(unittest.TestCase):
                     stat[stat_type] * multiplicator, double_stat[stat_type], places=4
                 )
 
+    def test_mutliplefeature(self):
+        selection = load_geojson("feature_collection.geojson")
+        raster = get_testdata_path("GeoTIFF_test.tif")
+        rasterstats(selection, raster, 1)
+
     def test_zonal_stats_switzerlandbbox(self):
-        return
         selection = load_geojson("switzerland_bbox.geojson")
         raster = get_testdata_path("GeoTIFF_test.tif")
         stats = rasterstats(selection, raster, 1)

@@ -1,4 +1,5 @@
 import logging
+from typing import Optional, List, Text
 from time import time
 
 import pyproj
@@ -19,19 +20,20 @@ def scale_stat(stats_list, factor):
     """
     for stats in stats_list:
         for stat_type in SCALED_STATS:
-            if stat_type in stats:
-                stats[stat_type] = stats[stat_type] * factor
+            non_scaled_stats = stats.get(stat_type)
+            if non_scaled_stats:
+                stats[stat_type] = non_scaled_stats * factor
 
 
-def rasterstats(geojson, raster_path, factor, stats=None):
+def rasterstats(geojson, raster_path, factor, stat_types: Optional[List[Text]] = None):
     """Multiply the rasters values by a factor.
 
     Rasters are selected from the frontend.
     Factor should be an integrer.
     By default, the indicators are "count min mean max median".
     """
-    if not stats:
-        stats = DEFAULT_STATS
+    if not stat_types:
+        stat_types = DEFAULT_STATS
     start = time()
     aggregated_stats = []
     for feature in geojson["features"]:
@@ -43,7 +45,7 @@ def rasterstats(geojson, raster_path, factor, stats=None):
             ).transform
             projected_shape = transform(project, geoshape)
         stats = zonal_stats(
-            projected_shape, raster_path, affine=src.transform, stats=stats
+            projected_shape, raster_path, affine=src.transform, stats=stat_types
         )
         # we have a single feature, thus we expose a single stat
         aggregated_stats += stats
