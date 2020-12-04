@@ -3,6 +3,7 @@ import inspect
 import json
 import os
 
+import jsonschema
 from celery import Celery, Task
 from celery.worker import worker
 
@@ -37,6 +38,16 @@ class BaseTask(Task):
         spaced_name = raw_name.replace("_", " ").replace("-", " ")
         return spaced_name.capitalize()
 
+    def validate_params(self, params):
+        """Validate the dict parameters based on the schema.json declaration.
+        Raises a ValueError containing the declaration of the validation failure.
+
+        """
+        try:
+            jsonschema.validate(params, schema=self.schema)
+        except jsonschema.ValidationError as err:
+            raise ValueError(str(err))
+
     @property
     def cm_info(self):
         d = {}
@@ -48,8 +59,8 @@ class BaseTask(Task):
         return json.dumps(d)
 
 
-@app.task(base=BaseTask)
-def multiply_raster(selection: dict, rasters: list, params: dict):
+@app.task(base=BaseTask, bind=True)
+def multiply_raster(self, selection: dict, rasters: list, params: dict):
     """This is a calculation module that multiplies the raster by an factor.
     If there is no raster, we raise a value error.
     If there are many rasters, we select the first one.
@@ -66,6 +77,7 @@ def multiply_raster(selection: dict, rasters: list, params: dict):
         raise ValueError("The selection must be non-empty.")
     raster_dir = os.path.join(os.environ["UPLOAD_DIR"], "raster")
     raster_path = os.path.join(raster_dir, rasters[0])
+    self.validate_params(params)
     factor = params["factor"]
     val_multiply = rasterstats(selection, raster_path, factor)
     return val_multiply
