@@ -1,4 +1,4 @@
-enermaps2 is a rewrite of the hotmaps poc based on the previous experience.
+enermaps is a rewrite of the hotmaps poc based on the previous experience.
 
 # Development
 First you need to have docker installed on your machine.
