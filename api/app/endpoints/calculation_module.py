@@ -5,7 +5,7 @@ with a selection.
 """
 import os
 
-from flask import request
+from flask import abort, request
 from flask_restx import Namespace, Resource
 
 from app.models import calculation_module as CM
@@ -36,7 +36,7 @@ class TaskCreator(Resource):
         try:
             cm = CM.cm_by_name(cm_name)
         except CM.UnexistantCalculationModule as err:
-            abort(404, description=err.msg)
+            abort(404, description=str(err))
         create_task_parameters = request.get_json()
         selection = create_task_parameters.get("selection", {})
         layers = create_task_parameters.get("layers", [])

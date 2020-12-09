@@ -207,8 +207,7 @@ WMS_VERSION = "1.3.0"
 
 class TestWMSLibCompliance(BaseIntegrationTest):
     def setUp(self, *args, **kwargs):
-        """Create the wms endpoint base on the parent self.api_url
-        """
+        """Create the wms endpoint base on the parent self.api_url"""
         super().setUp(*args, **kwargs)
         self.wms_url = self.api_url + "/wms"
 
