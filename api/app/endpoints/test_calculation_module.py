@@ -1,10 +1,11 @@
 """Test for the calculation modules
 """
-import requests
 import json
 
-from app.common.test import BaseIntegrationTest
+import requests
+
 import app.common.filepath as filepath
+from app.common.test import BaseIntegrationTest
 
 
 class FakeOuputTest(BaseIntegrationTest):
@@ -55,13 +56,13 @@ class FakeOuputTest(BaseIntegrationTest):
         create_task_url = self.cm_url + "/" + first_cm_name + "/task"
         resp = requests.post(create_task_url, json=cm_task_parameters)
         dict_resp = self.getJSONFromRequestResponse(resp)
-        self.assertGreater(len(dict_resp), 0, msg="Answer from creating a task"
-                           " was " + resp.text)
+        self.assertGreater(
+            len(dict_resp), 0, msg="Answer from creating a task" " was " + resp.text
+        )
         # TODO here the format of the answer is still a work in progress,
         # so we don't check anything yet.
 
     def testCalculationModuleBrokenParameter(self):
-        """Test for the a non existant calculation module
-        """
+        """Test for the a non existant calculation module"""
         resp = requests.post(self.cm_url + "/" + "nonexistantcm" + "/task")
         self.assertFalse(resp.ok)
