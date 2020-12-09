@@ -12,4 +12,4 @@ jobs:
       - name: start the stack
         run: docker-compose up -d --build
       - name: run integration test
-        run: docker-compose exec api ./test.py integration
+        run: docker-compose exec -T api ./test.py integration
