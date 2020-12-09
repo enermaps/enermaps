@@ -139,5 +139,5 @@ DEFAULT_API_URL = "http://127.0.0.1:7000"
 class BaseIntegrationTest(unittest.TestCase):
     def setUp(self, *args, **kwargs):
         self.url = os.environ.get("API_URL", DEFAULT_API_URL)
-        self.api_url = self.url + '/api'
+        self.api_url = self.url + "/api"
         self.session = requests.Session()
