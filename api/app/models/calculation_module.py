@@ -95,6 +95,12 @@ def list_cms() -> Dict[Text, CalculationModule]:
     return cms
 
 
+class UnexistantCalculationModule(Exception):
+    """Exception thrown for a non existant calculation module
+    """
+    pass
+
+
 def cm_by_name(cm_name):
     """Return a single cm by name or raise an Exception if it cannot be
     found."""
@@ -102,7 +108,7 @@ def cm_by_name(cm_name):
     try:
         calculation_module = cms[cm_name]
     except KeyError:
-        raise Exception("Cannot find calculation module {}".format(cm_name))
+        raise UnexistantCalculationModule("Cannot find calculation module {}".format(cm_name))
     return calculation_module
 
 
