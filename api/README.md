@@ -51,26 +51,39 @@ under the url URL.
 
 You can then call the script with:
 
-```
+```sh
 python wms_test/acceptance_test.py --url URL
 ```
 
 You can also test for a specific wms version with
 
-```
+```sh
 python wms_test/acceptance_test.py --url URL --version 1.3.0
 ```
 
-# integration test
+# Integration test
+
+## Run
 
 By default, running test.py will only select test that are not marked with
 a label. You can select a testsuite by label by adding the label of that test suite
 after the test.py script.
 
-Currently, we only have an integration testsuite, that can be run with.
+We have a small integration testsuite, that can be run with.
 
 
-```python
+```sh
 docker-compose up --build
-docker-compose exec api ./test.py integration
+docker-compose exec -T api ./test.py integration
 ```
+
+The integration test will only be updated when the docker image for the api is rebuilt.
+You can rebuild the image and run the integration test using the following commands after the stack is up:
+
+```sh
+docker-compose up --build -d api
+docker-compose exec -T api ./test.py integration
+```
+
+## Add an integration test
+Integration test can be added by making a subclass of the class BaseIntegrationTest in app/common/test.py you can use self.api_url as the base url for the api.
