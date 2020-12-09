@@ -138,12 +138,6 @@ DEFAULT_API_URL = "http://127.0.0.1:7000"
 @labeledTest("integration")
 class BaseIntegrationTest(unittest.TestCase):
     def setUp(self, *args, **kwargs):
-        try:
-            self.url = os.environ.get("API_URL", DEFAULT_API_URL)
-        except KeyError:
-            logging.fatal(
-                "Cannot find the API_URL environment variable"
-                "this is needed to run the integration tests"
-            )
+        self.url = os.environ.get("API_URL", DEFAULT_API_URL)
+        self.api_url = self.url + '/api'
         self.session = requests.Session()
-        super().__init__(*args, **kwargs)
