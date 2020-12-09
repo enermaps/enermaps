@@ -89,7 +89,6 @@ def list_cms() -> Dict[Text, CalculationModule]:
         return {}
     cms = {}
     for node in nodes.values():
-        print(node)
         for entry in node:
             cm = from_registration_string(entry)
             cms[cm.name] = cm

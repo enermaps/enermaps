@@ -202,12 +202,17 @@ class WMSGetFeatureInfoTest(BaseApiTest):
         self.assertEqual(len(json_response["features"]), 1)
 
 
-WMS_VERSION = "1.1.1"
+WMS_VERSION = "1.3.0"
 
 
 class TestWMSLibCompliance(BaseIntegrationTest):
-    @unittest.skip("Currently not compatible")
+    def setUp(self, *args, **kwargs):
+        """
+        """
+        super().setUp(*args, **kwargs)
+        self.wms_url = self.api_url + "/wms"
+
     def test_wms_content(self):
         """Verify that the content of the wms can be listed"""
-        wms = WebMapService(self.url, version=WMS_VERSION)
+        wms = WebMapService(self.wms_url, version=WMS_VERSION)
         self.assertNotEqual(len(wms.contents), 0)
