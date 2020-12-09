@@ -33,7 +33,10 @@
     tasks = tasks;
   }
 
-  $ : isDisabled = !$activeOverlayLayersStore.length || !activeSelectionLayerStore;
+  $ : {
+    let isEnabled = $activeOverlayLayersStore.length && $activeSelectionLayerStore !== undefined;
+    isDisabled = !isEnabled
+  }
 </script>
 <style>
 .tasks {
