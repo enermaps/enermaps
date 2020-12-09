@@ -33,7 +33,10 @@ class CMList(Resource):
 @api.route("/<string:cm_name>/task")
 class TaskCreator(Resource):
     def post(self, cm_name):
-        cm = CM.cm_by_name(cm_name)
+        try:
+            cm = CM.cm_by_name(cm_name)
+        except CM.UnexistantCalculationModule as err:
+            abort(404, description=err.msg)
         create_task_parameters = request.get_json()
         selection = create_task_parameters.get("selection", {})
         layers = create_task_parameters.get("layers", [])
