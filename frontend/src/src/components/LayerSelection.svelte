@@ -117,7 +117,7 @@
 </style>
 <div id="map_selection" on:click|stopPropagation="">
   {#if !isLayerListReady}
-  Loading
+  Loading layers
   {:else}
   <h3>Selection</h3>
   {#each selectionLayers as selectionLayer}
