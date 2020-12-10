@@ -1,7 +1,7 @@
 <script src="../settings.js">
   import {onMount} from 'svelte';
   import {deleteTaskResult, getTaskResult} from '../client.js';
-  import Chart from './Chart.svelte';
+  //import Chart from './Chart.svelte';
 
   let data = [];
   let labels = [];
@@ -80,7 +80,6 @@
     <dt>TASK</dt>
     <dd>{task.id}</dd>
 
-    <Chart {data} {labels}/>
   {/if}
 </dl>
 <button on:click|once={cancel} disabled={!isTaskPending}>Cancel task</button>
