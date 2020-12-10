@@ -5,7 +5,13 @@
   import queryString from 'query-string';
   import {getGeofiles, WMS_URL} from '../client.js';
   import {activeOverlayLayersStore, activeSelectionLayerStore} from '../stores.js';
-  export const SELECTIONS_LIST= ['nuts0.zip', 'nuts1.zip', 'nuts2.zip', 'nuts3.zip', 'lau.zip'];
+  export const SELECTIONS_LIST= [
+    'nuts0.zip',
+    'nuts1.zip',
+    'nuts2.zip',
+    'nuts3.zip',
+    'lau.zip',
+  ];
   export const SELECTIONS = new Set(SELECTIONS_LIST);
   let selectionLayers = [];
   // export let activeSelectionLayer = ;
@@ -53,10 +59,10 @@
         overlayLayers.push(leafletLayer);
       }
     }
-    function compareSelectionLayer(a, b) {
-      const a_name = a.name;
-      const b_name = b.name;
-      return SELECTIONS_LIST.indexOf(a_name) > SELECTIONS_LIST.indexOf(b_name);
+    function compareSelectionLayer(layer0, layer1) {
+      const layer0Name = layer0.name;
+      const layer1Name = layer1.name;
+      return SELECTIONS_LIST.indexOf(layer0Name) > SELECTIONS_LIST.indexOf(layer1Name);
     }
     selectionLayers.sort(compareSelectionLayer);
     const drawingLayer = getDrawingLayer();
@@ -92,8 +98,6 @@
       }
       $activeOverlayLayersStore = activeOverlayLayers;
     }
-    // trigger the modification of the overlay layers to the
-    // parent component
   }
   function getDrawingLayer() {
     return new L.DrawingLayer();
