@@ -1,49 +1,48 @@
 <script>
-    import { onMount } from 'svelte';
-
+    import {afterUpdate} from 'svelte';
     export let data;
-    export let labels;
-    let chart_element;
+    //export let labels;
+    export let task;
+    let chart_id;
     let chart;
-
+  $: {
+    chart_id = "chart_" + task.id;
+  }
   async function createChart() {
-      const myChart = new Chart(chart_element, {
-          type: 'bar',
-          data: {
-              labels,
-              datasets: [{
-                  label: '# of Votes',
-                  data,
-                  backgroundColor: [
-                      'rgba(255, 99, 132, 0.2)',
-                      'rgba(54, 162, 235, 0.2)',
-                      'rgba(255, 206, 86, 0.2)',
-                      'rgba(75, 192, 192, 0.2)',
-                      'rgba(153, 102, 255, 0.2)'
-                  ],
-                  borderColor: [
-                      'rgba(255, 99, 132, 1)',
-                      'rgba(54, 162, 235, 1)',
-                      'rgba(255, 206, 86, 1)',
-                      'rgba(75, 192, 192, 1)',
-                      'rgba(153, 102, 255, 1)'
-                  ],
-                  borderWidth: 1
-              }]
-          },
-          options: {
-              scales: {
-                  yAxes: [{
-                      ticks: {
-                          beginAtZero: true
-                      }
-                  }]
-              }
-          }
-      });
-      chart = myChart;
+      const ctx = document.getElementById(chart_id).getContext('2d');
+      var scatterChart = new Chart(ctx, {
+            type: 'scatter',
+            data: {
+                datasets: [{
+                    label: 'Scatter Dataset',
+                    data: [{
+                        x: -10,
+                        y: 0
+                    }, {
+                        x: 0,
+                        y: 10
+                    }, {
+                        x: 10,
+                        y: 5
+                    }]
+                }]
+            },
+            options: {
+                scales: {
+                    xAxes: [{
+                        type: 'linear',
+                        position: 'bottom'
+                    }]
+                }
+            }
+        });
+      return scatterChart;
     }
-    onMount(createChart);
+    afterUpdate(() => {
+      if (!chart) {
+        chart = createChart();
+      }
+    });
 </script>
 
-<canvas bind:this={chart_element}></canvas>
+<canvas id="{chart_id}"></canvas>
