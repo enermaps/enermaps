@@ -22,7 +22,3 @@ body {
 <Map/>
 <CMList/>
 </div>
-
-<div class="div">
-    <Chart/>
-</div>
