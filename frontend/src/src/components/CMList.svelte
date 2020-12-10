@@ -16,11 +16,9 @@ import { isCMPaneActiveStore } from '../stores.js';
   border-style: groove;
 }
 </style>
-<div id="calculation_modules">
-  {#if $isCMPaneActiveStore}
+<div id="calculation_modules" hidden={!$isCMPaneActiveStore}>
   <h2>Call a calculation module</h2>
   {#each cms as cm}
     <CM bind:cm/>
   {/each}
-  {/if}
 </div>
