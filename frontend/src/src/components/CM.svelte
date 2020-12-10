@@ -1,5 +1,5 @@
 <script>
-  import {afterUpdate} from 'svelte';
+  import {onMount} from 'svelte';
   import {postCMTask} from '../client.js';
   import CMTask from './CMTask.svelte';
   import {activeOverlayLayersStore, activeSelectionLayerStore} from '../stores.js';
@@ -9,17 +9,8 @@
   export let cm;
   let isDisabled = true;
   let tasks = [];
+  let form_element;
   let form = undefined;
-
-  afterUpdate(async () =>{
-    // was the form already rendered ?
-    if (!!form) {
-      return;
-    }
-    const container = document.getElementById('form' + cm.name);
-    form = BrutusinForms.create(cm.schema);
-    form.render(container);
-  });
 
   async function callCM() {
     const newTaskParams = {};
@@ -33,6 +24,11 @@
     tasks = tasks;
   }
 
+  onMount(() => {
+    form = BrutusinForms.create(cm.schema);
+    form.render(form_element);
+  });
+
   $ : {
     let isEnabled = $activeOverlayLayersStore.length && $activeSelectionLayerStore !== undefined;
     isDisabled = !isEnabled
@@ -44,8 +40,7 @@
 }
 </style>
 <div>
-  <form id="form{cm.name}">
-  </form>
+  <form bind:this={form_element} />
   <button type=submit on:click={() => callCM(cm)} disabled={isDisabled}>{cm.pretty_name}</button>
   <div class="tasks">
   {#each tasks as task}
