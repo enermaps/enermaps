@@ -1,19 +1,13 @@
 <script>
-    import {afterUpdate} from 'svelte';
+    import { onMount } from 'svelte';
 
     export let data;
     export let labels;
-    export let task;
-    let chart_id;
+    let chart_element;
     let chart;
 
-  $: {
-    chart_id = "chart_" + task.id;
-  }
-
   async function createChart() {
-      const ctx = document.getElementById(chart_id).getContext('2d');
-      const myChart = new Chart(ctx, {
+      const myChart = new Chart(chart_element, {
           type: 'bar',
           data: {
               labels,
@@ -47,13 +41,9 @@
               }
           }
       });
-      return myChart;
+      chart = myChart;
     }
-    afterUpdate(() => {
-      if (!chart) {
-        chart = createChart();
-      }
-    });
+    onMount(createChart);
 </script>
 
-<canvas id="{chart_id}"></canvas>
+<canvas bind:this={chart_element}></canvas>

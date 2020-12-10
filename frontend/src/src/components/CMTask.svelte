@@ -75,7 +75,7 @@
 
     <dt>TASK</dt>
     <dd>{task.id}</dd>
-    <Chart data={plot_data} {labels} task={task}/>
+    <Chart data={plot_data} {labels} />
   {/if}
 </dl>
 <button on:click|once={cancel} disabled={!isTaskPending}>Cancel task</button>
