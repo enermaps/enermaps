@@ -67,10 +67,11 @@
     setSelectionFromGetParameter();
     isLayerListReady = true;
   });
+  function setGetParameterFromSelection() {
+    logging.log($activeOverlayLayersStore.map(layer => layer.name));
+    logging.log($activeSelectionLayerStore.name);
+  }
   function setSelectionFromGetParameter() {
-    if (!!!window) {
-      return;
-    }
     const parsed = queryString.parse(window.location.search);
     if ('selectionLayer' in parsed) {
       let activeSelectionLayer = undefined;
@@ -114,7 +115,7 @@
         margin: 0px;
 }
 </style>
-<div id="map_selection">
+<div id="map_selection" on:click|stopPropagation="">
   {#if !isLayerListReady}
   Loading
   {:else}
