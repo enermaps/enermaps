@@ -54,11 +54,11 @@
       }
     }
     function compareSelectionLayer(a, b) {
-      const a_name = a.name
-      const b_name = b.name
+      const a_name = a.name;
+      const b_name = b.name;
       return SELECTIONS_LIST.indexOf(a_name) > SELECTIONS_LIST.indexOf(b_name);
     }
-    selectionLayers.sort(compareSelectionLayer)
+    selectionLayers.sort(compareSelectionLayer);
     const drawingLayer = getDrawingLayer();
     drawingLayer.name = 'selection';
     selectionLayers.push(drawingLayer);
@@ -67,10 +67,6 @@
     setSelectionFromGetParameter();
     isLayerListReady = true;
   });
-  function setGetParameterFromSelection() {
-    logging.log($activeOverlayLayersStore.map(layer => layer.name));
-    logging.log($activeSelectionLayerStore.name);
-  }
   function setSelectionFromGetParameter() {
     const parsed = queryString.parse(window.location.search);
     if ('selectionLayer' in parsed) {

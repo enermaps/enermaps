@@ -30,8 +30,8 @@
   });
 
   $ : {
-    let isEnabled = $activeOverlayLayersStore.length && $activeSelectionLayerStore !== undefined;
-    isDisabled = !isEnabled
+    const isEnabled = $activeOverlayLayersStore.length && $activeSelectionLayerStore !== undefined;
+    isDisabled = !isEnabled;
   }
 </script>
 <style>
