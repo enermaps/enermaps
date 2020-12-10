@@ -6,9 +6,11 @@ import logging
 import os
 import shutil
 import tempfile
+import time
 import unittest
 
 import requests
+import urllib3
 
 from app import create_app
 from app.common import filepath
@@ -137,7 +139,27 @@ DEFAULT_API_URL = "http://127.0.0.1:7000"
 
 @labeledTest("integration")
 class BaseIntegrationTest(unittest.TestCase):
+    def waitForReachability(self, max_retry=10, wait_time=3):
+        """Wait for the api to be reachable by poking its healthz endpoint"""
+        retry = 0
+        logging.info("Waiting for the api to be reachable")
+        while retry <= max_retry:
+            try:
+                resp = self.session.get(self.url + "/healthz")
+            except (
+                urllib3.exceptions.MaxRetryError,
+                requests.exceptions.ConnectionError,
+            ):
+                logging.info(".")
+            else:
+                if resp.ok:
+                    return
+            retry += 1
+            time.sleep(wait_time)
+
     def setUp(self, *args, **kwargs):
         self.url = os.environ.get("API_URL", DEFAULT_API_URL)
         self.api_url = self.url + "/api"
         self.session = requests.Session()
+        super().__init__(*args, **kwargs)
+        self.waitForReachability()
