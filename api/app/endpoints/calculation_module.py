@@ -5,7 +5,7 @@ with a selection.
 """
 import os
 
-from flask import request
+from flask import abort, request
 from flask_restx import Namespace, Resource
 
 from app.models import calculation_module as CM
@@ -33,11 +33,14 @@ class CMList(Resource):
 @api.route("/<string:cm_name>/task")
 class TaskCreator(Resource):
     def post(self, cm_name):
-        cm = CM.cm_by_name(cm_name)
+        try:
+            cm = CM.cm_by_name(cm_name)
+        except CM.UnexistantCalculationModule as err:
+            abort(404, description=str(err))
         create_task_parameters = request.get_json()
-        selection = create_task_parameters["selection"]
-        layers = create_task_parameters["layers"]
-        parameters = create_task_parameters["parameters"]
+        selection = create_task_parameters.get("selection", {})
+        layers = create_task_parameters.get("layers", [])
+        parameters = create_task_parameters.get("parameters", {})
         task = cm.call(selection, layers, parameters)
         return {"task_id": task.id}
 

@@ -89,22 +89,42 @@ def list_cms() -> Dict[Text, CalculationModule]:
         return {}
     cms = {}
     for node in nodes.values():
-        print(node)
         for entry in node:
-            cm = from_registration_string(entry)
+            try:
+                cm = from_registration_string(entry)
+            except InvalidRegistrationString as e:
+                # invalid cm was encountered, skip it
+                logging.error(e)
+                continue
             cms[cm.name] = cm
     return cms
 
 
+class UnexistantCalculationModule(Exception):
+    """Exception thrown for a non existant calculation module"""
+
+    pass
+
+
 def cm_by_name(cm_name):
-    """Return a single cm by name or raise an Exception if it cannot be
+    """Return a single cm by name.
+
+    Raise an UnexistantCalculationModuleException if it cannot be found.
     found."""
     cms = list_cms()
     try:
         calculation_module = cms[cm_name]
     except KeyError:
-        raise Exception("Cannot find calculation module {}".format(cm_name))
+        raise UnexistantCalculationModule(
+            "Cannot find calculation module {}".format(cm_name)
+        )
     return calculation_module
+
+
+class InvalidRegistrationString(Exception):
+    """Exception raised by from_registration_string upon encountering an invalid registration string"""
+
+    pass
 
 
 def from_registration_string(registration_string):
@@ -117,8 +137,8 @@ def from_registration_string(registration_string):
     """
     registration_string_match = INFO_STRING.match(registration_string)
     if not registration_string_match:
-        raise Exception(
-            "invalid parameters used for creating a CM:" + registration_string
+        raise InvalidRegistrationString(
+            "Invalid parameters used for creating a CM:" + registration_string
         )
 
     cm_id = registration_string_match.group("cm_id")
@@ -126,8 +146,8 @@ def from_registration_string(registration_string):
     try:
         cm_info = json.loads(raw_cm_info)
     except json.JSONDecodeError:
-        raise Exception(
-            "invalid task_info property when creating a CM:"
+        raise InvalidRegistrationString(
+            "Invalid task_info property when creating a CM:"
             + raw_cm_info
             + " for cm "
             + cm_id
