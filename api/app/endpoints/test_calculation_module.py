@@ -65,4 +65,4 @@ class FakeOuputTest(BaseIntegrationTest):
     def testCalculationModuleBrokenParameter(self):
         """Test for the a non existant calculation module"""
         resp = requests.post(self.cm_url + "/" + "nonexistantcm" + "/task")
-        self.assertEqual(resp.status_code, 405)
+        self.assertEqual(resp.status_code, 404)
