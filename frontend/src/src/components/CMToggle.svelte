@@ -28,6 +28,6 @@ function toggleCM() {
 }
 </style>
 <div id="cm_toggle_container">
-<a id="cm_toggle" title="Display CM" on:click={toggleCM}>
+<a id="cm_toggle" title="Display CM" on:click|stopPropagation={toggleCM}>
 </a>
 </div>
