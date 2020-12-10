@@ -18,7 +18,7 @@ import { isCMPaneActiveStore } from '../stores.js';
 </style>
 <div id="calculation_modules">
   {#if $isCMPaneActiveStore}
-  Call a calculation module
+  <h2>Call a calculation module</h2>
   {#each cms as cm}
     <CM bind:cm/>
   {/each}
