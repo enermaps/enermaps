@@ -11,6 +11,7 @@ from flask_restx import Api
 from werkzeug.datastructures import FileStorage
 
 from app.endpoints import calculation_module, geofile, wms
+from app.healthz import healthz
 from app.models.geofile import create, list_layers
 from app.redirect import redirect_to_api
 
@@ -91,6 +92,7 @@ def create_app(environment="production", testing=False):
     api.add_namespace(calculation_module.api)
     app.register_blueprint(api_bp)
     app.register_blueprint(redirect_to_api)
+    app.register_blueprint(healthz)
     with app.app_context():
         if not app.testing:
             init_datasets()
