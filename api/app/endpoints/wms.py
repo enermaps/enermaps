@@ -235,6 +235,7 @@ class WMS(Resource):
 
         polygon_symbolizer = mapnik.PolygonSymbolizer()
         polygon_symbolizer.fill = mapnik.Color("black")
+        polygon_symbolizer.fill_opacity = 0
         r.symbols.append(polygon_symbolizer)
 
         line_symbolizer = mapnik.LineSymbolizer()
