@@ -1,33 +1,20 @@
 <script>
     import { onMount } from 'svelte';
-    import Chart from 'chartjs';
+    import Chart from 'chart.js';
     export let data;
-    export let labels;
-    let chartElement;
+    let canvas;
     let chart;
 
     async function createChart() {
-      let ctx = chartElement.getContext('2d')
-      let myChart = new Chart(ctx, {
-          type: 'scatter',
-          data: {
-              datasets: [{
-              label: 'Raster statistic',
-              data: data}]
-          },
-          options: {
-              scales: {
-                  xAxes: [{
-                  type: 'category',
-                  labels: labels
-                  }]
-              }
-          }
+      const ctx = canvas.getContext("2d");
+      chart = new Chart(canvas, {
+        type: 'line',
+        data: data,
       });
-      chart = myChart;
       console.log(chart, data, labels);
     }
     onMount(createChart);
 </script>
-
-<canvas bind:this={chartElement}></canvas>
+<div class="graph-container">
+<canvas bind:this={canvas}/>
+</div>
