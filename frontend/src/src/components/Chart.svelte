@@ -10,7 +10,7 @@
             type: 'scatter',
             data: {
                 datasets: [{
-                label: 'Scatter Dataset',
+                label: 'Raster statistic',
                 data: data}]
             },
             options: {

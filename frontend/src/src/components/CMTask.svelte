@@ -7,6 +7,7 @@
   export let task;
   export let cm;
   let chartid;
+  let data_graph;
   let scatterData;
   let taskResult = {status: 'PENDING'};
   const updateTime = 500;
@@ -38,12 +39,37 @@
     }
     return result;
   }
+function sortData(input){
+
+    var data_sort = [];
+    var switch_array = {};
+    var output_array = {};
+
+    data_sort = Object.values(input[0]).sort((a, b) => a - b)
+
+    for(var i = 0; i < data_sort.length; i++)
+    {
+        switch_array[ Object.values(input[0])[i] ] = Object.keys(input[0])[i] ;
+    }
+    for(var i = 0; i < data_sort.length; i++)
+    {
+        output_array[ switch_array[ data_sort[i] ] ] = data_sort[i] ;
+    }
+    if(output_array["count"]){
+      delete output_array["count"];
+    }
+    return {"keys" : Object.keys(output_array), "values" :  Object.values(output_array) } ;
+
+}
   $: {
     console.log(cm);
     console.log(task);
     if (!isTaskPending){
-      labels = Object.keys(JSON.parse(JSON.stringify(taskResult.result))[0]);
-      plot_data = Object.values(JSON.parse(JSON.stringify(taskResult.result))[0]);
+      //labels = Object.keys(JSON.parse(JSON.stringify(taskResult.result))[0]);
+      data_graph = sortData(JSON.parse(JSON.stringify(taskResult.result)));
+      labels = data_graph.keys;
+      plot_data = data_graph.values;
+      //plot_data = Object.values(JSON.parse(JSON.stringify(taskResult.result))[0]);
       chartid = chartidFrom(task);
       scatterData = plotDataForScatter(plot_data);
     }
@@ -76,7 +102,9 @@
 
     <dt>TASK</dt>
     <dd>{task.id}</dd>
-    <Chart data={scatterData} labels={labels} />
+
+    <Chart data={plot_data} labels={labels} />
+
   {/if}
 </dl>
 <button on:click|once={cancel} disabled={!isTaskPending}>Cancel task</button>
