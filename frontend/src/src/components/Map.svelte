@@ -20,7 +20,7 @@ import LayerSelection from './LayerSelection.svelte';
 import CMToggle from './CMToggle.svelte';
 import {activeOverlayLayersStore, activeSelectionLayerStore} from '../stores.js';
 
-import {INITIAL_MAP_CENTER, INITIAL_ZOOM} from '../settings.js';
+import {INITIAL_MAP_CENTER, INITIAL_ZOOM, BASE_LAYER_URL, BASE_LAYER_PARAMS} from '../settings.js';
 
 let map;
 $: activeSelectionLayer = $activeSelectionLayerStore;
