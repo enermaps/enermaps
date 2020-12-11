@@ -2,7 +2,7 @@ import json
 import os
 import unittest
 
-from multiply_raster import rasterstats
+from multiply_raster import get_graph_dataset, rasterstats
 
 CURRENT_FILE_DIR = os.path.dirname(os.path.abspath(__file__))
 
@@ -67,6 +67,13 @@ class TestCM(unittest.TestCase):
         stats = rasterstats(selection, raster, 1)
         for key, value in stats[0].items():
             self.assertIsNotNone(value)
+
+    def test_graph_dataset(self):
+        sel = load_geojson("selection_GeoTIFF.geojson")
+        raster = get_testdata_path("GeoTIFF_test.tif")
+        val_multiply = rasterstats(sel, raster, 2)
+        dataset = get_graph_dataset(val_multiply)
+        self.assertGreater(len(dataset), 0, "Dataset is empty.")
 
 
 if __name__ == "__main__":

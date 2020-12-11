@@ -1,20 +1,19 @@
-<script>
+<script src="../settings.js">
   import {onMount} from 'svelte';
   import {deleteTaskResult, getTaskResult} from '../client.js';
-
+  import Chart from './Chart.svelte';
   export let task;
   export let cm;
-
+  export let plot_data = {};
   let taskResult = {status: 'PENDING'};
+
   const updateTime = 500;
   const PENDING_STATUS = 'PENDING';
-  $: isTaskPending = (taskResult.status === PENDING_STATUS);
 
+  $: isTaskPending = (taskResult.status === PENDING_STATUS);
   onMount(async () => {
     updateTaskResult();
   });
-
-
   async function updateTaskResult() {
     const taskResponse = await getTaskResult(cm, task);
     taskResult = taskResponse;
@@ -31,6 +30,9 @@
   $: {
     console.log(cm);
     console.log(task);
+    if (!isTaskPending){
+      plot_data = {"first_plot": [1,2,3,4,5,6,7,3,4]};
+    }
   }
 </script>
 <style>
@@ -43,7 +45,17 @@
   <dt>task_id</dt><dd>{formatTaskID(task)}</dd>
   <dt>status</dt><dd>{taskResult.status}</dd>
   {#if !isTaskPending}
-  results: {JSON.stringify(taskResult.result)}
+    <dt>data : </dt>
+    <dd>{Object.keys(JSON.parse(JSON.stringify(taskResult.result))[0])}</dd>
+
+    <dt>results : </dt>
+    <dd>{JSON.stringify(taskResult.result)}</dd>
+
+    <dt>TASK</dt>
+    <dd>{task.id}</dd>
+
+    <Chart datasets={plot_data}/>
+
   {/if}
 </dl>
 <button on:click|once={cancel} disabled={!isTaskPending}>Cancel task</button>

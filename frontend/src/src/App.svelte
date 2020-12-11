@@ -1,7 +1,6 @@
 <script>
-import CMList from './components/CMList.svelte';
-import Map from './components/Map.svelte';
-
+    import CMList from './components/CMList.svelte';
+    import Map from './components/Map.svelte';
 </script>
 
 <style>
