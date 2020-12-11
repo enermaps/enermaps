@@ -2,7 +2,9 @@ import logging
 from time import time
 from typing import List, Optional, Text
 
+import json
 import pyproj
+import os
 import rasterio
 from rasterstats import zonal_stats
 from shapely.geometry import shape
@@ -75,9 +77,6 @@ def rasterstats(geojson, raster_path, factor, stat_types: Optional[List[Text]] =
 
 
 if __name__ == "__main__":
-    import json
-    import os
-
     CURRENT_FILE_DIR = os.path.dirname(os.path.abspath(__file__))
 
     def get_testdata_path(filename):
