@@ -31,7 +31,7 @@
     console.log(cm);
     console.log(task);
     if (!isTaskPending){
-      plot_data = {"first_plot": Array(200).fill(1).map((x, y) => x + y)};
+      plot_data = {"first_plot": [1,2,3,4,5,6,7,3,4]};
     }
   }
 </script>

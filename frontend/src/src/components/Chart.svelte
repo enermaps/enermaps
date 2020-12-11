@@ -8,17 +8,26 @@
 
   function getPlotDataset() {
     plot_datasets = []
-    console.log(datasets);
     for (const key in datasets) {
-      plot_datasets.push({label: key, data: datasets[key]});
+      const points = datasets[key];
+      let plot_points = []
+      let index = 0;
+      for (const point of points) {
+        console.log(point);
+        plot_points.push({x: index, y: point})
+        index += 1;
+        console.log(plot_points);
+      }
+      plot_datasets.push({label: key, data: plot_points});
     }
+    console.log(datasets);
     return plot_datasets;
   }
   async function createChart() {
     const plot_datasets = getPlotDataset()
     console.log(plot_datasets);
     chart = new Chart(canvas, {
-      type: 'line',
+      type: 'scatter',
       data: {
         datasets: plot_datasets,
       }
