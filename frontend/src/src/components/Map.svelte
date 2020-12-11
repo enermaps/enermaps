@@ -20,7 +20,7 @@ import LayerSelection from './LayerSelection.svelte';
 import CMToggle from './CMToggle.svelte';
 import {activeOverlayLayersStore, activeSelectionLayerStore} from '../stores.js';
 
-import {INITIAL_MAP_CENTER, INITIAL_ZOOM} from '../settings.js';
+import {INITIAL_MAP_CENTER, INITIAL_ZOOM, BASE_LAYER_URL, BASE_LAYER_PARAMS} from '../settings.js';
 
 let map;
 $: activeSelectionLayer = $activeSelectionLayerStore;
@@ -40,9 +40,7 @@ onMount(async () => {
   map.addLayer(selectionsGroup);
   map.addLayer(overlaysGroup);
 
-  const baseLayer = L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png', {
-    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy;' +
-' <a href="https://cartodb.com/attributions">CartoDB</a>'});
+  const baseLayer = L.tileLayer(BASE_LAYER_URL, BASE_LAYER_PARAMS);
   baseLayersGroup.addLayer(baseLayer);
 
   map.addControl(makeSearchControl());

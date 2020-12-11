@@ -39,3 +39,12 @@ npm run build
 ```
 
 You can run the newly built app with `npm run start`. This uses [sirv](https://github.com/lukeed/sirv), which is included in your package.json's `dependencies` so that the app will work when you deploy to platforms like [Heroku](https://heroku.com).
+
+## Linter
+
+A eslintrc is given, you will need to first install it before running it. Alternatively, a docker based solution for runnning the linter is:
+
+
+```
+docker run -it --rm -v $(pwd):/data cytopia/eslint --fix .
+```

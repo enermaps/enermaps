@@ -1,7 +1,7 @@
 <script>
-import { isCMPaneActiveStore } from '../stores.js';
+import {isCMPaneActiveStore} from '../stores.js';
 function toggleCM() {
-  isCMPaneActiveStore.update(n => !n);
+  isCMPaneActiveStore.update((n) => !n);
 }
 </script>
 <style>

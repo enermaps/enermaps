@@ -6,7 +6,7 @@
 </script>
 
 <style>
-body {
+:global(body) {
 	margin-bottom: 20px;
 	width: 100%;
 	height: 100%;

@@ -9,7 +9,7 @@
   export let cm;
   let isDisabled = true;
   let tasks = [];
-  let form_element;
+  let formElement;
   let form = undefined;
 
   async function callCM() {
@@ -26,12 +26,13 @@
 
   onMount(() => {
     form = BrutusinForms.create(cm.schema);
-    form.render(form_element);
+    form.render(formElement);
   });
 
   $ : {
-    let isEnabled = $activeOverlayLayersStore.length && $activeSelectionLayerStore !== undefined;
-    isDisabled = !isEnabled
+    const isEnabled = $activeOverlayLayersStore.length &&
+                      $activeSelectionLayerStore !== undefined;
+    isDisabled = !isEnabled;
   }
 </script>
 <style>
@@ -40,7 +41,7 @@
 }
 </style>
 <div>
-  <form bind:this={form_element} />
+  <form bind:this={formElement} />
   <button type=submit on:click={() => callCM(cm)} disabled={isDisabled}>{cm.pretty_name}</button>
   <div class="tasks">
   {#each tasks as task}
