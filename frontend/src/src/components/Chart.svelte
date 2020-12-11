@@ -1,5 +1,6 @@
 <script>
     import { onMount } from 'svelte';
+    import Chart from 'chart.js';
     export let data;
     export let labels;
     let chart_element;
