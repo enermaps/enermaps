@@ -1,48 +1,30 @@
 <script>
-    import {afterUpdate} from 'svelte';
+    import { onMount } from 'svelte';
     export let data;
-    //export let labels;
-    export let task;
-    let chart_id;
+    export let labels;
+    let chart_element;
     let chart;
-  $: {
-    chart_id = "chart_" + task.id;
-  }
-  async function createChart() {
-      const ctx = document.getElementById(chart_id).getContext('2d');
-      var scatterChart = new Chart(ctx, {
+
+    async function createChart() {
+        const myChart = new Chart(chart_element, {
             type: 'scatter',
             data: {
                 datasets: [{
-                    label: 'Scatter Dataset',
-                    data: [{
-                        x: -10,
-                        y: 0
-                    }, {
-                        x: 0,
-                        y: 10
-                    }, {
-                        x: 10,
-                        y: 5
-                    }]
-                }]
+                label: 'Scatter Dataset',
+                data: data}]
             },
             options: {
                 scales: {
                     xAxes: [{
-                        type: 'linear',
-                        position: 'bottom'
+                    type: 'category',
+                    labels: labels
                     }]
                 }
             }
         });
-      return scatterChart;
+        chart = myChart;
     }
-    afterUpdate(() => {
-      if (!chart) {
-        chart = createChart();
-      }
-    });
+    onMount(createChart);
 </script>
 
-<canvas id="{chart_id}"></canvas>
+<canvas bind:this={chart_element}></canvas>

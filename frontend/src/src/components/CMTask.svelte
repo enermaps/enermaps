@@ -4,10 +4,10 @@
   import Chart from './Chart.svelte';
   export let plot_data = [];
   export let labels = [];
-  export let scatterGraphData = [];
   export let task;
   export let cm;
   let chartid;
+  let scatterData;
   let taskResult = {status: 'PENDING'};
   const updateTime = 500;
   const PENDING_STATUS = 'PENDING';
@@ -31,13 +31,12 @@
   function chartidFrom(task){
     return task.id.replaceAll("-","");
   }
-  function scatterGraphDataFrom(labels_barGraph, data_barGraph){
-    var scatterData = [];
-    for (var i = 0; i < labels_barGraph.length; i++) {
-      scatterData.push({"x" : labels_barGraph[i],
-                        "y" : data_barGraph[i]});
+  function plotDataForScatter(data){
+    var result = [];
+    for (var i = 0; i < data.length; i++) {
+      result.push({ "y" : data[i] });
     }
-    return scatterData;
+    return result;
   }
   $: {
     console.log(cm);
@@ -46,7 +45,7 @@
       labels = Object.keys(JSON.parse(JSON.stringify(taskResult.result))[0]);
       plot_data = Object.values(JSON.parse(JSON.stringify(taskResult.result))[0]);
       chartid = chartidFrom(task);
-      scatterGraphData = scatterGraphDataFrom(labels, plot_data);
+      scatterData = plotDataForScatter(plot_data);
     }
   }
 </script>
@@ -77,11 +76,7 @@
 
     <dt>TASK</dt>
     <dd>{task.id}</dd>
-
-    <dt>SCATTER DATA</dt>
-    <dd>{scatterGraphData}</dd>
-
-    <Chart data={scatterGraphData} task={task}/>
+    <Chart data={scatterData} labels={labels} />
   {/if}
 </dl>
 <button on:click|once={cancel} disabled={!isTaskPending}>Cancel task</button>
