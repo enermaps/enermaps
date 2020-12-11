@@ -40,9 +40,7 @@ onMount(async () => {
   map.addLayer(selectionsGroup);
   map.addLayer(overlaysGroup);
 
-  const baseLayer = L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png', {
-    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy;' +
-' <a href="https://cartodb.com/attributions">CartoDB</a>'});
+  const baseLayer = L.tileLayer(BASE_LAYER_URL, BASE_LAYER_PARAMS);
   baseLayersGroup.addLayer(baseLayer);
 
   map.addControl(makeSearchControl());
