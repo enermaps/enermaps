@@ -1,4 +1,3 @@
-import json
 import logging
 import os
 from time import time
@@ -6,10 +5,9 @@ from typing import List, Optional, Text
 
 import pyproj
 import rasterio
+from rasterstats import zonal_stats
 from shapely.geometry import shape
 from shapely.ops import transform
-from rasterstats import zonal_stats
-
 
 GEOJSON_PROJ = "EPSG:4326"
 DEFAULT_STATS = ("min", "max", "mean", "median", "count")
@@ -27,23 +25,27 @@ def scale_stat(stats_list, factor):
             if non_scaled_stats:
                 stats[stat_type] = non_scaled_stats * factor
 
+
 def get_graph_dataset(result_list):
-    labels = [] # name of the bar
-    data  = []
+    labels = []  # name of the bar
+    data = []
     graph_dataset = {}
     dataset_num = 1
     for result in result_list:
         for stat_indicator in result:
             labels.append(stat_indicator)
             data.append(result[stat_indicator])
-        graph_dataset['Dataset ' + str(dataset_num)] = {}
-        graph_dataset['Dataset ' + str(dataset_num)]["title"] = 'Dataset ' + str(dataset_num)
-        graph_dataset['Dataset ' + str(dataset_num)]["labels"] = list(labels)
-        graph_dataset['Dataset ' + str(dataset_num)]["data"] = list(data)
+        graph_dataset["Dataset " + str(dataset_num)] = {}
+        graph_dataset["Dataset " + str(dataset_num)]["title"] = "Dataset " + str(
+            dataset_num
+        )
+        graph_dataset["Dataset " + str(dataset_num)]["labels"] = list(labels)
+        graph_dataset["Dataset " + str(dataset_num)]["data"] = list(data)
         dataset_num += 1
         labels.clear()
         data.clear()
     return graph_dataset
+
 
 def rasterstats(geojson, raster_path, factor, stat_types: Optional[List[Text]] = None):
     """Multiply the rasters values by a factor.
@@ -75,6 +77,3 @@ def rasterstats(geojson, raster_path, factor, stat_types: Optional[List[Text]] =
     logging.info("We took {!s} to calculate stats".format(stat_done - start))
     logging.info(stats)
     return aggregated_stats
-
-
-
