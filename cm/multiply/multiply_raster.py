@@ -1,19 +1,20 @@
+import json
 import logging
+import os
 from time import time
 from typing import List, Optional, Text
 
-import json
 import pyproj
-import os
 import rasterio
-from rasterstats import zonal_stats
 from shapely.geometry import shape
 from shapely.ops import transform
+from rasterstats import zonal_stats
+
 
 GEOJSON_PROJ = "EPSG:4326"
 DEFAULT_STATS = ("min", "max", "mean", "median", "count")
-
 SCALED_STATS = ("min", "max", "mean", "median")
+CURRENT_FILE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 
 def scale_stat(stats_list, factor):
@@ -76,20 +77,4 @@ def rasterstats(geojson, raster_path, factor, stat_types: Optional[List[Text]] =
     return aggregated_stats
 
 
-if __name__ == "__main__":
-    CURRENT_FILE_DIR = os.path.dirname(os.path.abspath(__file__))
 
-    def get_testdata_path(filename):
-        """Return the absolute path of the filename."""
-        return os.path.join(CURRENT_FILE_DIR, "testdata", filename)
-
-    def load_geojson(test_filename):
-        test_geojson = get_testdata_path(test_filename)
-        with open(test_geojson) as fd:
-            return json.load(fd)
-
-    sel = load_geojson("selection_GeoTIFF.geojson")
-    raster =get_testdata_path("GeoTIFF_test.tif")
-    val_multiply = rasterstats(sel, raster, 2)
-    dataset = get_graph_dataset(val_multiply)
-    print(dataset)
