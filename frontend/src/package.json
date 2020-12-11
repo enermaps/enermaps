@@ -20,6 +20,7 @@
   },
   "dependencies": {
     "brutusin-json-forms": "0.0.0",
+    "chartjs": "^0.3.24",
     "eslint-config-google": "^0.14.0",
     "leaflet": "^1.7.1",
     "leaflet-draw": "^1.0.4",
