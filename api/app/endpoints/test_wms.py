@@ -1,7 +1,7 @@
 import io
 import json
-import unittest
 
+import lxml
 from lxml import etree
 from owslib.wms import WebMapService
 from PIL import Image
@@ -25,9 +25,27 @@ class WMSGetCapabilitiesTest(BaseApiTest):
     @classmethod
     def setUpClass(cl):
         schema_path = filepath.get_testdata_path("WMS_MS_Capabilities_1.3.0.xsd")
-        with open(schema_path) as schema_fd:
-            xmlschema = etree.parse(schema_fd)
-            cl.schema = etree.XMLSchema(xmlschema)
+        # load additonal schemas
+        with open(schema_path, "rb") as schema_fd:
+            xmlschema = xml.etree_fromstring(schema_fd.read())
+
+        schema_path = filepath.get_testdata_path("xml.xsd")
+        newimport = lxml.etree.Element(
+            "{http://www.w3.org/2001/XMLSchema}import",
+            namespace="http://www.w3.org/2001/xml.xsd",
+            schemaLocation="file://" + schema_path,
+        )
+        xmlschema.insert(0, newimport)
+
+        schema_path = filepath.get_testdata_path("xlink.xsd")
+        print(schema_path)
+        newimport = lxml.etree.Element(
+            "{http://www.w3.org/2001/XMLSchema}import",
+            namespace="http://www.w3.org/1999/xlink.xsd",
+            schemaLocation="file://" + schema_path,
+        )
+        xmlschema.insert(1, newimport)
+        cl.schema = etree.XMLSchema(xmlschema)
 
     def testSucceedWithUppercaseParameters(self):
         """Test that lowercase parameters produces the same result as uppercase

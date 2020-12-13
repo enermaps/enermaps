@@ -24,7 +24,7 @@ class TestCM(unittest.TestCase):
         base_factor = 1
         multiplicator = 2
         selection = load_geojson("selection_GeoTIFF.geojson")
-        raster = get_testdata_path("GeoTIFF_test.tif")
+        raster = get_testdata_path("small_test.tif")
         stats = rasterstats(selection, raster, base_factor, stat_types=stat_types)
         double_stats = rasterstats(
             selection, raster, base_factor * multiplicator, stat_types=stat_types
@@ -58,19 +58,19 @@ class TestCM(unittest.TestCase):
 
     def test_mutliplefeature(self):
         selection = load_geojson("feature_collection.geojson")
-        raster = get_testdata_path("GeoTIFF_test.tif")
+        raster = get_testdata_path("small_test.tif")
         rasterstats(selection, raster, 1)
 
     def test_zonal_stats_switzerlandbbox(self):
         selection = load_geojson("switzerland_bbox.geojson")
-        raster = get_testdata_path("GeoTIFF_test.tif")
+        raster = get_testdata_path("big_test.tif")
         stats = rasterstats(selection, raster, 1)
         for key, value in stats[0].items():
             self.assertIsNotNone(value)
 
     def test_graph_dataset(self):
         sel = load_geojson("selection_GeoTIFF.geojson")
-        raster = get_testdata_path("GeoTIFF_test.tif")
+        raster = get_testdata_path("big_test.tif")
         val_multiply = rasterstats(sel, raster, 2)
         dataset = get_graph_dataset(val_multiply)
         self.assertGreater(len(dataset), 0, "Dataset is empty.")

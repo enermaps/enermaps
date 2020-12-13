@@ -1,9 +1,11 @@
+name: Integration test after PR reviewed
+
 on:
   pull_request_review:
     types: [submitted]
 
 jobs:
-  build:
+  test:
     if: github.event.review.state == 'approved'
     runs-on: 'ubuntu-18.04'
 
