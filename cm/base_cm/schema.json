@@ -1,0 +1,147 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "definitions": {
+    "XYGraph": {
+      "properties": {
+        "type": {
+          "const": "xy"
+        },
+        "values": {
+          "title": "values",
+          "type": "array",
+          "items": [
+            {
+              "type": "number",
+              "format": "decimal"
+            },
+            {
+              "type": "number",
+              "format": "decimal"
+            }
+          ]
+        },
+        "unit": {
+          "title": "unit",
+          "type": "array",
+	  "items": [
+		  {"type": "string"},
+		  {"type": "string"}
+	  ]
+        }
+      },
+      "type": "object",
+      "additionalProperties": false
+    },
+    "BarGraph": {
+      "properties": {
+        "type": {
+          "const": "bar"
+        },
+        "values": {
+          "title": "values",
+          "type": "array",
+          "items": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "number",
+              "format": "decimal"
+            }
+          ]
+        },
+        "unit": {
+          "title": "unit",
+          "type": "string"
+        }
+      },
+      "type": "object",
+      "additionalProperties": false
+    },
+    "LineGraph": {
+      "properties": {
+        "type": {
+          "const": "line"
+        },
+        "vales": {
+          "title": "values",
+          "type": "array",
+          "items": {
+            "type": "number",
+            "format": "decimal"
+          }
+        },
+        "unit": {
+          "title": "unit",
+          "type": "string"
+        }
+      },
+      "type": "object",
+      "additionalProperties": false
+    },
+    "Value": {
+      "properties": {
+        "unit": {
+          "title": "unit",
+          "type": "string"
+        },
+        "value": {
+          "title": "value",
+          "type": "number",
+          "format": "decimal"
+        }
+      },
+      "required": [
+        "value"
+      ],
+      "type": "object",
+      "additionalProperties": false
+    },
+    "CMOutput": {
+      "properties": {
+        "geofiles": {
+          "title": "geofiles",
+          "type": "object",
+          "additionalProperties": {
+            "title": "geofiles",
+            "type": "string"
+          }
+        },
+        "graphs": {
+          "title": "graphs",
+          "type": "object",
+          "additionalProperties": {
+            "type": "object",
+            "oneOf": [
+              {
+                "$ref": "#/definitions/XYGraph"
+              },
+              {
+                "$ref": "#/definitions/LineGraph"
+              },
+              {
+                "$ref": "#/definitions/BarGraph"
+              }
+            ]
+          }
+        },
+        "values": {
+          "title": "values",
+          "type": "object",
+          "additionalProperties": {
+            "type": "object",
+            "$ref": "#/definitions/Value"
+          }
+        }
+      },
+      "required": [
+        "geofiles",
+        "graphs",
+        "values"
+      ],
+      "type": "object",
+      "additionalProperties": false
+    }
+  },
+  "$ref": "#/definitions/CMOutput"
+}
