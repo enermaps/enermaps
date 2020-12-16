@@ -2,7 +2,7 @@ import json
 import os
 import unittest
 
-from multiply_raster import get_graph_dataset, rasterstats
+from multiply_raster import rasterstats
 
 CURRENT_FILE_DIR = os.path.dirname(os.path.abspath(__file__))
 
@@ -29,32 +29,28 @@ class TestCM(unittest.TestCase):
         double_stats = rasterstats(
             selection, raster, base_factor * multiplicator, stat_types=stat_types
         )
-        self.assertEqual(
-            len(stats),
-            1,
-            "a selection with a single feature "
-            "returned more stats than the number of feature.",
+        self.assertCountEqual(
+            stats["values"],
+            stat_types,
+            "Rasterstat request with two"
+            " statistics returned more than two statistics",
         )
-        self.assertEqual(
-            len(double_stats),
-            1,
-            "a selection with a single feature "
-            "returned more stats than the number of feature.",
+        self.assertCountEqual(
+            double_stats["values"],
+            stat_types,
+            "Rasterstat request with two"
+            " statistics returned more than two statistics",
         )
-        for stat in double_stats + stats:
-            self.assertCountEqual(
-                stat,
-                stat_types,
-                "Rasterstat request with two"
-                " statistics returned more than two statistics",
+        double_values = double_stats["values"]
+        unity_values = stats["values"]
+        for stat_type in unity_values.keys():
+            self.assertIn(stat_type, double_values)
+            self.assertIn(stat_type, unity_values)
+            self.assertAlmostEqual(
+                unity_values[stat_type] * multiplicator,
+                double_values[stat_type],
+                places=4,
             )
-        for stat, double_stat in zip(stats, double_stats):
-            for stat_type in stat.keys():
-                self.assertIn(stat_type, stat)
-                self.assertIn(stat_type, double_stat)
-                self.assertAlmostEqual(
-                    stat[stat_type] * multiplicator, double_stat[stat_type], places=4
-                )
 
     def test_mutliplefeature(self):
         selection = load_geojson("feature_collection.geojson")
@@ -65,15 +61,8 @@ class TestCM(unittest.TestCase):
         selection = load_geojson("switzerland_bbox.geojson")
         raster = get_testdata_path("big_test.tif")
         stats = rasterstats(selection, raster, 1)
-        for key, value in stats[0].items():
+        for key, value in stats.items():
             self.assertIsNotNone(value)
-
-    def test_graph_dataset(self):
-        sel = load_geojson("selection_GeoTIFF.geojson")
-        raster = get_testdata_path("big_test.tif")
-        val_multiply = rasterstats(sel, raster, 2)
-        dataset = get_graph_dataset(val_multiply)
-        self.assertGreater(len(dataset), 0, "Dataset is empty.")
 
 
 if __name__ == "__main__":

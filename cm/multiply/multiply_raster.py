@@ -1,50 +1,58 @@
 import logging
 import os
+from collections import defaultdict
 from time import time
 from typing import List, Optional, Text
 
 import pyproj
 import rasterio
+from BaseCM.output import validate
 from rasterstats import zonal_stats
 from shapely.geometry import shape
-from shapely.ops import transform
+from shapely.ops import cascaded_union, transform
 
 GEOJSON_PROJ = "EPSG:4326"
 DEFAULT_STATS = ("min", "max", "mean", "median", "count")
-SCALED_STATS = ("min", "max", "mean", "median")
+SCALED_STATS_PREFIX = ("min", "max", "mean", "median", "percentile_")
 CURRENT_FILE_DIR = os.path.dirname(os.path.abspath(__file__))
 
+CDF_POINTS = range(0, 101)
 
-def scale_stat(stats_list, factor):
+
+def scale_stat(stats: dict, factor):
     """From a list of stats, take the factor into account and
     modify the stats accordingly.
     """
-    for stats in stats_list:
-        for stat_type in SCALED_STATS:
-            non_scaled_stats = stats.get(stat_type)
-            if non_scaled_stats:
-                stats[stat_type] = non_scaled_stats * factor
+    for stat_name, stat in stats.items():
+        for scaled_stat_prefix in SCALED_STATS_PREFIX:
+            if stat and stat_name.startswith(scaled_stat_prefix):
+                stats[stat_name] = stat * factor
 
 
-def get_graph_dataset(result_list):
-    labels = []  # name of the bar
-    data = []
-    graph_dataset = {}
-    dataset_num = 1
-    for result in result_list:
-        for stat_indicator in result:
-            labels.append(stat_indicator)
-            data.append(result[stat_indicator])
-        graph_dataset["Dataset " + str(dataset_num)] = {}
-        graph_dataset["Dataset " + str(dataset_num)]["title"] = "Dataset " + str(
-            dataset_num
+def extract_graph(stats: dict):
+    graph = []
+    is_graph_invalid = False
+    for cdf_point, percentile in zip(CDF_POINTS, get_cdf_stats()):
+        percentile_step = stats[percentile]
+        if percentile_step is None:
+            is_graph_invalid = True
+        graph.append(
+            (
+                cdf_point,
+                stats[percentile],
+            )
         )
-        graph_dataset["Dataset " + str(dataset_num)]["labels"] = list(labels)
-        graph_dataset["Dataset " + str(dataset_num)]["data"] = list(data)
-        dataset_num += 1
-        labels.clear()
-        data.clear()
-    return graph_dataset
+        del stats[percentile]
+    if is_graph_invalid:
+        return []
+    return graph
+
+
+def get_cdf_stats():
+    def to_percentile(percent):
+        return "percentile_" + str(percent)
+
+    return [to_percentile(percent) for percent in CDF_POINTS]
 
 
 def rasterstats(geojson, raster_path, factor, stat_types: Optional[List[Text]] = None):
@@ -56,24 +64,43 @@ def rasterstats(geojson, raster_path, factor, stat_types: Optional[List[Text]] =
     """
     if not stat_types:
         stat_types = DEFAULT_STATS
+    stat_types = list(stat_types)
+    stat_types += get_cdf_stats()
     start = time()
-    aggregated_stats = []
+    with rasterio.open(raster_path) as src:
+        project = pyproj.Transformer.from_crs(
+            GEOJSON_PROJ, src.crs, always_xy=True
+        ).transform
+    geometries = []
     for feature in geojson["features"]:
         geometry = feature["geometry"]
         geoshape = shape(geometry)
-        with rasterio.open(raster_path) as src:
-            project = pyproj.Transformer.from_crs(
-                GEOJSON_PROJ, src.crs, always_xy=True
-            ).transform
-            projected_shape = transform(project, geoshape)
-        stats = zonal_stats(
-            projected_shape, raster_path, affine=src.transform, stats=stat_types
-        )
-        # we have a single feature, thus we expose a single stat
-        aggregated_stats += stats
-    scale_stat(aggregated_stats, factor)
+        projected_shape = transform(project, geoshape)
+        geometries.append(projected_shape)
+    merged_geometries = cascaded_union(geometries)
+    stats = zonal_stats(
+        merged_geometries, raster_path, affine=src.transform, stats=stat_types
+    )
+    # we have a single feature, thus we expose a single stat
+    if len(stats):
+        stat = stats[0]
+    else:
+        stat = {}
+    scale_stat(stat, factor)
+    graph = extract_graph(stat)
+
     stat_done = time()
+    cm_return = defaultdict(lambda: cm_return)
+    cm_return["graphs"]["cdf"]["values"] = graph
+    cm_return["values"] = stat
+    ret = dict()
+    ret["graphs"] = {}
+    if graph:
+        ret["graphs"]["cdf"] = {}
+        ret["graphs"]["cdf"]["values"] = graph
+    ret["geofiles"] = {}
+    ret["values"] = stat
 
     logging.info("We took {!s} to calculate stats".format(stat_done - start))
-    logging.info(stats)
-    return aggregated_stats
+    validate(ret)
+    return ret
