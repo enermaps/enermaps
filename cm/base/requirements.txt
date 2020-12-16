@@ -1,0 +1,5 @@
+# This requirements file is read by the setup.py,
+# It doesn't support fetching directly from an arbitrary
+# url
+marshmallow==3.9.1
+marshmallow-union==0.1.15.post1

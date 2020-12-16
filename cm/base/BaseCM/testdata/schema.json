@@ -23,10 +23,14 @@
         "unit": {
           "title": "unit",
           "type": "array",
-	  "items": [
-		  {"type": "string"},
-		  {"type": "string"}
-	  ]
+          "items": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "string"
+            }
+          ]
         }
       },
       "type": "object",
@@ -110,28 +114,31 @@
         "graphs": {
           "title": "graphs",
           "type": "object",
-          "additionalProperties": {
-            "type": "object",
-            "oneOf": [
-              {
-                "$ref": "#/definitions/XYGraph"
-              },
-              {
-                "$ref": "#/definitions/LineGraph"
-              },
-              {
-                "$ref": "#/definitions/BarGraph"
-              }
-            ]
+          "properties": {
+            "xy": {
+              "title": "xy",
+              "type": "object",
+              "$ref": "#/definitions/XYGraph"
+            },
+            "line": {
+              "title": "line",
+              "type": "object",
+              "$ref": "#/definitions/LineGraph"
+            },
+            "bar": {
+              "title": "bar",
+              "type": "object",
+              "$ref": "#/definitions/BarGraph"
+            }
           }
-        },
-        "values": {
-          "title": "values",
+        }
+      },
+      "values": {
+        "title": "values",
+        "type": "object",
+        "additionalProperties": {
           "type": "object",
-          "additionalProperties": {
-            "type": "object",
-            "$ref": "#/definitions/Value"
-          }
+          "$ref": "#/definitions/Value"
         }
       },
       "required": [

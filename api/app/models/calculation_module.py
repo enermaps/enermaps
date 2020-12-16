@@ -77,6 +77,7 @@ class CalculationModule:
 
 
 def list_cms() -> Dict[Text, CalculationModule]:
+    """List all cms available on a celery queue."""
     app = get_celery_app()
     try:
         app_inspector = app.control.inspect()

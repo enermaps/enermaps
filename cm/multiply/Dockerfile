@@ -3,8 +3,10 @@ RUN apt-get update && \
     apt-get --yes install python3 python3-pip &&\
     rm -rf /var/cache/apt/archives/
 WORKDIR cm-multiply
-COPY requirements.txt requirements.txt
+COPY multiply/requirements.txt requirements.txt
 RUN pip3 install -r requirements.txt
-COPY . .
+COPY base /tmp/base
+RUN cd /tmp/base && pip3 install . && python3 test.py
+COPY multiply .
 RUN python3 test.py
 CMD ["python3", "worker.py"]
