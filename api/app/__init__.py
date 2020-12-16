@@ -80,7 +80,7 @@ def create_app(environment="production", testing=False):
     app.config["UPLOAD_DIR"] = "/tmp/upload_dir"
     app.config["WMS"] = {}
     app.config["WMS"]["ALLOWED_PROJECTIONS"] = ["EPSG:3857"]
-    app.config["WMS"]["MAX_SIZE"] = 1024 ** 2
+    app.config["WMS"]["MAX_SIZE"] = 2048 ** 2
     app.config["WMS"]["GETMAP"] = {}
     app.config["WMS"]["GETMAP"]["ALLOWED_OUTPUTS"] = ["image/png", "image/jpg"]
     for k, v in app.config.items():
