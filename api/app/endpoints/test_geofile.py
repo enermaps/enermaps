@@ -61,6 +61,30 @@ class VectorGeofileTest(BaseApiTest):
         )
         self.assertEqual(response.status, "400 BAD REQUEST", response.data)
 
+    def testShapefileDeletion(self):
+        """Test that the deletion of a shapefile is working"""
+        testfile = "nuts.zip"
+        test_data, testfile_content = self.get_testformdata(testfile)
+        response = self.client.post(
+            "api/geofile/", data=test_data, content_type="multipart/form-data"
+        )
+        self.assertStatusCodeEqual(response, 200)
+
+        response = self.client.get("api/geofile/")
+        self.assertStatusCodeEqual(response, 200)
+        json_content = json.loads(response.data)
+        self.assertIn(testfile, json_content["files"])
+
+        # Now delete the file
+        response = self.client.delete("api/geofile/" + testfile)
+        self.assertStatusCodeEqual(response, 200)
+
+        # and check that it is not in the listing anymore
+        response = self.client.get("api/geofile/")
+        self.assertStatusCodeEqual(response, 200)
+        json_content = json.loads(response.data)
+        self.assertNotIn(testfile, json_content["files"])
+
 
 class TifGeofileTest(BaseApiTest):
     def testFileEscapePost(self):
@@ -130,6 +154,32 @@ class TifGeofileTest(BaseApiTest):
         self.assertStatusCodeEqual(response, 200)
         self.assertEqual(response.data, testfile_content)
         self.assertEqual(response.mimetype, RasterLayer.MIMETYPE[0])
+
+    def testTifDeletion(self):
+        """Add a new tif then delete it,
+        verify that it doesn't appear in the list after deletion.
+        """
+        testfile = "hotmaps-cdd_curr_adapted.tif"
+        test_data, testfile_content = self.get_testformdata(testfile)
+        response = self.client.post(
+            "api/geofile/", data=test_data, content_type="multipart/form-data"
+        )
+        self.assertStatusCodeEqual(response, 200)
+
+        response = self.client.get("api/geofile/")
+        self.assertStatusCodeEqual(response, 200)
+        json_content = json.loads(response.data)
+        self.assertIn(testfile, json_content["files"])
+
+        # Now delete the file
+        response = self.client.delete("api/geofile/" + testfile)
+        self.assertStatusCodeEqual(response, 200)
+
+        # and check that it is not in the listing anymore
+        response = self.client.get("api/geofile/")
+        self.assertStatusCodeEqual(response, 200)
+        json_content = json.loads(response.data)
+        self.assertNotIn(testfile, json_content["files"])
 
 
 if __name__ == "__main__":
