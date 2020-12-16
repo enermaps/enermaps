@@ -82,15 +82,26 @@ class Layer(ABC):
 
     @abstractmethod
     def as_fd(self):
+        """Return the Layer as an open file descriptor.
+
+        A warning here, the closing of the file descriptor is left for the
+        callee.
+        """
         pass
 
     @abstractmethod
     def as_mapnik_layer(self):
+        """Return the Layer as a mapnik layer
+        (https://mapnik.org/docs/v2.2.0/api/python/mapnik._mapnik.Layer-class.html)
+        """
         pass
 
     @property
     @abstractmethod
     def projection(self):
+        """Return the projection used for that datasource, the output is always a proj4 string
+        (see https://proj.org/ for more information)
+        """
         pass
 
     @property
@@ -104,15 +115,27 @@ class Layer(ABC):
     @staticmethod
     @abstractmethod
     def save(file_upload: FileStorage):
+        """Save the FileStorage instance as a geofile.
+        This method will return an instance of the class.
+        The operation must guarantee atomicity, meaning the save operation can be
+        interupted at any moment and it shouldn't left half deleted file around.
+        """
         pass
 
     @staticmethod
     @abstractmethod
-    def list_layers(file_upload: FileStorage):
+    def list_layers():
+        """List all layers abstracted by the current class.
+        This method returns a list of instance of the class.
+        """
         pass
 
     @abstractmethod
     def delete(self):
+        """Remove the geofile from the geofile database.
+        This operation must also guarantee to be atomic, so you can end up
+        with a half deleted datasource.
+        """
         pass
 
 
@@ -194,6 +217,8 @@ class VectorLayer(Layer):
 
     MIMETYPE = ["application/zip"]
 
+    TO_BE_DELETED_DIR = "vectors_to_be_deleted"
+
     def __init__(self, name):
         self.name = name
 
@@ -265,7 +290,16 @@ class VectorLayer(Layer):
         return map(VectorLayer, non_hidden_layers)
 
     def delete(self):
-        shutil.rmtree(self._get_vector_dir())
+        """Here we do a little switcheroo to guarantee that the directory deletion is
+        done atomically:
+        1) Move the directory into a "to be deleted directory", this has atomicity
+            guarantee as long as we move inside the same filesystem
+        2) Run shutil.rmtree, this operation could fail at any moment and leave
+           remaining files around in the to_be_deleted_dir
+        """
+        with TemporaryDirectory(prefix=get_tmp_upload()) as tmp_dir:
+            os.rename(self._get_vector_dir(), tmp_dir)
+            shutil.rmtree(tmp_dir)
 
 
 class GeoJSONLayer(VectorLayer):
