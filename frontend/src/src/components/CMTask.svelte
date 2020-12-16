@@ -4,7 +4,8 @@
   import Chart from './Chart.svelte';
   export let task;
   export let cm;
-  export let plot_data = {};
+  export let graphs = {};
+  export let values = [];
   let taskResult = {status: 'PENDING'};
 
   const updateTime = 500;
@@ -30,8 +31,10 @@
   $: {
     console.log(cm);
     console.log(task);
-    if (!isTaskPending){
-      plot_data = {"first_plot": [1,2,3,4,5,6,7,3,4]};
+    if (!isTaskPending) {
+      graphs = taskResult.result.graphs;
+      // here check if values has an unit, if yes merge
+      values = Object.entries(taskResult.result.values);
     }
   }
 </script>
@@ -45,17 +48,11 @@
   <dt>task_id</dt><dd>{formatTaskID(task)}</dd>
   <dt>status</dt><dd>{taskResult.status}</dd>
   {#if !isTaskPending}
-    <dt>data : </dt>
-    <dd>{Object.keys(JSON.parse(JSON.stringify(taskResult.result))[0])}</dd>
-
-    <dt>results : </dt>
-    <dd>{JSON.stringify(taskResult.result)}</dd>
-
-    <dt>TASK</dt>
-    <dd>{task.id}</dd>
-
-    <Chart datasets={plot_data}/>
-
+          {#each values as [name, value]}
+            <dt>{name} </dt>
+            <dd>{value}</dd>
+          {/each}
+          <Chart datasets={graphs}/>
   {/if}
 </dl>
 <button on:click|once={cancel} disabled={!isTaskPending}>Cancel task</button>
