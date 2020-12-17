@@ -1,6 +1,7 @@
 {
   "graphs": {
     "bar_graph": {
+      "type": "bar",
       "values": [
         [
           "label0",
@@ -18,8 +19,9 @@
       "unit": "km/h"
     },
     "line": {
+      "type": "line",
       "values": [
-        1,
+        1.2,
         2.1,
         3.1,
         5.4
@@ -27,6 +29,7 @@
       "unit": "km/h"
     },
     "xy_graph": {
+      "type": "xy",
       "values": [
         [
           1.3,
@@ -44,12 +47,8 @@
     }
   },
   "values": {
-    "value0": {
-      "value": 5.7
-    },
-    "value1": {
-      "value": 10.5
-    },
+    "value0": 5.7,
+    "value1": 10.5,
     "value2": {
       "value": 4.5,
       "unit": "km/h"

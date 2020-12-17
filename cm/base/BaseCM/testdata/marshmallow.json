@@ -1,6 +1,7 @@
 {
 	"graphs": {
 		"graph_xy": {
+			"type": "xy",
 			"values":[[1.1, 1.1]],
 			"unit": ["km/h", "m/s"]
 		}

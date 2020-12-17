@@ -6,7 +6,7 @@ from marshmallow_union import Union
 
 class Value(Schema):
     value = fields.Number(required=True, allow_none=True)
-    unit = fields.String(required=False)
+    unit = fields.String(required=True)
 
 
 class XYGraph(Schema):
@@ -15,15 +15,24 @@ class XYGraph(Schema):
     )
     unit = fields.Tuple((fields.Str(), fields.Str()), required=False)
 
+    class Meta:
+        include = {"type": fields.Constant("xy", required=True)}
+
 
 class LineGraph(Schema):
     values = fields.List(fields.Number(), required=True)
     unit = fields.String(required=False)
 
+    class Meta:
+        include = {"type": fields.Constant("line", required=True)}
+
 
 class BarGraph(Schema):
     values = fields.List(fields.Tuple([fields.Str(), fields.Number()]), required=True)
     unit = fields.String(required=False)
+
+    class Meta:
+        include = {"type": fields.Constant("bar", required=True)}
 
 
 class CMOutput(Schema):

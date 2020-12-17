@@ -17,9 +17,13 @@
   });
   async function updateTaskResult() {
     const taskResponse = await getTaskResult(cm, task);
-    taskResult = taskResponse;
-    if (taskResult.status === PENDING_STATUS) {
+    // The above reponse can be undefined if it encountered an error,
+    // just try again if it has
+    if (!taskResponse || taskResponse.status === PENDING_STATUS) {
       setTimeout(updateTaskResult, updateTime);
+    }
+    if (!!taskResponse) {
+      taskResult = taskResponse;
     }
   }
   async function cancel() {
