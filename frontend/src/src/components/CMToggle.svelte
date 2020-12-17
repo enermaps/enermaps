@@ -27,7 +27,7 @@ function toggleCM() {
   border: 2px solid rgba(0,0,0,0.2);
 }
 </style>
-<div id="cm_toggle_container">
+<div id="cm_toggle_container" hidden={$isCMPaneActiveStore}>
 <a id="cm_toggle" title="Display CM" on:click|stopPropagation={toggleCM}>
 </a>
 </div>
