@@ -16,9 +16,7 @@ class XYGraph(Schema):
     unit = fields.Tuple((fields.Str(), fields.Str()), required=False)
 
     class Meta:
-        include = {
-            'type': fields.Constant("xy", required=True)
-        }
+        include = {"type": fields.Constant("xy", required=True)}
 
 
 class LineGraph(Schema):
@@ -26,9 +24,7 @@ class LineGraph(Schema):
     unit = fields.String(required=False)
 
     class Meta:
-        include = {
-            'type': fields.Constant("line", required=True)
-        }
+        include = {"type": fields.Constant("line", required=True)}
 
 
 class BarGraph(Schema):
@@ -36,9 +32,7 @@ class BarGraph(Schema):
     unit = fields.String(required=False)
 
     class Meta:
-        include = {
-            'type': fields.Constant("bar", required=True)
-        }
+        include = {"type": fields.Constant("bar", required=True)}
 
 
 class CMOutput(Schema):

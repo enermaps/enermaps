@@ -1,6 +1,5 @@
 import logging
 import os
-from collections import defaultdict
 from time import time
 from typing import List, Optional, Text
 
