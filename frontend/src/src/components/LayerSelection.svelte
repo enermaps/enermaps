@@ -22,12 +22,12 @@
 
   function toQueryableLayer(layerName) {
     const layer = L.tileLayer.queryableLayer(
-      WMS_URL,
-      {
-        transparent: 'true',
-        layers: layerName,
-        format: 'image/png'
-      },
+        WMS_URL,
+        {
+          transparent: 'true',
+          layers: layerName,
+          format: 'image/png',
+        },
     );
     return layer;
   }
@@ -57,10 +57,9 @@
   }
   onMount(async () => {
     const layers = await getGeofiles();
-    for (const layer in layers) {
+    for (const [layer, layerParameters] of Object.entries(layers)) {
       let leafletLayer;
-      const layerParameters = layers[layer];
-      console.log(layer, layerParameters)
+      console.log(layer, layerParameters);
       if (SELECTIONS.has(layer)) {
         leafletLayer = toNutsLayer(layer);
         leafletLayer.name = layer;
