@@ -13,7 +13,17 @@ import {isCMPaneActiveStore} from '../stores.js';
 </script>
 <style>
 #calculation_modules {
-  border-style: groove;
+  float: right;
+  z-index: 1000;
+  position: absolute;
+  top: 0;
+  right: 0;
+  padding: 5px;
+  margin: 20px;
+  border-radius: 4px;
+  border-style: solid;
+  border-color: grey;
+  background-color: rgba(255, 255, 255, 0.6);
 }
 </style>
 <div id="calculation_modules" hidden={!$isCMPaneActiveStore}>
