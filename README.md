@@ -64,3 +64,7 @@ You can test those action locally using https://github.com/nektos/act. After hav
 act pull_request
 ```
 
+## Symlink on window
+
+This repository is using symlinks. On windows, you will need to make sure symlink are enabled. Follow the instruction on
+https://github.community/t/git-bash-symbolic-links-on-windows/522
