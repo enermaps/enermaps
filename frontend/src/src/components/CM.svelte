@@ -21,7 +21,7 @@
     console.log('Creating new task with parameters: ' + newTaskParams);
     const task = await postCMTask(cm, newTaskParams);
 
-    tasks.splice(0, 0, task);
+    tasks.unshift(task);
     tasks = tasks;
   }
 
