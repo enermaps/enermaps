@@ -80,6 +80,8 @@
         },
       });
       console.log(xyDatasets);
+    } else {
+      xyDatasets.hidden = true;
     }
     if (lineDatasets.length) {
       lineChart = new Chart(lineCanvas, {
@@ -89,6 +91,8 @@
         },
       });
       console.log(lineDatasets);
+    } else {
+      lineCanvas.hidden = true;
     }
     if (barDatasets.length) {
       lineChart = new Chart(barCanvas, {
@@ -98,6 +102,8 @@
         },
       });
       console.log(barDatasets);
+    } else {
+      barCanvas.hidden = true;
     }
   }
 
@@ -109,7 +115,7 @@
 }
 </style>
 <div class="graph-container">
-<canvas class="graph" bind:this={xyCanvas}/>
-<canvas class="graph" bind:this={barCanvas}/>
-<canvas class="graph" bind:this={lineCanvas}/>
+  <canvas class="graph" bind:this={xyCanvas}/>
+  <canvas class="graph" bind:this={barCanvas}/>
+  <canvas class="graph" bind:this={lineCanvas}/>
 </div>
