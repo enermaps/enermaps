@@ -2,6 +2,7 @@
   import {onMount} from 'svelte';
   import '../leaflet_components/L.TileLayer.NutsLayer.js';
   import '../leaflet_components/L.DrawingLayer.js';
+  import '../leaflet_components/L.TileLayer.QueryableLayer.js';
   import queryString from 'query-string';
   import {getGeofiles, WMS_URL} from '../client.js';
   import {activeOverlayLayersStore, activeSelectionLayerStore} from '../stores.js';
@@ -18,6 +19,18 @@
   let overlayLayers = [];
   // export let activeOverlayLayers = $activeOverlayLayersStore;
   let isLayerListReady = false;
+
+  function toQueryableLayer(layerName) {
+    const layer = L.tileLayer.queryableLayer(
+      WMS_URL,
+      {
+        transparent: 'true',
+        layers: layerName,
+        format: 'image/png'
+      },
+    );
+    return layer;
+  }
 
   function toOverlayLayer(layerName) {
     const layer = L.tileLayer.wms(
@@ -46,6 +59,8 @@
     const layers = await getGeofiles();
     for (const layer in layers) {
       let leafletLayer;
+      const layerParameters = layers[layer];
+      console.log(layer, layerParameters)
       if (SELECTIONS.has(layer)) {
         leafletLayer = toNutsLayer(layer);
         leafletLayer.name = layer;
@@ -53,6 +68,10 @@
         leafletLayer.setZIndex(1000);
         //
         selectionLayers.push(leafletLayer);
+      } else if (layerParameters.isQueryable) {
+        leafletLayer = toQueryableLayer(layer);
+        leafletLayer.name = layer;
+        overlayLayers.push(leafletLayer);
       } else {
         leafletLayer = toOverlayLayer(layer);
         leafletLayer.name = layer;

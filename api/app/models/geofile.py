@@ -141,7 +141,7 @@ class Layer(ABC):
     def as_dict(self):
         """Return a description of this layer as a dict"""
         return {
-            "is_queryable": self.is_queryable,
+            "isQueryable": self.is_queryable,
         }
 
 
