@@ -51,7 +51,7 @@ class VectorGeofileTest(BaseApiTest):
         response = self.client.get("api/geofile/")
         self.assertStatusCodeEqual(response, 200)
         json_content = json.loads(response.data)
-        self.assertIn(testfile, json_content["files"])
+        self.assertIn(testfile, json_content)
 
     def testUploadBadZip(self):
         testfile = "hotmaps-cdd_curr_adapted.tif"
@@ -73,7 +73,7 @@ class VectorGeofileTest(BaseApiTest):
         response = self.client.get("api/geofile/")
         self.assertStatusCodeEqual(response, 200)
         json_content = json.loads(response.data)
-        self.assertIn(testfile, json_content["files"])
+        self.assertIn(testfile, json_content)
 
         # Now delete the file
         response = self.client.delete("api/geofile/" + testfile)
@@ -83,7 +83,7 @@ class VectorGeofileTest(BaseApiTest):
         response = self.client.get("api/geofile/")
         self.assertStatusCodeEqual(response, 200)
         json_content = json.loads(response.data)
-        self.assertNotIn(testfile, json_content["files"])
+        self.assertNotIn(testfile, json_content)
 
 
 class TifGeofileTest(BaseApiTest):
@@ -106,7 +106,7 @@ class TifGeofileTest(BaseApiTest):
         response = self.client.get("api/geofile/")
         self.assertStatusCodeEqual(response, 200)
         json_content = json.loads(response.data)
-        self.assertIn(testfile_name, json_content["files"])
+        self.assertIn(testfile_name, json_content)
 
     def testHiddenFile(self):
         """Hidden shapefile are a bit special, they don't appear in the listing but are
@@ -122,8 +122,8 @@ class TifGeofileTest(BaseApiTest):
         response = self.client.get("api/geofile/")
         self.assertStatusCodeEqual(response, 200)
         json_content = json.loads(response.data)
-        self.assertNotIn(testfile_name, json_content["files"])
-        self.assertEqual(json_content["files"], [])
+        self.assertNotIn(testfile_name, json_content)
+        self.assertEqual(len(json_content), 0)
 
     def testUploadWithoutProjection(self):
         """We refuse to work with geotiff that don't contain a projection, they
@@ -148,7 +148,7 @@ class TifGeofileTest(BaseApiTest):
         response = self.client.get("api/geofile/")
         self.assertStatusCodeEqual(response, 200)
         json_content = json.loads(response.data)
-        self.assertIn(testfile, json_content["files"])
+        self.assertIn(testfile, json_content)
 
         response = self.client.get("api/geofile/" + testfile)
         self.assertStatusCodeEqual(response, 200)
@@ -169,7 +169,7 @@ class TifGeofileTest(BaseApiTest):
         response = self.client.get("api/geofile/")
         self.assertStatusCodeEqual(response, 200)
         json_content = json.loads(response.data)
-        self.assertIn(testfile, json_content["files"])
+        self.assertIn(testfile, json_content)
 
         # Now delete the file
         response = self.client.delete("api/geofile/" + testfile)
@@ -179,7 +179,7 @@ class TifGeofileTest(BaseApiTest):
         response = self.client.get("api/geofile/")
         self.assertStatusCodeEqual(response, 200)
         json_content = json.loads(response.data)
-        self.assertNotIn(testfile, json_content["files"])
+        self.assertNotIn(testfile, json_content)
 
 
 if __name__ == "__main__":

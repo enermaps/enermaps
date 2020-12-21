@@ -18,7 +18,7 @@ export async function getGeofiles() {
     return [];
   }
   const layersResponse = await response.json();
-  return layersResponse.files;
+  return layersResponse;
 }
 
 

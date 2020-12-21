@@ -38,7 +38,6 @@ class WMSGetCapabilitiesTest(BaseApiTest):
         xmlschema.insert(0, newimport)
 
         schema_path = filepath.get_testdata_path("xlink.xsd")
-        print(schema_path)
         newimport = lxml.etree.Element(
             "{http://www.w3.org/2001/XMLSchema}import",
             namespace="http://www.w3.org/1999/xlink.xsd",

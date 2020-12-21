@@ -138,6 +138,12 @@ class Layer(ABC):
         """
         pass
 
+    def as_dict(self):
+        """Return a description of this layer as a dict"""
+        return {
+            "is_queryable": self.is_queryable,
+        }
+
 
 class RasterLayer(Layer):
 
