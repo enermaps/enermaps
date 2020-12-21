@@ -21,7 +21,7 @@ class GeoFiles(Resource):
         """Return a list of all geofile known by
         the system and accessible by the user making the request."""
         layers = geofile.list_layers()
-        return {"files": [layer.name for layer in layers]}
+        return {layer.name: layer.as_dict() for layer in layers}
 
     @api.expect(upload_parser)
     def post(self):

@@ -37,7 +37,7 @@
     console.log(task);
     if (!isTaskPending) {
       graphs = taskResult.result.graphs;
-      // here check if values has an unit, if yes merge
+      // TODO here check if values has an unit, if yes merge unit and value
       values = Object.entries(taskResult.result.values);
     }
   }

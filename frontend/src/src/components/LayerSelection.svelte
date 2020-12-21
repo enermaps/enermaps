@@ -44,7 +44,7 @@
   }
   onMount(async () => {
     const layers = await getGeofiles();
-    for (const layer of layers) {
+    for (const layer in layers) {
       let leafletLayer;
       if (SELECTIONS.has(layer)) {
         leafletLayer = toNutsLayer(layer);
