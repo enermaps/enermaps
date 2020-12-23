@@ -165,8 +165,7 @@ class RasterLayer(Layer):
         return map(RasterLayer, non_hidden_layers)
 
     def _get_raster_dir(self):
-        """Return the path to the directory containing the raster path
-        """
+        """Return the path to the directory containing the raster path"""
         raster_dir = safe_join(get_user_upload("raster"), self.name)
         return raster_dir
 
@@ -208,7 +207,10 @@ class RasterLayer(Layer):
             output_filepath = safe_join(get_user_upload("raster"), file_upload.filename)
             # replace will replace the file if it already exists, we should first check
             # if the file already exists before proceeding
-            os.replace(tmp_dir, output_filepath)
+            try:
+                os.replace(tmp_dir, output_filepath)
+            except FileExistsError:
+                raise SaveException("Geofile already exists")
         return RasterLayer(file_upload.filename)
 
     def as_mapnik_layer(self):
@@ -296,7 +298,10 @@ class VectorLayer(Layer):
             zip_ref.extractall(tmp_dir)
             upload_dir = get_user_upload("vectors")
             output_dirpath = safe_join(upload_dir, file_upload.filename)
-            os.replace(tmp_dir, output_dirpath)
+            try:
+                os.replace(tmp_dir, output_dirpath)
+            except FileExistsError:
+                raise SaveException("Geofile already exists")
         return VectorLayer(file_upload.filename)
 
     @staticmethod
@@ -358,5 +363,8 @@ class GeoJSONLayer(VectorLayer):
             # everything went fine, symlink and return the corresponding VectorLayer
             upload_dir = get_user_upload("vectors")
             output_dirpath = safe_join(upload_dir, shape_name + ".geojson")
-            os.replace(tmp_dir, output_dirpath)
+            try:
+                os.replace(tmp_dir, output_dirpath)
+            except FileExistsError:
+                raise SaveException("Geofile already exists")
         return VectorLayer(shape_name + ".geojson")
