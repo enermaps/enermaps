@@ -70,13 +70,26 @@ L.TileLayer.QueryableLayer = L.TileLayer.WMS.extend({
     if (!content || !content.features) {
       return;
     }
-    const features = content.features;
-    if (features.length > 0) {
+    let popupContent = "";
+    for (const feature of content.features) {
+      const properties = feature.properties;
+      //iterate over all feature and make them into k-v
+      for (const [key, value] of Object.entries(properties)) {
+        const dt = document.createElement('dt');
+        dt.innerText = key;
+        popupContent += dt.outerHTML;
+        const dd = document.createElement('dd');
+        dd.innerText = value;
+        popupContent += dd.outerHTML;
+      }
+    }
+    if (popupContent.length != 0) {
       console.log(content);
-      L.popup({maxWidth: 800})
+      let popup = L.popup({maxwidth: 500, maxHeight: 200})
         .setLatLng(latlng)
-        .setContent(JSON.stringify(content.features))//content)
+        .setContent(popupContent)
         .openOn(this._map);
+      //popup.maxHeight = 100;
       }
     },
 });

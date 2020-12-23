@@ -6,7 +6,6 @@ COPY src/package.json src/package-lock.json ./
 RUN npm install
 COPY src/ .
 RUN npm run build
-RUN npm install chart.js --save
 
 FROM caddy:2.1.1-alpine
 
