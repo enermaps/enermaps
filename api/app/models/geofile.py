@@ -150,6 +150,7 @@ class RasterLayer(Layer):
     # mimetype for a rasterlayer, the first mimetype is the one
     # chosen by default for exposing the file
     MIMETYPE = ["image/geotiff", "image/tiff"]
+    _RASTER_NAME = "raster.tiff"
 
     def __init__(self, name):
         self.name = name
@@ -163,9 +164,15 @@ class RasterLayer(Layer):
         non_hidden_layers = filter(lambda a: not a.startswith("."), layers)
         return map(RasterLayer, non_hidden_layers)
 
+    def _get_raster_dir(self):
+        """Return the path to the directory containing the raster path
+        """
+        raster_dir = safe_join(get_user_upload("raster"), self.name)
+        return raster_dir
+
     def _get_raster_path(self):
-        """Return the path where a raster is stored on disk."""
-        layer_path = safe_join(get_user_upload("raster"), self.name)
+        """Return the path to the raster directory stored on disk."""
+        layer_path = safe_join(self._get_raster_dir(), self._RASTER_NAME)
         return layer_path
 
     @property
@@ -186,15 +193,22 @@ class RasterLayer(Layer):
         For raster, deleting a layer is equivalent to just removing
         the file.
         """
-        os.unlink(self._get_raster_path())
+        with TemporaryDirectory(prefix=get_tmp_upload()) as tmp_dir:
+            print("paths")
+            print(os.path.isdir(tmp_dir))
+            print(os.path.isdir(self._get_raster_dir()))
+            os.rename(self._get_raster_dir(), tmp_dir)
+            shutil.rmtree(tmp_dir)
 
     @staticmethod
     def save(file_upload: FileStorage):
         with TemporaryDirectory(prefix=get_tmp_upload()) as tmp_dir:
-            tmp_filepath = safe_join(tmp_dir, file_upload.filename)
+            tmp_filepath = safe_join(tmp_dir, RasterLayer._RASTER_NAME)
             file_upload.save(tmp_filepath)
             output_filepath = safe_join(get_user_upload("raster"), file_upload.filename)
-            os.replace(tmp_filepath, output_filepath)
+            # replace will replace the file if it already exists, we should first check
+            # if the file already exists before proceeding
+            os.replace(tmp_dir, output_filepath)
         return RasterLayer(file_upload.filename)
 
     def as_mapnik_layer(self):
