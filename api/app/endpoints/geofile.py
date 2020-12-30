@@ -1,6 +1,6 @@
 """Endpoint for the manipulation of geofiles
 """
-from flask import send_file
+from flask import redirect, send_file, url_for
 from flask_restx import Namespace, Resource, abort
 from werkzeug.datastructures import FileStorage
 
@@ -40,7 +40,7 @@ class GeoFiles(Resource):
         if not layer.projection:
             layer.delete()
             abort(400, "The uploaded file didn't contain a projection")
-        return {"status": "upload succeeded"}
+        return redirect(url_for(".geofile_geo_files"))
 
 
 @api.route("/<string:layer_name>")
@@ -55,4 +55,4 @@ class GeoFile(Resource):
     def delete(self, layer_name):
         """Remove a geofile by name."""
         geofile.load(layer_name).delete()
-        return {"status": "deletion successfull"}
+        return redirect(url_for(".geofile_geo_files"))

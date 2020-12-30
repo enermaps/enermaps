@@ -72,7 +72,7 @@
 
   async function createChart() {
     processDatasets(datasets);
-    if (xyDatasets) {
+    if (xyDatasets.length) {
       xyChart = new Chart(xyCanvas, {
         type: 'scatter',
         data: {

@@ -10,8 +10,8 @@
 
   const updateTime = 500;
   const PENDING_STATUS = 'PENDING';
+  const SUCCESS_STATUS = 'SUCCESS';
 
-  $: isTaskPending = (taskResult.status === PENDING_STATUS);
   onMount(async () => {
     updateTaskResult();
   });
@@ -32,10 +32,14 @@
   function formatTaskID(task) {
     return task.id.slice(0, 5) + '...';
   }
-  $: {
-    console.log(cm);
-    console.log(task);
-    if (!isTaskPending) {
+  $: isTaskPending = taskResult.status === PENDING_STATUS;
+  $: if (!isTaskPending) {
+    if (typeof taskResult.result === 'string') {
+      values.push(['details', taskResult.result]);
+      values = values;
+      console.log("TASK FAILURE");
+      console.log(values);
+    } else  {
       graphs = taskResult.result.graphs;
       // TODO here check if values has an unit, if yes merge unit and value
       values = Object.entries(taskResult.result.values);
