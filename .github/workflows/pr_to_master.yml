@@ -42,6 +42,11 @@ jobs:
       - name: check-lint cms
         run: cd cm && ./.check_cm.sh
 
+      - name: install dependencies for the frontend
+        run: cd frontend/src && npm install .
+      - name: check-lint the frontend
+        run: cd frontend/src && npx eslint .
+
   build-stack:
     runs-on: 'ubuntu-18.04'
     steps:
