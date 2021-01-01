@@ -76,7 +76,7 @@ def multiply_raster(self, selection: dict, rasters: list, params: dict):
     if not selection["features"]:
         raise ValueError("The selection must be non-empty.")
     raster_dir = os.path.join(os.environ["UPLOAD_DIR"], "raster")
-    raster_path = os.path.join(raster_dir, rasters[0])
+    raster_path = os.path.join(raster_dir, rasters[0], "raster.tiff")
     self.validate_params(params)
     factor = params["factor"]
     val_multiply = rasterstats(selection, raster_path, factor)

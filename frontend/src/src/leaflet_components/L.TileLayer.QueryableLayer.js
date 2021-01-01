@@ -70,10 +70,10 @@ L.TileLayer.QueryableLayer = L.TileLayer.WMS.extend({
     if (!content || !content.features) {
       return;
     }
-    let popupContent = "";
+    let popupContent = '';
     for (const feature of content.features) {
       const properties = feature.properties;
-      //iterate over all feature and make them into k-v
+      // iterate over all feature and make them into k-v
       for (const [key, value] of Object.entries(properties)) {
         const dt = document.createElement('dt');
         dt.innerText = key;
@@ -85,13 +85,13 @@ L.TileLayer.QueryableLayer = L.TileLayer.WMS.extend({
     }
     if (popupContent.length != 0) {
       console.log(content);
-      let popup = L.popup({maxwidth: 500, maxHeight: 200})
-        .setLatLng(latlng)
-        .setContent(popupContent)
-        .openOn(this._map);
-      //popup.maxHeight = 100;
-      }
-    },
+      L.popup({maxwidth: 500, maxHeight: 200})
+          .setLatLng(latlng)
+          .setContent(popupContent)
+          .openOn(this._map);
+      // popup.maxHeight = 100;
+    }
+  },
 });
 
 L.tileLayer.queryableLayer= function(url, options) {

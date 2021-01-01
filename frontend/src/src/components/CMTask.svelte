@@ -7,11 +7,16 @@
   export let graphs = {};
   export let values = [];
   let taskResult = {status: 'PENDING'};
+  let errorStatus = '';
 
   const updateTime = 500;
   const PENDING_STATUS = 'PENDING';
   const SUCCESS_STATUS = 'SUCCESS';
+  const FAILURE_STATUS= 'FAILURE';
 
+  $: isTaskPending = (taskResult.status === PENDING_STATUS);
+  $: isTaskFailed = (taskResult.status === FAILURE_STATUS);
+  
   onMount(async () => {
     updateTaskResult();
   });
@@ -55,12 +60,17 @@
 <dl>
   <dt>task_id</dt><dd>{formatTaskID(task)}</dd>
   <dt>status</dt><dd>{taskResult.status}</dd>
-  {#if !isTaskPending}
+  {#if isTaskFailed}
+  Task failed
+  Error: {errorStatus}
+  {:else if !isTaskPending}
           {#each values as [name, value]}
             <dt>{name} </dt>
             <dd>{value}</dd>
           {/each}
           <Chart datasets={graphs}/>
+  {:else }
+    taskRunning...
   {/if}
 </dl>
 <button on:click|once={cancel} disabled={!isTaskPending}>Cancel task</button>

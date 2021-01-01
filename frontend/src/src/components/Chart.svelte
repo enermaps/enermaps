@@ -13,12 +13,11 @@
 
   let xyChart;
   let lineChart;
-  let barChart;
+  // let barChart;
 
   function processDatasets() {
-    for (const datasetName in datasets) {
+    for (const [datasetName, dataset] of Object.entries(datasets)) {
       console.log('inserting dataset ' + datasetName);
-      const dataset = datasets[datasetName];
       insertDataset(datasetName, dataset);
     }
   }
@@ -49,7 +48,7 @@
   function insertLineChart(name, dataset) {
     const chartPoints = [];
     const values = dataset.values;
-    for (const x in values) {
+    for (let x = 0; x < values.length; x++) {
       chartPoints.push({x: x, y: values[x]});
     }
     lineDatasets.push({label: name, data: chartPoints});

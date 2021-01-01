@@ -11,7 +11,7 @@
   let tasks = [];
   let formElement;
   let form = undefined;
-  let callCMTooltip = "brutison is a brutison";
+  let callCMTooltip = 'brutison is a brutison';
 
   async function callCM() {
     const newTaskParams = {};
@@ -32,12 +32,11 @@
 
   $ : {
     if (!$activeOverlayLayersStore.length) {
-      callCMTooltip = "An overlay layer needs to be selected first";
-    }
-    else if (!$activeSelectionLayerStore !== undefined) {
-      callCMTooltip = "A selection layer needs to be selected first";
+      callCMTooltip = 'An overlay layer needs to be selected first';
+    } else if (!$activeSelectionLayerStore !== undefined) {
+      callCMTooltip = 'A selection layer needs to be selected first';
     } else {
-      callCMTooltip = "Call the CM " + cm.pretty_name;
+      callCMTooltip = 'Call the CM ' + cm.pretty_name;
     }
     const isEnabled = $activeOverlayLayersStore.length &&
                       $activeSelectionLayerStore !== undefined;
