@@ -193,9 +193,6 @@ class RasterLayer(Layer):
         the file.
         """
         with TemporaryDirectory(prefix=get_tmp_upload()) as tmp_dir:
-            print("paths")
-            print(os.path.isdir(tmp_dir))
-            print(os.path.isdir(self._get_raster_dir()))
             os.rename(self._get_raster_dir(), tmp_dir)
             shutil.rmtree(tmp_dir)
 

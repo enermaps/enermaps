@@ -84,7 +84,10 @@ class WMSGetCapabilitiesTest(BaseApiTest):
         in the capability layer list"""
         test_data, testfile_content = self.get_testformdata(testfile)
         response = self.client.post(
-            "api/geofile/", data=test_data, content_type="multipart/form-data"
+            "api/geofile/",
+            data=test_data,
+            content_type="multipart/form-data",
+            follow_redirects=True,
         )
         self.assertStatusCodeEqual(response, 200)
 
@@ -146,7 +149,10 @@ class WMSGetMapTest(BaseApiTest):
         testfile = "nuts.zip"
         test_data, testfile_content = self.get_testformdata(testfile)
         response = self.client.post(
-            "api/geofile/", data=test_data, content_type="multipart/form-data"
+            "api/geofile/",
+            data=test_data,
+            content_type="multipart/form-data",
+            follow_redirects=True,
         )
         self.assertStatusCodeEqual(response, 200)
         response.close()
@@ -208,7 +214,10 @@ class WMSGetFeatureInfoTest(BaseApiTest):
         testfile = "nuts.zip"
         test_data, testfile_content = self.get_testformdata(testfile)
         response = self.client.post(
-            "api/geofile/", data=test_data, content_type="multipart/form-data"
+            "api/geofile/",
+            data=test_data,
+            content_type="multipart/form-data",
+            follow_redirects=True,
         )
         self.assertStatusCodeEqual(response, 200)
 

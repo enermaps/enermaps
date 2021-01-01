@@ -27,6 +27,7 @@ class BaseApiTest(unittest.TestCase):
         self.upload_dir = tempfile.mkdtemp()
         self.flask_app.config["UPLOAD_DIR"] = self.upload_dir
         self.client = self.flask_app.test_client()
+        self.client.follow_redirect = True
         self.assertEqual(self.flask_app.debug, False)
 
     def tearDown(self):
@@ -48,9 +49,11 @@ class BaseApiTest(unittest.TestCase):
     def import_testdata(self, testfile_name):
         """Helper function that upload the testfile to the api."""
         form_content, _ = self.get_testformdata(testfile_name)
-        self.client.post("/api/geofile")
         response = self.client.post(
-            "api/geofile/", data=form_content, content_type="multipart/form-data"
+            "api/geofile/",
+            data=form_content,
+            content_type="multipart/form-data",
+            follow_redirects=True,
         )
         self.assertStatusCodeEqual(response, 200)
         return response

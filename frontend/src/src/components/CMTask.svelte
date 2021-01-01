@@ -7,14 +7,12 @@
   export let graphs = {};
   export let values = [];
   let taskResult = {status: 'PENDING'};
-  let errorStatus = '';
 
   const updateTime = 500;
   const PENDING_STATUS = 'PENDING';
-  const FAILURE_STATUS= 'FAILURE';
 
   $: isTaskPending = (taskResult.status === PENDING_STATUS);
-  $: isTaskFailed = (taskResult.status === FAILURE_STATUS);
+  
   onMount(async () => {
     updateTaskResult();
   });
@@ -35,12 +33,11 @@
   function formatTaskID(task) {
     return task.id.slice(0, 5) + '...';
   }
-  $: {
-    console.log(cm);
-    console.log(task);
-    if (isTaskFailed) {
-      errorStatus = taskResult.result;
-    } else if (!isTaskPending) {
+  $: isTaskPending = taskResult.status === PENDING_STATUS;
+  $: if (!isTaskPending) {
+    if (typeof taskResult.result === 'string') {
+      values.push(['details', taskResult.result]);
+    } else {
       graphs = taskResult.result.graphs;
       // TODO here check if values has an unit, if yes merge unit and value
       values = Object.entries(taskResult.result.values);
@@ -56,10 +53,7 @@
 <dl>
   <dt>task_id</dt><dd>{formatTaskID(task)}</dd>
   <dt>status</dt><dd>{taskResult.status}</dd>
-  {#if isTaskFailed}
-  Task failed
-  Error: {errorStatus}
-  {:else if !isTaskPending}
+  {#if !isTaskPending}
           {#each values as [name, value]}
             <dt>{name} </dt>
             <dd>{value}</dd>

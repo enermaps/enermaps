@@ -12,7 +12,10 @@ class GeoJSONfileTest(BaseApiTest):
         testfile = "example.geojson"
         test_data, initial_data = self.get_testformdata(testfile, "example.json")
         response = self.client.post(
-            "api/geofile/", data=test_data, content_type="multipart/form-data"
+            "api/geofile/",
+            data=test_data,
+            content_type="multipart/form-data",
+            follow_redirects=True,
         )
         self.assertStatusCodeEqual(response, 200)
 
@@ -22,7 +25,10 @@ class VectorGeofileTest(BaseApiTest):
         testfile = "nuts.zip"
         test_data, initial_data = self.get_testformdata(testfile)
         response = self.client.post(
-            "api/geofile/", data=test_data, content_type="multipart/form-data"
+            "api/geofile/",
+            data=test_data,
+            content_type="multipart/form-data",
+            follow_redirects=True,
         )
         self.assertEqual(response.status, "200 OK", response.data)
         resp = self.client.get("api/geofile/" + testfile)
@@ -43,7 +49,10 @@ class VectorGeofileTest(BaseApiTest):
         testfile = "nuts.zip"
         test_data, _ = self.get_testformdata(testfile)
         response = self.client.post(
-            "api/geofile/", data=test_data, content_type="multipart/form-data"
+            "api/geofile/",
+            data=test_data,
+            content_type="multipart/form-data",
+            follow_redirects=True,
         )
         self.assertStatusCodeEqual(response, 200)
 
@@ -57,7 +66,9 @@ class VectorGeofileTest(BaseApiTest):
         testfile = "hotmaps-cdd_curr_adapted.tif"
         test_data, _ = self.get_testformdata(testfile, testfile_name="test.zip")
         response = self.client.post(
-            "api/geofile/", data=test_data, content_type="multipart/form-data"
+            "api/geofile/",
+            data=test_data,
+            content_type="multipart/form-data",
         )
         self.assertEqual(response.status, "400 BAD REQUEST", response.data)
 
@@ -66,7 +77,10 @@ class VectorGeofileTest(BaseApiTest):
         testfile = "nuts.zip"
         test_data, testfile_content = self.get_testformdata(testfile)
         response = self.client.post(
-            "api/geofile/", data=test_data, content_type="multipart/form-data"
+            "api/geofile/",
+            data=test_data,
+            content_type="multipart/form-data",
+            follow_redirects=True,
         )
         self.assertStatusCodeEqual(response, 200)
 
@@ -76,7 +90,7 @@ class VectorGeofileTest(BaseApiTest):
         self.assertIn(testfile, json_content)
 
         # Now delete the file
-        response = self.client.delete("api/geofile/" + testfile)
+        response = self.client.delete("api/geofile/" + testfile, follow_redirects=True)
         self.assertStatusCodeEqual(response, 200)
 
         # and check that it is not in the listing anymore
@@ -91,7 +105,10 @@ class TifGeofileTest(BaseApiTest):
         testfile = "hotmaps-cdd_curr_adapted.tif"
         test_data, _ = self.get_testformdata(testfile, testfile_name="../test.tif")
         response = self.client.post(
-            "api/geofile/", data=test_data, content_type="multipart/form-data"
+            "api/geofile/",
+            data=test_data,
+            content_type="multipart/form-data",
+            follow_redirects=True,
         )
         self.assertEqual(response.status, "404 NOT FOUND", response.data)
 
@@ -100,7 +117,10 @@ class TifGeofileTest(BaseApiTest):
         testfile_name = "⎈.tif"
         test_data, _ = self.get_testformdata(testfile, testfile_name=testfile_name)
         response = self.client.post(
-            "api/geofile/", data=test_data, content_type="multipart/form-data"
+            "api/geofile/",
+            data=test_data,
+            content_type="multipart/form-data",
+            follow_redirects=True,
         )
         self.assertStatusCodeEqual(response, 200)
         response = self.client.get("api/geofile/")
@@ -116,7 +136,10 @@ class TifGeofileTest(BaseApiTest):
         testfile_name = ".test.tif"
         test_data, _ = self.get_testformdata(testfile, testfile_name=testfile_name)
         response = self.client.post(
-            "api/geofile/", data=test_data, content_type="multipart/form-data"
+            "api/geofile/",
+            data=test_data,
+            content_type="multipart/form-data",
+            follow_redirects=True,
         )
         self.assertStatusCodeEqual(response, 200)
         response = self.client.get("api/geofile/")
@@ -132,7 +155,10 @@ class TifGeofileTest(BaseApiTest):
         testfile = "no_projection.tif"
         test_data, _ = self.get_testformdata(testfile)
         response = self.client.post(
-            "/api/geofile/", data=test_data, content_type="multipart/form-data"
+            "/api/geofile/",
+            data=test_data,
+            content_type="multipart/form-data",
+            follow_redirects=True,
         )
         self.assertEqual(response.status, "400 BAD REQUEST", response.data)
 
@@ -141,7 +167,10 @@ class TifGeofileTest(BaseApiTest):
         testfile = "hotmaps-cdd_curr_adapted.tif"
         test_data, testfile_content = self.get_testformdata(testfile)
         response = self.client.post(
-            "api/geofile/", data=test_data, content_type="multipart/form-data"
+            "api/geofile/",
+            data=test_data,
+            content_type="multipart/form-data",
+            follow_redirects=True,
         )
         self.assertStatusCodeEqual(response, 200)
 
@@ -162,7 +191,10 @@ class TifGeofileTest(BaseApiTest):
         testfile = "hotmaps-cdd_curr_adapted.tif"
         test_data, testfile_content = self.get_testformdata(testfile)
         response = self.client.post(
-            "api/geofile/", data=test_data, content_type="multipart/form-data"
+            "api/geofile/",
+            data=test_data,
+            content_type="multipart/form-data",
+            follow_redirects=True,
         )
         self.assertStatusCodeEqual(response, 200)
 
@@ -172,7 +204,7 @@ class TifGeofileTest(BaseApiTest):
         self.assertIn(testfile, json_content)
 
         # Now delete the file
-        response = self.client.delete("api/geofile/" + testfile)
+        response = self.client.delete("api/geofile/" + testfile, follow_redirects=True)
         self.assertStatusCodeEqual(response, 200)
 
         # and check that it is not in the listing anymore
