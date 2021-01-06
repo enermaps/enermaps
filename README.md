@@ -14,7 +14,7 @@ You can then access:
 
 * the frontend on http://127.0.0.1:7000
 * the api on http://127.0.0.1:7000/api
-* the database is available on host 127.0.0.1 and port 5433 with the psql 
+* the database is available on host 127.0.0.1 and port 5433 with the psql
 client (see ![](db/README.md))
 * the broker (redis) is available on host 127.0.0.1 and port 6379 with a redis client.
 * the broker can also be monitored trough http://127.0.0.1:5555, which is running flower, a monitoring interface for long running tasks.
@@ -29,7 +29,7 @@ docker-compose up --build -d $service
 
 where service can be one of frontend, api or db.
 
-You can also rebuild the set of all service, and docker will only rebuilt the 
+You can also rebuild the set of all service, and docker will only rebuilt the
 changed images with the following command:
 
 ```
@@ -66,5 +66,6 @@ act pull_request
 
 ## Symlink on window
 
-This repository is using symlinks. On windows, you will need to make sure symlink are enabled. Follow the instruction on
-https://github.community/t/git-bash-symbolic-links-on-windows/522
+This repository was previously using symlinks to unify all the setup.cfg. On windows, this required sometime administrative
+right (see https://github.community/t/git-bash-symbolic-links-on-windows/522), thus we manually updated each setup.cfg to
+be the same. When updating one setup.cfg, you will need to be carefull to update all of them.

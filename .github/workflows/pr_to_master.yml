@@ -47,6 +47,9 @@ jobs:
       - name: check-lint the frontend
         run: cd frontend/src && npx eslint .
 
+      - name: ensure all setup.cfg are the same
+        run: find . -name setup.cfg -exec sha256sum {} \; | cut -d ' ' -f 1 | uniq -u | test -z
+
   build-stack:
     runs-on: 'ubuntu-18.04'
     steps:
