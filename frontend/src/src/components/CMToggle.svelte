@@ -13,12 +13,12 @@ function toggleCM() {
 }
 #cm_toggle_container:hover {
   background-color: #f4f4f4;
-  background: url('../analytics_icon.png') #fafafa;
+  background: url('/images/analytics-icon.png') #fafafa;
 }
 #cm_toggle_container {
   background-repeat: no-repeat;
   background-size: cover;
-  background: url('../analytics_icon.png');
+  background: url('/images/analytics-icon.png');
   height: 30px;
   width: 30px;
   background-color: white;
