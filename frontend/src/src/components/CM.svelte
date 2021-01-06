@@ -42,6 +42,11 @@
                       $activeSelectionLayerStore !== undefined;
     isDisabled = !isEnabled;
   }
+
+  function deleteCMTask(taskToDelete) {
+    console.log('Deleting task: ' + taskToDelete.id);
+    tasks = tasks.filter((task)=> taskToDelete.id != task.id);
+  }
 </script>
 <style>
 .tasks {
@@ -53,7 +58,7 @@
     <button type=submit on:click={() => callCM(cm)} disabled={isDisabled} title={callCMTooltip}>{cm.pretty_name}</button>
   <div class="tasks">
   {#each tasks as task}
-    <CMTask {cm} {task}/>
+    <CMTask {cm} {task} on:delete="{() => deleteCMTask(task)}"/>
   {/each}
   </div>
 </div>
