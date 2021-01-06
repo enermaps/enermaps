@@ -2,7 +2,7 @@
   import {onMount} from 'svelte';
   import {getCMs} from '../client.js';
 
-import {isCMPaneActiveStore} from '../stores.js';
+  import {isCMPaneActiveStore} from '../stores.js';
   import CM from './CM.svelte';
 
   let cms = [];
@@ -10,6 +10,9 @@ import {isCMPaneActiveStore} from '../stores.js';
   onMount(async () => {
     cms = await getCMs();
   });
+  function toggleCM() {
+    isCMPaneActiveStore.update((n) => !n);
+  }
 </script>
 <style>
 #calculation_modules {
@@ -40,10 +43,14 @@ import {isCMPaneActiveStore} from '../stores.js';
 }
 </style>
 <div id="calculation_modules" hidden={!$isCMPaneActiveStore}>
-  <h2 id="header">Call a calculation module</h2>
-  <div id="list">
-    {#each cms as cm}
-      <CM bind:cm/>
-    {/each}
+  <div class="close_button" on:click|stopPropagation="{toggleCM}"></div>
+    <a id="cm_toggle" title="Display CM" on:click|stopPropagation={toggleCM}></a>
+  <div id="cm_toggle_container">
+    <h2 id="header">Call a calculation module</h2>
+    <div id="list">
+      {#each cms as cm}
+	<CM bind:cm/>
+      {/each}
+    </div>
   </div>
 </div>

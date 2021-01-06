@@ -53,19 +53,9 @@
 .cmresult {
   border-style: solid;
 }
-#close_button {
-  float: right;
-  padding: 3px;
-  display: block;
-  height: 30px;
-  width: 30px;
-  background-repeat: no-repeat;
-  background-size: cover;
-  background: url('/images/clear-icon.png');
-}
 </style>
 <div class="cmresult">
-  <div id="close_button" on:click="{removeTask}"></div>
+  <div class="close_button" on:click="{removeTask}"></div>
 <dl>
   <dt>task_id</dt><dd>{formatTaskID(task)}</dd>
   <dt>status</dt><dd>{taskResult.status}</dd>
