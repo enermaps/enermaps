@@ -50,6 +50,22 @@ jobs:
       - name: ensure all setup.cfg are the same
         run: find . -name setup.cfg -exec sha256sum {} \; | cut -d ' ' -f 1 | uniq -u | test -z
 
+  verify-licenses:
+    # The type of runner that the job will run on
+    runs-on: 'ubuntu-18.04'
+
+    # Steps represent a sequence of tasks that will be executed as part of the job
+    steps:
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.x
+      - name: install liccheck
+        run: find . -name requirements.txt -print -exec pip install -r {} \; -exec liccheck -s .liccheck.ini -r {} \;
+      - name: verify python licenses
+        run: find . -name setup.cfg -exec sha256sum {} \; | cut -d ' ' -f 1 | uniq -u | test -z
+      - name: verify npm license
+        run: npx license-checker --onlyAllow MIT\;BSD-3-Clause\;ISC\;Apache-2.0\;BSD-2-Clause\;Public\ Domain\;AFLV2,BSD\;AFLv2.1\;WTFPL\;Custom:\ https://rollupjs.org\;Unlicense\;
   build-stack:
     runs-on: 'ubuntu-18.04'
     steps:
