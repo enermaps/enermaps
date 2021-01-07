@@ -2,6 +2,7 @@
   import {onMount} from 'svelte';
   import {deleteTaskResult, getTaskResult} from '../client.js';
   import Chart from './Chart.svelte';
+  import Value from './Value.svelte';
   export let task;
   export let cm;
   export let graphs = {};
@@ -54,9 +55,8 @@
   <dt>task_id</dt><dd>{formatTaskID(task)}</dd>
   <dt>status</dt><dd>{taskResult.status}</dd>
   {#if !isTaskPending}
-          {#each values as [name, value]}
-            <dt>{name} </dt>
-            <dd>{value}</dd>
+          {#each values as value}
+            <Value value={value}/>
           {/each}
           <Chart datasets={graphs}/>
   {:else }
