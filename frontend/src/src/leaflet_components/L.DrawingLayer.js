@@ -1,3 +1,4 @@
+import * as L from 'leaflet'
 import 'leaflet-draw/dist/leaflet.draw.js';
 import 'leaflet-draw/dist/leaflet.draw.css';
 

@@ -1,3 +1,5 @@
+import * as L from 'leaflet'
+
 L.TileLayer.NutsLayer = L.TileLayer.WMS.extend({
   onAdd: function(map) {
     this.selection = L.geoJSON();

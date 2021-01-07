@@ -1,3 +1,5 @@
+import * as L from 'leaflet'
+
 L.TileLayer.QueryableLayer = L.TileLayer.WMS.extend({
   onAdd: function(map) {
     // Triggered when the layer is added to a map.
