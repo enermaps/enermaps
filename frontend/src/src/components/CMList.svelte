@@ -24,11 +24,26 @@ import {isCMPaneActiveStore} from '../stores.js';
   border-style: solid;
   border-color: grey;
   background-color: rgba(255, 255, 255, 0.6);
+  display: flex;
+  flex-direction: column;
+  height: 80%;
+  width: 40%
+}
+[hidden]{
+  display: none !important;
+}
+#header {
+  flex-shrink: 0;
+}
+#list {
+  overflow-y: auto;
 }
 </style>
 <div id="calculation_modules" hidden={!$isCMPaneActiveStore}>
-  <h2>Call a calculation module</h2>
-  {#each cms as cm}
-    <CM bind:cm/>
-  {/each}
+  <h2 id="header">Call a calculation module</h2>
+  <div id="list">
+    {#each cms as cm}
+      <CM bind:cm/>
+    {/each}
+  </div>
 </div>
