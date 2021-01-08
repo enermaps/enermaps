@@ -1,5 +1,5 @@
 <script src="../settings.js">
-  import {onMount} from 'svelte';
+  import {onMount, createEventDispatcher} from 'svelte';
   import {deleteTaskResult, getTaskResult} from '../client.js';
   import Chart from './Chart.svelte';
   import Value from './Value.svelte';
@@ -11,6 +11,7 @@
 
   const updateTime = 500;
   const PENDING_STATUS = 'PENDING';
+  const dispatch = createEventDispatcher();
 
   $: isTaskPending = (taskResult.status === PENDING_STATUS);
   
@@ -44,13 +45,27 @@
       values = Object.entries(taskResult.result.values);
     }
   }
+  function removeTask() {
+    dispatch('delete', {});
+  }
 </script>
 <style>
 .cmresult {
   border-style: solid;
 }
+#close_button {
+  float: right;
+  padding: 3px;
+  display: block;
+  height: 30px;
+  width: 30px;
+  background-repeat: no-repeat;
+  background-size: cover;
+  background: url('/images/clear-icon.png');
+}
 </style>
 <div class="cmresult">
+  <div id="close_button" on:click="{removeTask}"></div>
 <dl>
   <dt>task_id</dt><dd>{formatTaskID(task)}</dd>
   <dt>status</dt><dd>{taskResult.status}</dd>
