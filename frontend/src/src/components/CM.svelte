@@ -58,16 +58,14 @@
   overflow: auto;
 }
 </style>
-<div>
- <button on:click="{toggleCollapse}">toggle</button>
-  {cm.pretty_name}
-  <div hidden="{!collapsed}">
-    <form bind:this={formElement} />
-      <button type=submit on:click={() => callCM(cm)} disabled={isDisabled} title={callCMTooltip}>{cm.pretty_name}</button>
-    <div class="tasks">
-    {#each tasks as task}
-      <CMTask {cm} {task} on:delete="{() => deleteCMTask(task)}"/>
-    {/each}
-    </div>
+<button on:click="{toggleCollapse}">Toggle</button>
+{cm.pretty_name}
+<div hidden="{!collapsed}">
+  <form bind:this={formElement} />
+    <button type=submit on:click={() => callCM(cm)} disabled={isDisabled} title={callCMTooltip}>{cm.pretty_name}</button>
+  <div class="tasks">
+  {#each tasks as task}
+    <CMTask {cm} {task} on:delete="{() => deleteCMTask(task)}"/>
+  {/each}
   </div>
 </div>

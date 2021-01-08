@@ -56,7 +56,7 @@
 </style>
 <div class="cmresult">
   <div class="close_button" on:click="{removeTask}"></div>
-<dl>
+  <dl>
   <dt>task_id</dt><dd>{formatTaskID(task)}</dd>
   <dt>status</dt><dd>{taskResult.status}</dd>
   {#if !isTaskPending}
