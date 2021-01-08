@@ -6,6 +6,10 @@
   import queryString from 'query-string';
   import {getGeofiles, WMS_URL} from '../client.js';
   import {activeOverlayLayersStore, activeSelectionLayerStore} from '../stores.js';
+
+  // List of queryable layers that are used as selection layers.
+  // The order in which they appear is mirrored in the order the layers
+  // are displayed.
   export const SELECTIONS_LIST= [
     'nuts0.zip',
     'nuts1.zip',
@@ -130,7 +134,23 @@
   padding: 4px;
 }
 #map_selection h3 {
-        margin: 0px;
+  margin: 0px;
+  height: 40%;
+  display: flex;
+  flex-direction: column;
+  max-width: 200px;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden !important;
+}
+h3 {
+  flex-shrink: 0;
+}
+#selection_layers {
+  overflow-y: auto;
+}
+#overlay_layers {
+  overflow-y: auto;
 }
 </style>
 <div id="map_selection" on:click|stopPropagation="">
@@ -138,20 +158,24 @@
   Loading layers
   {:else}
   <h3>Selection</h3>
+  <div id="selection_layers">
   {#each selectionLayers as selectionLayer}
   <label>
     <input type=radio bind:group={$activeSelectionLayerStore} value={selectionLayer}>
     {selectionLayer.name}
   </label>
   {/each}
+  </div>
 
   <h3>Overlays</h3>
+  <div id="overlay_layers">
   {#each overlayLayers as overlayLayer}
   <label>
     <input type=checkbox bind:group={$activeOverlayLayersStore} value={overlayLayer}>
       {overlayLayer.name}
     </label>
   {/each}
+  </div>
 
   {/if}
 </div>

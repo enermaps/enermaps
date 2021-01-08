@@ -12,6 +12,7 @@
   let formElement;
   let form = undefined;
   let callCMTooltip = 'brutison is a brutison';
+  let collapsed = false;
 
   async function callCM() {
     const newTaskParams = {};
@@ -47,6 +48,10 @@
     console.log('Deleting task: ' + taskToDelete.id);
     tasks = tasks.filter((task)=> taskToDelete.id != task.id);
   }
+  
+  function toggleCollapse() {
+    collapsed = !collapsed;
+  }
 </script>
 <style>
 .tasks {
@@ -54,11 +59,15 @@
 }
 </style>
 <div>
-  <form bind:this={formElement} />
-    <button type=submit on:click={() => callCM(cm)} disabled={isDisabled} title={callCMTooltip}>{cm.pretty_name}</button>
-  <div class="tasks">
-  {#each tasks as task}
-    <CMTask {cm} {task} on:delete="{() => deleteCMTask(task)}"/>
-  {/each}
+ <button on:click="{toggleCollapse}">toggle</button>
+  {cm.pretty_name}
+  <div hidden="{!collapsed}">
+    <form bind:this={formElement} />
+      <button type=submit on:click={() => callCM(cm)} disabled={isDisabled} title={callCMTooltip}>{cm.pretty_name}</button>
+    <div class="tasks">
+    {#each tasks as task}
+      <CMTask {cm} {task}  on:delete="{() => deleteCMTask(task)}"/>
+    {/each}
+    </div>
   </div>
 </div>
