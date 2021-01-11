@@ -44,23 +44,40 @@
     isDisabled = !isEnabled;
   }
 
+  function toggleCollapse() {
+    collapsed = !collapsed;
+  }
+
   function deleteCMTask(taskToDelete) {
     console.log('Deleting task: ' + taskToDelete.id);
     tasks = tasks.filter((task)=> taskToDelete.id != task.id);
   }
-  
-  function toggleCollapse() {
-    collapsed = !collapsed;
-  }
 </script>
 <style>
 .tasks {
-  overflow: auto;
+  position: relative;
+}
+.open_menu {
+  display: inline-block;
+  height: 30px;
+  width: 30px;
+  background: url('/images/menu-close-icon.png');
+}
+.close_menu {
+  display: inline-block;
+  height: 30px;
+  width: 30px;
+  background: url('/images/menu-open-icon.png');
+}
+.cm_name {
+  display: inline-block;
+  margin: 0px;
 }
 </style>
-<div>
- <button on:click="{toggleCollapse}">toggle</button>
-  {cm.pretty_name}
+  <div class="cm_header">
+    <div class:open_menu="{!collapsed}" class:close_menu="{collapsed}" on:click="{toggleCollapse}"></div>
+    <h3 class="cm_name">{cm.pretty_name}<h3>
+  </div>
   <div hidden="{!collapsed}">
     <form bind:this={formElement} />
       <button type=submit on:click={() => callCM(cm)} disabled={isDisabled} title={callCMTooltip}>{cm.pretty_name}</button>
@@ -69,5 +86,4 @@
       <CMTask {cm} {task}  on:delete="{() => deleteCMTask(task)}"/>
     {/each}
     </div>
-  </div>
 </div>

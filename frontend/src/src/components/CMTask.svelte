@@ -51,7 +51,11 @@
 </script>
 <style>
 .cmresult {
-  border-style: solid;
+  border: 2px solid rgba(0,0,0,0.5);
+  border-radius: 4px;
+  padding-right: 5px;
+  padding-top: 5px;
+  padding-bottom: 5px;
 }
 #close_button {
   float: right;
@@ -65,8 +69,8 @@
 }
 </style>
 <div class="cmresult">
-  <div id="close_button" on:click="{removeTask}"></div>
-<dl>
+  <div class="close_button" on:click="{removeTask}"></div>
+  <dl>
   <dt>task_id</dt><dd>{formatTaskID(task)}</dd>
   <dt>status</dt><dd>{taskResult.status}</dd>
   {#if !isTaskPending}
