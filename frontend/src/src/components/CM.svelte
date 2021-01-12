@@ -22,7 +22,7 @@
     console.log('Creating new task with parameters: ' + newTaskParams);
     const task = await postCMTask(cm, newTaskParams);
 
-    tasks.unshift(task);
+    tasks.push(task);
     tasks = tasks;
   }
 
@@ -82,7 +82,7 @@
     <form bind:this={formElement} />
       <button type=submit on:click={() => callCM(cm)} disabled={isDisabled} title={callCMTooltip}>{cm.pretty_name}</button>
     <div class="tasks">
-    {#each tasks as task}
+    {#each [...tasks].reverse() as task (task.id)}
       <CMTask {cm} {task}  on:delete="{() => deleteCMTask(task)}"/>
     {/each}
     </div>

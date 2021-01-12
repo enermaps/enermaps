@@ -53,20 +53,16 @@
     }
     lineDatasets.push({label: name, data: chartPoints});
     lineDatasets = lineDatasets;
-    console.log('Inserting ' + name + ' as a line plot');
   }
 
   function insertXYChart(name, dataset) {
     const points = dataset.values;
     const chartPoints = [];
     for (const point of points) {
-      console.log(point);
       chartPoints.push({x: point[0], y: point[1]});
-      console.log(chartPoints);
     }
     xyDatasets.push({label: name, data: chartPoints});
     xyDatasets = xyDatasets;
-    console.log('Inserting ' + name + ' as a xy plot');
   }
 
   async function createChart() {
@@ -78,7 +74,6 @@
           datasets: xyDatasets,
         },
       });
-      console.log(xyDatasets);
     } else {
       xyCanvas.hidden = true;
     }
@@ -89,7 +84,6 @@
           datasets: lineDatasets,
         },
       });
-      console.log(lineDatasets);
     } else {
       lineCanvas.hidden = true;
     }
@@ -100,7 +94,6 @@
           datasets: barDatasets,
         },
       });
-      console.log(barDatasets);
     } else {
       barCanvas.hidden = true;
     }
