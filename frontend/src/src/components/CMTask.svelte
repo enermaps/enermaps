@@ -57,16 +57,6 @@
   padding-top: 5px;
   padding-bottom: 5px;
 }
-#close_button {
-  float: right;
-  padding: 3px;
-  display: block;
-  height: 30px;
-  width: 30px;
-  background-repeat: no-repeat;
-  background-size: cover;
-  background: url('/images/clear-icon.png');
-}
 </style>
 <div class="cmresult">
   <div class="close_button" on:click="{removeTask}"></div>

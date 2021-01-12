@@ -80,7 +80,7 @@
       });
       console.log(xyDatasets);
     } else {
-      xyDatasets.hidden = true;
+      xyCanvas.hidden = true;
     }
     if (lineDatasets.length) {
       lineChart = new Chart(lineCanvas, {
