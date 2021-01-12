@@ -5,8 +5,8 @@
   import Value from './Value.svelte';
   export let task;
   export let cm;
-  export let graphs = {};
-  export let values = [];
+  let graphs = {};
+  let values = [];
   let taskResult = {status: 'PENDING'};
 
   const updateTime = 500;
@@ -14,6 +14,9 @@
   const dispatch = createEventDispatcher();
 
   $: isTaskPending = (taskResult.status === PENDING_STATUS);
+  $: {
+    console.log(task);
+  }
   
   onMount(async () => {
     updateTaskResult();
