@@ -4,10 +4,11 @@ let name;
 let formattedValue;
 $ : {
   name = value[0];
-  if (typeof value[1] === 'number') {
-    formattedValue = String(value[1]);
+  console.log(value);
+  if (Array.isArray(value[1])) {
+    formattedValue = value[1].map(String).join(' ');
   } else {
-    formattedValue = value[1].join(' ');
+    formattedValue = String(value[1]);
   }
 }
 </script>

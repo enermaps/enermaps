@@ -12,7 +12,7 @@
   let formElement;
   let form = undefined;
   let callCMTooltip = 'brutison is a brutison';
-  let collapsed = false;
+  let isCollapsed = false;
 
   async function callCM() {
     const newTaskParams = {};
@@ -45,7 +45,7 @@
   }
 
   function toggleCollapse() {
-    collapsed = !collapsed;
+    isCollapsed = !isCollapsed;
   }
 
   function deleteCMTask(taskToDelete) {
@@ -75,10 +75,10 @@
 }
 </style>
   <div class="cm_header">
-    <div class:open_menu="{!collapsed}" class:close_menu="{collapsed}" on:click="{toggleCollapse}"></div>
+    <div class:open_menu="{!isCollapsed}" class:close_menu="{isCollapsed}" on:click="{toggleCollapse}"></div>
     <h3 class="cm_name">{cm.pretty_name}<h3>
   </div>
-  <div hidden="{!collapsed}">
+  <div hidden="{isCollapsed}">
     <form bind:this={formElement} />
       <button type=submit on:click={() => callCM(cm)} disabled={isDisabled} title={callCMTooltip}>{cm.pretty_name}</button>
     <div class="tasks">
