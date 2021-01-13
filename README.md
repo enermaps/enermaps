@@ -29,7 +29,7 @@ docker-compose up --build -d $service
 
 where service can be one of frontend, api or db.
 
-You can also rebuild the set of all service, and docker will only rebuilt the
+You can also rebuild the set of all services, and docker will only rebuilt the
 changed images with the following command:
 
 ```
