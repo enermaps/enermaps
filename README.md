@@ -66,6 +66,6 @@ act pull_request
 
 ## Symlink on window
 
-This repository was previously using symlinks to unify all the setup.cfg. On windows, this required sometime administrative
-right (see https://github.community/t/git-bash-symbolic-links-on-windows/522), thus we manually updated each setup.cfg to
+This repository was previously using symlinks to unify all the setup.cfg. On windows, this required sometimes administrative
+rights (see https://github.community/t/git-bash-symbolic-links-on-windows/522), thus we manually updated each setup.cfg to
 be the same. When updating one setup.cfg, you will need to be carefull to update all of them.
