@@ -2,7 +2,7 @@ import json
 import os
 import unittest
 
-from BaseCM.output import CMOutput
+from BaseCM.cm_output import CMOutput
 
 CURRENT_FILE_DIR = os.path.dirname(os.path.abspath(__file__))
 TESTDATA_DIR = os.path.join(CURRENT_FILE_DIR, "testdata")
