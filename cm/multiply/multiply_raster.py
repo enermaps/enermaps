@@ -37,8 +37,8 @@ def extract_graph(stats: dict):
             is_graph_invalid = True
         graph.append(
             (
-                cdf_point,
                 stats[percentile],
+                cdf_point,
             )
         )
         del stats[percentile]

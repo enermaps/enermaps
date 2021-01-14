@@ -30,7 +30,7 @@
   margin: 20px;
   border-radius: 4px;
   border: 2px solid rgba(0,0,0,0.2);
-  background-color: rgba(255, 255, 255, 0.6);
+  background-color: rgba(255, 255, 255, 0.8);
   height: 80%;
   width: 40%
 }
