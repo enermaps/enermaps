@@ -7,12 +7,12 @@ import logging
 import os
 
 import jsonschema
+
 from celery import Celery, Task
 from celery.worker import worker
 
-
-CELERY_BROKER_URL = os.environ.get('CELERY_BROKER_URL')
-CELERY_RESULT_BACKEND = os.environ.get('CELERY_RESULT_BACKEND')
+CELERY_BROKER_URL = os.environ.get("CELERY_BROKER_URL")
+CELERY_RESULT_BACKEND = os.environ.get("CELERY_RESULT_BACKEND")
 
 
 def get_default_app():

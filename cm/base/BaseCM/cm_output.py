@@ -1,9 +1,10 @@
-from typing import Dict
 import os
+from typing import Dict
+
+import requests
 
 from marshmallow import Schema, fields
 from marshmallow_union import Union
-import requests
 
 
 class Value(Schema):
@@ -66,12 +67,11 @@ def validate(output: Dict) -> Dict:
 
 
 # get the api url
-API_URL = os.environ.get('API_URL')
+API_URL = os.environ.get("API_URL")
 
 
 def output_raster(raster_name, raster_fd):
-    """Add a raster to the api
-    """
-    files = {'file': (raster_name, raster_fd, 'image/tiff')}
-    resp = requests.post(API_URL + 'api/geofile/', files=files)
+    """Add a raster to the api"""
+    files = {"file": (raster_name, raster_fd, "image/tiff")}
+    resp = requests.post(API_URL + "api/geofile/", files=files)
     return resp.ok
