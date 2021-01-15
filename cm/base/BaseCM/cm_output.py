@@ -2,6 +2,7 @@ from typing import Dict
 
 from marshmallow import Schema, fields
 from marshmallow_union import Union
+import requests
 
 
 class Value(Schema):
@@ -61,3 +62,10 @@ def validate(output: Dict) -> Dict:
     output_schema = CMOutput()
     out = output_schema.load(data=output)
     return out
+
+def output_raster(raster_name, raster_fd):
+    """Add a raster to the api
+    """
+    files = {'file': (raster_name, raster_fd, 'image/tiff')}
+    resp = requests.post('http://127.0.0.1:7000/api/geofile/', files=files)
+    return resp.ok
