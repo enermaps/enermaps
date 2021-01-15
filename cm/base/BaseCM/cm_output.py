@@ -66,7 +66,7 @@ def validate(output: Dict) -> Dict:
 
 
 # get the api url
-API_URL = os.env.get('API_URL')
+API_URL = os.environ.get('API_URL')
 
 
 def output_raster(raster_name, raster_fd):
