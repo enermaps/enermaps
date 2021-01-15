@@ -4,6 +4,10 @@
     "factor": {
       "type": "number",
       "default": 1
+    },
+    "factor 2": {
+      "type": "number",
+      "default": 1
     }
   }
 }
