@@ -1,7 +1,7 @@
 Base directory for the calculation modules (cm).
 
-A calculation module is an asynchronous slow task (from seconds to hours of
-latency for the answer). A calculation module takes a set of raster, a selection and an optional set of parameters
+A calculation module is an asynchronous slow task (from seconds to hours of latency for the answer). 
+A calculation module takes a set of raster, a selection and an optional set of parameters
 
 # Create a new cm
 
@@ -16,11 +16,11 @@ It must contain:
 * A schema.json jsonschema which describes the schema used for the input. 
   You can find additional information about jsonschema
   (see https://json-schema.org/).
-* A requirements.txt including CM specific dependencies.
+* A requirements.txt including cm specific dependencies.
 * A Dockerfile to create the necessary docker image.
   The docker-compose will need to be modified accordingly to create the new image.
-* A python script relating to the CM code.
-* A readme file describing the CM operation.
+* A python script relating to the cm code.
+* A readme file describing the cm operation.
 
 Below is an example of the tree structure :
 
@@ -85,7 +85,7 @@ The variable ```params``` refers to the data provided by the form on the fronten
 
 ## Test.py
 
-Below is an example of CM test.
+Below is an example of cm test.
 
 ```python
 import unittest
@@ -108,7 +108,7 @@ if __name__ == "__main__":
 
 ## Schema.json
 
-Below is an example of the data schema expected by the CM.
+Below is an example of the data schema expected by the cm.
 
 ```
 {
@@ -124,13 +124,25 @@ Below is an example of the data schema expected by the CM.
 
 ## Requirements.txt
 
-Below is an example of the dependencies used by a CM.
+Below is an example of the dependencies used by a cm.
 
 ```
+lxml==4.6.2
+GDAL==3.0.4
+```
+
+Only the dependencies specific to the cm are to be mentioned in the requirements.txt.
+
+The dependencies below will be available for all cm.
+
+````
+marshmallow==3.9.1
+marshmallow-union==0.1.15.post1
 jsonschema==3.2.0
 celery==5.0.2
 redis==3.5.3
-```
+requests
+````
 
 Whenever possible, it is preferable to specify 
 the version of the dependency used. 
@@ -158,6 +170,9 @@ CMD ["python3", "worker.py"]
 
 ### Docker-compose
 
+After adding those entrypoint, you can add your calculation module in the docker-compose.yml file at the root of this directory.
+
+
 Below is an example of the creation of the new service.
 
 ```
@@ -173,18 +188,12 @@ cm-first_cm:
     .env
 ```
 
-## Script 
-
-After adding those entrypoint, you can add your calculation module in the docker-compose.yml file at the root of this directory.
-
 # Test a cm
 
-Currently to test a particular cm, you will need to first start enermaps2 using docker-compose up in the root directory.
+Currently to test a particular cm, you will need to first start enermaps using docker-compose up in the root directory.
 Then you can connect to the redis queue. The multiply cm is given as an example.
 
-We strongly encourage you to write unittest that verify the good working of a calculation module separated from the enermaps2 api.
-
---> example of test
+We strongly encourage you to write unittest that verify the good working of a calculation module separated from the enermaps api.
 
 # CMs interaction
 
