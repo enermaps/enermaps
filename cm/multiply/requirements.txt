@@ -1,8 +1,4 @@
-celery==5.0.2
-redis
 shapely
 rasterstats
 rasterio
-requests
 pyproj
-jsonschema

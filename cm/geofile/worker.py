@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 import BaseCM.cm_base as cm_base
-from geofile import process
+from geojson import process
 
 app = cm_base.get_default_app()
 schema_path = cm_base.get_default_schema_path()

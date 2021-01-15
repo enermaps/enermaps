@@ -1,3 +1,4 @@
 rasterstats
 requests
 rasterio
+jsonschema
