@@ -2,7 +2,6 @@ import os
 from typing import Dict
 
 import requests
-
 from marshmallow import Schema, fields
 from marshmallow_union import Union
 

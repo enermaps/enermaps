@@ -7,7 +7,6 @@ import logging
 import os
 
 import jsonschema
-
 from celery import Celery, Task
 from celery.worker import worker
 
