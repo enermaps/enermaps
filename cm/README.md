@@ -19,7 +19,13 @@ It must contain:
   https://mokacoding.com/blog/symliks-in-git/ for a brief explanation on symbolic links)
 * A worker.py entrypoint, this must be an executable that start the worker.
 * A test.py unittest testing the calculation without service dependencies.
+* A schema.json jsonschema which describes the schema used for the input. You can find additional information about jsonschema
+  On https://json-schema.org/.
+
+After adding those entrypoint, you can add your calculation module in the docker-compose.yml file at the root of this directory.
 
 # CMs interaction
 
 Currently, the cm registers on the redis queue trough the celery library.
+An helper library is given, you can find it under base/BaseCM/ and an example is given in
+multiply/

@@ -5,7 +5,6 @@
 
 <style>
 :global(body) {
-	margin-bottom: 20px;
 	width: 100%;
 	height: 100%;
 }
@@ -20,7 +19,6 @@
   background: url('/images/clear-icon.png');
 }
 #main {
-	margin-bottom: 20px;
 	width: 100%;
 	height: 100%;
 	display: flex;

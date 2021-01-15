@@ -5,7 +5,7 @@ from typing import List, Optional, Text
 
 import pyproj
 import rasterio
-from BaseCM.output import validate
+from BaseCM.cm_output import validate
 from rasterstats import zonal_stats
 from shapely.geometry import shape
 from shapely.ops import cascaded_union, transform
@@ -37,8 +37,8 @@ def extract_graph(stats: dict):
             is_graph_invalid = True
         graph.append(
             (
-                cdf_point,
                 stats[percentile],
+                cdf_point,
             )
         )
         del stats[percentile]

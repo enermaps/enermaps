@@ -3,6 +3,8 @@
 """
 import inspect
 import json
+import logging
+import os
 
 import jsonschema
 from celery import Celery, Task
@@ -22,17 +24,33 @@ def get_default_app():
     return app
 
 
+def get_default_schema_path():
+    """return the schema.json relative to the caller.
+    We expect to find the schema.json file in the same directory as the worker.
+    """
+    filename = inspect.stack()[1].filename
+    dir_path = os.path.dirname(os.path.abspath(filename))
+    schema_path = os.path.join(dir_path, "schema.json")
+    if not os.path.isfile(schema_path):
+        raise FileNotFoundError(
+            "Cannot find schema.json file under the path " + schema_path
+        )
+    return schema_path
+
+
 class CMBase(Task):
+    schema_path = ""
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         signature = inspect.signature(self.__wrapped__)
         self.parameters = [p for p in signature.parameters]
         self.pretty_name = CMBase.format_function(self.__wrapped__)
-
-    def __call__(self, *args, **kwargs):
-        with open(self.schema_path) as fd:
-            # verify that we have a valid json schema
-            self.schema = json.load(fd)
+        if self.schema_path:
+            with open(self.schema_path) as fd:
+                self.schema = json.load(fd)
+        else:
+            self.schema = {}
 
     @staticmethod
     def format_function(function):
@@ -71,5 +89,6 @@ def base_task(app, schema_path):
 
 def start_app(app):
     """Start the celery application passed as single parameter"""
+    logging.basicConfig(level=logging.ERROR)
     w = worker.WorkController(app=app)
     w.start()

@@ -56,9 +56,7 @@
 .cmresult {
   border: 2px solid rgba(0,0,0,0.5);
   border-radius: 4px;
-  padding-right: 5px;
-  padding-top: 5px;
-  padding-bottom: 5px;
+  padding: 5px;
 }
 </style>
 <div class="cmresult">
