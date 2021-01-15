@@ -11,8 +11,12 @@ from celery import Celery, Task
 from celery.worker import worker
 
 
+CELERY_BROKER_URL = os.environ.get('CELERY_BROKER_URL')
+CELERY_RESULT_BACKEND = os.environ.get('CELERY_RESULT_BACKEND')
+
+
 def get_default_app():
-    app = Celery(__name__, broker="redis://redis//", backend="redis://redis")
+    app = Celery(__name__, broker=CELERY_BROKER_URL, backend=CELERY_RESULT_BACKEND)
 
     app.conf.update(
         task_serializer="json",
