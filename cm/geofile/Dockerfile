@@ -8,6 +8,5 @@ RUN pip3 install -r requirements.txt
 COPY base /tmp/base
 RUN cd /tmp/base && pip3 install . && python3 test.py
 COPY geofile .
-RUN python3 test.py
 RUN python3 geojson.py
 CMD ["python3", "worker.py"]

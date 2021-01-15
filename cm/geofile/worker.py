@@ -7,12 +7,11 @@ schema_path = cm_base.get_default_schema_path()
 
 
 @app.task(base=cm_base.CMBase, bind=True, schema_path=schema_path)
-def new_cm(self, selection: dict, rasters: list,):
+def new_cm(self, selection: dict, rasters: list, params: dict):
     """New cm to test the integration work flow"""
-    val_multiply = process(selection, rasters)
-    return val_multiply
+    geofile_output = process(selection, rasters)
+    return geofile_output
 
 
 if __name__ == "__main__":
     cm_base.start_app(app)
-
