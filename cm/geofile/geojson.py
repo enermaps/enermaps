@@ -2,7 +2,6 @@ import os
 import uuid
 
 import requests
-
 from rasterstats import zonal_stats
 
 CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
