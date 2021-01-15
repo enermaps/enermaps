@@ -9,6 +9,15 @@ services:
     volumes:
       - upload-data:/upload-dir
 
+  cm-geofile:
+    build:
+      context: ./cm
+      dockerfile: geofile/Dockerfile
+    environment:
+      UPLOAD_DIR: /upload-dir
+    volumes:
+      - upload-data:/upload-dir
+
   frontend:
     build:
       context: ./frontend
