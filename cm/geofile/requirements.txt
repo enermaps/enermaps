@@ -2,3 +2,5 @@ rasterstats
 requests
 rasterio
 jsonschema
+celery
+redis
