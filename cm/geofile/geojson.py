@@ -2,7 +2,6 @@ import logging
 import uuid
 
 from requests.exceptions import ConnectionError
-
 from BaseCM.cm_output import output_raster
 
 
