@@ -200,3 +200,13 @@ We strongly encourage you to write unittest that verify the good working of a ca
 Currently, the cm registers on the redis queue trough the celery library.
 An helper library is given, you can find it under base/BaseCM/ and an example is given in
 multiply/
+
+# Track building errors
+
+If the new CM isn't build correctly we can track the error with dis Docker command :
+
+```
+docker-compose logs [SERVICE]
+```
+See [Docker documentation](https://docs.docker.com/compose/reference/logs/) for more information
+about the options.
