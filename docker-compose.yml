@@ -1,9 +1,20 @@
 version: "3.8"
 services:
-  cm-multiply:
+  # cm-multiply:
+  #   build:
+  #     context: ./cm
+  #     dockerfile: multiply/Dockerfile
+  #   environment:
+  #     UPLOAD_DIR: /upload-dir
+  #   volumes:
+  #     - upload-data:/upload-dir
+  #   env_file:
+  #     .env
+
+  cm-geofile:
     build:
       context: ./cm
-      dockerfile: multiply/Dockerfile
+      dockerfile: geofile/Dockerfile
     environment:
       UPLOAD_DIR: /upload-dir
     volumes:
@@ -11,10 +22,10 @@ services:
     env_file:
       .env
 
-  cm-geofile:
+  cm-countclass:
     build:
       context: ./cm
-      dockerfile: geofile/Dockerfile
+      dockerfile: countclass/Dockerfile
     environment:
       UPLOAD_DIR: /upload-dir
     volumes:
