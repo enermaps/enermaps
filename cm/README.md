@@ -217,7 +217,7 @@ multiply/
 
 # Track building errors
 
-If the new CM isn't build correctly we can track the error with dis Docker command :
+If the new CM isn't built correctly we can track the error with this Docker command :
 
 ```
 docker-compose logs [SERVICE]
