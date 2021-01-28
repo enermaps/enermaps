@@ -24,22 +24,22 @@ To make the CM work, we need thres inputs:
 ### Raster
 To select the raster, we can use the selection tool on the top left of the page.
 
-![ILLUSTRATION](../../../Capture1.PNG)
+![ILLUSTRATION](./screenshots/selection_tool.PNG)
 
 By default, we have four rasters available to test the CM.
 
 ### Areas 
 To select the areas, we can use the selection tool on the top left of the page.
 
-![ILLUSTRATION](../../../Capture1.PNG)
+![ILLUSTRATION](./screenshots/selection_tool.PNG)
 
 An then select the area we want to study :
 
-![ILLUSTRATION](../../../Capture7.PNG)
+![ILLUSTRATION](./screenshots/area.PNG)
 
 Several areas can be selected too :
 
-![ILLUSTRATION](../../../Capture8.PNG)
+![ILLUSTRATION](./screenshots/areas.PNG)
 
 By default, the NUTS 0, NUTS 1, NUTS 2, NUTS 3 and LAU delimitation are available.
 
@@ -47,23 +47,23 @@ By default, the NUTS 0, NUTS 1, NUTS 2, NUTS 3 and LAU delimitation are availabl
 
 The multiplication factor is chosen via a drop-down menu.
 
-![ILLUSTRATION](../../../Capture4.PNG)
+![ILLUSTRATION](./screenshots/factor.PNG)
 
 To access this drop-down menu, select the icon at the top right of the page.
 
-![ILLUSTRATION](../../../Capture2.PNG)
+![ILLUSTRATION](./screenshots/cms.PNG)
 
 By default, this value is set to 1.
 
 It is necessary to select a raster and an area to be able to launch the CM.
 
-![ILLUSTRATION](../../../Capture5.PNG)
+![ILLUSTRATION](./screenshots/selection-error.PNG)
 
 ## Run the CM
 
 To start the CM, simply press the launch button.
 
-![ILLUSTRATION](../../../Capture9.PNG)
+![ILLUSTRATION](./screenshots/run.PNG)
 
 ## Ouputs
 
@@ -76,4 +76,4 @@ As an output, we get the following data :
 * the median raster value for the selected zone
 * a CDF graph 
  
-![ILLUSTRATION](../../../Capture10.PNG)
+![ILLUSTRATION](./screenshots/results.PNG)
