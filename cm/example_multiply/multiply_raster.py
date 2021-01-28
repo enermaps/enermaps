@@ -9,6 +9,13 @@ from BaseCM.cm_output import validate
 from rasterstats import zonal_stats
 from shapely.geometry import shape
 from shapely.ops import cascaded_union, transform
+# print(os.environ)
+# print("")
+# print("")
+# print(os.listdir("/usr/local/lib/python3.8/dist-packages/pyproj"))
+#os.environ['PROJ_LIB'] = '/usr/local/share/proj'
+# print(os.environ)
+# print(os.environ)
 
 GEOJSON_PROJ = "EPSG:4326"
 DEFAULT_STATS = ("min", "max", "mean", "median", "count")
