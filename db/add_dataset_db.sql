@@ -1,9 +1,9 @@
 CREATE ROLE dataset WITH UNENCRYPTED PASSWORD 'dataset';
 ALTER ROLE dataset WITH LOGIN;
-CREATE DATABASE dataset OWNER 'dataset';
-REVOKE ALL PRIVILEGES ON DATABASE dataset FROM public;
+CREATE DATABASE dataset OWNER 'test';
+-- REVOKE ALL PRIVILEGES ON DATABASE dataset FROM public;
 
-GRANT ALL PRIVILEGES ON DATABASE dataset TO dataset;
+-- GRANT ALL PRIVILEGES ON DATABASE dataset TO dataset;
 
 ALTER DATABASE dataset SET search_path = public, postgis;
 \c dataset
