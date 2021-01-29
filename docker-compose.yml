@@ -60,6 +60,10 @@ services:
     env_file:
       .env
 
+  data-integration:
+    build:
+      context: ./di
+
   redis:
     image: redis:6-alpine
     ports:
