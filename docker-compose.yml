@@ -1,5 +1,6 @@
 version: "3.8"
 services:
+<<<<<<< HEAD
   cm-multiply:
     build:
       context: ./cm
@@ -21,6 +22,16 @@ services:
       - upload-data:/upload-dir
     env_file:
       .env
+=======
+  # cm-multiply:
+  #   build:
+  #     context: ./cm
+  #     dockerfile: multiply/Dockerfile
+  #   environment:
+  #     UPLOAD_DIR: /upload-dir
+  #   volumes:
+  #     - upload-data:/upload-dir
+>>>>>>> 56c140e... WIP db
 
   frontend:
     build:
