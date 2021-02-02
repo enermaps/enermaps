@@ -95,6 +95,31 @@ See [cm_output.py](./base/BaseCM/cm_output.py) for more information about the ou
 
 ## Test.py
 
+To perform unit tests on CMs, we use the Unittest library.
+For this, we define a class dependent on the Unittest.TestCase class. 
+In this class are functions that test a particular functionality of the CM.
+
+Pre-implemented methods make it possible to study the behaviour of the CM quite easily.
+Below is a non-exhaustive list of these methods:
+
+| Method                    | Checks that           
+|---------------------------|----------------------
+| assertEqual(a, b)         | a == b                       
+| assertNotEqual(a, b)      | a != b                       
+| assertTrue(x)             | bool(x) is True              
+| assertFalse(x)            | bool(x) is False             
+| assertIs(a, b)            | a is b                   
+| assertIsNot(a, b)         | a is not b               
+| assertIsNone(x)           | x is None            
+| assertIsNotNone(x)        | x is not None        
+| assertIn(a, b)            | a in b               
+| assertNotIn(a, b)         | a not in b           
+| assertIsInstance(a, b)    | isinstance(a, b)     
+| assertNotIsInstance(a, b) | not isinstance(a, b) 
+
+See [unittest documentation](https://docs.python.org/3/library/unittest.html#assert-methods)
+for more information.
+
 Below is an example of cm test.
 
 ```python
@@ -211,9 +236,9 @@ and separated from the enermaps api.
 # CMs interaction
 
 Currently, the cm registers on the redis queue through the celery library.
-A helper library is given, you can find it under base/BaseCM/ and an example is given in
-A helper library is given, you can find it under base/BaseCM/ and an example is given in
-multiply/
+A helper library is given, you can find it under [base/BaseCM/ ](./base/BaseCM)
+and an example is given in
+[multiply/](./multiply).
 
 # Track building errors
 
