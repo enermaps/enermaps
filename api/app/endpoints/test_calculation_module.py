@@ -54,7 +54,8 @@ class FakeOuputTest(BaseIntegrationTest):
         cm_task_parameters["parameters"] = {"factor": 1}
         cm_task_parameters["layers"] = ["gfa_tot_curr_density.tiff"]
         create_task_url = self.cm_url + "/" + first_cm_name + "/task"
-        resp = requests.post(create_task_url, json=cm_task_parameters)
+        self.url = create_task_url
+        resp = requests.post(self.url, json=cm_task_parameters)
         dict_resp = self.getJSONFromRequestResponse(resp)
         self.assertGreater(
             len(dict_resp), 0, msg="Answer from creating a task" " was " + resp.text

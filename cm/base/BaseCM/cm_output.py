@@ -1,8 +1,11 @@
+import logging
+import os
 from typing import Dict
 
+import requests
 from marshmallow import Schema, fields
 from marshmallow_union import Union
-
+from requests.exceptions import ConnectionError
 
 class Value(Schema):
     value = fields.Number(required=True, allow_none=True)
@@ -61,3 +64,18 @@ def validate(output: Dict) -> Dict:
     output_schema = CMOutput()
     out = output_schema.load(data=output)
     return out
+
+
+# get the api url
+API_URL = os.environ.get("API_URL")
+
+
+def output_raster(raster_name, raster_fd):
+    """Add a raster to the api"""
+    files = {"file": (raster_name, raster_fd, "image/tiff")}
+    try:
+        resp = requests.post(API_URL + "api/geofile/", files=files)
+        return resp.ok
+    except ConnectionError:
+        logging.error("Error during the post of the file.")
+        return False
