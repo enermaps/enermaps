@@ -224,6 +224,29 @@ cm-new_cm:
   env_file:
     .env
 ```
+# Post geofile
+
+In case a CM would like to post a goofile to API, this is possible.
+To do so, we strongly encourage you to use the function in the [base/BaseCM/cm_output.py](./base/BaseCM/cm_output.py) folder.
+
+```python
+# get the api url
+API_URL = os.environ.get("API_URL")
+
+def output_raster(raster_name, raster_fd):
+    """Add a raster to the api"""
+    files = {"file": (raster_name, raster_fd, "image/tiff")}
+    resp = requests.post(API_URL + "api/geofile/", files=files)
+    return resp.ok
+```
+
+def output_raster(raster_name, raster_fd):
+    """Add a raster to the api"""
+    files = {"file": (raster_name, raster_fd, "image/tiff")}
+    resp = requests.post(API_URL + "api/geofile/", files=files)
+    return resp.ok
+
+At the moment, only Geotiff is supported.
 
 # Test a cm
 
