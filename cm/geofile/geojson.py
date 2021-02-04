@@ -8,4 +8,3 @@ def process(file):
         "frontend_name_" + str(uuid.uuid1()) + ".tif", open(file, "rb")
     )
     return status
-

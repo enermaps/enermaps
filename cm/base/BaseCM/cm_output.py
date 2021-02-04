@@ -80,4 +80,3 @@ def output_raster(raster_name, raster_fd):
     except ConnectionError:
         logging.error("Error during the post of the file.")
         return False
-
