@@ -3,6 +3,8 @@ import os
 from typing import Dict
 
 import requests
+from requests.exceptions import ConnectionError
+
 from marshmallow import Schema, fields
 from marshmallow_union import Union
 from requests.exceptions import ConnectionError
