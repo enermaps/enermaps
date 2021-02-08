@@ -22,6 +22,17 @@ services:
     env_file:
       .env
 
+  cm-countclass:
+    build:
+      context: ./cm
+      dockerfile: countclass/Dockerfile
+    environment:
+      UPLOAD_DIR: /upload-dir
+    volumes:
+      - upload-data:/upload-dir
+    env_file:
+      .env
+
   frontend:
     build:
       context: ./frontend
