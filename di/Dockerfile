@@ -22,4 +22,4 @@ RUN git clone --branch raster https://github.com/enermaps/dataflows.git
 RUN cd dataflows && pip3 install -e .
 
 
-CMD ["python3", "pipeline.py"]
+# CMD ["python3", "pipeline.py"]
