@@ -1,13 +1,26 @@
 version: "3.8"
 services:
-  # cm-multiply:
-  #   build:
-  #     context: ./cm
-  #     dockerfile: multiply/Dockerfile
-  #   environment:
-  #     UPLOAD_DIR: /upload-dir
-  #   volumes:
-  #     - upload-data:/upload-dir
+  cm-multiply:
+    build:
+      context: ./cm
+      dockerfile: multiply/Dockerfile
+    environment:
+      UPLOAD_DIR: /upload-dir
+    volumes:
+      - upload-data:/upload-dir
+    env_file:
+      .env
+
+  cm-geofile:
+    build:
+      context: ./cm
+      dockerfile: geofile/Dockerfile
+    environment:
+      UPLOAD_DIR: /upload-dir
+    volumes:
+      - upload-data:/upload-dir
+    env_file:
+      .env
 
   frontend:
     build:

@@ -1,8 +1,4 @@
-celery==5.0.2
-redis
-shapely
-rasterstats
-rasterio
-requests
-pyproj
-jsonschema
+shapely==1.7.1
+rasterstats==0.15.0
+rasterio==1.1.8
+pyproj==3.0.0.post1
