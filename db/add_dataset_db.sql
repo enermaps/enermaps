@@ -25,7 +25,7 @@ CREATE TABLE public.spatial
     "NAME_ENGL" varchar(100),
     "CNTR_CODE" char(2),
     "LEVL_CODE" levl,
-    geometry geometry(Geometry,4326)
+    geometry geometry(Geometry,3035)
 );
 
 CREATE TABLE public.data
