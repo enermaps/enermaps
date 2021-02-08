@@ -2,7 +2,7 @@ import os
 from dataflows import Flow, dump_to_path, load, add_computed_field, delete_fields
 import requests
 import io
-import curlify
+
 
 def get_NEWA():
 	"""Retrieves data from NEWA using dataflows"""
@@ -20,24 +20,15 @@ def post_NEWA():
 	"""POST geotiff from NEWA using the API"""
 	filename = "data/NEWA/newa_PD.tif"
 	url = "http://127.0.0.1:7000/api/geofile/"
-	headers = {
-	    'accept': 'application/json',
-	    'Content-Type': 'multipart/form-data',
-	}
-	with open(filename, "rb") as f:
-		testfile_io = io.BytesIO(f.read())
-		test_data = {"file": (f.read(), filename)}
-		content = f.read()
+
+
+	files = {"file": (os.path.basename(filename), open(filename, "rb"), "image/tiff")}
+	r = requests.post(url,files=files)
 
 	r = requests.post(url,
-			data=test_data,
-            headers=headers,
+			files=files,
             allow_redirects=True
         )
-	# print(r.request.headers,r.request.body)
-	print(curlify.to_curl(r.request))
-	print("")
-	print(r.text)
 
 # get_NEWA()
 post_NEWA()
