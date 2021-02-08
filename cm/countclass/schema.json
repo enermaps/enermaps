@@ -1,0 +1,9 @@
+{
+  "type": "object",
+  "properties": {
+    "rasterclass": {
+      "type": "number",
+      "default": 50
+    }
+  }
+}

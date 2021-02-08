@@ -1,0 +1,5 @@
+shapely
+numpy
+rasterstats
+rasterio
+pyproj
