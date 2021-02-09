@@ -2,14 +2,13 @@
 
 This service retrieves the different sources to be integrated into the database.
 
-## Dataflows
-
-The data integration is based on forked versions of `dataflows` and `datapackage-py`supporting raster data sources. These versions are cloned and installed via the Dockerfile.
-
 ## Work in progress
 
-- Test of pipeline using NEWA data
+- Test of pipeline using:
 
-- Upload to the frontend via POST API (still testing)
+  - NEWA data
+  - Admin units (LAU NUTS)
 
-- Upload to the DB (TBD)
+- Upload to the frontend via POST API
+
+- Upload to the DB
