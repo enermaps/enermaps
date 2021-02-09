@@ -30,7 +30,7 @@ CREATE TABLE public.spatial
 
 CREATE TABLE public.data
 (
-    index int PRIMARY KEY,
+    index SERIAL PRIMARY KEY,
     "time" timestamp without time zone,
     fields jsonb,
     variable varchar(100),
