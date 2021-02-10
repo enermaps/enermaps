@@ -25,6 +25,7 @@ CREATE TABLE public.spatial
     "NAME_ENGL" varchar(100),
     "CNTR_CODE" char(2),
     "LEVL_CODE" levl,
+    ds_id int,
     geometry geometry(Geometry,3035)
 );
 
@@ -41,3 +42,18 @@ CREATE TABLE public.data
     z double precision,
     "Raster" boolean
 );
+
+
+ALTER TABLE spatial
+    ADD CONSTRAINT fk_ds_id
+    FOREIGN KEY(ds_id) 
+    REFERENCES datasets(ds_id)
+    ON DELETE CASCADE
+;
+
+ALTER TABLE data
+    ADD CONSTRAINT fk_ds_id
+    FOREIGN KEY(ds_id) 
+    REFERENCES datasets(ds_id)
+    ON DELETE CASCADE
+;

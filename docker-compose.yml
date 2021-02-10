@@ -74,6 +74,8 @@ services:
   data-integration:
     build:
       context: ./di
+    volumes:
+      - data:/data
 
   redis:
     image: redis:6-alpine
@@ -89,3 +91,4 @@ services:
 volumes:
   upload-data:
   db-data:
+  data:

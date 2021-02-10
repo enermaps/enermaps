@@ -9,6 +9,7 @@ from osgeo import gdal, osr
 import pandas as pd
 import geopandas as gpd
 import os
+import sqlalchemy as sqla
 
 def prepareRaster(df, srs="EPSG:3035", variable="", delete_orig=False):
     """
@@ -26,7 +27,6 @@ def prepareRaster(df, srs="EPSG:3035", variable="", delete_orig=False):
 
     """
     dicts = []
-    my_dict = {}
     for i, row in df.iterrows():
         filename = row["value"]
         if filename[-2:] == "nc":
@@ -39,8 +39,8 @@ def prepareRaster(df, srs="EPSG:3035", variable="", delete_orig=False):
         dest_wkt = dest_wkt.ExportToPrettyWkt()
         
         ds = gdal.AutoCreateWarpedVRT(src_ds, source_wkt, dest_wkt)
-        
         for b in range(ds.RasterCount):
+            my_dict = {}
             b += 1
             dest_filename = filename + 'band' + str(b) + '.tiff'
             print("band", b)
@@ -51,15 +51,20 @@ def prepareRaster(df, srs="EPSG:3035", variable="", delete_orig=False):
                                     ds, format='GTiff',
                                     bandList=[b],
                                     outputSRS=srs)
-            my_dict["time"] = row["time"] + pd.Timedelta(hours=row["dt"])*b
+            my_dict["time"] = row["time"] + pd.Timedelta(hours=row["dt"])*(b-1)
             my_dict["z"] = row["z"]
             my_dict["variable"] = variable
+            print(dest_filename)
             my_dict["FID"] = dest_filename
             my_dict["Raster"] = True
+            # print(my_dict)
+            # print(dicts)
             dicts.append(my_dict)
-        data = pd.DataFrame(dicts, columns=["time","fields","variable","value","ds_id","FID", "dt","z","Raster"])
-        if delete_orig:
-            os.remove(filename)
+    # print(dicts)
+    data = pd.DataFrame(dicts, columns=["time","fields","variable","value","ds_id","FID", "dt","z","Raster"])
+    # data = pd.DataFrame(dicts)
+    if delete_orig:
+        os.remove(filename)
     return data
 
 
