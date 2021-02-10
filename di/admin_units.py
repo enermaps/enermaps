@@ -68,7 +68,7 @@ def get(datasets=datasets, crs="EPSG:4326"):
     
     # New level codes
     admin_units.LEVL_CODE = admin_units.LEVL_CODE.replace({0:"country",1:"NUTS1",2:"NUTS2",3:"NUTS3",4:"LAU"})
-    
+
     admin_units.crs = crs
     return admin_units
 
@@ -76,5 +76,11 @@ def get(datasets=datasets, crs="EPSG:4326"):
 
 
 if __name__ == "__main__":
-    admin_units = get(datasets)
-    utilities.toPostGIS(admin_units, "postgresql://test:example@localhost:5433/dataset")
+    host = "enermaps_db_1"
+    port = 5432
+    ds_id = 0
+    admin_units = get(datasets, crs="EPSG:3035")
+    admin_units["ds_id"] = ds_id
+    dataset = pd.DataFrame([{"ds_id": ds_id}])
+    utilities.toPostgreSQL(dataset,"postgresql://test:example@{host}:{port}/dataset".format(host=host,port=port), schema="datasets")
+    utilities.toPostGIS(admin_units, "postgresql://test:example@{host}:{port}/dataset".format(host=host,port=port))

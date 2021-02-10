@@ -2,13 +2,13 @@
 
 This service retrieves the different sources to be integrated into the database.
 
-## Work in progress
+## Available pipelines
 
-- Test of pipeline using:
+  - Admin units (LAU NUTS)
+    `docker-compose run data-integration python3 admin_units.py`
 
   - NEWA data
-  - Admin units (LAU NUTS)
+  	`docker-compose run data-integration python3 getNEWA.py`
 
-- Upload to the frontend via POST API
 
-- Upload to the DB
+You need to start both the db service (`docker-compose up -d db`) and the data-integration service (`docker-compose run data-integration python3 getNEWA.py`) before running the pipelines.
