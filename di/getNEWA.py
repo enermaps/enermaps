@@ -92,7 +92,7 @@ if __name__ == "__main__":
     rasters = get(Run=True)
     data = utilities.prepareRaster(rasters, variable = "PD", delete_orig=True)
     if not os.path.exists("data"):
-        os.mkdir(data)
+        os.mkdir("data")
     if not os.path.exists(os.path.join("data",str(ds_id))):
         os.mkdir(os.path.join("data",str(ds_id)))
     for i, row in data.iterrows():
