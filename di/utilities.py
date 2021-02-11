@@ -85,7 +85,7 @@ def toPostgreSQL(data, dbURL="postgresql://postgres:postgres@localhost:5432/data
 
     """
     db_engine = sqla.create_engine(dbURL)
-    print("Loading raster to PostgreSQL...")
+    print("Loading to PostgreSQL...")
     data.to_sql(schema, db_engine, if_exists="append", index=False)
     print("Done.")
     
