@@ -23,7 +23,7 @@ Once EnerMaps launched, the frontend should be available on this adress : http:/
 
 ## Inputs 
 
-To make the CM work, we need three inputs:
+To make the CM work, we want to study:
 * the raster we want to studied,
 * the areas we want to studied,
 * the multiplication factor.

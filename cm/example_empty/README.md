@@ -1,7 +1,7 @@
 # Remarks
 
-The *example_empty* is empty CM.
+The *example_empty* is the generic CM structure to be implemented.
 
 It only serves as an example for patners developing others CM.
 
-For more detailed CM, see [*example_multiply*](../example_multiply) CM.
+For an example of implementation, see [*example_multiply*](../example_multiply) CM.

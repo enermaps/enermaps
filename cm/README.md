@@ -3,8 +3,8 @@ Base directory for the calculation modules (cm).
 A calculation module is an asynchronous slow task (from seconds to hours of latency for the answer). 
 A calculation module takes a set of rasters, a selection vector shape and an optional set of parameters
 
-For basic example, see [example_empty](./example_empty) CM. 
-And for more detailed example, see [example_multiply](./example_multiply) CM.
+For a non implemented example, see [example_empty](./example_empty) CM. 
+And for a simple example, see [example_multiply](./example_multiply) CM.
 # Create a new cm
 
 Each calculation module is a subdirectory in this directory.
