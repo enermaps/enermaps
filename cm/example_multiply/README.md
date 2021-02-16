@@ -1,9 +1,9 @@
 # Preliminary remarks
 
-The *example_multiply* is complete CM.
+The *example_multiply* is an example of CM implementation.
 It serves as an example for patners developing others CM.
 
-For more basic CM, see [*example_empty*](../example_empty) CM.
+For a non implemented CM, see [*example_empty*](../example_empty) CM.
 
 # Objective
 
@@ -23,9 +23,10 @@ Once EnerMaps launched, the frontend should be available on this adress : http:/
 
 ## Inputs 
 
-To make the CM work, we want to study:
-* the raster we want to studied,
-* the areas we want to studied,
+To make the CM work, we need three inputs:
+
+* the raster we want to study,
+* the areas we want to study,
 * the multiplication factor.
 
 ### Raster
