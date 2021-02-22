@@ -13,9 +13,9 @@ import utilities
 
 # GISCO datasets GEOJSON EPSG:4326 1:1milion
 datasets = {
-    "countries": "https://gisco-services.ec.europa.eu/distribution/v2/countries/geojson/CNTR_RG_01M_2020_4326.geojson",
-    "nuts": "https://gisco-services.ec.europa.eu/distribution/v2/nuts/geojson/NUTS_RG_01M_2021_4326.geojson",
-    "lau": "https://gisco-services.ec.europa.eu/distribution/v2/lau/geojson/LAU_RG_01M_2019_4326.geojson",
+    "countries": "https://gisco-services.ec.europa.eu/distribution/v2/countries/geojson/CNTR_RG_01M_2020_{}.geojson",
+    "nuts": "https://gisco-services.ec.europa.eu/distribution/v2/nuts/geojson/NUTS_RG_01M_2021_{}.geojson",
+    "lau": "https://gisco-services.ec.europa.eu/distribution/v2/lau/geojson/LAU_RG_01M_2019_{}.geojson",
 }
 
 
@@ -37,11 +37,11 @@ def get(datasets=datasets, crs="EPSG:4326"):
 
     """
     print("Downloading countries...")
-    countries = gpd.read_file(datasets["countries"], crs=crs)
+    countries = gpd.read_file(datasets["countries"].format(crs.split(":")[-1]), crs=crs)
     print("Downloading NUTS...")
-    nuts = gpd.read_file(datasets["nuts"], crs=crs)
+    nuts = gpd.read_file(datasets["nuts"].format(crs.split(":")[-1]), crs=crs)
     print("Downloading LAU...")
-    lau = gpd.read_file(datasets["lau"], crs=crs)
+    lau = gpd.read_file(datasets["lau"].format(crs.split(":")[-1]), crs=crs)
     print("Done.")
 
     # Create consistent columns across ds
