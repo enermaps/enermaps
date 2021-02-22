@@ -97,11 +97,19 @@ if __name__ == "__main__":
         os.mkdir(os.path.join("data",str(ds_id)))
     for i, row in data.iterrows():
         os.rename(row.FID, os.path.join("data", str(ds_id), row.FID))
-        
+    
+    # Create dataset table
     datasets = pd.read_csv("datasets.csv",engine="python",index_col=[0])
     dataset = pd.DataFrame([{"ds_id": ds_id, "metadata":datasets.loc[ds_id].to_json()}])
     utilities.toPostgreSQL(dataset,"postgresql://test:example@{host}:{port}/dataset".format(host=host,port=port), schema="datasets")
     
+    # Create data table
     data["ds_id"] =  ds_id
     utilities.toPostgreSQL(data,"postgresql://test:example@{host}:{port}/dataset".format(host=host,port=port), schema="data")
+    
+    #Create empty spatial table
+    spatial = pd.DataFrame()
+    spatial[["FID","ds_id"]] = data[["FID","ds_id"]]
+    utilities.toPostgreSQL(spatial,"postgresql://test:example@{host}:{port}/dataset".format(host=host,port=port), schema="spatial")
+
 
