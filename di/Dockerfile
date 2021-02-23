@@ -15,10 +15,15 @@ RUN export C_INCLUDE_PATH=/usr/include/gdal
 
 # RUN apt-get --yes install git
 
-COPY . di
+COPY requirements.txt di/requirements.txt
 WORKDIR di
-
 RUN pip3 install -r requirements.txt
+
+COPY . .
+
+# Provisional command to keep the container alive
+CMD ["sleep", "infinity"]
+
 
 # RUN git clone --branch raster https://github.com/enermaps/datapackage-py.git
 # RUN cd datapackage-py && pip3 install -e .
