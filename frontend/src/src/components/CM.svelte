@@ -55,35 +55,71 @@
 </script>
 <style>
 .tasks {
+  margin-top: 10;
   position: relative;
 }
 .open_menu {
   display: inline-block;
-  height: 30px;
-  width: 30px;
+  height: 25px;
+  width: 25px;
   background: url('/images/menu-close-icon.png');
+  background-size : 100%;
 }
 .close_menu {
   display: inline-block;
-  height: 30px;
-  width: 30px;
+  height: 25px;
+  width: 25px;
   background: url('/images/menu-open-icon.png');
+  background-size : 100%;
 }
-.cm_name {
+
+.cm_run {
+  vertical-align: middle;
   display: inline-block;
-  margin: 0px;
 }
+
+.cm_params {
+  margin-top: 10px;
+  vertical-align: middle;
+  display: inline-block;
+}
+
+.cm_container {
+  background-color : #4d88c7;
+  margin-top: 8px;
+  margin-bottom: 8px;
+  padding : 8px;
+  border-radius: 4px;
+}
+
+h3 {
+  margin: 0;
+}
+
 </style>
+
+<div class="cm_container">
   <div class="cm_header">
-    <div class:open_menu="{!isCollapsed}" class:close_menu="{isCollapsed}" on:click="{toggleCollapse}"></div>
-    <h3 class="cm_name">{cm.pretty_name}<h3>
+    <div>
+      <h3 class="cm_run">{cm.pretty_name}</h3>
+      <div style="float: right;" class="cm_run">
+        <div class="cm_run" style="cursor: pointer;" class:open_menu="{isCollapsed}" class:close_menu="{!isCollapsed}" on:click="{toggleCollapse}"></div>
+        <span class="cm_run"></span>
+        <button class="cm_run"  type=submit on:click={() => callCM(cm)} disabled={isDisabled} title={callCMTooltip}>Run CM</button>
+      </div>
+    </div>
+
+   
   </div>
+ 
   <div hidden="{isCollapsed}">
-    <form bind:this={formElement} />
-      <button type=submit on:click={() => callCM(cm)} disabled={isDisabled} title={callCMTooltip}>{cm.pretty_name}</button>
+    <div>
+      <form class="cm_params" bind:this={formElement} />
+    </div>
     <div class="tasks">
     {#each [...tasks].reverse() as task (task.id)}
       <CMTask {cm} {task}  on:delete="{() => deleteCMTask(task)}"/>
     {/each}
     </div>
+  </div>
 </div>
