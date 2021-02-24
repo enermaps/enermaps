@@ -5,15 +5,16 @@ html, body {
 }
 
 body {
-	color: #333;
+	color: #27275b;
 	margin: 0;
-	padding: 8px;
+	padding: 0px;
 	box-sizing: border-box;
 	font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
 }
 
 a {
-	color: rgb(0,100,200);
+	/*color: rgb(0,100,200);*/
+	color:#4d88c7;
 	text-decoration: none;
 }
 
@@ -29,29 +30,39 @@ label {
 	display: block;
 }
 
-input, button, select, textarea {
+input, select, textarea {
 	font-family: inherit;
 	font-size: inherit;
 	-webkit-padding: 0.4em 0;
 	padding: 0.4em;
 	margin: 0 0 0.5em 0;
 	box-sizing: border-box;
-	border: 1px solid #ccc;
-	border-radius: 2px;
+	border: 1px solid #27275b;
+	border-radius: 0px;
 }
 
 input:disabled {
-	color: #ccc;
+	color: #999;
 }
 
 button {
 	color: #333;
 	background-color: #f4f4f4;
 	outline: none;
+	font-family: inherit;
+	font-size: inherit;
+	-webkit-padding: 0 0 0;
+	padding: 0;
+	margin: 0 0 0 0;
+	box-sizing: border-box;
+	border: 1px solid #757575;
+	border-radius: 4px;
+	cursor: pointer;
 }
 
 button:disabled {
 	color: #999;
+	cursor: default;
 }
 
 button:not(:disabled):active {
@@ -60,4 +71,16 @@ button:not(:disabled):active {
 
 button:focus {
 	border-color: #666;
+}
+
+span {
+    margin: 0 5px;
+}
+
+span:first-of-type {
+    margin-left: 2.5px;
+}
+
+span:last-of-type {
+    margin-right: 2.5px;
 }

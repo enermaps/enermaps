@@ -129,10 +129,17 @@
     console.log('layer changed in selector to ' + $activeOverlayLayersStore);
   }
 </script>
+
 <style>
+  
 #map_selection {
   padding: 4px;
+  border: 1px solid #27275b;
+	border-radius: 0px;
+  background-color: #eff4fa;
 }
+
+
 #map_selection h3 {
   margin: 0px;
   height: 40%;
@@ -143,16 +150,23 @@
   text-overflow: ellipsis;
   overflow: hidden !important;
 }
+
 h3 {
   flex-shrink: 0;
+  border : none;
 }
 #selection_layers {
   overflow-y: auto;
+  border : none;
+
 }
 #overlay_layers {
   overflow-y: auto;
+  border : none;
 }
+
 </style>
+
 <div id="map_selection" on:click|stopPropagation="">
   {#if !isLayerListReady}
   Loading layers

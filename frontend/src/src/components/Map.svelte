@@ -44,6 +44,7 @@ onMount(async () => {
   const baseLayer = L.tileLayer(BASE_LAYER_URL, BASE_LAYER_PARAMS);
   baseLayersGroup.addLayer(baseLayer);
 
+  // Add the "left" tools
   map.addControl(makeSearchControl());
   map.addControl(makeLayerControl());
   map.addControl(makeCMToggleControl());
@@ -121,11 +122,14 @@ function makeSearchControl() {
   return searchControl;
 }
 </script>
+
 <style>
+
 #map {
   width: 100%;
   height: 100%;
 }
+
 </style>
 
 <svelte:window on:resize={resizeMap} />

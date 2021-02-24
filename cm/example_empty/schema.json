@@ -1,7 +1,7 @@
 {
   "type": "object",
   "properties": {
-    "factor": {
+    "test": {
       "type": "number",
       "default": 1
     }
