@@ -1,5 +1,8 @@
-<script>
+<script >
 import {onMount} from 'svelte';
+//import TopNav from './TopNav.svelte';
+//import TopNav, {makeSearchControl} from './TopNav.svelte';
+
 // Import CSS from Leaflet and plugins.
 import 'leaflet/dist/leaflet.css';
 import 'leaflet.markercluster/dist/MarkerCluster.css';
@@ -24,6 +27,7 @@ import {INITIAL_MAP_CENTER, INITIAL_ZOOM, BASE_LAYER_URL} from '../settings.js';
 import {BASE_LAYER_PARAMS} from '../settings.js';
 
 let map;
+
 $: activeSelectionLayer = $activeSelectionLayerStore;
 $: activeOverlayLayers = $activeOverlayLayersStore;
 
@@ -34,7 +38,9 @@ const baseLayersGroup = L.layerGroup();
 
 onMount(async () => {
   console.log('init map');
-  map = L.map('map').setView(INITIAL_MAP_CENTER, INITIAL_ZOOM);
+  map = L.map('map', {zoomControl : false})
+  map.setView(INITIAL_MAP_CENTER, INITIAL_ZOOM);
+
 
 
   map.addLayer(baseLayersGroup);
@@ -45,7 +51,8 @@ onMount(async () => {
   baseLayersGroup.addLayer(baseLayer);
 
   // Add the "left" tools
-  map.addControl(makeSearchControl());
+  //map.addControl(makeSearchControl());
+  map.addControl(makeSearchControl())
   map.addControl(makeLayerControl());
   map.addControl(makeCMToggleControl());
 });
@@ -88,6 +95,7 @@ function syncSelectionLayer() {
     selectionsGroup.addLayer(activeSelectionLayer);
   }
 }
+
 function makeLayerControl() {
   const layerControl = L.control({position: 'topleft'});
   layerControl.onAdd = (map) => {
@@ -98,6 +106,7 @@ function makeLayerControl() {
   };
   return layerControl;
 }
+
 function makeCMToggleControl() {
   const CMToggleControl = L.control({position: 'topright'});
   CMToggleControl.onAdd = (map) => {
@@ -108,6 +117,7 @@ function makeCMToggleControl() {
   };
   return CMToggleControl;
 }
+
 function makeSearchControl() {
   const searchControl = new L.Control.Search({
     url: 'https://nominatim.openstreetmap.org/search?format=json&q={s}',
@@ -121,6 +131,7 @@ function makeSearchControl() {
   });
   return searchControl;
 }
+
 </script>
 
 <style>
