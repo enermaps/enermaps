@@ -43,7 +43,7 @@ def get_user_upload(subdirectory):
 
 def list_layers():
     """Return the list of all layers from all direct subclasses
-    of Layer
+    of Layer class.
     """
     layers = []
     for layer_type in Layer.__subclasses__():
