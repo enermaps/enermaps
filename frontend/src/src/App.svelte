@@ -10,6 +10,7 @@
 	width: 100%;
 	height: 100%;
 }
+
 :global(.close_button) {
   float: right;
   padding: 3px;
@@ -26,6 +27,7 @@
 	width: 100%;
 	height: 100%;
 	display: flex;
+  flex-direction: column;
 }
 
 
@@ -42,8 +44,9 @@
 }
 </style>
 
-<TopNav/>
+
 <div id="main">
+  <TopNav/>
   <Map/>
   <CMList/>
 </div>
