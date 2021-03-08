@@ -1,7 +1,5 @@
 <script >
 import {onMount} from 'svelte';
-//import TopNav from './TopNav.svelte';
-//import TopNav, {makeSearchControl} from './TopNav.svelte';
 
 // Import CSS from Leaflet and plugins.
 import 'leaflet/dist/leaflet.css';
@@ -51,9 +49,9 @@ onMount(async () => {
   baseLayersGroup.addLayer(baseLayer); // Add the openstreetmap layer
 
   // Add the "left" tools
-  map.addControl(makeAreaSelectionControl())  // Separate box with only the overlay layers
   map.addControl(makeSearchControl())   // Search tools
-  map.addControl(makeLayerControl());   // Box with the area selection layers and the overlay layers
+  map.addControl(makeLayerControl());   // Box with the area selection layers 
+  map.addControl(makeAreaSelectionControl())  // Separate box with only the overlay layers
   map.addControl(makeCMToggleControl());  // Button to open calculation module pane
 });
 
@@ -112,7 +110,7 @@ function makeLayerControl() {
 
 /* Box for */
 function makeAreaSelectionControl() {
-  const areaSelectionControl = L.control({position: 'topleft'});
+  const areaSelectionControl = L.control({position: 'topright'});
   areaSelectionControl.onAdd = (map) => {
     const div = L.DomUtil.create('div');
     L.DomUtil.addClass(div, 'test');
@@ -134,18 +132,25 @@ function makeCMToggleControl() {
   return CMToggleControl;
 }
 
+// https://github.com/stefanocudini/leaflet-search
 function makeSearchControl() {
   const searchControl = new L.Control.Search({
-    //position : 'bottomleft',
+    position : 'topleft',
     url: 'https://nominatim.openstreetmap.org/search?format=json&q={s}',
     jsonpParam: 'json_callback',
     propertyName: 'display_name',
     propertyLoc: ['lat', 'lon'],
     marker: false, // L.circleMarker([0, 0], { radius: 30 }),
-    autoCollapse: true,
+    autoCollapse: false,
     autoType: false,
     minLength: 2,
+    collapsed: false,
+    textPlaceholder: 'Search location...',
+    moveToLocation: function(latlng, title, map) {
+  			map.setView(latlng, 12); // access the zoom
+		}
   });
+
   return searchControl;
 }
 
@@ -156,6 +161,7 @@ function makeSearchControl() {
 #map {
   width: 100%;
   height: 100%;
+  box-sizing: border-box;
 }
 
 </style>
