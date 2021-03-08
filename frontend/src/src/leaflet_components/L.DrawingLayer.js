@@ -8,7 +8,7 @@ L.DrawingLayer = L.FeatureGroup.extend({
   },
   onAdd: function(map) {
     const drawPluginOptions = {
-      position: 'topright',
+      position: 'topleft',
       draw: {
         polygon: {
           allowIntersection: true,

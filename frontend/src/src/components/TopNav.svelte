@@ -2,32 +2,32 @@
   import 'leaflet-search/dist/leaflet-search.src.js';
   import 'leaflet-search/dist/leaflet-search.src.css';
 
+  //import CMToggle from './CMToggle.svelte';
 
-  //import {onMount} from 'svelte';
+  // import {onMount} from 'svelte';
 
   //let topnav;
 
+  // runs after the component is first rendered to the DOM
   /*
   onMount(async () => {
-
-    topnav.addControl(makeSearchControl());
+    toogle_div = makeCMToggleControl();
   });
   */
  
-  export function makeSearchControl() {
-  const searchControl = new L.Control.Search({
-    url: 'https://nominatim.openstreetmap.org/search?format=json&q={s}',
-    jsonpParam: 'json_callback',
-    propertyName: 'display_name',
-    propertyLoc: ['lat', 'lon'],
-    marker: false, // L.circleMarker([0, 0], { radius: 30 }),
-    autoCollapse: true,
-    autoType: false,
-    minLength: 2,
-    container: "map_control"
-  });
-  return searchControl;
+
+/*
+function makeCMToggleControl() {
+  const CMToggleControl = L.control({position: 'topright'});
+  CMToggleControl.onAdd = (map) => {
+    const div = L.DomUtil.create('div');
+    L.DomUtil.addClass(div, 'test');
+    toolbar = new CMToggle({target: div});
+    return div;
+  };
+  return CMToggleControl;
 }
+*/
 
 </script>
 
@@ -75,12 +75,12 @@ img {
 
 
 
-
 </style>
 
 <div id="topnav">
   <div id='logo'> <img src='images/logo.png' alt='EnerMaps'> </div>
   <span></span>
   <div id='title'>EnerMaps</div>
-  <div id='map_control'> </div>
+  <div id='cm_control'> 
+  </div>
 </div> 
