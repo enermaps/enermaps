@@ -49,6 +49,14 @@ services:
       .env
 
 
+  thumbnails:
+    build:
+      context: ./thumb
+    ports:
+      - "127.0.0.1:8080:80"
+    volumes:
+      - img:/img
+
   redis:
     image: redis:6-alpine
     ports:
@@ -63,3 +71,4 @@ services:
 volumes:
   upload-data:
   data:
+  img:
