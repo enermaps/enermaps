@@ -102,7 +102,7 @@
     {#if !isLayerListReady}
     Loading layers...
     {:else}
-    <h3>Active layers Selection</h3>
+    <h3>Active Layers Selection</h3>
     <div id="overlay_layers">
     {#each overlayLayers as overlayLayer}
     <label>
