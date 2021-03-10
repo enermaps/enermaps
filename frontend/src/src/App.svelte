@@ -1,7 +1,6 @@
 <script>
     import CMList from './components/CMList.svelte';
     import Map from './components/Map.svelte';
-    import TopNav from './components/TopNav.svelte';
 </script>
 
 <style>
@@ -46,7 +45,6 @@
 
 
 <div id="main">
-  <!--<TopNav/>-->
   <Map/>
   <CMList/>
 </div>

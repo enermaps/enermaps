@@ -22,6 +22,19 @@
   display: inline-block;
 }
 
+.link {
+  font-size: 24px;
+  color: #eff4fa;
+  display: inline-block;
+  vertical-align: middle;
+  text-decoration: none;
+  margin-left: 30px;
+}
+
+.link:hover{
+  text-decoration: underline;
+  text-decoration-thickness: 2.5px;
+}
 
 #logo {
   box-sizing: border-box;
@@ -53,8 +66,8 @@ img {
 
 <div id="topnav">
   <div id='logo'> <img src='images/logo.png' alt='EnerMaps'> </div>
-  <span></span>
   <div id='title'>EnerMaps</div>
-  <span></span>
   <slot id='slot'></slot>
+  <a href="https://enermaps.eu/" target="_blank" class="link">Wiki</a>
+  <a href="https://enermaps.eu/" target="_blank" class="link">About</a>
 </div> 

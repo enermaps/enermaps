@@ -178,16 +178,18 @@ function makeSearchControl() {
   display: inline-block;
   overflow: visible;
   vertical-align: middle;
+  margin-left: 35px;
 }
 
-/*
+
+
 .search-tooltip {
 	width: 200px;
 }
 .leaflet-control-search  {
   background-color: tomato;
 }
-*/
+
 
 </style>
 
