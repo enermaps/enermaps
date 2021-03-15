@@ -69,5 +69,6 @@ img {
   <div id='title'>EnerMaps</div>
   <slot id='slot'></slot>
   <a href="https://enermaps.eu/" target="_blank" class="link">Wiki</a>
+  <a href="https://beta.enermaps.openaire.eu/" target="_blank" class="link">OpenAIRE</a>
   <a href="https://enermaps.eu/" target="_blank" class="link">About</a>
 </div> 
