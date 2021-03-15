@@ -71,13 +71,16 @@
   #map_selection {
     padding: 4px;
     border: 1px solid #27275b;
-      border-radius: 0px;
+    border-radius: 0px;
     background-color: #eff4fa;
+    box-sizing: border-box;
+    width: 100%;
   }
   
   #map_selection h3 {
     margin: 0px;
     height: 40%;
+    width: 100%;
     display: flex;
     flex-direction: column;
     max-width: 200px;
