@@ -55,7 +55,7 @@ services:
     ports:
       - "0.0.0.0:80:80"
     volumes:
-      - img:/img
+      - web:/web
 
   redis:
     image: redis:6-alpine
@@ -71,4 +71,4 @@ services:
 volumes:
   upload-data:
   data:
-  img:
+  web:

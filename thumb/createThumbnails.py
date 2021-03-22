@@ -15,8 +15,7 @@ datasets = pd.read_csv("datasets.csv",index_col=0)
 datasets = datasets.dropna()
 
 for i, ds in datasets.iterrows():
-	pid = ds.PID.replace("http://","")
-	pid = pid.replace("https://","")
-	dest_fpath = os.path.join("img",pid)
+	pid = ds["Shared_ID"]
+	dest_fpath = os.path.join("web","images",pid)
 	os.makedirs(os.path.dirname(dest_fpath), exist_ok=True)
-	shutil.copy("dummy.png",os.path.join("img",pid)+".png")
+	shutil.copy("dummy.png",os.path.join("web","images",pid)+".png")
