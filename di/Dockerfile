@@ -2,18 +2,16 @@ FROM ubuntu:20.04
 # SET TZ for GDAL
 ENV TZ=Europe/Zurich
 RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
+
 RUN apt-get update && \
     apt-get --yes install python3 python3-pip &&\
+    apt-get --yes install postgresql-client &&\
+    apt-get --yes install gdal-bin &&\
+    apt-get --yes install libgdal-dev &&\
     rm -rf /var/cache/apt/archives/
 
-
-RUN apt-get --yes install postgresql-client
-
-RUN apt-get update && apt-get --yes install gdal-bin && apt-get --yes install libgdal-dev
-RUN export CPLUS_INCLUDE_PATH=/usr/include/gdal
-RUN export C_INCLUDE_PATH=/usr/include/gdal
-
-# RUN apt-get --yes install git
+ENV CPLUS_INCLUDE_PATH=/usr/include/gdal
+ENV C_INCLUDE_PATH=/usr/include/gdal
 
 COPY requirements.txt di/requirements.txt
 WORKDIR di
@@ -24,15 +22,6 @@ COPY . .
 # Provisional command to keep the container alive
 CMD ["sleep", "infinity"]
 
-
-# RUN git clone --branch raster https://github.com/enermaps/datapackage-py.git
-# RUN cd datapackage-py && pip3 install -e .
-
-
-# RUN git clone --branch raster https://github.com/enermaps/dataflows.git
-# RUN cd dataflows && pip3 install -e .
-
-
+# Future pipeline, keep commented for now (=manual integration)
 # CMD ["python3", "admin_units.py"]
-
 # CMD ["python3", "getNEWA.py"]
