@@ -16,7 +16,7 @@ docker exec -it enermaps2_db_1 psql -h 127.0.0.1 -p 5432 -U dataset dataset
 
 - Vector dataset, here with `ds_id = 2`
 
-```
+```sql
 SELECT data."FID",
 		json_object_agg(variable, value),
 		fields,
@@ -28,12 +28,13 @@ WHERE data.ds_id = 2
 GROUP BY data."FID", time, dt, z, data.ds_id, fields, geometry, metadata
 ORDER BY data."FID";
 ```
+
 The pivoted table (variables + values to display on the map) is encapsulated as JSON in the `json_object_agg` column.
 
 
 - Administrative units, here with `LEVL_CODE = NUTS1`
 
-```
+```sql
 SELECT * FROM spatial WHERE "LEVL_CODE" = 'NUTS1';
 ```
 
