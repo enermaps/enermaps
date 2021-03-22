@@ -23,6 +23,7 @@ from app.common.projection import epsg_to_wkt, proj4_from_geotiff, proj4_from_sh
 
 class SaveException(Exception):
     """Exception thrown when saving geofile is not possible."""
+
     pass
 
 
