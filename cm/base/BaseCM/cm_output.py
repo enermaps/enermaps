@@ -49,6 +49,7 @@ class BarGraph(Schema):
 
 class CMOutput(Schema):
     """Class that defines the CM output value schema."""
+
     graphs = fields.Dict(
         keys=fields.Str(),
         values=Union(
