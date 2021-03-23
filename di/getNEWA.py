@@ -9,21 +9,31 @@ Created on Tue Feb  9 14:18:50 2021
 import pandas as pd
 import requests
 import subprocess
-from osgeo import gdal, osr
 import os
 import utilities
+import logging
 
-HEIGHT_LEVELS = [50, 75, 100, 150, 200, 250, 500]
+# Constants
 DS_ID = 25
+Force = False #Force update
+logging.basicConfig(level=logging.INFO)
+# In Docker
+host = "enermaps_db_1"
+port = 5432
+# Local
+# host = "localhost"
+# port = 5433
 
-def get(time="2009-12-30", timestep=0.5, heights=[100], variable="PD", Run=False):
+
+def get(timeseries: pd.core.indexes.datetimes.DatetimeIndex=pd.date_range("2009-12-30",periods=1),
+        timestep: float=0.5, heights: list=[100], variable: str="PD", Run: bool=False):
     """
     API for the New European Wind Atlas
     https://map.neweuropeanwindatlas.eu
 
     Parameters
     ----------
-    time : list of years, or datetime, optional
+    timeseries : Pandas date_range, optional
         DESCRIPTION. The default is "2009-12-30".
     variable : string, optional
         DESCRIPTION. The default is "PD".
@@ -40,21 +50,11 @@ def get(time="2009-12-30", timestep=0.5, heights=[100], variable="PD", Run=False
         Results
 
     """
-    # files = []
-    timeseries = []
+    logging.basicConfig(level=logging.INFO)
+    HEIGHT_LEVELS = [50, 75, 100, 150, 200, 250, 500]
+    
     dicts = []
-    if isinstance(time, list):
-        for year in time:
-            timeseries.extend(
-                pd.date_range(
-                    "01.01.{}".format(year), end="31.12.{}".format(year), freq="D"
-                ).to_list()
-            )
-    else:
-        timeseries = [time]
-
     for time in timeseries:
-        time = pd.to_datetime(time)
         year = time.year
         month = time.month
         day = time.day
@@ -72,25 +72,33 @@ def get(time="2009-12-30", timestep=0.5, heights=[100], variable="PD", Run=False
             filename = "NEWA-{year}-{month}-{day}_{height}m_{ts}min.nc".format(
                 year=year, month=month, day=day, height=height, ts=int(timestep * 60)
             )
-            # files.append(filename)
             if Run:
-                print("Requesting", URL)
-                # Issue about the server pretending to send gzip, patched as here:
-                # https://github.com/psf/requests/issues/3849#issuecomment-277196788
-                r = requests.get(URL, allow_redirects=True, headers={'Accept-Encoding': 'identity'})
-                open(filename, "wb").write(r.content)
+                logging.info("Requesting: {}".format(URL))
+                h = requests.head(URL)
+                if h.status_code == 200:
+                    # Issue about the server pretending to send gzip, patched as here:
+                    # https://github.com/psf/requests/issues/3849#issuecomment-277196788
+                    r = requests.get(URL, allow_redirects=True, headers={'Accept-Encoding': 'identity'})
+                    with open(filename, "wb") as f:
+                        f.write(r.content)
+                    dicts.append({"time": time, "dt": timestep, "z": height, "value": filename})
+                else:
+                    dicts.append({"value": None})
             else:
-                print("URL to be requested:", URL)
+                logging.info("URL to be requested: {}".format(URL))
 
-            dicts.append({"time": time, "dt": timestep, "z": height, "value": filename})
     df = pd.DataFrame(dicts)
     return df
 
 if __name__ == "__main__":
-    host = "db"
-    port = 5432
-    rasters = get(Run=True)
+    argv = sys.argv
+    if "--force" in argv:
+        Force = True
+
+    period = pd.date_range("2018-12-30",periods=1)
+    rasters = get(period,Run=True)
     data = utilities.prepareRaster(rasters, variable = "PD", delete_orig=True)
+    
     if not os.path.exists("data"):
         os.mkdir("data")
     if not os.path.exists(os.path.join("data",str(DS_ID))):
@@ -98,18 +106,24 @@ if __name__ == "__main__":
     for i, row in data.iterrows():
         os.rename(row.FID, os.path.join("data", str(DS_ID), row.FID))
     
-    # Create dataset table
-    datasets = pd.read_csv("datasets.csv",engine="python",index_col=[0])
-    dataset = pd.DataFrame([{"ds_id": ds_id, "metadata":datasets.loc[ds_id].to_json()}])
-    utilities.toPostgreSQL(dataset,"postgresql://test:example@{host}:{port}/dataset".format(host=host,port=port), schema="datasets")
-    
-    # Create data table
-    data["ds_id"] =  DS_ID
-    utilities.toPostgreSQL(data,"postgresql://test:example@{host}:{port}/dataset".format(host=host,port=port), schema="data")
-    
-    #Create empty spatial table
-    spatial = pd.DataFrame()
-    spatial[["FID","ds_id"]] = data[["FID","ds_id"]]
-    utilities.toPostgreSQL(spatial,"postgresql://test:example@{host}:{port}/dataset".format(host=host,port=port), schema="spatial")
+    if utilities.datasetExists(DS_ID) and Force==False:
+        logging.warning("Dataset already exists. Use force update to replace.")
+    else:
+        if utilities.datasetExists(DS_ID):
+            utilities.removeDataset(DS_ID)
+            logging.info("Removed existing dataset")
+        # Create dataset table
+        datasets = pd.read_csv("datasets.csv",engine="python",index_col=[0])
+        dataset = pd.DataFrame([{"ds_id": DS_ID, "metadata":datasets.loc[DS_ID].to_json()}])
+        utilities.toPostgreSQL(dataset,"postgresql://test:example@{host}:{port}/dataset".format(host=host,port=port), schema="datasets")
+        
+        # Create data table
+        data["ds_id"] =  DS_ID
+        utilities.toPostgreSQL(data,"postgresql://test:example@{host}:{port}/dataset".format(host=host,port=port), schema="data")
+        
+        #Create empty spatial table
+        spatial = pd.DataFrame()
+        spatial[["FID","ds_id"]] = data[["FID","ds_id"]]
+        utilities.toPostgreSQL(spatial,"postgresql://test:example@{host}:{port}/dataset".format(host=host,port=port), schema="spatial")
 
 
