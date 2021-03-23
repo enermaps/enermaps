@@ -6,13 +6,15 @@ Created on Tue Feb  9 14:18:50 2021
 @author: giuseppeperonato
 """
 
-
 import pandas as pd
 import requests
 import subprocess
 from osgeo import gdal, osr
 import os
 import utilities
+
+HEIGHT_LEVELS = [50, 75, 100, 150, 200, 250, 500]
+DS_ID = 25
 
 def get(time="2009-12-30", timestep=0.5, heights=[100], variable="PD", Run=False):
     """
@@ -56,14 +58,13 @@ def get(time="2009-12-30", timestep=0.5, heights=[100], variable="PD", Run=False
         year = time.year
         month = time.month
         day = time.day
-        height_levels = [50, 75, 100, 150, 200, 250, 500]
         ts = int(timestep * 2)
         if ts > 47:
             ts = 47
         if ts < 1:
             ts = 0.5
         for height in heights:
-            h = height_levels.index(height)
+            h = HEIGHT_LEVELS.index(height)
             URL = "http://opendap.neweuropeanwindatlas.eu:80/opendap/newa/NEWA_MESOSCALE_ATLAS/"
             URL += "{year}/NEWA-{year}-{month}-{day}.nc.nc?PD[0:{ts}:47][{h}:1:{h}][0:1:1381][0:1:1597]".format(
                 year=year, month=month, day=day, ts=ts, h=h
@@ -86,17 +87,16 @@ def get(time="2009-12-30", timestep=0.5, heights=[100], variable="PD", Run=False
     return df
 
 if __name__ == "__main__":
-    ds_id = 25
-    host = "enermaps_db_1"
+    host = "db"
     port = 5432
     rasters = get(Run=True)
     data = utilities.prepareRaster(rasters, variable = "PD", delete_orig=True)
     if not os.path.exists("data"):
         os.mkdir("data")
-    if not os.path.exists(os.path.join("data",str(ds_id))):
-        os.mkdir(os.path.join("data",str(ds_id)))
+    if not os.path.exists(os.path.join("data",str(DS_ID))):
+        os.mkdir(os.path.join("data",str(DS_ID)))
     for i, row in data.iterrows():
-        os.rename(row.FID, os.path.join("data", str(ds_id), row.FID))
+        os.rename(row.FID, os.path.join("data", str(DS_ID), row.FID))
     
     # Create dataset table
     datasets = pd.read_csv("datasets.csv",engine="python",index_col=[0])
@@ -104,7 +104,7 @@ if __name__ == "__main__":
     utilities.toPostgreSQL(dataset,"postgresql://test:example@{host}:{port}/dataset".format(host=host,port=port), schema="datasets")
     
     # Create data table
-    data["ds_id"] =  ds_id
+    data["ds_id"] =  DS_ID
     utilities.toPostgreSQL(data,"postgresql://test:example@{host}:{port}/dataset".format(host=host,port=port), schema="data")
     
     #Create empty spatial table
