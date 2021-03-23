@@ -9,6 +9,7 @@ TESTDATA_DIR = os.path.join(CURRENT_FILE_DIR, "testdata")
 
 
 def get_json_testdata(filename: str):
+    """Return the json test file"""
     filepath = os.path.join(TESTDATA_DIR, filename)
     with open(filepath) as fd:
         return json.load(fd)
@@ -16,18 +17,21 @@ def get_json_testdata(filename: str):
 
 class TestSchema(unittest.TestCase):
     def testLoad(self):
+        """Test the load and the validation of json"""
         output_schema = CMOutput()
         json_testdata = get_json_testdata("marshmallow.json")
         out = output_schema.load(data=json_testdata)
         self.assertGreater(len(out), 0)
 
     def testLongLoad(self):
+        """Test the load and the validation of long json"""
         output_schema = CMOutput()
         json_testdata = get_json_testdata("test.json")
         out = output_schema.load(data=json_testdata)
         self.assertGreater(len(out), 0)
 
     def testEmptyLoad(self):
+        """Test the load and the validation of empty json"""
         output_schema = CMOutput()
         json_testdata = get_json_testdata("test_empty.json")
         out = output_schema.load(data=json_testdata)
