@@ -10,6 +10,7 @@ import geopandas as gpd
 import pandas as pd
 import sqlalchemy as sqla
 import utilities
+import logging
 
 # GISCO datasets GEOJSON EPSG:4326 1:1milion
 datasets = {
@@ -18,8 +19,11 @@ datasets = {
     "lau": "https://gisco-services.ec.europa.eu/distribution/v2/lau/geojson/LAU_RG_01M_2019_{}.geojson",
 }
 
+# Dataset id
+ds_id = 0
 
-def get(datasets=datasets, crs="EPSG:4326"):
+
+def get(datasets: dict = datasets, crs: str = "EPSG:4326") -> gpd.GeoDataFrame:
     """
     Retrieve NUTS, LAU and countries from GISCO API and make a single, consistent GDF.
 
@@ -27,7 +31,7 @@ def get(datasets=datasets, crs="EPSG:4326"):
     ----------
     datasets : dict
         dict with API URLs.
-    crs : TYPE, optional
+    crs : str, optional
         Spatial Reference System. The default is "EPSG:4326".
 
     Returns
@@ -36,13 +40,14 @@ def get(datasets=datasets, crs="EPSG:4326"):
         Table with all administrative units.
 
     """
-    print("Downloading countries...")
-    countries = gpd.read_file(datasets["countries"].format(crs.split(":")[-1]), crs=crs)
-    print("Downloading NUTS...")
-    nuts = gpd.read_file(datasets["nuts"].format(crs.split(":")[-1]), crs=crs)
-    print("Downloading LAU...")
-    lau = gpd.read_file(datasets["lau"].format(crs.split(":")[-1]), crs=crs)
-    print("Done.")
+    source_crs_code = crs.split(":")[-1]
+    logging.info("Downloading countries...")
+    countries = gpd.read_file(datasets["countries"].format(source_crs_code), crs=crs)
+    logging.info("Downloading NUTS...")
+    nuts = gpd.read_file(datasets["nuts"].format(source_crs_code), crs=crs)
+    logging.info("Downloading LAU...")
+    lau = gpd.read_file(datasets["lau"].format(source_crs_code), crs=crs)
+    logging.info("Done.")
 
     # Create consistent columns across ds
     lau = lau.rename({"LAU_NAME": "NAME"}, axis=1)
@@ -65,22 +70,29 @@ def get(datasets=datasets, crs="EPSG:4326"):
             :, ["FID", "NAME", "NAME_ENGL", "CNTR_CODE", "LEVL_CODE", "geometry"]
         ]
     )
-    
+
     # New level codes
-    admin_units.LEVL_CODE = admin_units.LEVL_CODE.replace({0:"country",1:"NUTS1",2:"NUTS2",3:"NUTS3",4:"LAU"})
+    admin_units.LEVL_CODE = admin_units.LEVL_CODE.replace(
+        {0: "country", 1: "NUTS1", 2: "NUTS2", 3: "NUTS3", 4: "LAU"}
+    )
 
     admin_units.crs = crs
     return admin_units
 
 
-
-
 if __name__ == "__main__":
-    host = "enermaps_db_1"
+    logging.basicConfig(level=logging.INFO)
+    host = "db"
     port = 5432
-    ds_id = 0
     admin_units = get(datasets, crs="EPSG:3035")
     admin_units["ds_id"] = ds_id
     dataset = pd.DataFrame([{"ds_id": ds_id}])
-    utilities.toPostgreSQL(dataset,"postgresql://test:example@{host}:{port}/dataset".format(host=host,port=port), schema="datasets")
-    utilities.toPostGIS(admin_units, "postgresql://test:example@{host}:{port}/dataset".format(host=host,port=port))
+    utilities.toPostgreSQL(
+        dataset,
+        "postgresql://test:example@{host}:{port}/dataset".format(host=host, port=port),
+        schema="datasets",
+    )
+    utilities.toPostGIS(
+        admin_units,
+        "postgresql://test:example@{host}:{port}/dataset".format(host=host, port=port),
+    )
