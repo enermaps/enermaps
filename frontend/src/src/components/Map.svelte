@@ -187,6 +187,7 @@ function makeSearchControl() {
   box-sizing: border-box;
 }
 
+
 #findbox {
   display: inline-block;
   overflow: visible;
