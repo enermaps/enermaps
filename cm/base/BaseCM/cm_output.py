@@ -9,11 +9,15 @@ from requests.exceptions import ConnectionError
 
 
 class Value(Schema):
+    """Class that defines the value schema."""
+
     value = fields.Number(required=True, allow_none=True)
     unit = fields.String(required=True)
 
 
 class XYGraph(Schema):
+    """Class that defines the x/y graph value schema."""
+
     values = fields.List(
         fields.Tuple((fields.Number(), fields.Number())), required=True
     )
@@ -24,6 +28,8 @@ class XYGraph(Schema):
 
 
 class LineGraph(Schema):
+    """Class that defines the x/y graph value schema."""
+
     values = fields.List(fields.Number(), required=True)
     unit = fields.String(required=False)
 
@@ -32,6 +38,8 @@ class LineGraph(Schema):
 
 
 class BarGraph(Schema):
+    """Class that defines the bar graph value schema."""
+
     values = fields.List(fields.Tuple([fields.Str(), fields.Number()]), required=True)
     unit = fields.String(required=False)
 
@@ -40,6 +48,8 @@ class BarGraph(Schema):
 
 
 class CMOutput(Schema):
+    """Class that defines the CM output value schema."""
+
     graphs = fields.Dict(
         keys=fields.Str(),
         values=Union(
@@ -62,6 +72,7 @@ class CMOutput(Schema):
 
 
 def validate(output: Dict) -> Dict:
+    """Validate the output of the CM based on the CM output schema."""
     output_schema = CMOutput()
     out = output_schema.load(data=output)
     return out
@@ -72,7 +83,7 @@ API_URL = os.environ.get("API_URL")
 
 
 def output_raster(raster_name, raster_fd):
-    """Add a raster to the api"""
+    """Add a raster to the api."""
     files = {"file": (raster_name, raster_fd, "image/tiff")}
     try:
         resp = requests.post(API_URL + "api/geofile/", files=files)

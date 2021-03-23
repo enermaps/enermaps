@@ -27,6 +27,7 @@ class FakeOuputTest(BaseIntegrationTest):
         return dict_resp
 
     def _getFirstCMName(self):
+        """Return first CM name."""
         resp = requests.get(self.cm_url)
         dict_resp = self.getJSONFromRequestResponse(resp)
         self.assertIn("cms", dict_resp)
