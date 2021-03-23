@@ -10,6 +10,7 @@ import pandas as pd
 import geopandas as gpd
 import os
 import sqlalchemy as sqla
+import logging
 
 def prepareRaster(df, srs="EPSG:3035", variable="", delete_orig=False):
     """
@@ -85,9 +86,9 @@ def toPostgreSQL(data, dbURL="postgresql://postgres:postgres@localhost:5432/data
 
     """
     db_engine = sqla.create_engine(dbURL)
-    print("Loading to PostgreSQL...")
+    logging.info("Loading to PostgreSQL...")
     data.to_sql(schema, db_engine, if_exists="append", index=False)
-    print("Done.")
+    logging.info("Done.")
     
 def toPostGIS(
     gdf, dbURL="postgresql://postgres:postgres@localhost:5432/dataset", schema="spatial"
@@ -108,6 +109,6 @@ def toPostGIS(
 
     """
     db_engine = sqla.create_engine(dbURL)
-    print("Loading to PostGIS...")
+    logging.info("Loading to PostGIS...")
     gdf.to_postgis(schema, db_engine, if_exists="append", index=False)
-    print("Done.")
+    logging.info("Done.")
