@@ -17,6 +17,11 @@ COPY requirements.txt di/requirements.txt
 WORKDIR di
 RUN pip3 install -r requirements.txt
 
+# PROVISIONAL: Installed a forked version of pandas-datapackage-reader
+RUN apt-get --yes install git
+RUN git clone https://github.com/enermaps/pandas-datapackage-reader.git
+RUN cd pandas-datapackage-reader && pip3 install -e .
+
 COPY . .
 
 # Provisional command to keep the container alive
