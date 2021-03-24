@@ -15,9 +15,10 @@ import requests
 import sqlalchemy as sqla
 from bs4 import BeautifulSoup
 from osgeo import gdal, osr
+from pyproj import CRS
 
 
-def prepareRaster(df, srs="EPSG:3035", variable="", delete_orig=False):
+def prepareRaster(df: pd.DataFrame, crs: CRS = CRS.from_epsg(3035), variable: str="", delete_orig: bool=False):
     """
     Convert original raster or NetCDF into EnerMaps rasters (single band, GeoTiff, EPSG:3035).
 
@@ -25,6 +26,12 @@ def prepareRaster(df, srs="EPSG:3035", variable="", delete_orig=False):
     ----------
     df : DataFrame.
         Results of API extraction.
+    crs : pyproj.crs.CRS.
+       coordinate reference system.
+    variable : str, optional.
+        Variable of NETCDF.
+    delete_orig : bool, optional.
+        Set to True to delete original downloaded file (e.g. NetCDF).
 
     Returns
     -------
@@ -36,14 +43,16 @@ def prepareRaster(df, srs="EPSG:3035", variable="", delete_orig=False):
     for i, row in df.iterrows():
         filename = row["value"]
         if filename.startswith("http"):
-            filename += "/vsicurl/"
+            filename = "/vsicurl/" + filename
         if filename[-2:] == "nc":
             src_ds = gdal.Open("NETCDF:{0}:{1}".format(filename, variable))
         else:
             src_ds = gdal.Open(filename)
         source_wkt = src_ds.GetProjectionRef()
+        source_crs = CRS.from_wkt(source_wkt)
+        
         dest_wkt = osr.SpatialReference()
-        dest_wkt.ImportFromEPSG(int(srs.split(":")[-1]))
+        dest_wkt.ImportFromEPSG(crs.to_epsg())
         dest_wkt = dest_wkt.ExportToPrettyWkt()
 
         ds = gdal.AutoCreateWarpedVRT(src_ds, source_wkt, dest_wkt)
@@ -55,16 +64,15 @@ def prepareRaster(df, srs="EPSG:3035", variable="", delete_orig=False):
                 dest_filename+=  "band" + str(b) + ".tif"
             else:
                 dest_filename+= ".tif"
-            srcband = ds.GetRasterBand(b)
-            if srcband is None:
-                continue
             logging.info("Translating band {}".format(b))
-            out_ds = gdal.Translate(
-                dest_filename, ds, format="GTiff", bandList=[b], outputSRS=srs
-            )
+            if ds.RasterCount>1 and crs != source_crs:
+                out_ds = gdal.Translate(
+                    dest_filename, ds, format="GTiff", bandList=[b], outputSRS=srs
+                )
             my_dict["time"] = row["time"] + pd.Timedelta(hours=row["dt"]) * (b - 1)
             my_dict["z"] = row["z"]
             my_dict["dt"] = row["dt"]
+            my_dict["unit"] = row["unit"]
             my_dict["variable"] = variable
             logging.info(dest_filename)
             my_dict["FID"] = dest_filename
@@ -81,6 +89,7 @@ def prepareRaster(df, srs="EPSG:3035", variable="", delete_orig=False):
             "FID",
             "dt",
             "z",
+            "unit",
             "Raster",
         ],
     )
@@ -211,6 +220,30 @@ def getDataPackage(ds_id, dbURL="postgresql://test:example@localhost:5433/datase
     else:
         return None
 
+def download_url(url, save_path, append_path="",chunk_size=128, timeout=10):
+    """
+    Download file from URL.
+    Source: https://stackoverflow.com/a/9419208
+    Parameters
+    ----------
+    url : string
+    save_path : string
+    append_path: string
+        URL complement added after following the url.
+        The default is an empty string.
+    chunk_size : integer, optional
+        The default is 128.
+    Returns
+    -------
+    None.
+    """
+    r = requests.get(url, allow_redirects=True, stream=True,timeout=timeout)
+    if len(append_path) > 0:
+        url = r.url + append_path
+        r = requests.get(url, stream=True, timeout=timeout)
+    with open(save_path, "wb") as fd:
+        for chunk in r.iter_content(chunk_size=chunk_size):
+            fd.write(chunk)
 
 def get_ld_json(url: str) -> dict:
     """Parse JSON-LD. Source: https://stackoverflow.com/a/59113576."""
