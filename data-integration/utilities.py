@@ -8,7 +8,7 @@ Created on Tue Feb  9 14:18:50 2021
 import json
 import logging
 import os
-
+from pathlib import Path
 import geopandas as gpd
 import pandas as pd
 import requests
@@ -19,7 +19,7 @@ from osgeo import gdal, osr
 
 def prepareRaster(df, srs="EPSG:3035", variable="", delete_orig=False):
     """
-    Convert original raster or NetCDF into EnerMaps rasters (single band, GeoTiff, EPSG:3035)
+    Convert original raster or NetCDF into EnerMaps rasters (single band, GeoTiff, EPSG:3035).
 
     Parameters
     ----------
@@ -35,6 +35,8 @@ def prepareRaster(df, srs="EPSG:3035", variable="", delete_orig=False):
     dicts = []
     for i, row in df.iterrows():
         filename = row["value"]
+        if filename.startswith("http"):
+            filename += "/vsicurl/"
         if filename[-2:] == "nc":
             src_ds = gdal.Open("NETCDF:{0}:{1}".format(filename, variable))
         else:
@@ -48,24 +50,26 @@ def prepareRaster(df, srs="EPSG:3035", variable="", delete_orig=False):
         for b in range(ds.RasterCount):
             my_dict = {}
             b += 1
-            dest_filename = filename + "band" + str(b) + ".tiff"
-            print("band", b)
+            dest_filename = Path(filename).stem
+            if ds.RasterCount>1:
+                dest_filename+=  "band" + str(b) + ".tif"
+            else:
+                dest_filename+= ".tif"
             srcband = ds.GetRasterBand(b)
             if srcband is None:
                 continue
+            logging.info("Translating band {}".format(b))
             out_ds = gdal.Translate(
                 dest_filename, ds, format="GTiff", bandList=[b], outputSRS=srs
             )
             my_dict["time"] = row["time"] + pd.Timedelta(hours=row["dt"]) * (b - 1)
             my_dict["z"] = row["z"]
+            my_dict["dt"] = row["dt"]
             my_dict["variable"] = variable
-            print(dest_filename)
+            logging.info(dest_filename)
             my_dict["FID"] = dest_filename
             my_dict["Raster"] = True
-            # print(my_dict)
-            # print(dicts)
             dicts.append(my_dict)
-    # print(dicts)
     data = pd.DataFrame(
         dicts,
         columns=[
