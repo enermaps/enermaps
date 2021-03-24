@@ -6,12 +6,14 @@ Created on Thu Oct 22 17:53:54 2020
 @author: giuseppeperonato
 """
 
+import logging
+
 import geopandas as gpd
 import pandas as pd
 import sqlalchemy as sqla
-import utilities
-import logging
 from pyproj import CRS
+
+import utilities
 
 # GISCO datasets GEOJSON EPSG:4326 1:1milion
 datasets = {
@@ -43,7 +45,9 @@ def get(datasets: dict = datasets, crs: CRS = CRS.from_epsg(3035)) -> gpd.GeoDat
     """
     source_crs_code = crs.to_epsg()
     logging.info("Downloading countries...")
-    countries = gpd.read_file(datasets["countries"].format(source_crs_code), crs=crs.to_string())
+    countries = gpd.read_file(
+        datasets["countries"].format(source_crs_code), crs=crs.to_string()
+    )
     logging.info("Downloading NUTS...")
     nuts = gpd.read_file(datasets["nuts"].format(source_crs_code), crs=crs.to_string())
     logging.info("Downloading LAU...")
