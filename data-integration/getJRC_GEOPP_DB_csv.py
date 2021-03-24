@@ -184,8 +184,18 @@ if __name__ == "__main__":
 
     if isinstance(data, pd.DataFrame):
         # Remove existing dataset
-        if utilities.datasetExists(DS_ID, "postgresql://test:example@{host}:{port}/dataset".format(host=host,port=port)):
-            utilities.removeDataset(DS_ID, "postgresql://test:example@{host}:{port}/dataset".format(host=host,port=port))
+        if utilities.datasetExists(
+            DS_ID,
+            "postgresql://test:example@{host}:{port}/dataset".format(
+                host=host, port=port
+            ),
+        ):
+            utilities.removeDataset(
+                DS_ID,
+                "postgresql://test:example@{host}:{port}/dataset".format(
+                    host=host, port=port
+                ),
+            )
             print("Removed existing dataset")
 
         # Create dataset table

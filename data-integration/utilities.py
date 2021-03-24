@@ -9,6 +9,7 @@ import json
 import logging
 import os
 from pathlib import Path
+
 import geopandas as gpd
 import pandas as pd
 import requests
@@ -18,7 +19,12 @@ from osgeo import gdal, osr
 from pyproj import CRS
 
 
-def prepareRaster(df: pd.DataFrame, crs: CRS = CRS.from_epsg(3035), variable: str="", delete_orig: bool=False):
+def prepareRaster(
+    df: pd.DataFrame,
+    crs: CRS = CRS.from_epsg(3035),
+    variable: str = "",
+    delete_orig: bool = False,
+):
     """
     Convert original raster or NetCDF into EnerMaps rasters (single band, GeoTiff, EPSG:3035).
 
@@ -50,7 +56,7 @@ def prepareRaster(df: pd.DataFrame, crs: CRS = CRS.from_epsg(3035), variable: st
             src_ds = gdal.Open(filename)
         source_wkt = src_ds.GetProjectionRef()
         source_crs = CRS.from_wkt(source_wkt)
-        
+
         dest_wkt = osr.SpatialReference()
         dest_wkt.ImportFromEPSG(crs.to_epsg())
         dest_wkt = dest_wkt.ExportToPrettyWkt()
@@ -60,12 +66,12 @@ def prepareRaster(df: pd.DataFrame, crs: CRS = CRS.from_epsg(3035), variable: st
             my_dict = {}
             b += 1
             dest_filename = Path(filename).stem
-            if ds.RasterCount>1:
-                dest_filename+=  "band" + str(b) + ".tif"
+            if ds.RasterCount > 1:
+                dest_filename += "band" + str(b) + ".tif"
             else:
-                dest_filename+= ".tif"
+                dest_filename += ".tif"
             logging.info("Translating band {}".format(b))
-            if ds.RasterCount>1 and crs != source_crs:
+            if ds.RasterCount > 1 and crs != source_crs:
                 out_ds = gdal.Translate(
                     dest_filename, ds, format="GTiff", bandList=[b], outputSRS=srs
                 )
@@ -218,7 +224,8 @@ def getDataPackage(ds_id, dbURL="postgresql://test:example@localhost:5433/datase
     else:
         return None
 
-def download_url(url, save_path, append_path="",chunk_size=128, timeout=10):
+
+def download_url(url, save_path, append_path="", chunk_size=128, timeout=10):
     """
     Download file from URL.
     Source: https://stackoverflow.com/a/9419208
@@ -235,13 +242,14 @@ def download_url(url, save_path, append_path="",chunk_size=128, timeout=10):
     -------
     None.
     """
-    r = requests.get(url, allow_redirects=True, stream=True,timeout=timeout)
+    r = requests.get(url, allow_redirects=True, stream=True, timeout=timeout)
     if len(append_path) > 0:
         url = r.url + append_path
         r = requests.get(url, stream=True, timeout=timeout)
     with open(save_path, "wb") as fd:
         for chunk in r.iter_content(chunk_size=chunk_size):
             fd.write(chunk)
+
 
 def get_ld_json(url: str) -> dict:
     """Parse JSON-LD. Source: https://stackoverflow.com/a/59113576."""
