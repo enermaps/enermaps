@@ -30,6 +30,7 @@ logging.basicConfig(level=logging.INFO)
 # In Docker
 host = "db"
 port = 5432
+print(host,port)
 # Local
 # host = "localhost"
 # port = 5433
@@ -140,11 +141,11 @@ if __name__ == "__main__":
             "postgresql://test:example@{host}:{port}/dataset".format(host=host, port=port),
         )
         
-        if utilities.datasetExists(DS_ID) and Force==False:
+        if utilities.datasetExists(DS_ID, "postgresql://test:example@{host}:{port}/dataset".format(host=host,port=port)) and Force==False:
             logging.warning("Dataset already exists. Use force update to replace.")
         else:
-            if utilities.datasetExists(DS_ID):
-                utilities.removeDataset(DS_ID)
+            if utilities.datasetExists(DS_ID,"postgresql://test:example@{host}:{port}/dataset".format(host=host,port=port)):
+                utilities.removeDataset(DS_ID,"postgresql://test:example@{host}:{port}/dataset".format(host=host,port=port))
                 logging.info("Removed existing dataset")
                 
             data, dp  = get(DS_LIST[DS_ID],dp, Force)
