@@ -3,11 +3,11 @@ FROM ubuntu:20.04
 ENV TZ=Europe/Zurich
 RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 
-RUN apt-get update && \
-    apt-get --yes install python3 python3-pip &&\
-    apt-get --yes install postgresql-client &&\
-    apt-get --yes install gdal-bin &&\
-    apt-get --yes install libgdal-dev &&\
+RUN apt-get update &&\
+    apt-get --yes install python3 python3-pip \
+    postgresql-client \
+    gdal-bin \
+    libgdal-dev &&\
     rm -rf /var/cache/apt/archives/
 
 ENV CPLUS_INCLUDE_PATH=/usr/include/gdal
@@ -29,4 +29,4 @@ CMD ["sleep", "infinity"]
 
 # Future pipeline, keep commented for now (=manual integration)
 # CMD ["python3", "admin_units.py"]
-# CMD ["python3", "getNEWA.py"]
+# CMD ["python3", "getHotMaps_raster.py"]

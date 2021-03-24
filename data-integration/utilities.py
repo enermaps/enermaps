@@ -208,12 +208,10 @@ def getDataPackage(ds_id, dbURL="postgresql://test:example@localhost:5433/datase
         The default is "postgresql://test:example@localhost:5433/dataset".
     Returns
     -------
-    datatpackage: json string.
+    datapackage or None
     """
     engine = sqla.create_engine(dbURL)
-    df = pd.read_sql(
-        "SELECT * FROM datasets WHERE ds_id = {};".format(ds_id), con=engine
-    )
+    pd.read_sql("SELECT * FROM datasets WHERE ds_id = ?;", params=(ds_id,), con=engine)
     if len(df) > 0:
         metadata = df.loc[0, "metadata"]
         return metadata.get("datapackage")
