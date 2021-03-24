@@ -11,6 +11,7 @@ import pandas as pd
 import sqlalchemy as sqla
 import utilities
 import logging
+from pyproj import CRS
 
 # GISCO datasets GEOJSON EPSG:4326 1:1milion
 datasets = {
@@ -23,7 +24,7 @@ datasets = {
 ds_id = 0
 
 
-def get(datasets: dict = datasets, crs: str = "EPSG:4326") -> gpd.GeoDataFrame:
+def get(datasets: dict = datasets, crs: CRS = CRS.from_epsg(3035)) -> gpd.GeoDataFrame:
     """
     Retrieve NUTS, LAU and countries from GISCO API and make a single, consistent GDF.
 
@@ -40,13 +41,13 @@ def get(datasets: dict = datasets, crs: str = "EPSG:4326") -> gpd.GeoDataFrame:
         Table with all administrative units.
 
     """
-    source_crs_code = crs.split(":")[-1]
+    source_crs_code = crs.to_epsg()
     logging.info("Downloading countries...")
-    countries = gpd.read_file(datasets["countries"].format(source_crs_code), crs=crs)
+    countries = gpd.read_file(datasets["countries"].format(source_crs_code), crs=crs.to_string())
     logging.info("Downloading NUTS...")
-    nuts = gpd.read_file(datasets["nuts"].format(source_crs_code), crs=crs)
+    nuts = gpd.read_file(datasets["nuts"].format(source_crs_code), crs=crs.to_string())
     logging.info("Downloading LAU...")
-    lau = gpd.read_file(datasets["lau"].format(source_crs_code), crs=crs)
+    lau = gpd.read_file(datasets["lau"].format(source_crs_code), crs=crs.to_string())
     logging.info("Done.")
 
     # Create consistent columns across ds
@@ -76,7 +77,7 @@ def get(datasets: dict = datasets, crs: str = "EPSG:4326") -> gpd.GeoDataFrame:
         {0: "country", 1: "NUTS1", 2: "NUTS2", 3: "NUTS3", 4: "LAU"}
     )
 
-    admin_units.crs = crs
+    admin_units.crs = crs.to_string()
     return admin_units
 
 
@@ -84,7 +85,7 @@ if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO)
     host = "db"
     port = 5432
-    admin_units = get(datasets, crs="EPSG:3035")
+    admin_units = get(datasets, crs=CRS.from_epsg(3035))
     admin_units["ds_id"] = ds_id
     dataset = pd.DataFrame([{"ds_id": ds_id}])
     utilities.toPostgreSQL(
