@@ -65,6 +65,8 @@ services:
       context: ./data-integration
     volumes:
       - data:/data
+    env_file:
+      .env
 
   redis:
     image: redis:6-alpine

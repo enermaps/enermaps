@@ -10,6 +10,7 @@ Integrate JRC GEOPP DB into EnerMaps DB
 
 import json
 import logging
+import os
 import sys
 
 import frictionless
@@ -23,14 +24,15 @@ import utilities
 # Constants
 logging.basicConfig(level=logging.INFO)
 DS_ID = 2
+URL = "https://data.jrc.ec.europa.eu/dataset/jrc-10128-10001"
 Force = False  # force integration if (meta)data has not changed
 
 # In Docker
-host = "db"
-port = 5432
-# Local
-# host = "localhost"
-# port = 5433
+DB_HOST = os.environ.get("DB_HOST")
+DB_PORT = os.environ.get("DB_PORT")
+DB_USER = os.environ.get("DB_USER")
+DB_PASSWORD = os.environ.get("DB_PASSWORD")
+DB_DB = os.environ.get("DB_DB")
 
 
 def get(url: str, dp: frictionless.package.Package, force: bool = False):
@@ -69,10 +71,7 @@ def get(url: str, dp: frictionless.package.Package, force: bool = False):
 
     # Inferring and completing metadata
     logging.info("Creating datapackage for input data")
-    new_dp = frictionless.describe_package(
-        csv_file,
-        stats=True,  # Add stats
-    )
+    new_dp = frictionless.describe_package(csv_file, stats=True,)  # Add stats
     # Add date
     new_dp["datePublished"] = datePublished
 
@@ -172,28 +171,39 @@ if __name__ == "__main__":
     argv = sys.argv
     if "--force" in argv:
         Force = True
-
     dp = utilities.getDataPackage(
         DS_ID,
-        "postgresql://test:example@{host}:{port}/dataset".format(host=host, port=port),
+        "postgresql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_DB}".format(
+            DB_HOST=DB_HOST,
+            DB_PORT=DB_PORT,
+            DB_USER=DB_USER,
+            DB_PASSWORD=DB_PASSWORD,
+            DB_DB=DB_DB,
+        ),
     )
 
-    data, spatial, dp = get(
-        url="https://data.jrc.ec.europa.eu/dataset/jrc-10128-10001", dp=dp, force=Force
-    )
+    data, spatial, dp = get(url=URL, dp=dp, force=Force)
 
     if isinstance(data, pd.DataFrame):
         # Remove existing dataset
         if utilities.datasetExists(
             DS_ID,
-            "postgresql://test:example@{host}:{port}/dataset".format(
-                host=host, port=port
+            "postgresql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_DB}".format(
+                DB_HOST=DB_HOST,
+                DB_PORT=DB_PORT,
+                DB_USER=DB_USER,
+                DB_PASSWORD=DB_PASSWORD,
+                DB_DB=DB_DB,
             ),
         ):
             utilities.removeDataset(
                 DS_ID,
-                "postgresql://test:example@{host}:{port}/dataset".format(
-                    host=host, port=port
+                "postgresql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_DB}".format(
+                    DB_HOST=DB_HOST,
+                    DB_PORT=DB_PORT,
+                    DB_USER=DB_USER,
+                    DB_PASSWORD=DB_PASSWORD,
+                    DB_DB=DB_DB,
                 ),
             )
             print("Removed existing dataset")
@@ -206,8 +216,12 @@ if __name__ == "__main__":
         dataset = pd.DataFrame([{"ds_id": DS_ID, "metadata": metadata}])
         utilities.toPostgreSQL(
             dataset,
-            "postgresql://test:example@{host}:{port}/dataset".format(
-                host=host, port=port
+            "postgresql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_DB}".format(
+                DB_HOST=DB_HOST,
+                DB_PORT=DB_PORT,
+                DB_USER=DB_USER,
+                DB_PASSWORD=DB_PASSWORD,
+                DB_DB=DB_DB,
             ),
             schema="datasets",
         )
@@ -216,8 +230,12 @@ if __name__ == "__main__":
         data["ds_id"] = DS_ID
         utilities.toPostgreSQL(
             data,
-            "postgresql://test:example@{host}:{port}/dataset".format(
-                host=host, port=port
+            "postgresql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_DB}".format(
+                DB_HOST=DB_HOST,
+                DB_PORT=DB_PORT,
+                DB_USER=DB_USER,
+                DB_PASSWORD=DB_PASSWORD,
+                DB_DB=DB_DB,
             ),
             schema="data",
         )
@@ -227,8 +245,12 @@ if __name__ == "__main__":
         spatial["ds_id"] = DS_ID
         utilities.toPostGIS(
             spatial,
-            "postgresql://test:example@{host}:{port}/dataset".format(
-                host=host, port=port
+            "postgresql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_DB}".format(
+                DB_HOST=DB_HOST,
+                DB_PORT=DB_PORT,
+                DB_USER=DB_USER,
+                DB_PASSWORD=DB_PASSWORD,
+                DB_DB=DB_DB,
             ),
             schema="spatial",
         )

@@ -30,12 +30,11 @@ Force = False  # Force update
 logging.basicConfig(level=logging.INFO)
 
 # In Docker
-host = "db"
-port = 5432
-print(host, port)
-# Local
-# host = "localhost"
-# port = 5433
+DB_HOST = os.environ.get("DB_HOST")
+DB_PORT = os.environ.get("DB_PORT")
+DB_USER = os.environ.get("DB_USER")
+DB_PASSWORD = os.environ.get("DB_PASSWORD")
+DB_DB = os.environ.get("DB_DB")
 
 
 def get(repository: str, dp: frictionless.package.Package, force: bool = False):
@@ -146,16 +145,24 @@ if __name__ == "__main__":
         logging.info("Retrieving Dataset {}".format(DS_ID))
         dp = utilities.getDataPackage(
             DS_ID,
-            "postgresql://test:example@{host}:{port}/dataset".format(
-                host=host, port=port
+            "postgresql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_DB}".format(
+                DB_HOST=DB_HOST,
+                DB_PORT=DB_PORT,
+                DB_USER=DB_USER,
+                DB_PASSWORD=DB_PASSWORD,
+                DB_DB=DB_DB,
             ),
         )
 
         if (
             utilities.datasetExists(
                 DS_ID,
-                "postgresql://test:example@{host}:{port}/dataset".format(
-                    host=host, port=port
+                "postgresql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_DB}".format(
+                    DB_HOST=DB_HOST,
+                    DB_PORT=DB_PORT,
+                    DB_USER=DB_USER,
+                    DB_PASSWORD=DB_PASSWORD,
+                    DB_DB=DB_DB,
                 ),
             )
             and Force == False
@@ -164,14 +171,22 @@ if __name__ == "__main__":
         else:
             if utilities.datasetExists(
                 DS_ID,
-                "postgresql://test:example@{host}:{port}/dataset".format(
-                    host=host, port=port
+                "postgresql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_DB}".format(
+                    DB_HOST=DB_HOST,
+                    DB_PORT=DB_PORT,
+                    DB_USER=DB_USER,
+                    DB_PASSWORD=DB_PASSWORD,
+                    DB_DB=DB_DB,
                 ),
             ):
                 utilities.removeDataset(
                     DS_ID,
-                    "postgresql://test:example@{host}:{port}/dataset".format(
-                        host=host, port=port
+                    "postgresql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_DB}".format(
+                        DB_HOST=DB_HOST,
+                        DB_PORT=DB_PORT,
+                        DB_USER=DB_USER,
+                        DB_PASSWORD=DB_PASSWORD,
+                        DB_DB=DB_DB,
                     ),
                 )
                 logging.info("Removed existing dataset")
@@ -186,8 +201,12 @@ if __name__ == "__main__":
             dataset = pd.DataFrame([{"ds_id": DS_ID, "metadata": metadata}])
             utilities.toPostgreSQL(
                 dataset,
-                "postgresql://test:example@{host}:{port}/dataset".format(
-                    host=host, port=port
+                "postgresql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_DB}".format(
+                    DB_HOST=DB_HOST,
+                    DB_PORT=DB_PORT,
+                    DB_USER=DB_USER,
+                    DB_PASSWORD=DB_PASSWORD,
+                    DB_DB=DB_DB,
                 ),
                 schema="datasets",
             )
@@ -196,8 +215,12 @@ if __name__ == "__main__":
             data["ds_id"] = DS_ID
             utilities.toPostgreSQL(
                 data,
-                "postgresql://test:example@{host}:{port}/dataset".format(
-                    host=host, port=port
+                "postgresql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_DB}".format(
+                    DB_HOST=DB_HOST,
+                    DB_PORT=DB_PORT,
+                    DB_USER=DB_USER,
+                    DB_PASSWORD=DB_PASSWORD,
+                    DB_DB=DB_DB,
                 ),
                 schema="data",
             )
@@ -207,8 +230,12 @@ if __name__ == "__main__":
             spatial[["FID", "ds_id"]] = data[["FID", "ds_id"]]
             utilities.toPostgreSQL(
                 spatial,
-                "postgresql://test:example@{host}:{port}/dataset".format(
-                    host=host, port=port
+                "postgresql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_DB}".format(
+                    DB_HOST=DB_HOST,
+                    DB_PORT=DB_PORT,
+                    DB_USER=DB_USER,
+                    DB_PASSWORD=DB_PASSWORD,
+                    DB_DB=DB_DB,
                 ),
                 schema="spatial",
             )
