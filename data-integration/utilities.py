@@ -154,9 +154,7 @@ def toPostGIS(
 
 
 def datasetExists(
-    ds_id,
-    dbURL="postgresql://test:example@localhost:5433/dataset",
-    tables=["datasets", "spatial", "data"],
+    ds_id, dbURL="postgresql://test:example@localhost:5433/dataset",
 ):
     """
     Check whether the datasets exist in all tables.
@@ -165,18 +163,18 @@ def datasetExists(
     ds_id : int.
     dbURL : str, optional
         The default is "postgresql://test:example@localhost:5433/dataset".
-    tables : list of strings, optional
-        The default is ["datasets","spatial","data"].
     Returns
     -------
     bool
     """
+    tables = ["datasets", "spatial", "data"]
     engine = sqla.create_engine(dbURL)
     lengths = []
     for table in tables:
         with engine.connect() as con:
             rs = con.execute(
-                "SELECT COUNT(*) FROM {} WHERE ds_id = {}".format(table, ds_id)
+                "SELECT COUNT(*) FROM {} WHERE ds_id = %(ds_id)s;".format(table),
+                {"ds_id": ds_id},
             )
             for row in rs:
                 count = row[0]
@@ -201,7 +199,9 @@ def removeDataset(ds_id, dbURL="postgresql://test:example@localhost:5433/dataset
     """
     engine = sqla.create_engine(dbURL)
     with engine.connect() as con:
-        rs = con.execute("DELETE FROM datasets WHERE ds_id = {};".format(ds_id))
+        rs = con.execute(
+            "DELETE FROM datasets WHERE ds_id = %(ds_id)s;", {"ds_id": ds_id,}
+        )
 
 
 def getDataPackage(ds_id, dbURL="postgresql://test:example@localhost:5433/dataset"):
@@ -217,8 +217,10 @@ def getDataPackage(ds_id, dbURL="postgresql://test:example@localhost:5433/datase
     datapackage or None
     """
     engine = sqla.create_engine(dbURL)
-    pd.read_sql("SELECT * FROM datasets WHERE ds_id = ?;", params=(ds_id,), con=engine)
-    if len(df) > 0:
+    df = pd.read_sql(
+        "SELECT * FROM datasets WHERE ds_id = %s", params=(ds_id,), con=engine
+    )
+    if not df.empty:
         metadata = df.loc[0, "metadata"]
         return metadata.get("datapackage")
     else:

@@ -7,6 +7,7 @@ Created on Thu Oct 22 17:53:54 2020
 """
 
 import logging
+import os
 
 import geopandas as gpd
 import pandas as pd
@@ -23,7 +24,13 @@ datasets = {
 }
 
 # Dataset id
-ds_id = 0
+DS_ID = 0
+
+DB_HOST = os.environ.get("DB_HOST")
+DB_PORT = os.environ.get("DB_PORT")
+DB_USER = os.environ.get("DB_USER")
+DB_PASSWORD = os.environ.get("DB_PASSWORD")
+DB_DB = os.environ.get("DB_DB")
 
 
 def get(datasets: dict = datasets, crs: CRS = CRS.from_epsg(3035)) -> gpd.GeoDataFrame:
@@ -87,17 +94,27 @@ def get(datasets: dict = datasets, crs: CRS = CRS.from_epsg(3035)) -> gpd.GeoDat
 
 if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO)
-    host = "db"
-    port = 5432
     admin_units = get(datasets, crs=CRS.from_epsg(3035))
-    admin_units["ds_id"] = ds_id
-    dataset = pd.DataFrame([{"ds_id": ds_id}])
+    admin_units["ds_id"] = DS_ID
+    dataset = pd.DataFrame([{"ds_id": DS_ID}])
     utilities.toPostgreSQL(
         dataset,
-        "postgresql://test:example@{host}:{port}/dataset".format(host=host, port=port),
+        "postgresql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_DB}".format(
+            DB_HOST=DB_HOST,
+            DB_PORT=DB_PORT,
+            DB_USER=DB_USER,
+            DB_PASSWORD=DB_PASSWORD,
+            DB_DB=DB_DB,
+        ),
         schema="datasets",
     )
     utilities.toPostGIS(
         admin_units,
-        "postgresql://test:example@{host}:{port}/dataset".format(host=host, port=port),
+        "postgresql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_DB}".format(
+            DB_HOST=DB_HOST,
+            DB_PORT=DB_PORT,
+            DB_USER=DB_USER,
+            DB_PASSWORD=DB_PASSWORD,
+            DB_DB=DB_DB,
+        ),
     )
