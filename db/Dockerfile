@@ -1,4 +1,4 @@
 FROM camptocamp/postgres:9.6
 ENV POSTGRES_USER test
 ENV POSTGRES_DB test
-ADD add_dataset_db.sql /docker-entrypoint-initdb.d/add_dataset_db.sql
+ADD init/add_dataset_db.sql /docker-entrypoint-initdb.d/add_dataset_db.sql
