@@ -10,6 +10,7 @@ RUN apt-get update &&\
     libgdal-dev &&\
     rm -rf /var/cache/apt/archives/
 
+
 ENV CPLUS_INCLUDE_PATH=/usr/include/gdal
 ENV C_INCLUDE_PATH=/usr/include/gdal
 

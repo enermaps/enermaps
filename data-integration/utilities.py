@@ -70,13 +70,28 @@ def prepareRaster(
             dest_filename = Path(filename).stem
             if ds.RasterCount > 1:
                 dest_filename += "band" + str(b) + ".tif"
+            if source_crs.to_epsg() != crs.to_epsg():
+                dest_filename += "_{}.tif".format(crs.to_epsg())
             else:
                 dest_filename += ".tif"
-            logging.info("Translating band {}".format(b))
-            if ds.RasterCount > 1 and crs != source_crs:
-                out_ds = gdal.Translate(
-                    dest_filename, ds, format="GTiff", bandList=[b], outputSRS=srs
+            if ds.RasterCount > 1 or filename != dest_filename:
+                logging.info("Translating band {}".format(b))
+                os.system(
+                    "gdal_translate {filename} {dest_filename} -b {b} -of GTIFF -a_srs {outputSRS} --config GDAL_PAM_ENABLED NO -co COMPRESS=PACKBITS -co BIGTIFF=YES".format(
+                        filename=filename,
+                        dest_filename=dest_filename,
+                        b=b,
+                        outputSRS=crs.to_string(),
+                    )
                 )
+                # gdal.Translate(
+                #     dest_filename,
+                #     ds,
+                #     format="GTiff",
+                #     bandList=[b],
+                #     outputSRS=crs.to_string(),
+                # )
+            # else the file can be integrated without translations
             my_dict["time"] = row["time"] + pd.Timedelta(hours=row["dt"]) * (b - 1)
             my_dict["z"] = row["z"]
             my_dict["dt"] = row["dt"]
@@ -162,6 +177,7 @@ def datasetExists(
 ):
     """
     Check whether the dataset exist in any table.
+
     Parameters
     ----------
     ds_id : int.
@@ -169,6 +185,7 @@ def datasetExists(
         The default is "postgresql://test:example@localhost:5433/dataset".
     tables : list of string, optional
         The default is ["datasets", "spatial", "data"].
+
     Returns
     -------
     bool
@@ -194,30 +211,37 @@ def datasetExists(
 def removeDataset(ds_id, dbURL="postgresql://test:example@localhost:5433/dataset"):
     """
     Delete the dataset.
+
     Parameters
     ----------
     ds_id : int.
     dbURL : str, optional
         The default is "postgresql://test:example@localhost:5433/dataset".
+
     Returns
     -------
     None
     """
     engine = sqla.create_engine(dbURL)
     with engine.connect() as con:
-        rs = con.execute(
-            "DELETE FROM datasets WHERE ds_id = %(ds_id)s;", {"ds_id": ds_id,}
+        con.execute(
+            "DELETE FROM datasets WHERE ds_id = %(ds_id)s;",
+            {
+                "ds_id": ds_id,
+            },
         )
 
 
 def getDataPackage(ds_id, dbURL="postgresql://test:example@localhost:5433/dataset"):
     """
     Retrieve the datapackage.
+
     Parameters
     ----------
     ds_id : int.
     dbURL : str, optional
         The default is "postgresql://test:example@localhost:5433/dataset".
+
     Returns
     -------
     datapackage or None
@@ -235,8 +259,8 @@ def getDataPackage(ds_id, dbURL="postgresql://test:example@localhost:5433/datase
 
 def download_url(url, save_path, append_path="", chunk_size=128, timeout=10):
     """
-    Download file from URL.
-    Source: https://stackoverflow.com/a/9419208
+    Download file from URL. Source: https://stackoverflow.com/a/9419208.
+
     Parameters
     ----------
     url : string
@@ -246,6 +270,7 @@ def download_url(url, save_path, append_path="", chunk_size=128, timeout=10):
         The default is an empty string.
     chunk_size : integer, optional
         The default is 128.
+
     Returns
     -------
     None.

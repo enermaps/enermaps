@@ -71,7 +71,10 @@ def get(url: str, dp: frictionless.package.Package, force: bool = False):
 
     # Inferring and completing metadata
     logging.info("Creating datapackage for input data")
-    new_dp = frictionless.describe_package(csv_file, stats=True,)  # Add stats
+    new_dp = frictionless.describe_package(
+        csv_file,
+        stats=True,
+    )  # Add stats
     # Add date
     new_dp["datePublished"] = datePublished
 
