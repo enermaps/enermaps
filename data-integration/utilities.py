@@ -19,6 +19,7 @@ from bs4 import BeautifulSoup
 from osgeo import gdal, osr
 from psycopg2 import sql
 from pyproj import CRS
+import validators
 
 
 def prepareRaster(
@@ -257,7 +258,7 @@ def getDataPackage(ds_id, dbURL="postgresql://test:example@localhost:5433/datase
         return None
 
 
-def download_url(url, save_path, append_path="", chunk_size=128, timeout=10):
+def download_url(url, save_path, chunk_size=128, timeout=10):
     """
     Download file from URL. Source: https://stackoverflow.com/a/9419208.
 
@@ -265,9 +266,6 @@ def download_url(url, save_path, append_path="", chunk_size=128, timeout=10):
     ----------
     url : string
     save_path : string
-    append_path: string
-        URL complement added after following the url.
-        The default is an empty string.
     chunk_size : integer, optional
         The default is 128.
 
@@ -275,13 +273,16 @@ def download_url(url, save_path, append_path="", chunk_size=128, timeout=10):
     -------
     None.
     """
-    r = requests.get(url, allow_redirects=True, stream=True, timeout=timeout)
-    if len(append_path) > 0:
-        url = r.url + append_path
-        r = requests.get(url, stream=True, timeout=timeout)
-    with open(save_path, "wb") as fd:
-        for chunk in r.iter_content(chunk_size=chunk_size):
-            fd.write(chunk)
+    if validators.url(url):
+        r = requests.get(url, allow_redirects=True, stream=True, timeout=timeout)
+        if r.status_code == 200:
+            with open(save_path, "wb") as fd:
+                for chunk in r.iter_content(chunk_size=chunk_size):
+                    fd.write(chunk)
+        else:
+            logging.error("Error retrieving the URL")
+    else:
+        logging.error("URL not valid")
 
 
 def get_ld_json(url: str) -> dict:
