@@ -36,6 +36,12 @@ DB_USER = os.environ.get("DB_USER")
 DB_PASSWORD = os.environ.get("DB_PASSWORD")
 DB_DB = os.environ.get("DB_DB")
 
+# DB_HOST = "localhost"
+# DB_PORT = 5433
+# DB_USER = "test"
+# DB_PASSWORD = "example"
+# DB_DB = "dataset"
+
 
 def get(repository: str, dp: frictionless.package.Package, force: bool = False):
     """
@@ -115,7 +121,7 @@ def get(repository: str, dp: frictionless.package.Package, force: bool = False):
     dp = new_dp
 
     # Retrieve rasters
-    data_enermaps = utilities.prepareRaster(rasters)
+    data_enermaps = utilities.prepareRaster(rasters, delete_orig=True)
 
     # Move rasters into the data directory
     if not os.path.exists("data"):
@@ -130,7 +136,7 @@ def get(repository: str, dp: frictionless.package.Package, force: bool = False):
 
 if __name__ == "__main__":
     DS_IDs = DS_LIST.keys()
-    if len(sys.argv) > 0:
+    if len(sys.argv) > 1:
         parser = argparse.ArgumentParser(description="Import HotMaps raster")
         parser.add_argument("--force", action="store_const", const=True, default=False)
         parser.add_argument(
