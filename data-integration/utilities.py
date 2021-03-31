@@ -12,10 +12,12 @@ from pathlib import Path
 
 import geopandas as gpd
 import pandas as pd
+import psycopg2 as ps
 import requests
 import sqlalchemy as sqla
 from bs4 import BeautifulSoup
 from osgeo import gdal, osr
+from psycopg2 import sql
 from pyproj import CRS
 
 
@@ -154,30 +156,34 @@ def toPostGIS(
 
 
 def datasetExists(
-    ds_id, dbURL="postgresql://test:example@localhost:5433/dataset",
+    ds_id,
+    dbURL="postgresql://test:example@localhost:5433/dataset",
+    tables=["datasets", "spatial", "data"],
 ):
     """
-    Check whether the datasets exist in all tables.
+    Check whether the dataset exist in any table.
     Parameters
     ----------
     ds_id : int.
     dbURL : str, optional
         The default is "postgresql://test:example@localhost:5433/dataset".
+    tables : list of string, optional
+        The default is ["datasets", "spatial", "data"].
     Returns
     -------
     bool
     """
-    tables = ["datasets", "spatial", "data"]
-    engine = sqla.create_engine(dbURL)
     lengths = []
     for table in tables:
-        with engine.connect() as con:
-            rs = con.execute(
-                "SELECT COUNT(*) FROM {} WHERE ds_id = %(ds_id)s;".format(table),
+        with ps.connect(dbURL) as conn:
+            cur = conn.cursor()
+            cur.execute(
+                sql.SQL("SELECT COUNT(*) FROM {} WHERE ds_id = %(ds_id)s;").format(
+                    sql.Identifier(table)
+                ),
                 {"ds_id": ds_id},
             )
-            for row in rs:
-                count = row[0]
+            count = cur.fetchone()[0]
             lengths.append(count)
     if lengths[0] > 0 or lengths[1] > 0 or lengths[2] > 0:
         return True
