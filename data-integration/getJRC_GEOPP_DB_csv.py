@@ -155,9 +155,8 @@ def get(url: str, dp: frictionless.package.Package, force: bool = False):
                 "unit",
             ]
         )
-        enermaps_data["Raster"] = False
+
         enermaps_data["value"] = data["value"]
-        enermaps_data["unit"] = "MW"
         enermaps_data["variable"] = data["variable"]
         enermaps_data["fields"] = data["fields"]
         # Constants

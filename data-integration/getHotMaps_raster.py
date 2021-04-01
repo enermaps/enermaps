@@ -75,11 +75,6 @@ def get(repository: str, dp: frictionless.package.Package, force: bool = False):
         else:
             time = None
 
-        if "temporal" in new_dp["resources"][r]:
-            time = pd.to_datetime(new_dp["resources"][r]["temporal"]["start"])
-        else:
-            time = None
-
         if "unit" in new_dp["resources"][r]:
             unit = new_dp["resources"][r]["unit"]
         else:
@@ -88,8 +83,7 @@ def get(repository: str, dp: frictionless.package.Package, force: bool = False):
         if new_dp["resources"][r]["format"] == "tif":
             logging.info(new_dp["resources"][r]["path"])
             utilities.download_url(
-                repository + new_dp["resources"][r]["path"],
-                os.path.basename(new_dp["resources"][r]["path"]),
+                repository + new_dp["resources"][r]["path"]
             )
             raster = {
                 "value": os.path.basename(new_dp["resources"][r]["path"]),
@@ -101,7 +95,7 @@ def get(repository: str, dp: frictionless.package.Package, force: bool = False):
             rasters.append(raster)
             # check statistics for each resource
             if dp != None and "stats" in new_dp["resources"][r]:
-                if [dp["resources"][r]["stats"] != new_dp["resources"][r]["stats"]]:
+                if dp["resources"][r]["stats"] != new_dp["resources"][r]["stats"]:
                     ChangedStats = True
     rasters = pd.DataFrame(rasters)
 
