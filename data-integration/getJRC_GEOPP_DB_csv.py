@@ -84,28 +84,30 @@ def get(url: str, dp: frictionless.package.Package, force: bool = False):
         new_dp.resources[0].schema.get_field(field).type = "number"
 
     # Logic for update
-    if dp != None:
+    if dp != None: # Existing dataset
         # check stats
         ChangedStats = dp["resources"][0]["stats"] != new_dp["resources"][0]["stats"]
         ChangedDate = dp["datePublished"] != new_dp["datePublished"]
 
-        if ChangedStats or ChangedDate:
+        if ChangedStats or ChangedDate: # Data integration will continue, regardless of force argument
             logging.info("Data has changed")
-        elif force:
+        elif force: # Data integration will continue, even if data has not changed
             logging.info("Forced update")
-        else:
+        else: # Data integration will stop here, returning Nones
             logging.info(
                 "Data has not changed. Use force update if you want to reupload."
             )
             return None, None, None
+    else: # New dataset
+        dp = new_dp # this is just for the sake of the schema control
 
-    dp = new_dp
+    val = frictionless.validate(new_dp)
+    
+    # Make sure that the new dp is valid and that the schema has not changed
+    if val["valid"] and dp["resources"][0]["schema"] == new_dp["resources"][0]["schema"]:
+        logging.info("Returning valid and schema-compliant data")
 
-    val = frictionless.validate(dp)
-    if val["valid"]:
-        logging.info("Returning valid data")
-
-        data = read_datapackage(dp)
+        data = read_datapackage(new_dp)
         data["FID"] = name + "_" + data["id_powerplant"].astype(str)
 
         spatial = gpd.GeoDataFrame(
@@ -162,9 +164,9 @@ def get(url: str, dp: frictionless.package.Package, force: bool = False):
         # Constants
         enermaps_data["unit"] = "MW"
         enermaps_data["Raster"] = False
-        return enermaps_data, spatial, dp
+        return enermaps_data, spatial, new_dp
     else:
-        logging.error("Data is not valid")
+        logging.error("Data is not valid or the schema has changed")
         print(val)
         return None, None, None
 
