@@ -1,10 +1,9 @@
 # Database for the enermaps project
 
-We use postgresql with postgis. The initial database schema 
-can be found in db/add_dataset_db.sql
+We use postgresql with postgis. The initial empty database schema can be found in db/add_dataset_db.sql
 
 The sql schema will be loaded only if the `db-data` volume is not already present.
-You can use `docker-compose down --volumes` and `docker volume rm db-data` before running the app to load the schema and start from an empty db.
+As a reminder, you would need to execute a `docker-compose down --volumes` before running the app to load the schema and start from an empty db.
 
 You can have an interactive session connected to psql with:
 
@@ -14,7 +13,7 @@ docker exec -it enermaps2_db_1 psql -h 127.0.0.1 -p 5432 -U dataset dataset
 
 ## Sample queries
 
-- Vector dataset, here with `ds_id = 2`
+- Vector dataset, e.g `ds_id = 2`
 
 ```sql
 SELECT data."FID",
@@ -38,6 +37,6 @@ The pivoted table (variables + values to display on the map) is encapsulated as 
 SELECT * FROM spatial WHERE "LEVL_CODE" = 'NUTS1';
 ```
 
-- Raster dataset, here with `ds_id = 25`
+- Raster dataset, e.g. `ds_id = 43`
 The same query as for a vector dataset can be used. The name of the raster file to be loaded is set in the `FID` field. The complete path of each raster file can be constructed as follows:
 `di/data/{ds_id}/{FID}`
