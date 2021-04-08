@@ -3,7 +3,7 @@ services:
   cm-multiply:
     build:
       context: ./cm
-      dockerfile: multiply/Dockerfile
+      dockerfile: example_multiply/Dockerfile
     environment:
       UPLOAD_DIR: /upload-dir
     volumes:
@@ -14,7 +14,7 @@ services:
   cm-geofile:
     build:
       context: ./cm
-      dockerfile: geofile/Dockerfile
+      dockerfile: example_empty/Dockerfile
     environment:
       UPLOAD_DIR: /upload-dir
     volumes:
