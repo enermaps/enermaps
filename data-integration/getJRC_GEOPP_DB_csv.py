@@ -23,9 +23,6 @@ import utilities
 
 # Constants
 logging.basicConfig(level=logging.INFO)
-DS_ID = 2
-URL = "https://data.jrc.ec.europa.eu/dataset/jrc-10128-10001"
-Force = False  # force integration if (meta)data has not changed
 
 # In Docker
 DB_HOST = os.environ.get("DB_HOST")
@@ -71,10 +68,7 @@ def get(url: str, dp: frictionless.package.Package, force: bool = False):
 
     # Inferring and completing metadata
     logging.info("Creating datapackage for input data")
-    new_dp = frictionless.describe_package(
-        csv_file,
-        stats=True,
-    )  # Add stats
+    new_dp = frictionless.describe_package(csv_file, stats=True,)  # Add stats
     # Add date
     new_dp["datePublished"] = datePublished
 
@@ -84,27 +78,32 @@ def get(url: str, dp: frictionless.package.Package, force: bool = False):
         new_dp.resources[0].schema.get_field(field).type = "number"
 
     # Logic for update
-    if dp != None: # Existing dataset
+    if dp != None:  # Existing dataset
         # check stats
         ChangedStats = dp["resources"][0]["stats"] != new_dp["resources"][0]["stats"]
         ChangedDate = dp["datePublished"] != new_dp["datePublished"]
 
-        if ChangedStats or ChangedDate: # Data integration will continue, regardless of force argument
+        if (
+            ChangedStats or ChangedDate
+        ):  # Data integration will continue, regardless of force argument
             logging.info("Data has changed")
-        elif force: # Data integration will continue, even if data has not changed
+        elif force:  # Data integration will continue, even if data has not changed
             logging.info("Forced update")
-        else: # Data integration will stop here, returning Nones
+        else:  # Data integration will stop here, returning Nones
             logging.info(
                 "Data has not changed. Use force update if you want to reupload."
             )
             return None, None, None
-    else: # New dataset
-        dp = new_dp # this is just for the sake of the schema control
+    else:  # New dataset
+        dp = new_dp  # this is just for the sake of the schema control
 
     val = frictionless.validate(new_dp)
-    
+
     # Make sure that the new dp is valid and that the schema has not changed
-    if val["valid"] and dp["resources"][0]["schema"] == new_dp["resources"][0]["schema"]:
+    if (
+        val["valid"]
+        and dp["resources"][0]["schema"] == new_dp["resources"][0]["schema"]
+    ):
         logging.info("Returning valid and schema-compliant data")
 
         data = read_datapackage(new_dp)
@@ -173,10 +172,20 @@ def get(url: str, dp: frictionless.package.Package, force: bool = False):
 
 if __name__ == "__main__":
     argv = sys.argv
+    datasets = pd.read_csv("datasets.csv", engine="python", index_col=[0])
+    ds_id = int(
+        datasets[datasets["di_script"] == os.path.basename(argv[0])].index.values[0]
+    )
+    url = datasets.loc[
+        datasets["di_script"] == os.path.basename(argv[0]), "di_URL"
+    ].values[0]
+
     if "--force" in argv:
-        Force = True
+        isForced = True
+    else:
+        isForced = False
     dp = utilities.getDataPackage(
-        DS_ID,
+        ds_id,
         "postgresql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_DB}".format(
             DB_HOST=DB_HOST,
             DB_PORT=DB_PORT,
@@ -186,12 +195,12 @@ if __name__ == "__main__":
         ),
     )
 
-    data, spatial, dp = get(url=URL, dp=dp, force=Force)
+    data, spatial, dp = get(url=url, dp=dp, force=isForced)
 
     if isinstance(data, pd.DataFrame):
         # Remove existing dataset
         if utilities.datasetExists(
-            DS_ID,
+            ds_id,
             "postgresql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_DB}".format(
                 DB_HOST=DB_HOST,
                 DB_PORT=DB_PORT,
@@ -201,7 +210,7 @@ if __name__ == "__main__":
             ),
         ):
             utilities.removeDataset(
-                DS_ID,
+                ds_id,
                 "postgresql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_DB}".format(
                     DB_HOST=DB_HOST,
                     DB_PORT=DB_PORT,
@@ -213,11 +222,10 @@ if __name__ == "__main__":
             print("Removed existing dataset")
 
         # Create dataset table
-        datasets = pd.read_csv("datasets.csv", engine="python", index_col=[0])
-        metadata = datasets.loc[DS_ID].fillna("").to_dict()
+        metadata = datasets.loc[ds_id].fillna("").to_dict()
         metadata["datapackage"] = dp
         metadata = json.dumps(metadata)
-        dataset = pd.DataFrame([{"ds_id": DS_ID, "metadata": metadata}])
+        dataset = pd.DataFrame([{"ds_id": ds_id, "metadata": metadata}])
         utilities.toPostgreSQL(
             dataset,
             "postgresql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_DB}".format(
@@ -231,7 +239,7 @@ if __name__ == "__main__":
         )
 
         # Create data table
-        data["ds_id"] = DS_ID
+        data["ds_id"] = ds_id
         utilities.toPostgreSQL(
             data,
             "postgresql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_DB}".format(
@@ -246,7 +254,7 @@ if __name__ == "__main__":
 
         # Create spatial table
         spatial = spatial.to_crs("EPSG:3035")
-        spatial["ds_id"] = DS_ID
+        spatial["ds_id"] = ds_id
         utilities.toPostGIS(
             spatial,
             "postgresql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_DB}".format(

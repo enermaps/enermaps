@@ -16,13 +16,13 @@ from pyproj import CRS
 
 import utilities
 
+# Constants
 # GISCO datasets GEOJSON EPSG:4326 1:1milion
-datasets = {
+GISCO_DATASETS = {
     "countries": "https://gisco-services.ec.europa.eu/distribution/v2/countries/geojson/CNTR_RG_01M_2020_{}.geojson",
     "nuts": "https://gisco-services.ec.europa.eu/distribution/v2/nuts/geojson/NUTS_RG_01M_2021_{}.geojson",
     "lau": "https://gisco-services.ec.europa.eu/distribution/v2/lau/geojson/LAU_RG_01M_2019_{}.geojson",
 }
-
 # Dataset id
 DS_ID = 0
 
@@ -33,7 +33,9 @@ DB_PASSWORD = os.environ.get("DB_PASSWORD")
 DB_DB = os.environ.get("DB_DB")
 
 
-def get(datasets: dict = datasets, crs: CRS = CRS.from_epsg(3035)) -> gpd.GeoDataFrame:
+def get(
+    datasets: dict = GISCO_DATASETS, crs: CRS = CRS.from_epsg(3035)
+) -> gpd.GeoDataFrame:
     """
     Retrieve NUTS, LAU and countries from GISCO API and make a single, consistent GDF.
 
@@ -94,7 +96,7 @@ def get(datasets: dict = datasets, crs: CRS = CRS.from_epsg(3035)) -> gpd.GeoDat
 
 if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO)
-    admin_units = get(datasets, crs=CRS.from_epsg(3035))
+    admin_units = get(GISCO_DATASETS, crs=CRS.from_epsg(3035))
     admin_units["ds_id"] = DS_ID
     dataset = pd.DataFrame([{"ds_id": DS_ID}])
     utilities.toPostgreSQL(

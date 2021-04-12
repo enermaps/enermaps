@@ -226,10 +226,7 @@ def removeDataset(ds_id, dbURL="postgresql://test:example@localhost:5433/dataset
     engine = sqla.create_engine(dbURL)
     with engine.connect() as con:
         con.execute(
-            "DELETE FROM datasets WHERE ds_id = %(ds_id)s;",
-            {
-                "ds_id": ds_id,
-            },
+            "DELETE FROM datasets WHERE ds_id = %(ds_id)s;", {"ds_id": ds_id,},
         )
 
 

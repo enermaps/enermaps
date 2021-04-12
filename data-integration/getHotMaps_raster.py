@@ -19,14 +19,6 @@ import pandas as pd
 import utilities
 
 # Constants
-DS_LIST = {
-    31: "https://gitlab.com/gperonato/potential_geothermal_raster/-/raw/naming-correction/",  # to replace when PR will be approved on hotmaps
-    43: "https://gitlab.com/hotmaps/heat/heat_tot_curr_density/-/raw/master/",
-    45: "https://gitlab.com/hotmaps/gfa_tot_curr_density/-/raw/master/",
-}
-
-
-Force = False  # Force update
 logging.basicConfig(level=logging.INFO)
 
 # In Docker
@@ -36,14 +28,8 @@ DB_USER = os.environ.get("DB_USER")
 DB_PASSWORD = os.environ.get("DB_PASSWORD")
 DB_DB = os.environ.get("DB_DB")
 
-# DB_HOST = "localhost"
-# DB_PORT = 5433
-# DB_USER = "test"
-# DB_PASSWORD = "example"
-# DB_DB = "dataset"
 
-
-def get(repository: str, dp: frictionless.package.Package, force: bool = False):
+def get(repository: str, dp: frictionless.package.Package, isForced: bool = False):
     """
     Retrieve (meta)data and check whether an update is necessary.
 
@@ -53,8 +39,8 @@ def get(repository: str, dp: frictionless.package.Package, force: bool = False):
         URL of the Gitlab repository (raw).
     dp : frictionless.package.Package
         Existing dp or None.
-    force : bool, optional
-        Force update. The default is False.
+    isForced : bool, optional
+        isForced update. The default is False.
 
     Returns
     -------
@@ -83,7 +69,8 @@ def get(repository: str, dp: frictionless.package.Package, force: bool = False):
         if new_dp["resources"][r]["format"] == "tif":
             logging.info(new_dp["resources"][r]["path"])
             utilities.download_url(
-                repository + new_dp["resources"][r]["path"]
+                repository + new_dp["resources"][r]["path"],
+                os.path.basename(new_dp["resources"][r]["path"]),
             )
             raster = {
                 "value": os.path.basename(new_dp["resources"][r]["path"]),
@@ -104,12 +91,10 @@ def get(repository: str, dp: frictionless.package.Package, force: bool = False):
         ChangedVersion = dp["version"] != new_dp["version"]
         if ChangedStats or ChangedVersion:
             logging.info("Data has changed")
-        elif force:
+        elif isForced:
             logging.info("Forced update")
         else:
-            logging.info(
-                "Data has not changed. Use force update if you want to reupload."
-            )
+            logging.info("Data has not changed. Use --Force if you want to reupload.")
             return None
 
     dp = new_dp
@@ -120,16 +105,17 @@ def get(repository: str, dp: frictionless.package.Package, force: bool = False):
     # Move rasters into the data directory
     if not os.path.exists("data"):
         os.mkdir("data")
-    if not os.path.exists(os.path.join("data", str(DS_ID))):
-        os.mkdir(os.path.join("data", str(DS_ID)))
+    if not os.path.exists(os.path.join("data", str(ds_id))):
+        os.mkdir(os.path.join("data", str(ds_id)))
     for i, row in data_enermaps.iterrows():
-        os.rename(row.FID, os.path.join("data", str(DS_ID), row.FID))
+        os.rename(row.FID, os.path.join("data", str(ds_id), row.FID))
 
     return data_enermaps, dp
 
 
 if __name__ == "__main__":
-    DS_IDs = DS_LIST.keys()
+    datasets = pd.read_csv("datasets.csv", engine="python", index_col=[0])
+    ds_ids = datasets[datasets["di_script"] == os.path.basename(sys.argv[0])].index
     if len(sys.argv) > 1:
         parser = argparse.ArgumentParser(description="Import HotMaps raster")
         parser.add_argument("--force", action="store_const", const=True, default=False)
@@ -137,14 +123,16 @@ if __name__ == "__main__":
             "--select_ds_ids", action="extend", nargs="+", type=int, default=[]
         )
         args = parser.parse_args()
-        Force = args.force
+        isForced = args.force
         if len(args.select_ds_ids) > 0:
-            DS_IDs = args.select_ds_ids
+            ds_ids = args.select_ds_ids
+    else:
+        isForced = False
 
-    for DS_ID in DS_IDs:
-        logging.info("Retrieving Dataset {}".format(DS_ID))
+    for ds_id in ds_ids:
+        logging.info("Retrieving Dataset {}".format(ds_id))
         dp = utilities.getDataPackage(
-            DS_ID,
+            ds_id,
             "postgresql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_DB}".format(
                 DB_HOST=DB_HOST,
                 DB_PORT=DB_PORT,
@@ -156,7 +144,7 @@ if __name__ == "__main__":
 
         if (
             utilities.datasetExists(
-                DS_ID,
+                ds_id,
                 "postgresql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_DB}".format(
                     DB_HOST=DB_HOST,
                     DB_PORT=DB_PORT,
@@ -165,12 +153,12 @@ if __name__ == "__main__":
                     DB_DB=DB_DB,
                 ),
             )
-            and Force == False
+            and isForced == False
         ):
-            logging.warning("Dataset already exists. Use force update to replace.")
+            logging.warning("Dataset already exists. Use isForced update to replace.")
         else:
             if utilities.datasetExists(
-                DS_ID,
+                ds_id,
                 "postgresql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_DB}".format(
                     DB_HOST=DB_HOST,
                     DB_PORT=DB_PORT,
@@ -180,7 +168,7 @@ if __name__ == "__main__":
                 ),
             ):
                 utilities.removeDataset(
-                    DS_ID,
+                    ds_id,
                     "postgresql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_DB}".format(
                         DB_HOST=DB_HOST,
                         DB_PORT=DB_PORT,
@@ -191,14 +179,13 @@ if __name__ == "__main__":
                 )
                 logging.info("Removed existing dataset")
 
-            data, dp = get(DS_LIST[DS_ID], dp, Force)
+            data, dp = get(datasets.loc[ds_id, "di_URL"], dp, isForced)
 
             # Create dataset table
-            datasets = pd.read_csv("datasets.csv", engine="python", index_col=[0])
-            metadata = datasets.loc[DS_ID].fillna("").to_dict()
+            metadata = datasets.loc[ds_id].fillna("").to_dict()
             metadata["datapackage"] = dp
             metadata = json.dumps(metadata)
-            dataset = pd.DataFrame([{"ds_id": DS_ID, "metadata": metadata}])
+            dataset = pd.DataFrame([{"ds_id": ds_id, "metadata": metadata}])
             utilities.toPostgreSQL(
                 dataset,
                 "postgresql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_DB}".format(
@@ -212,7 +199,7 @@ if __name__ == "__main__":
             )
 
             # Create data table
-            data["ds_id"] = DS_ID
+            data["ds_id"] = ds_id
             utilities.toPostgreSQL(
                 data,
                 "postgresql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_DB}".format(
