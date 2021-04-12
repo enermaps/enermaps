@@ -12,9 +12,8 @@ import os
 import geopandas as gpd
 import pandas as pd
 import sqlalchemy as sqla
-from pyproj import CRS
-
 import utilities
+from pyproj import CRS
 
 # Constants
 # GISCO datasets GEOJSON EPSG:4326 1:1milion
@@ -64,9 +63,9 @@ def get(
     logging.info("Done.")
 
     # Convert to lower case
-    countries.columns= countries.columns.str.lower()
-    nuts.columns= nuts.columns.str.lower()
-    lau.columns= lau.columns.str.lower()
+    countries.columns = countries.columns.str.lower()
+    nuts.columns = nuts.columns.str.lower()
+    lau.columns = lau.columns.str.lower()
 
     # Create consistent columns across ds
     lau = lau.rename({"lau_name": "name"}, axis=1)

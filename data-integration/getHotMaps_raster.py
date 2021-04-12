@@ -15,7 +15,6 @@ import sys
 
 import frictionless
 import pandas as pd
-
 import utilities
 
 # Constants
@@ -59,7 +58,9 @@ def get(repository: str, dp: frictionless.package.Package, isForced: bool = Fals
     rasters = []
     for resource_idx in range(len(new_dp["resources"])):
         if "temporal" in new_dp["resources"][resource_idx]:
-            time = pd.to_datetime(new_dp["resources"][resource_idx]["temporal"]["start"])
+            time = pd.to_datetime(
+                new_dp["resources"][resource_idx]["temporal"]["start"]
+            )
         else:
             time = None
 
@@ -84,11 +85,14 @@ def get(repository: str, dp: frictionless.package.Package, isForced: bool = Fals
             rasters.append(raster)
             # check statistics for each resource
             if dp != None and "stats" in new_dp["resources"][resource_idx]:
-                if dp["resources"][resource_idx]["stats"] != new_dp["resources"][resource_idx]["stats"]:
+                if (
+                    dp["resources"][resource_idx]["stats"]
+                    != new_dp["resources"][resource_idx]["stats"]
+                ):
                     ChangedStats = True
     rasters = pd.DataFrame(rasters)
 
-    if dp != None: # Existing dataset
+    if dp != None:  # Existing dataset
         # check stats
         ChangedVersion = dp["version"] != new_dp["version"]
         if ChangedStats or ChangedVersion:
@@ -100,7 +104,7 @@ def get(repository: str, dp: frictionless.package.Package, isForced: bool = Fals
         else:
             logging.info("Data has not changed. Use --force if you want to reupload.")
             return None, None
-    else: # New dataset
+    else:  # New dataset
         data_enermaps = utilities.prepareRaster(rasters, delete_orig=True)
 
     # Move rasters into the data directory
@@ -147,6 +151,16 @@ if __name__ == "__main__":
 
         if isinstance(data, pd.DataFrame):
             if utilities.datasetExists(
+                ds_id,
+                "postgresql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_DB}".format(
+                    DB_HOST=DB_HOST,
+                    DB_PORT=DB_PORT,
+                    DB_USER=DB_USER,
+                    DB_PASSWORD=DB_PASSWORD,
+                    DB_DB=DB_DB,
+                ),
+            ):
+                utilities.removeDataset(
                     ds_id,
                     "postgresql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_DB}".format(
                         DB_HOST=DB_HOST,
@@ -155,19 +169,8 @@ if __name__ == "__main__":
                         DB_PASSWORD=DB_PASSWORD,
                         DB_DB=DB_DB,
                     ),
-                ):
-                    utilities.removeDataset(
-                        ds_id,
-                        "postgresql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_DB}".format(
-                            DB_HOST=DB_HOST,
-                            DB_PORT=DB_PORT,
-                            DB_USER=DB_USER,
-                            DB_PASSWORD=DB_PASSWORD,
-                            DB_DB=DB_DB,
-                        ),
-                    )
-                    logging.info("Removed existing dataset")
-
+                )
+                logging.info("Removed existing dataset")
 
             # Create dataset table
             metadata = datasets.loc[ds_id].fillna("").to_dict()

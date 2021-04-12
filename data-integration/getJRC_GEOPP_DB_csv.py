@@ -17,9 +17,8 @@ import frictionless
 import geopandas as gpd
 import numpy as np
 import pandas as pd
-from pandas_datapackage_reader import read_datapackage
-
 import utilities
+from pandas_datapackage_reader import read_datapackage
 
 # Constants
 logging.basicConfig(level=logging.INFO)
@@ -116,9 +115,7 @@ def prepare(dp: frictionless.package.Package, name: str):
     )
     data = data.replace({np.nan: None})
     data["fields"] = data[other_cols].to_dict(orient="records")
-    data["fields"] = data["fields"].apply(
-        lambda x: json.dumps(x, default=np_encoder)
-    )
+    data["fields"] = data["fields"].apply(lambda x: json.dumps(x, default=np_encoder))
 
     # Unpivoting
     data = data.melt(id_vars=["fid", "fields"], value_vars=VALUE_VARS)
@@ -201,24 +198,21 @@ def get(url: str, dp: frictionless.package.Package, force: bool = False):
             ChangedStats or ChangedDate
         ):  # Data integration will continue, regardless of force argument
             logging.info("Data has changed")
-            if isValid(dp,new_dp):
+            if isValid(dp, new_dp):
                 enermaps_data, spatial = prepare(new_dp, name)
         elif force:  # Data integration will continue, even if data has not changed
             logging.info("Forced update")
-            if isValid(dp,new_dp):
+            if isValid(dp, new_dp):
                 enermaps_data, spatial = prepare(new_dp, name)
         else:  # Data integration will stop here, returning Nones
-            logging.info(
-                "Data has not changed. Use --force if you want to reupload."
-            )
+            logging.info("Data has not changed. Use --force if you want to reupload.")
             return None, None, None
     else:  # New dataset
         dp = new_dp  # this is just for the sake of the schema control
-        if isValid(dp,new_dp):
+        if isValid(dp, new_dp):
             enermaps_data, spatial = prepare(new_dp, name)
 
     return enermaps_data, spatial, new_dp
-
 
 
 if __name__ == "__main__":

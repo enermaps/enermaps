@@ -15,11 +15,11 @@ import pandas as pd
 import psycopg2 as ps
 import requests
 import sqlalchemy as sqla
+import validators
 from bs4 import BeautifulSoup
 from osgeo import gdal, osr
 from psycopg2 import sql
 from pyproj import CRS
-import validators
 
 
 def prepareRaster(
