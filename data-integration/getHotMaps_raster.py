@@ -20,6 +20,8 @@ import utilities
 
 # Constants
 logging.basicConfig(level=logging.INFO)
+Z = None
+DT = 8760
 
 # In Docker
 DB_HOST = os.environ.get("DB_HOST")
@@ -55,52 +57,51 @@ def get(repository: str, dp: frictionless.package.Package, isForced: bool = Fals
 
     # Prepare df containing paths to rasters
     rasters = []
-    for r in range(len(new_dp["resources"])):
-        if "temporal" in new_dp["resources"][r]:
-            time = pd.to_datetime(new_dp["resources"][r]["temporal"]["start"])
+    for resource_idx in range(len(new_dp["resources"])):
+        if "temporal" in new_dp["resources"][resource_idx]:
+            time = pd.to_datetime(new_dp["resources"][resource_idx]["temporal"]["start"])
         else:
             time = None
 
-        if "unit" in new_dp["resources"][r]:
-            unit = new_dp["resources"][r]["unit"]
+        if "unit" in new_dp["resources"][resource_idx]:
+            unit = new_dp["resources"][resource_idx]["unit"]
         else:
             unit = None
 
-        if new_dp["resources"][r]["format"] == "tif":
-            logging.info(new_dp["resources"][r]["path"])
+        if new_dp["resources"][resource_idx]["format"] == "tif":
+            logging.info(new_dp["resources"][resource_idx]["path"])
             utilities.download_url(
-                repository + new_dp["resources"][r]["path"],
-                os.path.basename(new_dp["resources"][r]["path"]),
+                repository + new_dp["resources"][resource_idx]["path"],
+                os.path.basename(new_dp["resources"][resource_idx]["path"]),
             )
             raster = {
-                "value": os.path.basename(new_dp["resources"][r]["path"]),
+                "value": os.path.basename(new_dp["resources"][resource_idx]["path"]),
                 "time": time,
-                "z": None,
+                "z": Z,
                 "unit": unit,
-                "dt": 8760,
+                "dt": DT,
             }
             rasters.append(raster)
             # check statistics for each resource
-            if dp != None and "stats" in new_dp["resources"][r]:
-                if dp["resources"][r]["stats"] != new_dp["resources"][r]["stats"]:
+            if dp != None and "stats" in new_dp["resources"][resource_idx]:
+                if dp["resources"][resource_idx]["stats"] != new_dp["resources"][resource_idx]["stats"]:
                     ChangedStats = True
     rasters = pd.DataFrame(rasters)
 
-    if dp != None:
+    if dp != None: # Existing dataset
         # check stats
         ChangedVersion = dp["version"] != new_dp["version"]
         if ChangedStats or ChangedVersion:
             logging.info("Data has changed")
+            data_enermaps = utilities.prepareRaster(rasters, delete_orig=True)
         elif isForced:
             logging.info("Forced update")
+            data_enermaps = utilities.prepareRaster(rasters, delete_orig=True)
         else:
-            logging.info("Data has not changed. Use --Force if you want to reupload.")
-            return None
-
-    dp = new_dp
-
-    # Retrieve rasters
-    data_enermaps = utilities.prepareRaster(rasters, delete_orig=True)
+            logging.info("Data has not changed. Use --force if you want to reupload.")
+            return None, None
+    else: # New dataset
+        data_enermaps = utilities.prepareRaster(rasters, delete_orig=True)
 
     # Move rasters into the data directory
     if not os.path.exists("data"):
@@ -108,9 +109,9 @@ def get(repository: str, dp: frictionless.package.Package, isForced: bool = Fals
     if not os.path.exists(os.path.join("data", str(ds_id))):
         os.mkdir(os.path.join("data", str(ds_id)))
     for i, row in data_enermaps.iterrows():
-        os.rename(row.FID, os.path.join("data", str(ds_id), row.FID))
+        os.rename(row.fid, os.path.join("data", str(ds_id), row.fid))
 
-    return data_enermaps, dp
+    return data_enermaps, new_dp
 
 
 if __name__ == "__main__":
@@ -142,32 +143,10 @@ if __name__ == "__main__":
             ),
         )
 
-        if (
-            utilities.datasetExists(
-                ds_id,
-                "postgresql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_DB}".format(
-                    DB_HOST=DB_HOST,
-                    DB_PORT=DB_PORT,
-                    DB_USER=DB_USER,
-                    DB_PASSWORD=DB_PASSWORD,
-                    DB_DB=DB_DB,
-                ),
-            )
-            and isForced == False
-        ):
-            logging.warning("Dataset already exists. Use isForced update to replace.")
-        else:
+        data, dp = get(datasets.loc[ds_id, "di_URL"], dp, isForced)
+
+        if isinstance(data, pd.DataFrame):
             if utilities.datasetExists(
-                ds_id,
-                "postgresql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_DB}".format(
-                    DB_HOST=DB_HOST,
-                    DB_PORT=DB_PORT,
-                    DB_USER=DB_USER,
-                    DB_PASSWORD=DB_PASSWORD,
-                    DB_DB=DB_DB,
-                ),
-            ):
-                utilities.removeDataset(
                     ds_id,
                     "postgresql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_DB}".format(
                         DB_HOST=DB_HOST,
@@ -176,10 +155,19 @@ if __name__ == "__main__":
                         DB_PASSWORD=DB_PASSWORD,
                         DB_DB=DB_DB,
                     ),
-                )
-                logging.info("Removed existing dataset")
+                ):
+                    utilities.removeDataset(
+                        ds_id,
+                        "postgresql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_DB}".format(
+                            DB_HOST=DB_HOST,
+                            DB_PORT=DB_PORT,
+                            DB_USER=DB_USER,
+                            DB_PASSWORD=DB_PASSWORD,
+                            DB_DB=DB_DB,
+                        ),
+                    )
+                    logging.info("Removed existing dataset")
 
-            data, dp = get(datasets.loc[ds_id, "di_URL"], dp, isForced)
 
             # Create dataset table
             metadata = datasets.loc[ds_id].fillna("").to_dict()
@@ -214,7 +202,7 @@ if __name__ == "__main__":
 
             # Create empty spatial table
             spatial = pd.DataFrame()
-            spatial[["FID", "ds_id"]] = data[["FID", "ds_id"]]
+            spatial[["fid", "ds_id"]] = data[["fid", "ds_id"]]
             utilities.toPostgreSQL(
                 spatial,
                 "postgresql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_DB}".format(

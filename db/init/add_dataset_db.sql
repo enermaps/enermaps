@@ -20,11 +20,11 @@ CREATE TABLE public.datasets
 
 CREATE TABLE public.spatial
 (
-    "FID" varchar(200) PRIMARY KEY,
-    "NAME" varchar(200),
-    "NAME_ENGL" varchar(100),
-    "CNTR_CODE" char(2),
-    "LEVL_CODE" levl,
+    fid varchar(200) PRIMARY KEY,
+    name varchar(200),
+    name_engl varchar(200),
+    cntr_code char(2),
+    levl_code levl,
     ds_id int,
     geometry geometry(Geometry,3035)
 );
@@ -38,10 +38,10 @@ CREATE TABLE public.data
     unit varchar(200),
     value double precision,
     ds_id int,
-    "FID" varchar(200),
+    fid varchar(200),
     dt double precision,
     z double precision,
-    "Raster" boolean
+    isRaster boolean
 );
 
 

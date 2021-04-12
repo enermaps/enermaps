@@ -63,14 +63,19 @@ def get(
     lau = gpd.read_file(datasets["lau"].format(source_crs_code), crs=crs.to_string())
     logging.info("Done.")
 
+    # Convert to lower case
+    countries.columns= countries.columns.str.lower()
+    nuts.columns= nuts.columns.str.lower()
+    lau.columns= lau.columns.str.lower()
+
     # Create consistent columns across ds
-    lau = lau.rename({"LAU_NAME": "NAME"}, axis=1)
-    lau["LEVL_CODE"] = 4
+    lau = lau.rename({"lau_name": "name"}, axis=1)
+    lau["levl_code"] = 4
 
-    nuts = nuts.rename({"NAME_LATN": "NAME"}, axis=1)
+    nuts = nuts.rename({"name_latn": "name"}, axis=1)
 
-    countries = countries.rename({"CNTR_NAME": "NAME"}, axis=1)
-    countries = countries.rename({"CNTR_ID": "CNTR_CODE"}, axis=1)
+    countries = countries.rename({"cntr_name": "name"}, axis=1)
+    countries = countries.rename({"cntr_id": "cntr_code"}, axis=1)
     countries["LEVL_CODE"] = 0
 
     # EU+ countries are included both in NUTS (level 0) and in "countries"
@@ -81,12 +86,12 @@ def get(
 
     admin_units = gpd.GeoDataFrame(
         admin_units.loc[
-            :, ["FID", "NAME", "NAME_ENGL", "CNTR_CODE", "LEVL_CODE", "geometry"]
+            :, ["fid", "name", "name_engl", "cntr_code", "levl_code", "geometry"]
         ]
     )
 
     # New level codes
-    admin_units.LEVL_CODE = admin_units.LEVL_CODE.replace(
+    admin_units.levl_code = admin_units.levl_code.replace(
         {0: "country", 1: "NUTS1", 2: "NUTS2", 3: "NUTS3", 4: "LAU"}
     )
 

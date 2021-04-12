@@ -99,8 +99,8 @@ def prepareRaster(
             my_dict["unit"] = row["unit"]
             my_dict["variable"] = variable
             logging.info(dest_filename)
-            my_dict["FID"] = dest_filename
-            my_dict["Raster"] = True
+            my_dict["fid"] = dest_filename
+            my_dict["israster"] = True
             dicts.append(my_dict)
     data = pd.DataFrame(
         dicts,
@@ -110,11 +110,11 @@ def prepareRaster(
             "variable",
             "value",
             "ds_id",
-            "FID",
+            "fid",
             "dt",
             "z",
             "unit",
-            "Raster",
+            "israster",
         ],
     )
     # data = pd.DataFrame(dicts)
