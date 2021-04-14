@@ -66,6 +66,7 @@ def get(
     countries.columns = countries.columns.str.lower()
     nuts.columns = nuts.columns.str.lower()
     lau.columns = lau.columns.str.lower()
+    
 
     # Create consistent columns across ds
     lau = lau.rename({"lau_name": "name"}, axis=1)
@@ -94,6 +95,12 @@ def get(
         {0: "country", 1: "NUTS1", 2: "NUTS2", 3: "NUTS3", 4: "LAU"}
     )
 
+    # Convert to ISO 3166-1 alpha-2
+    transl = {"UK": "GB", "EL": "GR"}
+    admin_units["fid"] = admin_units["fid"].replace(transl)
+    admin_units["cntr_code"]  = admin_units["cntr_code"].replace(transl)
+    
+    
     admin_units.crs = crs.to_string()
     return admin_units
 
