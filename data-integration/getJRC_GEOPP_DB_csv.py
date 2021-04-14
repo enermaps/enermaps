@@ -119,8 +119,8 @@ def prepare(dp: frictionless.package.Package, name: str):
     ]
 
     # Int64 to int
-    data[other_cols].loc[:, data[other_cols].dtypes == "int64"] = (
-        data[other_cols].loc[:, data[other_cols].dtypes == "int64"].astype(int)
+    data.loc[:,other_cols].loc[:, data[other_cols].dtypes == "int64"] = (
+        data.loc[:,other_cols].loc[:, data[other_cols].dtypes == "int64"].astype(int)
     )
     data = data.replace({np.nan: None})
     data["fields"] = data[other_cols].to_dict(orient="records")
