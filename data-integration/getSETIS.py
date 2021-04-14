@@ -46,7 +46,7 @@ DB_DB = "dataset"
 
 def FullCountryToCode(dbURL):
     db_engine = sqla.create_engine(dbURL)
-    countries = pd.read_sql("SELECT * from public.spatial", db_engine)
+    countries = pd.read_sql("SELECT * from public.spatial WHERE levl_code = 'country'", db_engine)
     transl = countries
 
 dbURL = "postgresql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_DB}".format(
