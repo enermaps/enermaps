@@ -17,8 +17,9 @@ import frictionless
 import geopandas as gpd
 import numpy as np
 import pandas as pd
-import utilities
 from pandas_datapackage_reader import read_datapackage
+
+import utilities
 
 # Constants
 logging.basicConfig(level=logging.INFO)
@@ -38,11 +39,19 @@ DB_USER = os.environ.get("DB_USER")
 DB_PASSWORD = os.environ.get("DB_PASSWORD")
 DB_DB = os.environ.get("DB_DB")
 
+DB_URL = "postgresql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_DB}".format(
+    DB_HOST=DB_HOST,
+    DB_PORT=DB_PORT,
+    DB_USER=DB_USER,
+    DB_PASSWORD=DB_PASSWORD,
+    DB_DB=DB_DB,
+)
+
 
 def isValid(dp: frictionless.package.Package, new_dp: frictionless.package.Package):
     """
 
-    Check whether the new DataPackage is valid and make sure the schema has not changed
+    Check whether the new DataPackage is valid and make sure the schema has not changed.
 
     Parameters
     ----------
@@ -72,7 +81,7 @@ def isValid(dp: frictionless.package.Package, new_dp: frictionless.package.Packa
 def prepare(dp: frictionless.package.Package, name: str):
     """
 
-    Prepare data in EnerMaps format
+    Prepare data in EnerMaps format.
 
     Parameters
     ----------
@@ -151,7 +160,7 @@ def prepare(dp: frictionless.package.Package, name: str):
 def get(url: str, dp: frictionless.package.Package, force: bool = False):
     """
 
-    Retrieve data and check update
+    Retrieve data and check update.
 
     Parameters
     ----------
@@ -229,41 +238,14 @@ if __name__ == "__main__":
         isForced = True
     else:
         isForced = False
-    dp = utilities.getDataPackage(
-        ds_id,
-        "postgresql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_DB}".format(
-            DB_HOST=DB_HOST,
-            DB_PORT=DB_PORT,
-            DB_USER=DB_USER,
-            DB_PASSWORD=DB_PASSWORD,
-            DB_DB=DB_DB,
-        ),
-    )
+    dp = utilities.getDataPackage(ds_id, DB_URL)
 
     data, spatial, dp = get(url=url, dp=dp, force=isForced)
 
     if isinstance(data, pd.DataFrame):
         # Remove existing dataset
-        if utilities.datasetExists(
-            ds_id,
-            "postgresql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_DB}".format(
-                DB_HOST=DB_HOST,
-                DB_PORT=DB_PORT,
-                DB_USER=DB_USER,
-                DB_PASSWORD=DB_PASSWORD,
-                DB_DB=DB_DB,
-            ),
-        ):
-            utilities.removeDataset(
-                ds_id,
-                "postgresql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_DB}".format(
-                    DB_HOST=DB_HOST,
-                    DB_PORT=DB_PORT,
-                    DB_USER=DB_USER,
-                    DB_PASSWORD=DB_PASSWORD,
-                    DB_DB=DB_DB,
-                ),
-            )
+        if utilities.datasetExists(ds_id, DB_URL,):
+            utilities.removeDataset(ds_id, DB_URL)
             logging.INFO("Removed existing dataset")
 
         # Create dataset table
@@ -272,42 +254,18 @@ if __name__ == "__main__":
         metadata = json.dumps(metadata)
         dataset = pd.DataFrame([{"ds_id": ds_id, "metadata": metadata}])
         utilities.toPostgreSQL(
-            dataset,
-            "postgresql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_DB}".format(
-                DB_HOST=DB_HOST,
-                DB_PORT=DB_PORT,
-                DB_USER=DB_USER,
-                DB_PASSWORD=DB_PASSWORD,
-                DB_DB=DB_DB,
-            ),
-            schema="datasets",
+            dataset, DB_URL, schema="datasets",
         )
 
         # Create data table
         data["ds_id"] = ds_id
         utilities.toPostgreSQL(
-            data,
-            "postgresql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_DB}".format(
-                DB_HOST=DB_HOST,
-                DB_PORT=DB_PORT,
-                DB_USER=DB_USER,
-                DB_PASSWORD=DB_PASSWORD,
-                DB_DB=DB_DB,
-            ),
-            schema="data",
+            data, DB_URL, schema="data",
         )
 
         # Create spatial table
         spatial = spatial.to_crs("EPSG:3035")
         spatial["ds_id"] = ds_id
         utilities.toPostGIS(
-            spatial,
-            "postgresql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_DB}".format(
-                DB_HOST=DB_HOST,
-                DB_PORT=DB_PORT,
-                DB_USER=DB_USER,
-                DB_PASSWORD=DB_PASSWORD,
-                DB_DB=DB_DB,
-            ),
-            schema="spatial",
+            spatial, DB_URL, schema="spatial",
         )

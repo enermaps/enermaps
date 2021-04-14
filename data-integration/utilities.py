@@ -86,7 +86,9 @@ def prepareRaster(
                     )
                 )
             # else the file can be integrated without translations
-            my_dict["start_at"] = row["start_at"] + pd.Timedelta(hours=row["dt"]) * (b - 1)
+            my_dict["start_at"] = row["start_at"] + pd.Timedelta(hours=row["dt"]) * (
+                b - 1
+            )
             my_dict["z"] = row["z"]
             my_dict["dt"] = row["dt"]
             my_dict["unit"] = row["unit"]

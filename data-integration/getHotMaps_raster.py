@@ -15,6 +15,7 @@ import sys
 
 import frictionless
 import pandas as pd
+
 import utilities
 
 # Constants
@@ -28,6 +29,14 @@ DB_PORT = os.environ.get("DB_PORT")
 DB_USER = os.environ.get("DB_USER")
 DB_PASSWORD = os.environ.get("DB_PASSWORD")
 DB_DB = os.environ.get("DB_DB")
+
+DB_URL = "postgresql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_DB}".format(
+    DB_HOST=DB_HOST,
+    DB_PORT=DB_PORT,
+    DB_USER=DB_USER,
+    DB_PASSWORD=DB_PASSWORD,
+    DB_DB=DB_DB,
+)
 
 
 def get(repository: str, dp: frictionless.package.Package, isForced: bool = False):
@@ -150,26 +159,8 @@ if __name__ == "__main__":
         data, dp = get(datasets.loc[ds_id, "di_URL"], dp, isForced)
 
         if isinstance(data, pd.DataFrame):
-            if utilities.datasetExists(
-                ds_id,
-                "postgresql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_DB}".format(
-                    DB_HOST=DB_HOST,
-                    DB_PORT=DB_PORT,
-                    DB_USER=DB_USER,
-                    DB_PASSWORD=DB_PASSWORD,
-                    DB_DB=DB_DB,
-                ),
-            ):
-                utilities.removeDataset(
-                    ds_id,
-                    "postgresql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_DB}".format(
-                        DB_HOST=DB_HOST,
-                        DB_PORT=DB_PORT,
-                        DB_USER=DB_USER,
-                        DB_PASSWORD=DB_PASSWORD,
-                        DB_DB=DB_DB,
-                    ),
-                )
+            if utilities.datasetExists(ds_id, DB_URL,):
+                utilities.removeDataset(ds_id, DB_URL)
                 logging.info("Removed existing dataset")
 
             # Create dataset table
@@ -178,42 +169,18 @@ if __name__ == "__main__":
             metadata = json.dumps(metadata)
             dataset = pd.DataFrame([{"ds_id": ds_id, "metadata": metadata}])
             utilities.toPostgreSQL(
-                dataset,
-                "postgresql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_DB}".format(
-                    DB_HOST=DB_HOST,
-                    DB_PORT=DB_PORT,
-                    DB_USER=DB_USER,
-                    DB_PASSWORD=DB_PASSWORD,
-                    DB_DB=DB_DB,
-                ),
-                schema="datasets",
+                dataset, DB_URL, schema="datasets",
             )
 
             # Create data table
             data["ds_id"] = ds_id
             utilities.toPostgreSQL(
-                data,
-                "postgresql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_DB}".format(
-                    DB_HOST=DB_HOST,
-                    DB_PORT=DB_PORT,
-                    DB_USER=DB_USER,
-                    DB_PASSWORD=DB_PASSWORD,
-                    DB_DB=DB_DB,
-                ),
-                schema="data",
+                data, DB_URL, schema="data",
             )
 
             # Create empty spatial table
             spatial = pd.DataFrame()
             spatial[["fid", "ds_id"]] = data[["fid", "ds_id"]]
             utilities.toPostgreSQL(
-                spatial,
-                "postgresql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_DB}".format(
-                    DB_HOST=DB_HOST,
-                    DB_PORT=DB_PORT,
-                    DB_USER=DB_USER,
-                    DB_PASSWORD=DB_PASSWORD,
-                    DB_DB=DB_DB,
-                ),
-                schema="spatial",
+                spatial, DB_URL, schema="spatial",
             )

@@ -12,8 +12,9 @@ import os
 import geopandas as gpd
 import pandas as pd
 import sqlalchemy as sqla
-import utilities
 from pyproj import CRS
+
+import utilities
 
 # Constants
 # GISCO datasets GEOJSON EPSG:4326 1:1milion
@@ -30,6 +31,14 @@ DB_PORT = os.environ.get("DB_PORT")
 DB_USER = os.environ.get("DB_USER")
 DB_PASSWORD = os.environ.get("DB_PASSWORD")
 DB_DB = os.environ.get("DB_DB")
+
+DB_URL = "postgresql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_DB}".format(
+    DB_HOST=DB_HOST,
+    DB_PORT=DB_PORT,
+    DB_USER=DB_USER,
+    DB_PASSWORD=DB_PASSWORD,
+    DB_DB=DB_DB,
+)
 
 
 def get(
@@ -66,7 +75,6 @@ def get(
     countries.columns = countries.columns.str.lower()
     nuts.columns = nuts.columns.str.lower()
     lau.columns = lau.columns.str.lower()
-    
 
     # Create consistent columns across ds
     lau = lau.rename({"lau_name": "name"}, axis=1)
@@ -98,9 +106,8 @@ def get(
     # Convert to ISO 3166-1 alpha-2
     transl = {"UK": "GB", "EL": "GR"}
     admin_units["fid"] = admin_units["fid"].replace(transl)
-    admin_units["cntr_code"]  = admin_units["cntr_code"].replace(transl)
-    
-    
+    admin_units["cntr_code"] = admin_units["cntr_code"].replace(transl)
+
     admin_units.crs = crs.to_string()
     return admin_units
 
@@ -111,23 +118,6 @@ if __name__ == "__main__":
     admin_units["ds_id"] = DS_ID
     dataset = pd.DataFrame([{"ds_id": DS_ID}])
     utilities.toPostgreSQL(
-        dataset,
-        "postgresql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_DB}".format(
-            DB_HOST=DB_HOST,
-            DB_PORT=DB_PORT,
-            DB_USER=DB_USER,
-            DB_PASSWORD=DB_PASSWORD,
-            DB_DB=DB_DB,
-        ),
-        schema="datasets",
+        dataset, DB_URL, schema="datasets",
     )
-    utilities.toPostGIS(
-        admin_units,
-        "postgresql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_DB}".format(
-            DB_HOST=DB_HOST,
-            DB_PORT=DB_PORT,
-            DB_USER=DB_USER,
-            DB_PASSWORD=DB_PASSWORD,
-            DB_DB=DB_DB,
-        ),
-    )
+    utilities.toPostGIS(admin_units, DB_URL)
