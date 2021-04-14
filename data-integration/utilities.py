@@ -105,10 +105,14 @@ def prepareRaster(
                         sourceSRS=source_crs.to_string(),
                     )
                 )
+<<<<<<< HEAD
                 os.remove(intermediate_filename)
 
             dest_filename += ".tif"
             logging.info(dest_filename)
+=======
+            # else the file can be integrated without translations
+>>>>>>> a6e49d7... black isort
             my_dict["start_at"] = row["start_at"] + pd.Timedelta(hours=row["dt"]) * (
                 b - 1
             )
@@ -311,6 +315,7 @@ def get_ld_json(url: str) -> dict:
     )
 
 
+<<<<<<< HEAD
 def getGitHub(user: str, repo: str, request="content"):
     """
     Obtain metadata from GitHub.
@@ -360,6 +365,12 @@ def extractZip(source, target):
 
 
 def full_country_to_code(countries: pd.Series, dbURL: str="postgresql://test:example@localhost:5433/dataset"):
+=======
+def full_country_to_code(
+    countries: pd.Series,
+    dbURL: str = "postgresql://test:example@localhost:5433/dataset",
+):
+>>>>>>> a6e49d7... black isort
     """
     Convert full Country names to ISO 3166-1 alpha2 codes.
 
@@ -378,11 +389,18 @@ def full_country_to_code(countries: pd.Series, dbURL: str="postgresql://test:exa
     """
     db_engine = sqla.create_engine(dbURL)
     try:
-        table = pd.read_csv("country_codes.csv",index_col=0)
+        table = pd.read_csv("country_codes.csv", index_col=0)
     except:
-        table = pd.read_sql("SELECT * from public.spatial WHERE levl_code = 'country'", db_engine)
-        table = table[["name_engl","cntr_code"]]
+        table = pd.read_sql(
+            "SELECT * from public.spatial WHERE levl_code = 'country'", db_engine
+        )
+        table = table[["name_engl", "cntr_code"]]
         table.to_csv("country_codes.csv")
+<<<<<<< HEAD
     transl = table.set_index('name_engl').T.to_dict(orient="records")[0]
     return countries.replace(transl)
 
+=======
+    transl = table.set_index("name_engl").T.to_dict(orient="records")[0]
+    return countries.replace(transl)
+>>>>>>> a6e49d7... black isort

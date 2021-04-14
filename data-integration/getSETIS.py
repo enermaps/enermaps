@@ -16,14 +16,22 @@ import sys
 import frictionless
 import numpy as np
 import pandas as pd
-import utilities
 from pandas_datapackage_reader import read_datapackage
 
+import utilities
 
 # Constants
 logging.basicConfig(level=logging.INFO)
 
-VALUE_VARS = ["public_ri_investment","private_ri_investment","inventions","public_ri_investment_eu_share","private_ri_investment_eu_share","inventions_eu_share","specialisation_index_inventions"]
+VALUE_VARS = [
+    "public_ri_investment",
+    "private_ri_investment",
+    "inventions",
+    "public_ri_investment_eu_share",
+    "private_ri_investment_eu_share",
+    "inventions_eu_share",
+    "specialisation_index_inventions",
+]
 ID_VARS = ["fid", "fields", "start_at"]
 FORMAT = "%Y"
 SPATIAL_VARS = ["country"]
@@ -40,11 +48,12 @@ DB_PASSWORD = os.environ.get("DB_PASSWORD")
 DB_DB = os.environ.get("DB_DB")
 
 DB_URL = "postgresql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_DB}".format(
-                    DB_HOST=DB_HOST,
-                    DB_PORT=DB_PORT,
-                    DB_USER=DB_USER,
-                    DB_PASSWORD=DB_PASSWORD,
-                    DB_DB=DB_DB)
+    DB_HOST=DB_HOST,
+    DB_PORT=DB_PORT,
+    DB_USER=DB_USER,
+    DB_PASSWORD=DB_PASSWORD,
+    DB_DB=DB_DB,
+)
 
 
 def getUnit(data: pd.DataFrame, schema: frictionless.schema.Schema):
@@ -122,7 +131,7 @@ def prepare(dp: frictionless.package.Package, name: str):
         Data in EnerMaps format.
     """
     data = read_datapackage(dp)
-    
+
     # Encoding FID as country code
     data["fid"] = utilities.full_country_to_code(data[SPATIAL_VARS])
 
@@ -133,14 +142,16 @@ def prepare(dp: frictionless.package.Package, name: str):
             return object.item()
 
     other_cols = [
-        x for x in data.columns if x not in VALUE_VARS + SPATIAL_VARS + ID_VARS + TIME_VARS
+        x
+        for x in data.columns
+        if x not in VALUE_VARS + SPATIAL_VARS + ID_VARS + TIME_VARS
     ]
 
     # Int64 to int
-    data.loc[:,other_cols].loc[:, data[other_cols].dtypes == "int64"] = (
-        data.loc[:,other_cols].loc[:, data[other_cols].dtypes == "int64"].astype(int)
+    data.loc[:, other_cols].loc[:, data[other_cols].dtypes == "int64"] = (
+        data.loc[:, other_cols].loc[:, data[other_cols].dtypes == "int64"].astype(int)
     )
-    
+
     data = data.replace({np.nan: None})
     data["fields"] = data[other_cols].to_dict(orient="records")
     data["fields"] = data["fields"].apply(lambda x: json.dumps(x, default=np_encoder))
@@ -166,7 +177,7 @@ def prepare(dp: frictionless.package.Package, name: str):
             "unit",
         ]
     )
-    
+
     enermaps_data["value"] = data["value"]
     enermaps_data["variable"] = data["variable"]
     enermaps_data["fields"] = data["fields"]
@@ -174,8 +185,8 @@ def prepare(dp: frictionless.package.Package, name: str):
     enermaps_data["dt"] = DT
     enermaps_data["unit"] = UNIT
     enermaps_data["israster"] = ISRASTER
-    
-    enermaps_data = getUnit(enermaps_data,dp.resources[0].schema)
+
+    enermaps_data = getUnit(enermaps_data, dp.resources[0].schema)
 
     return enermaps_data
 
@@ -203,14 +214,13 @@ def get(repository: str, dp: frictionless.package.Package, force: bool = False):
 
     """
     new_dp = frictionless.Package(repository + "datapackage.json")
-    
+
     # Make sure to read the csv file from remote
     new_dp.resources[0]["path"] = repository + new_dp.resources[0]["path"]
     new_dp.resources[0]["scheme"] = "https"
 
-
     isChangedStats = False  # initialize check
-    
+
     datePublished = new_dp["datePublished"]
     name = new_dp["name"]
 
@@ -260,23 +270,14 @@ if __name__ == "__main__":
         isForced = True
     else:
         isForced = True
-    dp = utilities.getDataPackage(
-        ds_id,
-        DB_URL
-    )
+    dp = utilities.getDataPackage(ds_id, DB_URL)
 
     data, dp = get(repository=url, dp=dp, force=isForced)
 
     if isinstance(data, pd.DataFrame):
         # Remove existing dataset
-        if utilities.datasetExists(
-            ds_id,
-            DB_URL
-        ):
-            utilities.removeDataset(
-                ds_id,
-                DB_URL
-            )
+        if utilities.datasetExists(ds_id, DB_URL):
+            utilities.removeDataset(ds_id, DB_URL)
             logging.info("Removed existing dataset")
 
         # Create dataset table
@@ -285,16 +286,11 @@ if __name__ == "__main__":
         metadata = json.dumps(metadata)
         dataset = pd.DataFrame([{"ds_id": ds_id, "metadata": metadata}])
         utilities.toPostgreSQL(
-            dataset,
-            DB_URL,
-            schema="datasets",
+            dataset, DB_URL, schema="datasets",
         )
 
         # Create data table
         data["ds_id"] = ds_id
         utilities.toPostgreSQL(
-            data,
-            DB_URL,
-            schema="data",
+            data, DB_URL, schema="data",
         )
-
