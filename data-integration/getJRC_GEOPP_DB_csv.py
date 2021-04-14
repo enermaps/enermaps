@@ -126,7 +126,7 @@ def prepare(dp: frictionless.package.Package, name: str):
     # Conversion
     enermaps_data = pd.DataFrame(
         columns=[
-            "time",
+            "start_at",
             "fields",
             "variable",
             "value",

@@ -85,15 +85,8 @@ def prepareRaster(
                         outputSRS=crs.to_string(),
                     )
                 )
-                # gdal.Translate(
-                #     dest_filename,
-                #     ds,
-                #     format="GTiff",
-                #     bandList=[b],
-                #     outputSRS=crs.to_string(),
-                # )
             # else the file can be integrated without translations
-            my_dict["time"] = row["time"] + pd.Timedelta(hours=row["dt"]) * (b - 1)
+            my_dict["start_at"] = row["start_at"] + pd.Timedelta(hours=row["dt"]) * (b - 1)
             my_dict["z"] = row["z"]
             my_dict["dt"] = row["dt"]
             my_dict["unit"] = row["unit"]
@@ -105,7 +98,7 @@ def prepareRaster(
     data = pd.DataFrame(
         dicts,
         columns=[
-            "time",
+            "start_at",
             "fields",
             "variable",
             "value",

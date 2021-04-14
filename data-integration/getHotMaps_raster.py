@@ -58,11 +58,11 @@ def get(repository: str, dp: frictionless.package.Package, isForced: bool = Fals
     rasters = []
     for resource_idx in range(len(new_dp["resources"])):
         if "temporal" in new_dp["resources"][resource_idx]:
-            time = pd.to_datetime(
+            start_at = pd.to_datetime(
                 new_dp["resources"][resource_idx]["temporal"]["start"]
             )
         else:
-            time = None
+            start_at = None
 
         if "unit" in new_dp["resources"][resource_idx]:
             unit = new_dp["resources"][resource_idx]["unit"]
@@ -77,7 +77,7 @@ def get(repository: str, dp: frictionless.package.Package, isForced: bool = Fals
             )
             raster = {
                 "value": os.path.basename(new_dp["resources"][resource_idx]["path"]),
-                "time": time,
+                "start_at": start_at,
                 "z": Z,
                 "unit": unit,
                 "dt": DT,
