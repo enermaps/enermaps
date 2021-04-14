@@ -14,53 +14,70 @@ import os
 import sys
 
 import frictionless
-import geopandas as gpd
 import numpy as np
 import pandas as pd
 import utilities
 from pandas_datapackage_reader import read_datapackage
-import sqlalchemy as sqla
+
+
 # Constants
 logging.basicConfig(level=logging.INFO)
 
 VALUE_VARS = ["public_ri_investment","private_ri_investment","inventions","public_ri_investment_eu_share","private_ri_investment_eu_share","inventions_eu_share","specialisation_index_inventions"]
-ID_VARS = ["fid", "fields"]
-ID = "index"
+ID_VARS = ["fid", "fields", "start_at"]
+FORMAT = "%Y"
 SPATIAL_VARS = ["country"]
-UNIT = "MW"
+TIME_VARS = ["year"]
+UNIT = None
 ISRASTER = False
+DT = 8760
 
 # In Docker
-# DB_HOST = os.environ.get("DB_HOST")
-# DB_PORT = os.environ.get("DB_PORT")
-# DB_USER = os.environ.get("DB_USER")
-# DB_PASSWORD = os.environ.get("DB_PASSWORD")
-# DB_DB = os.environ.get("DB_DB")
+DB_HOST = os.environ.get("DB_HOST")
+DB_PORT = os.environ.get("DB_PORT")
+DB_USER = os.environ.get("DB_USER")
+DB_PASSWORD = os.environ.get("DB_PASSWORD")
+DB_DB = os.environ.get("DB_DB")
 
-DB_HOST = "localhost"
-DB_PORT = 5433
-DB_USER = "test"
-DB_PASSWORD = "example"
-DB_DB = "dataset"
-
-
-def FullCountryToCode(dbURL):
-    db_engine = sqla.create_engine(dbURL)
-    countries = pd.read_sql("SELECT * from public.spatial WHERE levl_code = 'country'", db_engine)
-    transl = countries
-
-dbURL = "postgresql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_DB}".format(
+DB_URL = "postgresql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_DB}".format(
                     DB_HOST=DB_HOST,
                     DB_PORT=DB_PORT,
                     DB_USER=DB_USER,
                     DB_PASSWORD=DB_PASSWORD,
                     DB_DB=DB_DB)
-FullCountryToCode(dbURL)
+
+
+def getUnit(data: pd.DataFrame, schema: frictionless.schema.Schema):
+    """
+    Get unit from schema and assign it to the column.
+
+    Parameters
+    ----------
+    data : pd.DataFrame
+        Data in EnerMaps format.
+    schema : frictionless.schema.Schema
+        Schema of the data resource.
+
+    Returns
+    -------
+    data : pd.DataFrame
+        Data in EnerMaps format.
+
+    """
+    for variable in data.variable.unique():
+        unit = schema.get_field(variable).get("unit")
+        if unit == "decimal":
+            data.loc[data["variable"] == variable, "unit"] = "%"
+            data.loc[data["variable"] == variable, "value"] *= 100
+        else:
+            data.loc[data["variable"] == variable, "unit"] = unit
+    return data
+
 
 def isValid(dp: frictionless.package.Package, new_dp: frictionless.package.Package):
     """
 
-    Check whether the new DataPackage is valid and make sure the schema has not changed
+    Check whether the new DataPackage is valid and make sure the schema has not changed.
 
     Parameters
     ----------
@@ -90,7 +107,7 @@ def isValid(dp: frictionless.package.Package, new_dp: frictionless.package.Packa
 def prepare(dp: frictionless.package.Package, name: str):
     """
 
-    Prepare data in EnerMaps format
+    Prepare data in EnerMaps format.
 
     Parameters
     ----------
@@ -103,19 +120,11 @@ def prepare(dp: frictionless.package.Package, name: str):
     -------
     DataFrame
         Data in EnerMaps format.
-    GeoDataFrame
-        Spatial data in EnerMaps format.
-
     """
     data = read_datapackage(dp)
-    data["fid"] = name + "_" + data[ID].astype(str)
-
-    spatial = gpd.GeoDataFrame(
-        data["fid"],
-        columns=["fid"],
-        geometry=gpd.points_from_xy(data.longitude, data.latitude),
-        crs="EPSG:4326",
-    )
+    
+    # Encoding FID as country code
+    data["fid"] = utilities.full_country_to_code(data[SPATIAL_VARS])
 
     # Other fields to json
     def np_encoder(object):
@@ -124,20 +133,21 @@ def prepare(dp: frictionless.package.Package, name: str):
             return object.item()
 
     other_cols = [
-        x for x in data.columns if x not in VALUE_VARS + SPATIAL_VARS + ID_VARS
+        x for x in data.columns if x not in VALUE_VARS + SPATIAL_VARS + ID_VARS + TIME_VARS
     ]
 
     # Int64 to int
-    data[other_cols].loc[:, data[other_cols].dtypes == "int64"] = (
-        data[other_cols].loc[:, data[other_cols].dtypes == "int64"].astype(int)
+    data.loc[:,other_cols].loc[:, data[other_cols].dtypes == "int64"] = (
+        data.loc[:,other_cols].loc[:, data[other_cols].dtypes == "int64"].astype(int)
     )
+    
     data = data.replace({np.nan: None})
     data["fields"] = data[other_cols].to_dict(orient="records")
     data["fields"] = data["fields"].apply(lambda x: json.dumps(x, default=np_encoder))
+    data["start_at"] = pd.to_datetime(data[TIME_VARS[0]], format=FORMAT)
 
     # Unpivoting
-    data = data.melt(id_vars=["fid", "fields"], value_vars=VALUE_VARS)
-
+    data = data.melt(id_vars=ID_VARS, value_vars=VALUE_VARS)
     # Remove nan
     data = data.dropna()
 
@@ -156,25 +166,29 @@ def prepare(dp: frictionless.package.Package, name: str):
             "unit",
         ]
     )
-
+    
     enermaps_data["value"] = data["value"]
     enermaps_data["variable"] = data["variable"]
     enermaps_data["fields"] = data["fields"]
+    enermaps_data["start_at"] = data["start_at"]
+    enermaps_data["dt"] = DT
     enermaps_data["unit"] = UNIT
     enermaps_data["israster"] = ISRASTER
+    
+    enermaps_data = getUnit(enermaps_data,dp.resources[0].schema)
 
-    return enermaps_data, spatial
+    return enermaps_data
 
 
-def get(url: str, dp: frictionless.package.Package, force: bool = False):
+def get(repository: str, dp: frictionless.package.Package, force: bool = False):
     """
 
-    Retrieve data and check update
+    Retrieve data and check update.
 
     Parameters
     ----------
-    url : str
-        URL to retrieve the data from.
+    repository : str
+        URL of the Gitlab repository (raw).
     dp : frictionless.package.Package
         Datapackage against which validating the data.
     force : Boolean, optional
@@ -184,27 +198,26 @@ def get(url: str, dp: frictionless.package.Package, force: bool = False):
     -------
     DataFrame
         Data in EnerMaps format.
-    GeoDataFrame
-        Spatial data in EnerMaps format.
     frictionless.package.Package
         Pakage descring the data.
 
     """
-    ld = utilities.get_ld_json(url)
-    csv_file = ld["distribution"][0]["contentUrl"]
-    datePublished = ld["datePublished"]
-    name = ld["name"].replace(" ", "_")
+    new_dp = frictionless.Package(repository + "datapackage.json")
+    
+    # Make sure to read the csv file from remote
+    new_dp.resources[0]["path"] = repository + new_dp.resources[0]["path"]
+    new_dp.resources[0]["scheme"] = "https"
+
+
+    isChangedStats = False  # initialize check
+    
+    datePublished = new_dp["datePublished"]
+    name = new_dp["name"]
 
     # Inferring and completing metadata
     logging.info("Creating datapackage for input data")
-    new_dp = frictionless.describe_package(csv_file, stats=True,)  # Add stats
     # Add date
     new_dp["datePublished"] = datePublished
-
-    # Add missing valies
-    new_dp.resources[0]["schema"]["missingValues"] = ["NULL"]
-    for field in VALUE_VARS:
-        new_dp.resources[0].schema.get_field(field).type = "number"
 
     # Logic for update
     if dp != None:  # Existing dataset
@@ -217,20 +230,20 @@ def get(url: str, dp: frictionless.package.Package, force: bool = False):
         ):  # Data integration will continue, regardless of force argument
             logging.info("Data has changed")
             if isValid(dp, new_dp):
-                enermaps_data, spatial = prepare(new_dp, name)
+                enermaps_data = prepare(new_dp, name)
         elif force:  # Data integration will continue, even if data has not changed
             logging.info("Forced update")
             if isValid(dp, new_dp):
-                enermaps_data, spatial = prepare(new_dp, name)
+                enermaps_data = prepare(new_dp, name)
         else:  # Data integration will stop here, returning Nones
             logging.info("Data has not changed. Use --force if you want to reupload.")
             return None, None, None
     else:  # New dataset
         dp = new_dp  # this is just for the sake of the schema control
         if isValid(dp, new_dp):
-            enermaps_data, spatial = prepare(new_dp, name)
+            enermaps_data = prepare(new_dp, name)
 
-    return enermaps_data, spatial, new_dp
+    return enermaps_data, new_dp
 
 
 if __name__ == "__main__":
@@ -246,43 +259,25 @@ if __name__ == "__main__":
     if "--force" in argv:
         isForced = True
     else:
-        isForced = False
+        isForced = True
     dp = utilities.getDataPackage(
         ds_id,
-        "postgresql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_DB}".format(
-            DB_HOST=DB_HOST,
-            DB_PORT=DB_PORT,
-            DB_USER=DB_USER,
-            DB_PASSWORD=DB_PASSWORD,
-            DB_DB=DB_DB,
-        ),
+        DB_URL
     )
 
-    data, spatial, dp = get(url=url, dp=dp, force=isForced)
+    data, dp = get(repository=url, dp=dp, force=isForced)
 
     if isinstance(data, pd.DataFrame):
         # Remove existing dataset
         if utilities.datasetExists(
             ds_id,
-            "postgresql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_DB}".format(
-                DB_HOST=DB_HOST,
-                DB_PORT=DB_PORT,
-                DB_USER=DB_USER,
-                DB_PASSWORD=DB_PASSWORD,
-                DB_DB=DB_DB,
-            ),
+            DB_URL
         ):
             utilities.removeDataset(
                 ds_id,
-                "postgresql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_DB}".format(
-                    DB_HOST=DB_HOST,
-                    DB_PORT=DB_PORT,
-                    DB_USER=DB_USER,
-                    DB_PASSWORD=DB_PASSWORD,
-                    DB_DB=DB_DB,
-                ),
+                DB_URL
             )
-            logging.INFO("Removed existing dataset")
+            logging.info("Removed existing dataset")
 
         # Create dataset table
         metadata = datasets.loc[ds_id].fillna("").to_dict()
@@ -291,13 +286,7 @@ if __name__ == "__main__":
         dataset = pd.DataFrame([{"ds_id": ds_id, "metadata": metadata}])
         utilities.toPostgreSQL(
             dataset,
-            "postgresql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_DB}".format(
-                DB_HOST=DB_HOST,
-                DB_PORT=DB_PORT,
-                DB_USER=DB_USER,
-                DB_PASSWORD=DB_PASSWORD,
-                DB_DB=DB_DB,
-            ),
+            DB_URL,
             schema="datasets",
         )
 
@@ -305,27 +294,7 @@ if __name__ == "__main__":
         data["ds_id"] = ds_id
         utilities.toPostgreSQL(
             data,
-            "postgresql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_DB}".format(
-                DB_HOST=DB_HOST,
-                DB_PORT=DB_PORT,
-                DB_USER=DB_USER,
-                DB_PASSWORD=DB_PASSWORD,
-                DB_DB=DB_DB,
-            ),
+            DB_URL,
             schema="data",
         )
 
-        # Create spatial table
-        spatial = spatial.to_crs("EPSG:3035")
-        spatial["ds_id"] = ds_id
-        utilities.toPostGIS(
-            spatial,
-            "postgresql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_DB}".format(
-                DB_HOST=DB_HOST,
-                DB_PORT=DB_PORT,
-                DB_USER=DB_USER,
-                DB_PASSWORD=DB_PASSWORD,
-                DB_DB=DB_DB,
-            ),
-            schema="spatial",
-        )

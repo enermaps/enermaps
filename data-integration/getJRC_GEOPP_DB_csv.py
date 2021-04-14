@@ -46,7 +46,6 @@ DB_URL = "postgresql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_DB}".form
     DB_DB=DB_DB,
 )
 
-
 def isValid(dp: frictionless.package.Package, new_dp: frictionless.package.Package):
     """
 

@@ -311,7 +311,6 @@ def get_ld_json(url: str) -> dict:
     )
 
 
-
 def getGitHub(user: str, repo: str, request="content"):
     """
     Obtain metadata from GitHub.
@@ -358,4 +357,32 @@ def extractZip(source, target):
     with zipfile.ZipFile(source, "r") as zip_ref:
         zip_ref.extractall(target)
     return [os.path.join(target, x) for x in extracted]
+
+
+def full_country_to_code(countries: pd.Series, dbURL: str="postgresql://test:example@localhost:5433/dataset"):
+    """
+    Convert full Country names to ISO 3166-1 alpha2 codes.
+
+    Parameters
+    ----------
+    countries : pd.Series
+        Full contry names.
+    dbURL : str, optional
+        The default is "postgresql://test:example@localhost:5433/dataset".
+
+    Returns
+    -------
+    pd.Series
+        ISO 3166-1 alpha2 codes.
+
+    """
+    db_engine = sqla.create_engine(dbURL)
+    try:
+        table = pd.read_csv("country_codes.csv",index_col=0)
+    except:
+        table = pd.read_sql("SELECT * from public.spatial WHERE levl_code = 'country'", db_engine)
+        table = table[["name_engl","cntr_code"]]
+        table.to_csv("country_codes.csv")
+    transl = table.set_index('name_engl').T.to_dict(orient="records")[0]
+    return countries.replace(transl)
 
