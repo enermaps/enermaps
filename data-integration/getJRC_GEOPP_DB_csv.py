@@ -191,11 +191,11 @@ def get(url: str, dp: frictionless.package.Package, force: bool = False):
     # Logic for update
     if dp != None:  # Existing dataset
         # check stats
-        ChangedStats = dp["resources"][0]["stats"] != new_dp["resources"][0]["stats"]
-        ChangedDate = dp["datePublished"] != new_dp["datePublished"]
+        isChangedStats = dp["resources"][0]["stats"] != new_dp["resources"][0]["stats"]
+        isChangedDate = dp["datePublished"] != new_dp["datePublished"]
 
         if (
-            ChangedStats or ChangedDate
+            isChangedStats or isChangedDate
         ):  # Data integration will continue, regardless of force argument
             logging.info("Data has changed")
             if isValid(dp, new_dp):

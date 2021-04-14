@@ -52,7 +52,7 @@ def get(repository: str, dp: frictionless.package.Package, isForced: bool = Fals
 
     """
     new_dp = frictionless.Package(repository + "datapackage.json")
-    ChangedStats = False  # initialize check
+    isChangedStats = False  # initialize check
 
     # Prepare df containing paths to rasters
     rasters = []
@@ -89,13 +89,13 @@ def get(repository: str, dp: frictionless.package.Package, isForced: bool = Fals
                     dp["resources"][resource_idx]["stats"]
                     != new_dp["resources"][resource_idx]["stats"]
                 ):
-                    ChangedStats = True
+                    isChangedStats = True
     rasters = pd.DataFrame(rasters)
 
     if dp != None:  # Existing dataset
         # check stats
-        ChangedVersion = dp["version"] != new_dp["version"]
-        if ChangedStats or ChangedVersion:
+        isChangedVersion = dp["version"] != new_dp["version"]
+        if isChangedStats or isChangedVersion:
             logging.info("Data has changed")
             data_enermaps = utilities.prepareRaster(rasters, delete_orig=True)
         elif isForced:
