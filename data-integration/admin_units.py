@@ -75,7 +75,7 @@ def get(
 
     countries = countries.rename({"cntr_name": "name"}, axis=1)
     countries = countries.rename({"cntr_id": "cntr_code"}, axis=1)
-    countries["LEVL_CODE"] = 0
+    countries["levl_code"] = 0
 
     # EU+ countries are included both in NUTS (level 0) and in "countries"
     # Discard then NUTS level 0
