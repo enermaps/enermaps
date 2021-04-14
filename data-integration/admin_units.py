@@ -29,6 +29,11 @@ DB_PORT = os.environ.get("DB_PORT")
 DB_USER = os.environ.get("DB_USER")
 DB_PASSWORD = os.environ.get("DB_PASSWORD")
 DB_DB = os.environ.get("DB_DB")
+DB_HOST = "localhost"
+DB_PORT = 5433
+DB_USER = "test"
+DB_PASSWORD = "example"
+DB_DB = "dataset"
 
 DB_URL = "postgresql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_DB}".format(
     DB_HOST=DB_HOST,
