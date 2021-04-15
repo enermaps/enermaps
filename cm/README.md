@@ -5,6 +5,7 @@ A calculation module takes a set of rasters, a selection vector shape and an opt
 
 For a non implemented example, see [example_empty](./example_empty) CM. 
 And for a simple example, see [example_multiply](./example_multiply) CM.
+
 # Create a new cm
 
 Each calculation module is a subdirectory in this directory.
@@ -39,6 +40,12 @@ Below is an example of the tree structure :
         └── README.md
 ```
 
+Once the calculation module is created, it appears on the front-end.
+The name of the calculation module that appears depends on the function name decorated in the worker file.
+
+For example: 
+* for the example_multiply module, the function name is "multiply_raster" and becomes "Multiply raster" at the front-end.
+* for the example_empty module, the function name is "new_cm" and becomes "New cm" on the front-end.
 
 ## Setup.cfg
 
