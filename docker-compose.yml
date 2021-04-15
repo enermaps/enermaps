@@ -60,6 +60,14 @@ services:
     env_file:
       .env
 
+  data-integration:
+    build:
+      context: ./data-integration
+    volumes:
+      - data:/data
+    env_file:
+      .env
+
   redis:
     image: redis:6-alpine
     ports:
@@ -74,3 +82,4 @@ services:
 volumes:
   upload-data:
   db-data:
+  data:
