@@ -166,6 +166,9 @@ Below is an example of the data schema expected by the cm.
 }
 ```
 
+Generally, the data entered by the user is numerical data (see [documentation on JSON numeric variable type](https://json-schema.org/understanding-json-schema/reference/numeric.html)), 
+but other types of data are supported by JSON schemas (see [documentation on JSON variable types](https://json-schema.org/understanding-json-schema/reference/)).
+
 As mentioned above, this file refers to the optional input parameter `params` in the worker.py file.
 
 ## Requirements.txt
