@@ -116,6 +116,8 @@ if __name__ == "__main__":
     admin_units["ds_id"] = DS_ID
     dataset = pd.DataFrame([{"ds_id": DS_ID}])
     utilities.toPostgreSQL(
-        dataset, DB_URL, schema="datasets",
+        dataset,
+        DB_URL,
+        schema="datasets",
     )
     utilities.toPostGIS(admin_units, DB_URL)

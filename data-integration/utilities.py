@@ -8,6 +8,7 @@ Created on Tue Feb  9 14:18:50 2021
 import json
 import logging
 import os
+import zipfile
 from pathlib import Path
 
 import pandas as pd
@@ -137,6 +138,7 @@ def prepareRaster(
         os.remove(filename)
     return data
 
+
 def toPostgreSQL(
     data, dbURL="postgresql://postgres:postgres@localhost:5432/dataset", schema="data"
 ):
@@ -240,7 +242,10 @@ def removeDataset(ds_id, dbURL="postgresql://test:example@localhost:5433/dataset
     engine = sqla.create_engine(dbURL)
     with engine.connect() as con:
         con.execute(
-            "DELETE FROM datasets WHERE ds_id = %(ds_id)s;", {"ds_id": ds_id,},
+            "DELETE FROM datasets WHERE ds_id = %(ds_id)s;",
+            {
+                "ds_id": ds_id,
+            },
         )
 
 
@@ -306,6 +311,7 @@ def get_ld_json(url: str) -> dict:
     )
 
 
+
 def getGitHub(user: str, repo: str, request="content"):
     """
     Obtain metadata from GitHub.
@@ -330,4 +336,26 @@ def getGitHub(user: str, repo: str, request="content"):
         return commits[0]["commit"]["author"]["date"]
     if request == "version":
         return commits[0]["sha"]
+
+
+def extractZip(source, target):
+    """
+    Extract zip.
+
+    Parameters
+    ----------
+    source : string or path-like object
+    target : string
+
+    Returns
+    -------
+    List of strings: extracted file path
+
+    """
+    # Get the file names of extracted files
+    zip_ref = zipfile.ZipFile(source, "r")
+    extracted = zip_ref.namelist()
+    with zipfile.ZipFile(source, "r") as zip_ref:
+        zip_ref.extractall(target)
+    return [os.path.join(target, x) for x in extracted]
 

@@ -34,13 +34,6 @@ DB_USER = os.environ.get("DB_USER")
 DB_PASSWORD = os.environ.get("DB_PASSWORD")
 DB_DB = os.environ.get("DB_DB")
 
-DB_HOST = "localhost"
-DB_PORT = 5433
-DB_USER = "test"
-DB_PASSWORD = "example"
-DB_DB = "dataset"
-
-
 DB_URL = "postgresql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_DB}".format(
     DB_HOST=DB_HOST,
     DB_PORT=DB_PORT,
@@ -49,16 +42,23 @@ DB_URL = "postgresql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_DB}".form
     DB_DB=DB_DB,
 )
 
-
-SUBDATASETS = [{"path": "http://re.jrc.ec.europa.eu/pvg_download/cmsafdata/gh_0_month_cmsaf.zip", "unit": UNIT, "raster": RASTER_META},
-                {"path": "http://re.jrc.ec.europa.eu/pvg_download/cmsafdata/gh_opt_month_cmsaf.zip", "unit": UNIT, "raster": RASTER_META},
-                {"path": "http://re.jrc.ec.europa.eu/pvg_download/cmsafdata/gh_2a_month_cmsaf.zip", "unit": UNIT, "raster": RASTER_META},        
-                ]
-
-SUBDATASETS = [{"path": "http://127.0.0.1:8000/PVGIS/gh_0_month_cmsaf.zip", "unit": UNIT, "raster": RASTER_META},
-                {"path": "http://127.0.0.1:8000/PVGIS/gh_opt_month_cmsaf.zip", "unit": UNIT, "raster": RASTER_META},
-                {"path": "http://127.0.0.1:8000/PVGIS/gh_2a_month_cmsaf.zip", "unit": UNIT, "raster": RASTER_META},        
-                ]
+SUBDATASETS = [
+    {
+        "path": "http://re.jrc.ec.europa.eu/pvg_download/cmsafdata/gh_0_month_cmsaf.zip",
+        "unit": UNIT,
+        "raster": RASTER_META,
+    },
+    {
+        "path": "http://re.jrc.ec.europa.eu/pvg_download/cmsafdata/gh_opt_month_cmsaf.zip",
+        "unit": UNIT,
+        "raster": RASTER_META,
+    },
+    {
+        "path": "http://re.jrc.ec.europa.eu/pvg_download/cmsafdata/gh_2a_month_cmsaf.zip",
+        "unit": UNIT,
+        "raster": RASTER_META,
+    },
+]
 
 
 def compileDP(subdatasets: dict = SUBDATASETS):
@@ -79,11 +79,13 @@ def compileDP(subdatasets: dict = SUBDATASETS):
     dp = {"profile": "raster-data-resource", "version": None, "resources": []}
     for resource in subdatasets:
         h = requests.head(resource["path"], allow_redirects=True)
-        resource.update({
-            "stats": {"bytes": h.headers["Content-Length"]},
-            "format": h.headers["Content-Type"],
-            "Date": h.headers["Date"]
-            })
+        resource.update(
+            {
+                "stats": {"bytes": h.headers["Content-Length"]},
+                "format": h.headers["Content-Type"],
+                "Date": h.headers["Date"],
+            }
+        )
         dp["resources"].append(resource)
     return frictionless.Package(dp)
 
@@ -194,6 +196,40 @@ def get(dp: frictionless.package.Package, isForced: bool = False):
     return data_enermaps, new_dp
 
 
+def postProcess(data: pd.DataFrame):
+    """
+    Coplete additional columns of the dataframe.
+
+    Parameters
+    ----------
+    data : pd.DataFrame
+        DataFrame in EnerMaps format.
+
+    Returns
+    -------
+    data : pd.DataFrame
+        DataFrame in EnerMaps format with completed fields.
+
+    """
+    VARIABLES = {
+        "0": "Monthly average global irradiance on a horizontal surface (W/m2), period 2005-2015",
+        "opt": "Monthly average global irradiance on an optimally inclined surface (W/m2), period 2005-2015",
+        "2a": "Monthly average global irradiance on a two-axis sun-tracking surface (W/m2), period 2005-2015",
+    }
+    days_per_month = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
+    for i, row in data.iterrows():
+        filename = os.path.basename(row["fid"])
+        chunks = filename.split("_")
+        m = chunks[2]
+        var = chunks[1]
+        data.loc[i, "start_at"] = pd.to_datetime(
+            "2099{}01".format(m), format="%Y%m%d", errors="ignore"
+        )
+        data.loc[i, "variable"] = variables[var]
+        data.loc[i, "dt"] = days_per_month[int(m) - 1] * 24
+    return data
+
+
 if __name__ == "__main__":
     datasets = pd.read_csv("datasets.csv", engine="python", index_col=[0])
     ds_ids = datasets[datasets["di_script"] == os.path.basename(sys.argv[0])].index
@@ -212,15 +248,22 @@ if __name__ == "__main__":
 
     for ds_id in ds_ids:
         logging.info("Retrieving Dataset {}".format(ds_id))
-        dp = utilities.getDataPackage(
-            ds_id,
-            DB_URL
-        )
+        dp = utilities.getDataPackage(ds_id, DB_URL)
 
         data, dp = get(dp, isForced)
 
+        try:
+            data = postProcess(data)
+        except NameError:
+            pass
+        else:
+            logging.error("Error in postprocessing.")
+
         if isinstance(data, pd.DataFrame):
-            if utilities.datasetExists(ds_id, DB_URL,):
+            if utilities.datasetExists(
+                ds_id,
+                DB_URL,
+            ):
                 utilities.removeDataset(ds_id, DB_URL)
                 logging.info("Removed existing dataset")
 
@@ -230,18 +273,24 @@ if __name__ == "__main__":
             metadata = json.dumps(metadata)
             dataset = pd.DataFrame([{"ds_id": ds_id, "metadata": metadata}])
             utilities.toPostgreSQL(
-                dataset, DB_URL, schema="datasets",
+                dataset,
+                DB_URL,
+                schema="datasets",
             )
 
             # Create data table
             data["ds_id"] = ds_id
             utilities.toPostgreSQL(
-                data, DB_URL, schema="data",
+                data,
+                DB_URL,
+                schema="data",
             )
 
             # Create empty spatial table
             spatial = pd.DataFrame()
             spatial[["fid", "ds_id"]] = data[["fid", "ds_id"]]
             utilities.toPostgreSQL(
-                spatial, DB_URL, schema="spatial",
+                spatial,
+                DB_URL,
+                schema="spatial",
             )
