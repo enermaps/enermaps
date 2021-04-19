@@ -137,7 +137,6 @@ def prepareRaster(
         os.remove(filename)
     return data
 
-
 def toPostgreSQL(
     data, dbURL="postgresql://postgres:postgres@localhost:5432/dataset", schema="data"
 ):
