@@ -305,3 +305,30 @@ def get_ld_json(url: str) -> dict:
     return json.loads(
         "".join(soup.find("script", {"type": "application/ld+json"}).contents)
     )
+
+
+def getGitHub(user: str, repo: str, request="content"):
+    """
+    Obtain metadata from GitHub.
+
+    Parameters
+    ----------
+    user : str
+    repo : str
+    request : str, optional
+        Choose from "content", "date", "version". Default is "content".
+    
+    Returns
+    -------
+    str
+    """
+    raw_content = "https://raw.githubusercontent.com/{user}/{repo}".format(user=user,repo=repo)
+    api = "https://api.github.com/repos/{user}/{repo}/commits?sha=master".format(user=user,repo=repo)
+    commits = requests.get(api).json()
+    if request == "content":
+        return raw_content
+    if request == "date":
+        return commits[0]["commit"]["author"]["date"]
+    if request == "version":
+        return commits[0]["sha"]
+
