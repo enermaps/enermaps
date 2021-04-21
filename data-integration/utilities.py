@@ -304,3 +304,22 @@ def get_ld_json(url: str) -> dict:
     return json.loads(
         "".join(soup.find("script", {"type": "application/ld+json"}).contents)
     )
+
+def extractZip(source, target):
+    """
+    Extract zip.
+    Parameters
+    ----------
+    source : string or path-like object
+    target : string
+    Returns
+    -------
+    List of strings: extracted file path
+    """
+    # Get the file names of extracted files
+    zip_ref = zipfile.ZipFile(source, "r")
+    extracted = zip_ref.namelist()
+    with zipfile.ZipFile(source, "r") as zip_ref:
+        zip_ref.extractall(target)
+    return [os.path.join(target, x) for x in extracted]
+
