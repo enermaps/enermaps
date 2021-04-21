@@ -57,35 +57,56 @@ def prepareRaster(
             src_ds = gdal.Open("NETCDF:{0}:{1}".format(filename, variable))
         else:
             src_ds = gdal.Open(filename)
-        source_wkt = src_ds.GetProjectionRef()
-        source_crs = CRS.from_wkt(source_wkt)
+
+        if "crs" in df.columns:
+            source_wkt = osr.SpatialReference()
+            source_wkt.ImportFromEPSG(row.crs.to_epsg())
+            source_wkt = source_wkt.ExportToPrettyWkt()
+            source_crs = CRS.from_wkt(source_wkt)
+        else:
+            prj = src_ds.GetProjection()
+            srs=osr.SpatialReference(wkt=prj)
+            source_crs = CRS.from_epsg(srs.GetAttrValue('authority',1))
 
         dest_wkt = osr.SpatialReference()
         dest_wkt.ImportFromEPSG(crs.to_epsg())
         dest_wkt = dest_wkt.ExportToPrettyWkt()
 
-        ds = gdal.AutoCreateWarpedVRT(src_ds, source_wkt, dest_wkt)
-        for b in range(ds.RasterCount):
+        for b in range(src_ds.RasterCount):
             my_dict = {}
             b += 1
             dest_filename = Path(filename).stem
-            if ds.RasterCount > 1:
-                dest_filename += "band" + str(b) + ".tif"
+            dest_filename += "_band" + str(b)
+
+            # Translating to make sure that the raster settings are consistent for each band
+            logging.info("Translating band {}".format(b))
+            os.system(
+                "gdal_translate {filename} {dest_filename}.tif -b {b} -of GTIFF --config GDAL_PAM_ENABLED NO -co COMPRESS=DEFLATE -co BIGTIFF=YES".format(
+                    filename=filename, dest_filename=dest_filename, b=b
+                )
+            )
+
+            # Reprojecting if needed
             if source_crs.to_epsg() != crs.to_epsg():
-                dest_filename += "_{}.tif".format(crs.to_epsg())
-            else:
-                dest_filename += ".tif"
-            if ds.RasterCount > 1 or filename != dest_filename:
-                logging.info("Translating band {}".format(b))
-                os.system(
-                    "gdal_translate {filename} {dest_filename} -b {b} -of GTIFF -a_srs {outputSRS} --config GDAL_PAM_ENABLED NO -co COMPRESS=PACKBITS -co BIGTIFF=YES".format(
-                        filename=filename,
-                        dest_filename=dest_filename,
-                        b=b,
-                        outputSRS=crs.to_string(),
+                logging.info(
+                    "Warping from {} to {}".format(
+                        source_crs.to_epsg(), crs.to_epsg()
                     )
                 )
-            # else the file can be integrated without translations
+                intermediate_filename = dest_filename + ".tif" # from previous step
+                dest_filename += "_{}".format(crs.to_epsg())
+                os.system(
+                    "gdalwarp {intermediate_filename} {dest_filename}.tif -of GTIFF -s_srs {sourceSRS} -t_srs {outputSRS} --config GDAL_PAM_ENABLED NO -co COMPRESS=DEFLATE -co BIGTIFF=YES".format(
+                        intermediate_filename=intermediate_filename,
+                        dest_filename=dest_filename,
+                        outputSRS=crs.to_string(),
+                        sourceSRS=source_crs.to_string(),
+                    )
+                )
+                os.remove(intermediate_filename)
+
+            dest_filename += ".tif"
+            logging.info(dest_filename)
             my_dict["start_at"] = row["start_at"] + pd.Timedelta(hours=row["dt"]) * (
                 b - 1
             )
@@ -93,7 +114,6 @@ def prepareRaster(
             my_dict["dt"] = row["dt"]
             my_dict["unit"] = row["unit"]
             my_dict["variable"] = variable
-            logging.info(dest_filename)
             my_dict["fid"] = dest_filename
             my_dict["israster"] = True
             dicts.append(my_dict)
@@ -112,7 +132,6 @@ def prepareRaster(
             "israster",
         ],
     )
-    # data = pd.DataFrame(dicts)
     if delete_orig:
         os.remove(filename)
     return data
@@ -285,3 +304,5 @@ def get_ld_json(url: str) -> dict:
     return json.loads(
         "".join(soup.find("script", {"type": "application/ld+json"}).contents)
     )
+
+
