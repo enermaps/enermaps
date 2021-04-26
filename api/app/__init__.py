@@ -73,6 +73,8 @@ def init_datasets():
 
 
 def create_app(environment="production", testing=False):
+    """Create the application and set the configuration.
+    By default, testing mode is set to False."""
     app = Flask(__name__)
     app.config["TESTING"] = testing
     app.config["MAX_CONTENT_LENGTH"] = 16 * 1024 * 1024

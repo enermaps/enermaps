@@ -9,6 +9,7 @@ from app.models.geofile import RasterLayer
 
 class GeoJSONfileTest(BaseApiTest):
     def testUploadThenDownload(self):
+        """Post an example GEOJSON."""
         testfile = "example.geojson"
         test_data, initial_data = self.get_testformdata(testfile, "example.json")
         response = self.client.post(
@@ -22,6 +23,11 @@ class GeoJSONfileTest(BaseApiTest):
 
 class VectorGeofileTest(BaseApiTest):
     def testUploadThenDownload(self):
+        """Test for the following workflow:
+        * post an example shapefile saves as zip file,
+        * retrieve and open the posted zip file,
+        * compare the initial and retrieved zip file.
+        """
         testfile = "nuts.zip"
         test_data, initial_data = self.get_testformdata(testfile)
         response = self.client.post(
@@ -46,6 +52,9 @@ class VectorGeofileTest(BaseApiTest):
         self.assertEqual(initial_filenames, returned_filenames)
 
     def testUploadShapefile(self):
+        """Post an example shapefile saves as zip file, and check if it appears
+        in the geofile listing.
+        """
         testfile = "nuts.zip"
         test_data, _ = self.get_testformdata(testfile)
         response = self.client.post(
@@ -63,6 +72,7 @@ class VectorGeofileTest(BaseApiTest):
         self.assertIn(testfile, json_content)
 
     def testUploadBadZip(self):
+        """Post bad zip file in order to have an 400 error."""
         testfile = "hotmaps-cdd_curr_adapted.tif"
         test_data, _ = self.get_testformdata(testfile, testfile_name="test.zip")
         response = self.client.post(
@@ -102,6 +112,7 @@ class VectorGeofileTest(BaseApiTest):
 
 class TifGeofileTest(BaseApiTest):
     def testFileEscapePost(self):
+        """Post bad geotiff file in order to have an 404 error."""
         testfile = "hotmaps-cdd_curr_adapted.tif"
         test_data, _ = self.get_testformdata(testfile, testfile_name="../test.tif")
         response = self.client.post(
@@ -113,6 +124,9 @@ class TifGeofileTest(BaseApiTest):
         self.assertEqual(response.status, "404 NOT FOUND", response.data)
 
     def testTifUnicode(self):
+        """Post a TIF file with unicode symbol as name, and check if it appears in
+        available geofile listing.
+        """
         testfile = "hotmaps-cdd_curr_adapted.tif"
         testfile_name = "⎈.tif"
         test_data, _ = self.get_testformdata(testfile, testfile_name=testfile_name)
@@ -129,7 +143,8 @@ class TifGeofileTest(BaseApiTest):
         self.assertIn(testfile_name, json_content)
 
     def testHiddenFile(self):
-        """Hidden shapefile are a bit special, they don't appear in the listing but are
+        """Post a hidden shapefile, and check if it doesn't appears in the geofile listing.
+        Hidden shapefile are a bit special, they don't appear in the listing but are
         still available when the geofile name is known.
         """
         testfile = "hotmaps-cdd_curr_adapted.tif"
@@ -149,7 +164,8 @@ class TifGeofileTest(BaseApiTest):
         self.assertEqual(len(json_content), 0)
 
     def testUploadWithoutProjection(self):
-        """We refuse to work with geotiff that don't contain a projection, they
+        """Post geotiff file without a projection in order to have a 400 error.
+        We refuse to work with geotiff that don't contain a projection, they
         can get us in trouble later when serving them as tile.
         """
         testfile = "no_projection.tif"
@@ -185,7 +201,7 @@ class TifGeofileTest(BaseApiTest):
         self.assertEqual(response.mimetype, RasterLayer.MIMETYPE[0])
 
     def testTifDeletion(self):
-        """Add a new tif then delete it,
+        """Add a new geotiff then delete it,
         verify that it doesn't appear in the list after deletion.
         """
         testfile = "hotmaps-cdd_curr_adapted.tif"

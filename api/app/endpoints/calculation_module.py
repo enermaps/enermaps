@@ -17,6 +17,9 @@ current_file_dir = os.path.dirname(os.path.abspath(__file__))
 @api.route("/")
 class CMList(Resource):
     def get(self):
+        """List all cms available on a celery queue,
+        and return them in dictionary.
+        """
         cms = CM.list_cms()
 
         def cm_as_dict(cm):
@@ -33,6 +36,10 @@ class CMList(Resource):
 @api.route("/<string:cm_name>/task")
 class TaskCreator(Resource):
     def post(self, cm_name):
+        """Create a new task from CM name, generate a task ID,
+        and redirect the user to
+        "cm/<string:cm_name>/task/<string:task_id>".
+        """
         try:
             cm = CM.cm_by_name(cm_name)
         except CM.UnexistantCalculationModule as err:
@@ -48,11 +55,19 @@ class TaskCreator(Resource):
 @api.route("/<string:cm_name>/task/<string:task_id>")
 class CMTask(Resource):
     def delete(self, cm_name, task_id):
+        """Delete task based on the CM name and the task ID,
+        and redirect the user to
+        "cm/<string:cm_name>/task/<string:task_id>".
+        """
         res = CM.task_by_id(task_id, cm_name=cm_name)
         res.revoke(terminate=True)
         return redirect(url_for(".cm_cm_task", cm_name=cm_name, task_id=task_id))
 
     def get(self, cm_name, task_id):
+        """Get task based on the CM name and the task ID,
+        and return a dictionary as response.
+        If task hasn't executed yet, empty dictionary is returned.
+        """
         task = CM.task_by_id(task_id, cm_name=cm_name)
         task_status = {"status": task.status, "task_id": task_id, "cm_name": cm_name}
         if not task.ready():
