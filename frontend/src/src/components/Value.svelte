@@ -2,6 +2,7 @@
 export let value;
 let name;
 let formattedValue;
+
 $ : {
   name = value[0];
   console.log(value);

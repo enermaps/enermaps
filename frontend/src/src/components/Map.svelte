@@ -3,16 +3,8 @@ import {onMount} from 'svelte';
 
 // Import CSS from Leaflet and plugins.
 import 'leaflet/dist/leaflet.css';
-//import 'frontend/leaflet/';
-//import '../../public/leaflet/leaflet.css';
 import 'leaflet.markercluster/dist/MarkerCluster.css';
 import 'leaflet.markercluster/dist/MarkerCluster.Default.css';
-
-
-
-// Import images directly that got missed via the CSS imports above.
-// import 'leaflet/dist/images/marker-icon-2x.png';
-// import 'leaflet/dist/images/marker-shadow.png';
 
 // Import JS from Leaflet and plugins.
 import 'leaflet/dist/leaflet';
@@ -57,7 +49,6 @@ onMount(async () => {
   // Add the map controls
   map.addControl(makeSearchControl())   // Search tools
   map.addControl(makeCMToggleControl());  // Button to open calculation module pane
-  //map.addControl(makeLeftControls());   // Area selection and overlay layers
   map.addControl(makeAreaSelectionControl());
   map.addControl(makeOverlayLayersControl());
 });
@@ -96,8 +87,7 @@ function syncSelectionLayer() {
     return;
   }
   if (!selectionsGroup.hasLayer(activeSelectionLayer)) {
-    // currently the activated layer is not the right one
-    // so remove it
+    // currently the activated layer is not the right one so remove it
     selectionsGroup.clearLayers();
   }
   if (selectionsGroup.getLayers().length === 0) {
@@ -153,7 +143,7 @@ function makeSearchControl() {
     jsonpParam: 'json_callback',
     propertyName: 'display_name',
     propertyLoc: ['lat', 'lon'],
-    marker: false, // L.circleMarker([0, 0], { radius: 30 }),
+    marker: false, 
     autoCollapse: false,
     autoResize: false,
     autoType: false,

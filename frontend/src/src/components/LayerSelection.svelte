@@ -11,8 +11,7 @@
   import {activeSelectionLayerStore} from '../stores.js';
 
   // List of queryable layers that are used as selection layers.
-  // The order in which they appear is mirrored in the order the layers
-  // are displayed.
+  // The order in which they appear is mirrored in the order the layers are displayed.
   // If the names are changed, the list isn't of layers isn't loading...why?
   export const SELECTIONS_LIST= [
     'nuts0.zip',
@@ -62,8 +61,6 @@
         leafletLayer.setZIndex(1000);
         selectionLayers.push(leafletLayer);
       }
-      // What is a queryable layer? When is it used? 
-      // toQueryableLayer is only used here but 
        else if (layerParameters.isQueryable) {
         leafletLayer = toQueryableLayer(layer);
         leafletLayer.name = layer;
@@ -124,8 +121,6 @@
   width: 100%;
   box-sizing: border-box;
 }
-
-
 
 #map_selection h3 {
   margin: 0px;
