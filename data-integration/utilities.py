@@ -105,14 +105,10 @@ def prepareRaster(
                         sourceSRS=source_crs.to_string(),
                     )
                 )
-<<<<<<< HEAD
                 os.remove(intermediate_filename)
 
             dest_filename += ".tif"
             logging.info(dest_filename)
-=======
-            # else the file can be integrated without translations
->>>>>>> a6e49d7... black isort
             my_dict["start_at"] = row["start_at"] + pd.Timedelta(hours=row["dt"]) * (
                 b - 1
             )
@@ -314,6 +310,28 @@ def get_ld_json(url: str) -> dict:
         "".join(soup.find("script", {"type": "application/ld+json"}).contents)
     )
 
+<<<<<<< HEAD
+=======
+
+def extractZip(source, target):
+    """
+    Extract zip.
+    Parameters
+    ----------
+    source : string or path-like object
+    target : string
+    Returns
+    -------
+    List of strings: extracted file path
+    """
+    # Get the file names of extracted files
+    zip_ref = zipfile.ZipFile(source, "r")
+    extracted = zip_ref.namelist()
+    with zipfile.ZipFile(source, "r") as zip_ref:
+        zip_ref.extractall(target)
+    return [os.path.join(target, x) for x in extracted]
+
+>>>>>>> 738db1c... fixing
 
 <<<<<<< HEAD
 def getGitHub(user: str, repo: str, request="content"):
