@@ -10,9 +10,9 @@
 
   onMount(async () => {
     // Get the modal
-     modal = document.getElementById("myModal");
+    modal = document.getElementById("myModal");
     // Get the button that opens the modal
-     btn = document.getElementById("myBtn");
+    btn = document.getElementById("myBtn");
     // Get the <span> element that closes the modal
     span = document.getElementsByClassName("close")[0];
 
@@ -33,9 +33,8 @@
       }
     }
   });
-
-
 </script>
+
 
 <style>
 
@@ -81,8 +80,6 @@
   font-size: 32px;
 }
 
-
-
 img {
   vertical-align: middle;
   display: inline-block;
@@ -120,7 +117,6 @@ img {
   border: 1px solid #888;
   width: 80%;
   box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2),0 6px 20px 0 rgba(0,0,0,0.19);
-
 }
 
 /* The Close Button */
@@ -220,7 +216,7 @@ button, button:hover {
       </p>
     </div>
     <div class="modal-footer">
-      <h3>Modal Footer</h3>
+      <h3>Footer</h3>
     </div>
   </div>
 </div>

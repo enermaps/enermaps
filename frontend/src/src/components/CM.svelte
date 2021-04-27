@@ -53,11 +53,13 @@
     tasks = tasks.filter((task)=> taskToDelete.id != task.id);
   }
 </script>
+
 <style>
 .tasks {
   margin-top: 10;
   position: relative;
 }
+
 .open_menu {
   display: inline-block;
   height: 25px;
@@ -65,6 +67,7 @@
   background: url('/images/menu-close-icon.png');
   background-size : 100%;
 }
+
 .close_menu {
   display: inline-block;
   height: 25px;
@@ -108,8 +111,6 @@ h3 {
         <button class="cm_run"  type=submit on:click={() => callCM(cm)} disabled={isDisabled} title={callCMTooltip}>Run CM</button>
       </div>
     </div>
-
-   
   </div>
  
   <div hidden="{isCollapsed}">
