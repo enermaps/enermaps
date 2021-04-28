@@ -28,27 +28,27 @@ let map;
 $: activeSelectionLayer = $activeSelectionLayerStore;
 $: activeOverlayLayers = $activeOverlayLayersStore;
 
-const overlaysGroup = L.layerGroup();  // energy map etc
-const selectionsGroup = L.layerGroup();  // nuts and custom selection layer
-const baseLayersGroup = L.layerGroup();  // openstreetmap ?
+const overlaysGroup = L.layerGroup(); // energy map etc
+const selectionsGroup = L.layerGroup(); // nuts and custom selection layer
+const baseLayersGroup = L.layerGroup(); // openstreetmap ?
 
 
 onMount(async () => {
   console.log('init map');
   // To add the draw toolbar set the option drawControl: true in the map options.
-  map = L.map('map', {zoomControl : false})
+  map = L.map('map', {zoomControl: false});
   map.setView(INITIAL_MAP_CENTER, INITIAL_ZOOM);
 
-  map.addLayer(baseLayersGroup);  
-  map.addLayer(selectionsGroup);  
-  map.addLayer(overlaysGroup);   
+  map.addLayer(baseLayersGroup);
+  map.addLayer(selectionsGroup);
+  map.addLayer(overlaysGroup);
 
   const baseLayer = L.tileLayer(BASE_LAYER_URL, BASE_LAYER_PARAMS);
   baseLayersGroup.addLayer(baseLayer); // Add the openstreetmap layer
 
   // Add the map controls
-  map.addControl(makeSearchControl())   // Search tools
-  map.addControl(makeCMToggleControl());  // Button to open calculation module pane
+  map.addControl(makeSearchControl()); // Search tools
+  map.addControl(makeCMToggleControl()); // Button to open calculation module pane
   map.addControl(makeAreaSelectionControl());
   map.addControl(makeOverlayLayersControl());
 });
@@ -100,11 +100,11 @@ function syncSelectionLayer() {
 function makeAreaSelectionControl() {
   const ctr = L.control({position: 'topleft'});
   ctr.onAdd = (map) => {
-    const overlay_div = L.DomUtil.create('div', );
-    L.DomUtil.addClass(overlay_div, 'testComponent');
-    toolbar = new LayerSelection({target: overlay_div});
-    return overlay_div;
-  };  
+    const overlayDiv = L.DomUtil.create('div' );
+    L.DomUtil.addClass(overlayDiv, 'testComponent');
+    toolbar = new LayerSelection({target: overlayDiv});
+    return overlayDiv;
+  };
   return ctr;
 }
 
@@ -112,13 +112,13 @@ function makeAreaSelectionControl() {
 function makeOverlayLayersControl() {
   const ctr = L.control({position: 'topleft'});
   ctr.onAdd = (map) => {
-    const area_div = L.DomUtil.create('div', );
-    L.DomUtil.addClass(area_div, 'testComponent');
-    toolbar = new AreaSelection({target: area_div})
+    const areaDiv = L.DomUtil.create('div' );
+    L.DomUtil.addClass(areaDiv, 'testComponent');
+    toolbar = new AreaSelection({target: areaDiv});
     // Enable the overlay layers to be dragged
     // var draggable = new L.Draggable(area_div);
     // draggable.enable();
-    return area_div;
+    return areaDiv;
   };
   return ctr;
 }
@@ -138,12 +138,12 @@ function makeCMToggleControl() {
 // https://github.com/stefanocudini/leaflet-search
 function makeSearchControl() {
   const searchControl = new L.Control.Search({
-    container : 'findbox',
+    container: 'findbox',
     url: 'https://nominatim.openstreetmap.org/search?format=json&q={s}',
     jsonpParam: 'json_callback',
     propertyName: 'display_name',
     propertyLoc: ['lat', 'lon'],
-    marker: false, 
+    marker: false,
     autoCollapse: false,
     autoResize: false,
     autoType: false,
@@ -151,8 +151,8 @@ function makeSearchControl() {
     collapsed: false,
     textPlaceholder: 'Search location...',
     moveToLocation: function(latlng, title, map) {
-  			map.setView(latlng, 12); // access the zoom
-		}
+      map.setView(latlng, 12); // access the zoom
+    },
   });
 
   return searchControl;

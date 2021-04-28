@@ -1,7 +1,8 @@
 /*
-A Web Map Service (WMS) is a standard protocol developed by the Open Geospatial 
-Consortium in 1999 for serving georeferenced map images over the Internet.[1] 
-These images are typically produced by a map server from data provided by a GIS database.
+A Web Map Service (WMS) is a standard protocol developed by the Open Geospatial
+Consortium in 1999 for serving georeferenced map images over the Internet.[1]
+These images are typically produced by a map server from data provided by
+a GIS database.
 */
 
 L.TileLayer.NutsLayer = L.TileLayer.WMS.extend({

@@ -32,7 +32,7 @@ L.DrawingLayer = L.FeatureGroup.extend({
     map.addControl(this.drawControl);
     map.on(L.Draw.Event.CREATED, L.Util.bind(this.drawCreated, this));
   },
-  
+
   getSelection: function() {
     return this.toGeoJSON();
   },

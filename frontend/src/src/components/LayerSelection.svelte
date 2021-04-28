@@ -60,12 +60,11 @@
         // selection go on top
         leafletLayer.setZIndex(1000);
         selectionLayers.push(leafletLayer);
-      }
-       else if (layerParameters.isQueryable) {
+      } else if (layerParameters.isQueryable) {
         leafletLayer = toQueryableLayer(layer);
         leafletLayer.name = layer;
         overlayLayers.push(leafletLayer);
-      } 
+      }
     }
 
     // Sort layers by name
@@ -76,7 +75,7 @@
     }
     // Sort the layer list by name
     selectionLayers.sort(compareSelectionLayer);
-        
+  
     // Add the layer for custom selection - we get a new layer from leaflet
     const drawingLayer = getDrawingLayer();
     drawingLayer.name = 'Custom area';
