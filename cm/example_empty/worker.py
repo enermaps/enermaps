@@ -2,7 +2,6 @@
 import BaseCM.cm_base as cm_base
 from BaseCM.cm_output import validate
 
-
 app = cm_base.get_default_app()
 schema_path = cm_base.get_default_schema_path()
 
