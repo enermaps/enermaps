@@ -62,3 +62,13 @@ response = r.json()
 print(response)
 ```
 where the {API_KEY} is the signed token created with the password. See [here](https://postgrest.org/en/v4.1/tutorials/tut1.html#step-3-sign-a-token) for a tutorial.
+
+Sample query returning all records of a given dataset:
+```python
+r = requests.post('http://localhost:3000/rpc/enermaps_query',
+	headers={'Authorization': 'Bearer {}'.format(API_KEY)},
+	json={"ds_id": 2})
+response = r.json()
+print(response[:10]) # limit to the first 10
+```
+This is based on the PostgreSQL function `enermaps_query()`.

@@ -67,14 +67,31 @@ GRANT ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA public TO :db_user;
 
 -- POSTGREST
 CREATE ROLE api_anon nologin;
-grant usage on schema public to api_anon;
-grant api_anon to test;
+GRANT usage ON schema public TO api_anon;
+GRANT api_anon TO test;
 
-create role api_user nologin;
-grant api_user to test;
+CREATE ROLE api_user nologin;
+GRANT api_user TO test;
 
-grant usage on schema public to api_user;
-grant SELECT on public.spatial to api_user;
-grant SELECT on public.data to api_user;
-grant SELECT on public.datasets to api_user;
--- grant usage, select on sequence api.todos_id_seq to todo_user;
+GRANT USAGE ON schema public TO api_user;
+GRANT SELECT ON public.spatial TO api_user;
+GRANT SELECT ON public.data TO api_user;
+GRANT SELECT ON public.datasets TO api_user;
+
+
+CREATE FUNCTION enermaps_query(ds_id integer)
+    RETURNS TABLE(fid char, json_object_agg json, fields jsonb, start_at timestamp without time zone, dt float, z float, ds_id int, geometry text)
+    AS 'SELECT data.fid,
+            json_object_agg(variable, value),
+            fields,
+            start_at, dt, z, data.ds_id, st_astext(geometry)
+           FROM data
+    INNER JOIN spatial ON data.fid = spatial.fid
+    WHERE data.ds_id = 2
+    GROUP BY data.fid, start_at, dt, z, data.ds_id, fields, geometry
+    ORDER BY data.fid;'
+    LANGUAGE SQL
+    IMMUTABLE
+    RETURNS NULL ON NULL INPUT;
+
+GRANT EXECUTE ON FUNCTION enermaps_query(ds_id integer) to api_user;
