@@ -74,19 +74,18 @@ class CMOutput(Schema):
 def validate(output: Dict) -> Dict:
     """Validate the output of the CM based on the CM output schema."""
     output_schema = CMOutput()
-    out = output_schema.load(data=output)
-    return out
+    # validates and deserializes an input dictionary to an application-level 
+    # data structure
+    return output_schema.load(data=output)
 
-
-# get the api url
-API_URL = os.environ.get("API_URL")
 
 
 def output_raster(raster_name, raster_fd):
     """Add a raster to the api."""
     files = {"file": (raster_name, raster_fd, "image/tiff")}
     try:
-        resp = requests.post(API_URL + "api/geofile/", files=files)
+        API_URL = os.environ.get("API_URL")
+        resp = requests.post(API_URL + "/geofile/", files=files)
     except ConnectionError:
         logging.error("Error during the post of the file.")
     return resp.status_code

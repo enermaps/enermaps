@@ -9,15 +9,11 @@ schema_path = cm_base.get_default_schema_path()
 
 
 @app.task(base=cm_base.CMBase, bind=True, schema_path=schema_path)
-def multiply_raster(self, selection: dict, rasters: list, params: dict):
+def cm_multiply_raster(self, selection: dict, rasters: list, params: dict):
     """This is a calculation module that multiplies the raster by an factor.
     If there is no raster, we raise a value error.
     If there are many rasters, we select the first one.
     """
-    # def create_data_indicator_str(json_form):
-    #    for
-    #    return data_indicator
-
     if not rasters:
         raise ValueError("Raster list must be non-empty.")
     if "features" not in selection:
