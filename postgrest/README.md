@@ -28,17 +28,17 @@ Warning: the db will be initialized. You would probably need to re-integrate som
 As an alternative, you can run this in psql:
 
 ```sql
-create role api_anon nologin;
-grant usage on schema public to api_anon;
-grant api_anon to test;
+CREATE ROLE api_anon nologin;
+GRANT usage ON schema public TO api_anon;
+GRANT api_anon TO test;
 
-create role api_user nologin;
-grant api_user to test;
+CREATE ROLE api_user nologin;
+GRANT api_user TO test;
 
-grant usage on schema public to api_user;
-grant select on public.spatial to api_user;
-grant select on public.data to api_user;
-grant select on public.datasets to api_user;
+GRANT USAGE ON schema public TO api_user;
+GRANT SELECT ON public.spatial TO api_user;
+GRANT SELECT ON public.data TO api_user;
+GRANT SELECT ON public.datasets TO api_user;
 ```
 
 # Usage
@@ -61,7 +61,7 @@ r = requests.get('http://localhost:3000/datasets',
 response = r.json()
 print(response)
 ```
-where the {API_KEY} is the signed token created with the password. See [here](https://postgrest.org/en/v4.1/tutorials/tut1.html#step-3-sign-a-token) for a tutorial.
+where the `{API_KEY}` is the signed token created with the password. See [here](https://postgrest.org/en/v4.1/tutorials/tut1.html#step-3-sign-a-token) for a tutorial.
 
 Sample query returning all records of a given dataset:
 ```python
