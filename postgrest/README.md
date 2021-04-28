@@ -16,29 +16,12 @@ openssl rand -base64 32
 `
 
 ## Preparing the DB
-The API users are initialized in the db service.
-You need then to recreate the db service with the following commands:
+The API users and custom functions are initialized in the db service.
+If you don't want to rebuild the db, you can just execute postgrest custom sql:
+
 ```
-docker-compose down -v
-docker volume rm enermaps_db-data 
 docker-compose up --build -d db
-```
-Warning: the db will be initialized. You would probably need to re-integrate some datasets.
-
-As an alternative, you can run this in psql:
-
-```sql
-CREATE ROLE api_anon nologin;
-GRANT usage ON schema public TO api_anon;
-GRANT api_anon TO test;
-
-CREATE ROLE api_user nologin;
-GRANT api_user TO test;
-
-GRANT USAGE ON schema public TO api_user;
-GRANT SELECT ON public.spatial TO api_user;
-GRANT SELECT ON public.data TO api_user;
-GRANT SELECT ON public.datasets TO api_user;
+docker-compose exec db psql postgres://test:example@db:5432/dataset -f /docker-entrypoint-initdb.d/postgrest.sql
 ```
 
 # Usage
