@@ -102,5 +102,3 @@ r = requests.post('http://localhost:3000/rpc/enermaps_get_metadata',
 response = r.json()
 print(response)
 ```
-
-=
