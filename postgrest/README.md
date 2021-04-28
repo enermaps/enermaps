@@ -8,12 +8,12 @@ The service needs the following `.postgrest` envinronment file to be placed in t
 PGRST_DB_URI=postgres://test:example@db:5432/dataset
 PGRST_DB_ANON_ROLE=api_anon
 PGRST_JWT_SECRET={PASSWORD}
-``
-where {PASSWORD} is a secret password.
+```
+where `{PASSWORD}` is a secret password.
 You can generate one with:
-```
+`
 openssl rand -base64 32
-```
+`
 
 ## Preparing the DB
 The API users are initialized in the db service.
