@@ -74,10 +74,9 @@ class CMOutput(Schema):
 def validate(output: Dict) -> Dict:
     """Validate the output of the CM based on the CM output schema."""
     output_schema = CMOutput()
-    # validates and deserializes an input dictionary to an application-level 
+    # validates and deserializes an input dictionary to an application-level
     # data structure
     return output_schema.load(data=output)
-
 
 
 def output_raster(raster_name, raster_fd):
