@@ -64,3 +64,17 @@ ALTER TABLE data
 
 GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA public TO :db_user;
 GRANT ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA public TO :db_user;
+
+-- POSTGREST
+CREATE ROLE api_anon nologin;
+grant usage on schema public to api_anon;
+grant api_anon to test;
+
+create role api_user nologin;
+grant api_user to test;
+
+grant usage on schema public to api_user;
+grant SELECT on public.spatial to api_user;
+grant SELECT on public.data to api_user;
+grant SELECT on public.datasets to api_user;
+-- grant usage, select on sequence api.todos_id_seq to todo_user;
