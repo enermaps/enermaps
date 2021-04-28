@@ -19,12 +19,12 @@ docker exec -it enermaps2_db_1 psql -h 127.0.0.1 -p 5432 -U dataset dataset
 SELECT data.fid,
 		json_object_agg(variable, value),
 		fields,
-		time, dt, z, data.ds_id, metadata, geometry
+		start_at, dt, z, data.ds_id, metadata, geometry
        FROM data
 INNER JOIN spatial ON data.fid = spatial.fid
 INNER JOIN datasets ON data.ds_id = datasets.ds_id
 WHERE data.ds_id = 2
-GROUP BY data.fid, time, dt, z, data.ds_id, fields, geometry, metadata
+GROUP BY data.fid, start_at, dt, z, data.ds_id, fields, geometry, metadata
 ORDER BY data.fid;
 ```
 
