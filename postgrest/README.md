@@ -24,7 +24,7 @@ docker-compose up --build -d db
 docker-compose exec db psql postgres://test:example@db:5432/dataset -f /docker-entrypoint-initdb.d/postgrest.sql
 ```
 
-# Usage
+## Usage
 
 Run the service:
 ```
