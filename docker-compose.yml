@@ -11,7 +11,7 @@ services:
     env_file:
       .env
 
-  cm-geofile:
+  cm-empty:
     build:
       context: ./cm
       dockerfile: example_empty/Dockerfile
