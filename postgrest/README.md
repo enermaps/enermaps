@@ -50,8 +50,11 @@ Sample query returning all records of a given dataset:
 ```python
 r = requests.post('http://localhost:3000/rpc/enermaps_query',
 	headers={'Authorization': 'Bearer {}'.format(API_KEY)},
-	json={"ds_id": 2})
+	json={"dataset_id": 2})
 response = r.json()
-print(response[:10]) # limit to the first 10
+print(response)
 ```
 This is based on the PostgreSQL function `enermaps_query()`.
+
+After adding/updating functions, you need to rebuild Postgrest cache using the following command:
+```docker-compose kill -s SIGUSR1 postgrest``
