@@ -1,19 +1,10 @@
 import json
 import os
 import unittest
-import rasterio
-import pyproj
-print(os.environ)
-print(os.listdir("/usr/local/lib/python3.8/dist-packages/rasterio/gdal_data/"))
-os.environ['PROJ_LIB'] = '/usr/local/share/proj'
-# os.environ["GDAL_DATA"] = "/usr/local/lib/python3.8/dist-packages/rasterio/gdal_data/"
-# print(os.listdir("/usr/local/lib/python3.8/dist-packages/rasterio/gdal_data/"))
 
 from multiply_raster import rasterstats
 
 CURRENT_FILE_DIR = os.path.dirname(os.path.abspath(__file__))
-
-
 
 
 def get_testdata_path(filename):
