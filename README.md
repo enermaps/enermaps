@@ -69,3 +69,28 @@ act pull_request
 This repository was previously using symlinks to unify all the setup.cfg. On windows, this required sometimes administrative
 rights (see https://github.community/t/git-bash-symbolic-links-on-windows/522), thus we manually updated each setup.cfg to
 be the same. When updating one setup.cfg, you will need to be carefull to update all of them.
+
+
+# Code structure with pre-commit, black, bandit, flake8, isort :
+
+Setup your work environment:
+
+```
+# create a virtual environment
+virtualenv env --python=python3 # or python3 -m venv env
+# activate the virtual environment
+source env/bin/activate
+# install the requirements
+pip install -r requirements.txt
+# install pre-commit
+pre-commit install
+```
+
+Work in that environment following this procedure:
+
+ - When a git commit is done your code gets automatically re-formatted
+ - You will have to check the proposed modifications and re-add them in a continuous process of `git add`/`git commit`
+ - When your code passes the pre-commit checks, you will be able to finally commit your code and push to GitHub
+ - Various imports are automatically sorted for you
+ - Automatic checks verify that unused libraries and variables can't get committed
+ - Contributors are expected to follow this code of conduct as it guarantees code formatting quality
