@@ -49,6 +49,14 @@ services:
       .env
 
 
+  nginx:
+    build:
+      context: ./nginx
+    ports:
+      - "0.0.0.0:80:80"
+    volumes:
+      - web:/web
+
   postgrest:
     build:
       context: ./postgrest
