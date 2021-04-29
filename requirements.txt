@@ -1,0 +1,4 @@
+black
+bandit
+flake8
+pre-commit
