@@ -36,12 +36,14 @@ SCHEMA = "datasets_full"
 
 if __name__ == "__main__":
     datasets = pd.read_csv("datasets.csv", engine="python", index_col=[0])
-
+    datasets.drop(["di_script","di_URL"],inplace=True,axis=1) #remove di columns
+    
     metadata = datasets.fillna("").to_dict(orient="records")
     metadata = [json.dumps(entry) for entry in metadata]
     
     data = pd.DataFrame()
     data["ds_id"] = datasets.index
+    data["shared_id"] = datasets.shared_id.values
     data["metadata"] = metadata
     
     db_engine = sqla.create_engine(DB_URL)

@@ -57,4 +57,48 @@ print(response)
 This is based on the PostgreSQL function `enermaps_query()`.
 
 After adding/updating functions, you need to rebuild Postgrest cache using the following command:
-```docker-compose kill -s SIGUSR1 postgrest``
+```docker-compose kill -s SIGUSR1 postgrest```
+
+## Gateway API - WIP
+Here are the first steps towards an API linking EnerMaps EDMT to OpenAIRE Gateway.
+
+### Metadata table
+We create a table named `datasets_full` which contains the metadata records of all 50 datasets.
+```sql
+-- Code to support OPENAIRE gateway
+-- Create a new datasets table to be filled in
+-- as the original datasets table only contains integrated datasets
+CREATE TABLE public.datasets_full
+(
+    ds_id int PRIMARY KEY,
+    shared_id varchar(200),
+    metadata json
+);
+GRANT SELECT ON public.datasets_full TO api_user;
+-- Make it public to anynomous users 
+GRANT SELECT ON public.datasets_full TO api_anon;
+```
+This is provisional, waiting for the `datasets` table to be filled in with all datasets and to avoid conflicts with data-integration during development.
+WARNING: Unlike the other tables, it is public.
+
+We can populate it using:
+
+```
+docker-compose up --build -d data-integration && docker-compose exec data-integration python3 addDatasets.py
+```
+
+### Available endpoints
+Here are some sample requests to be adapted for OpenAIRE support.
+
+#### Sample filtering using GET
+http://localhost:3000/datasets_full?shared_id=eq.jrc-10128-10001
+
+#### Custom query using POST
+```python
+r = requests.post('http://localhost:3000/rpc/enermaps_get_metadata',
+	headers={'Authorization': 'Bearer {}'.format(API_KEY)},
+	json={"shared_id": "jrc-10128-10001"})
+response = r.json()
+print(response)
+```
+
