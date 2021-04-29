@@ -127,7 +127,7 @@ def prepare(dp: frictionless.package.Package, name: str):
     data["fields"] = data["fields"].apply(lambda x: json.dumps(x, default=np_encoder))
 
     # Unpivoting
-    data = data.melt(id_vars=["fid", "fields"], value_vars=VALUE_VARS)
+    data = data.melt(id_vars=ID_VARS, value_vars=VALUE_VARS)
 
     # Remove nan
     data = data.dropna()
@@ -147,7 +147,7 @@ def prepare(dp: frictionless.package.Package, name: str):
             "unit",
         ]
     )
-
+    enermaps_data["fid"] = data["fid"]
     enermaps_data["value"] = data["value"]
     enermaps_data["variable"] = data["variable"]
     enermaps_data["fields"] = data["fields"]
@@ -246,7 +246,7 @@ if __name__ == "__main__":
         # Remove existing dataset
         if utilities.datasetExists(ds_id, DB_URL,):
             utilities.removeDataset(ds_id, DB_URL)
-            logging.INFO("Removed existing dataset")
+            logging.info("Removed existing dataset")
 
         # Create dataset table
         metadata = datasets.loc[ds_id].fillna("").to_dict()
