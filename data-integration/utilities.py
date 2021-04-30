@@ -110,21 +110,21 @@ def prepareRaster(
 
             dest_filename += ".tif"
             logging.info(dest_filename)
-            if row["dt"] == 720 and row["start_at"] != None: # month case
-                month_count = b # starting at 0
-                month_number = month_count % 12 + 1 # 1-12
+            if row["dt"] == 720 and row["start_at"] != None:  # month case
+                month_count = b  # starting at 0
+                month_number = month_count % 12 + 1  # 1-12
                 year = row["start_at"].year
                 if month_number == 12:
                     month_number = 1
                     year += 1
-                date = pd.to_datetime("{}-{}".format(year,month_number))
-                date_future = pd.to_datetime("2012-{}".format(month_number+1))
-                my_dict["dt"] = (date_future-date).total_seconds()/3600
+                date = pd.to_datetime("{}-{}".format(year, month_number))
+                date_future = pd.to_datetime("2012-{}".format(month_number + 1))
+                my_dict["dt"] = (date_future - date).total_seconds() / 3600
                 my_dict["start_at"] = date
             else:
-                my_dict["start_at"] = row["start_at"] + pd.Timedelta(hours=row["dt"]) * (
-                    b - 1
-                )
+                my_dict["start_at"] = row["start_at"] + pd.Timedelta(
+                    hours=row["dt"]
+                ) * (b - 1)
                 my_dict["dt"] = row["dt"]
             my_dict["z"] = row["z"]
             my_dict["unit"] = row["unit"]
@@ -255,10 +255,7 @@ def removeDataset(ds_id, dbURL="postgresql://test:example@localhost:5433/dataset
     engine = sqla.create_engine(dbURL)
     with engine.connect() as con:
         con.execute(
-            "DELETE FROM datasets WHERE ds_id = %(ds_id)s;",
-            {
-                "ds_id": ds_id,
-            },
+            "DELETE FROM datasets WHERE ds_id = %(ds_id)s;", {"ds_id": ds_id,},
         )
 
 
@@ -323,8 +320,6 @@ def get_ld_json(url: str) -> dict:
         "".join(soup.find("script", {"type": "application/ld+json"}).contents)
     )
 
-<<<<<<< HEAD
-=======
 
 def extractZip(source, target):
     """
@@ -344,9 +339,7 @@ def extractZip(source, target):
         zip_ref.extractall(target)
     return [os.path.join(target, x) for x in extracted]
 
->>>>>>> 738db1c... fixing
 
-<<<<<<< HEAD
 def getGitHub(user: str, repo: str, request="content"):
     """
     Obtain metadata from GitHub.
@@ -357,13 +350,17 @@ def getGitHub(user: str, repo: str, request="content"):
     repo : str
     request : str, optional
         Choose from "content", "date", "version". Default is "content".
-    
+
     Returns
     -------
     str
     """
-    raw_content = "https://raw.githubusercontent.com/{user}/{repo}".format(user=user,repo=repo)
-    api = "https://api.github.com/repos/{user}/{repo}/commits?sha=master".format(user=user,repo=repo)
+    raw_content = "https://raw.githubusercontent.com/{user}/{repo}".format(
+        user=user, repo=repo
+    )
+    api = "https://api.github.com/repos/{user}/{repo}/commits?sha=master".format(
+        user=user, repo=repo
+    )
     commits = requests.get(api).json()
     if request == "content":
         return raw_content
@@ -395,13 +392,10 @@ def extractZip(source, target):
     return [os.path.join(target, x) for x in extracted]
 
 
-def full_country_to_code(countries: pd.Series, dbURL: str="postgresql://test:example@localhost:5433/dataset"):
-=======
 def full_country_to_code(
     countries: pd.Series,
     dbURL: str = "postgresql://test:example@localhost:5433/dataset",
 ):
->>>>>>> a6e49d7... black isort
     """
     Convert full Country names to ISO 3166-1 alpha2 codes.
 
@@ -427,11 +421,5 @@ def full_country_to_code(
         )
         table = table[["name_engl", "cntr_code"]]
         table.to_csv("country_codes.csv")
-<<<<<<< HEAD
-    transl = table.set_index('name_engl').T.to_dict(orient="records")[0]
-    return countries.replace(transl)
-
-=======
     transl = table.set_index("name_engl").T.to_dict(orient="records")[0]
     return countries.replace(transl)
->>>>>>> a6e49d7... black isort
