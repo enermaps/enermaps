@@ -123,7 +123,8 @@ def cm_by_name(cm_name):
 
 
 class InvalidRegistrationString(Exception):
-    """Exception raised by from_registration_string upon encountering an invalid registration string"""
+    """Exception raised by from_registration_string upon encountering
+    an invalid registration string"""
 
     pass
 
