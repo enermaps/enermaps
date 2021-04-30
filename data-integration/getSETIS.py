@@ -133,7 +133,7 @@ def prepare(dp: frictionless.package.Package, name: str):
     data = read_datapackage(dp)
 
     # Encoding FID as country code
-    data["fid"] = utilities.full_country_to_code(data[SPATIAL_VARS])
+    data["fid"] = utilities.full_country_to_code(data[SPATIAL_VARS],DB_URL)
 
     # Other fields to json
     def np_encoder(object):
