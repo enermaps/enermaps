@@ -160,10 +160,7 @@ if __name__ == "__main__":
         data, dp = get(datasets.loc[ds_id, "di_URL"], dp, isForced)
 
         if isinstance(data, pd.DataFrame):
-            if utilities.datasetExists(
-                ds_id,
-                DB_URL,
-            ):
+            if utilities.datasetExists(ds_id, DB_URL,):
                 utilities.removeDataset(ds_id, DB_URL)
                 logging.info("Removed existing dataset")
 
@@ -173,24 +170,18 @@ if __name__ == "__main__":
             metadata = json.dumps(metadata)
             dataset = pd.DataFrame([{"ds_id": ds_id, "metadata": metadata}])
             utilities.toPostgreSQL(
-                dataset,
-                DB_URL,
-                schema="datasets",
+                dataset, DB_URL, schema="datasets",
             )
 
             # Create data table
             data["ds_id"] = ds_id
             utilities.toPostgreSQL(
-                data,
-                DB_URL,
-                schema="data",
+                data, DB_URL, schema="data",
             )
 
             # Create empty spatial table
             spatial = pd.DataFrame()
             spatial[["fid", "ds_id"]] = data[["fid", "ds_id"]]
             utilities.toPostgreSQL(
-                spatial,
-                DB_URL,
-                schema="spatial",
+                spatial, DB_URL, schema="spatial",
             )
