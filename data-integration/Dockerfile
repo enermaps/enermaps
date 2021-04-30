@@ -7,7 +7,6 @@ RUN apt-get update &&\
     apt-get --yes install python3 python3-pip \
     postgresql-client \
     gdal-bin \
-    proj-bin \
     libgdal-dev &&\
     rm -rf /var/cache/apt/archives/
 
