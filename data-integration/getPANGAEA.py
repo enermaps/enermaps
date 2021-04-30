@@ -44,11 +44,11 @@ def prepare(new_dp):
     if not os.path.exists("tmp"):
         os.mkdir("tmp")
     for resource_idx,resource in enumerate(dp["resources"]):
-        file = "https://doi.pangaea.de/10.1594/PANGAEA.898014?format=textfile"
-        r = requests.get(file,stream=True)
+        file_list = resource["path"]
+        r = requests.get(file_list,stream=True)
         lines = [line for line in r.iter_lines()]
         skiprows = [ind for ind, i in enumerate(lines) if i.startswith(b'*/')][0]
-        files = pd.read_csv(file,skiprows=skiprows+1,delimiter="\t")
+        files = pd.read_csv(file_list,skiprows=skiprows+1,delimiter="\t")
         
         files = files.loc[files["File name"].str.contains(SEL),:]
         
