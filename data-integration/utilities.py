@@ -110,7 +110,7 @@ def prepareRaster(
 
             dest_filename += ".tif"
             logging.info(dest_filename)
-            if row["dt"] == 720: # month case
+            if row["dt"] == 720 and row["start_at"] != None: # month case
                 month_count = b # starting at 0
                 month_number = month_count % 12 + 1 # 1-12
                 year = row["start_at"].year
