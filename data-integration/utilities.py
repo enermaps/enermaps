@@ -50,13 +50,15 @@ def prepareRaster(
     """
     dicts = []
     for i, row in df.iterrows():
-        filename = row["value"]
-        if filename.startswith("http"):
-            filename = "/vsicurl/" + filename
-        if filename[-2:] == "nc":
+        filename_orig = row["value"]
+        if filename_orig.startswith("http"):
+            filename = "/vsicurl/" + filename_orig
+        if filename_orig[-2:] == "nc":
             if "variable" in row.index:
                 variable = row["variable"]
-            filename = "NETCDF:{0}:{1}".format(filename, variable)
+            filename = "NETCDF:{0}:{1}".format(filename_orig, variable)
+        else:
+            filename = filename_orig
         src_ds = gdal.Open(filename)
 
         # Override function parameter
@@ -110,15 +112,15 @@ def prepareRaster(
 
             dest_filename += ".tif"
             logging.info(dest_filename)
-            if row["dt"] == 720 and row["start_at"] != None:  # month case
-                month_count = b  # starting at 0
+            if row["dt"] == 720 and row["start_at"] is not None:  # month case
+                month_count = b - 1  # starting at 0
                 month_number = month_count % 12 + 1  # 1-12
-                year = row["start_at"].year
-                if month_number == 12:
-                    month_number = 1
-                    year += 1
+                year = row["start_at"].year + month_count // 12
                 date = pd.to_datetime("{}-{}".format(year, month_number))
-                date_future = pd.to_datetime("2012-{}".format(month_number + 1))
+                if month_number == 12:
+                    month_number = 0
+                    year += 1
+                date_future = pd.to_datetime("{}-{}".format(year, month_number + 1))
                 my_dict["dt"] = (date_future - date).total_seconds() / 3600
                 my_dict["start_at"] = date
             else:
@@ -148,7 +150,7 @@ def prepareRaster(
         ],
     )
     if delete_orig:
-        os.remove(filename)
+        os.remove(filename_orig)
     return data
 
 
@@ -255,7 +257,7 @@ def removeDataset(ds_id, dbURL="postgresql://test:example@localhost:5433/dataset
     engine = sqla.create_engine(dbURL)
     with engine.connect() as con:
         con.execute(
-            "DELETE FROM datasets WHERE ds_id = %(ds_id)s;", {"ds_id": ds_id,},
+            "DELETE FROM datasets WHERE ds_id = %(ds_id)s;", {"ds_id": ds_id},
         )
 
 
@@ -319,25 +321,6 @@ def get_ld_json(url: str) -> dict:
     return json.loads(
         "".join(soup.find("script", {"type": "application/ld+json"}).contents)
     )
-
-
-def extractZip(source, target):
-    """
-    Extract zip.
-    Parameters
-    ----------
-    source : string or path-like object
-    target : string
-    Returns
-    -------
-    List of strings: extracted file path
-    """
-    # Get the file names of extracted files
-    zip_ref = zipfile.ZipFile(source, "r")
-    extracted = zip_ref.namelist()
-    with zipfile.ZipFile(source, "r") as zip_ref:
-        zip_ref.extractall(target)
-    return [os.path.join(target, x) for x in extracted]
 
 
 def getGitHub(user: str, repo: str, request="content"):
@@ -415,7 +398,7 @@ def full_country_to_code(
     db_engine = sqla.create_engine(dbURL)
     try:
         table = pd.read_csv("country_codes.csv", index_col=0)
-    except:
+    except FileNotFoundError:
         table = pd.read_sql(
             "SELECT * from public.spatial WHERE levl_code = 'country'", db_engine
         )
