@@ -11,11 +11,11 @@ import argparse
 import json
 import logging
 import os
+import shutil
 import sys
 
 import frictionless
 import pandas as pd
-
 import utilities
 
 # Constants
@@ -93,7 +93,7 @@ def get(repository: str, dp: frictionless.package.Package, isForced: bool = Fals
             }
             rasters.append(raster)
             # check statistics for each resource
-            if dp != None and "stats" in new_dp["resources"][resource_idx]:
+            if dp is not None and "stats" in new_dp["resources"][resource_idx]:
                 if (
                     dp["resources"][resource_idx]["stats"]
                     != new_dp["resources"][resource_idx]["stats"]
@@ -101,7 +101,7 @@ def get(repository: str, dp: frictionless.package.Package, isForced: bool = Fals
                     isChangedStats = True
     rasters = pd.DataFrame(rasters)
 
-    if dp != None:  # Existing dataset
+    if dp is not None:  # Existing dataset
         # check stats
         isChangedVersion = dp["version"] != new_dp["version"]
         if isChangedStats or isChangedVersion:
@@ -122,7 +122,7 @@ def get(repository: str, dp: frictionless.package.Package, isForced: bool = Fals
     if not os.path.exists(os.path.join("data", str(ds_id))):
         os.mkdir(os.path.join("data", str(ds_id)))
     for i, row in data_enermaps.iterrows():
-        os.rename(row.fid, os.path.join("data", str(ds_id), row.fid))
+        shutil.move(row.fid, os.path.join("data", str(ds_id), row.fid))
 
     return data_enermaps, new_dp
 

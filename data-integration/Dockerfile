@@ -7,6 +7,7 @@ RUN apt-get update &&\
     apt-get --yes install python3 python3-pip \
     postgresql-client \
     gdal-bin \
+    proj-bin \
     libgdal-dev &&\
     rm -rf /var/cache/apt/archives/
 
@@ -14,8 +15,8 @@ RUN apt-get update &&\
 ENV CPLUS_INCLUDE_PATH=/usr/include/gdal
 ENV C_INCLUDE_PATH=/usr/include/gdal
 
-COPY requirements.txt di/requirements.txt
-WORKDIR di
+COPY requirements.txt /data-integration/requirements.txt
+WORKDIR data-integration
 RUN pip3 install -r requirements.txt
 
 # PROVISIONAL: Installed a forked version of pandas-datapackage-reader
@@ -23,7 +24,8 @@ RUN apt-get --yes install git
 RUN git clone https://github.com/enermaps/pandas-datapackage-reader.git
 RUN cd pandas-datapackage-reader && pip3 install -e .
 
-COPY . .
+COPY *.py /data-integration/
+COPY *.csv /data-integration/
 
 # Provisional command to keep the container alive
 CMD ["sleep", "infinity"]
