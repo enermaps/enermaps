@@ -24,8 +24,13 @@ RUN git clone https://github.com/enermaps/pandas-datapackage-reader.git && \
     cd pandas-datapackage-reader && \
     pip3 install -e .
 
+<<<<<<< HEAD
 COPY *.py /data-integration/
 COPY *.csv /data-integration/
+=======
+COPY admin_units.py /
+COPY *.csv /
+>>>>>>> d69d29b... wip
 
 #add the pipeline command in the path
 ENV PATH="${PWD}:${PATH}"
