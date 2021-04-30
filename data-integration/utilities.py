@@ -54,9 +54,10 @@ def prepareRaster(
         if filename.startswith("http"):
             filename = "/vsicurl/" + filename
         if filename[-2:] == "nc":
-            src_ds = gdal.Open("NETCDF:{0}:{1}".format(filename, variable))
-        else:
-            src_ds = gdal.Open(filename)
+            if "variable" in row.index:
+                variable = row["variable"]
+            filename = "NETCDF:{0}:{1}".format(filename, variable)
+        src_ds = gdal.Open(filename)
 
         # Override function parameter
         if "variable" in row.index:
@@ -109,11 +110,23 @@ def prepareRaster(
 
             dest_filename += ".tif"
             logging.info(dest_filename)
-            my_dict["start_at"] = row["start_at"] + pd.Timedelta(hours=row["dt"]) * (
-                b - 1
-            )
+            if row["dt"] == 720: # month case
+                month_count = b # starting at 0
+                month_number = month_count % 12 + 1 # 1-12
+                year = row["start_at"].year
+                if month_number == 12:
+                    month_number = 1
+                    year += 1
+                date = pd.to_datetime("{}-{}".format(year,month_number))
+                date_future = pd.to_datetime("2012-{}".format(month_number+1))
+                my_dict["dt"] = (date_future-date).total_seconds()/3600
+                my_dict["start_at"] = date
+            else:
+                my_dict["start_at"] = row["start_at"] + pd.Timedelta(hours=row["dt"]) * (
+                    b - 1
+                )
+                my_dict["dt"] = row["dt"]
             my_dict["z"] = row["z"]
-            my_dict["dt"] = row["dt"]
             my_dict["unit"] = row["unit"]
             my_dict["variable"] = variable
             my_dict["fid"] = dest_filename

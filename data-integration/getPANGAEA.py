@@ -12,16 +12,17 @@ import json
 import logging
 import os
 import sys
-
+from pyproj import CRS
 import frictionless
 import pandas as pd
-
 import utilities
 
 # Constants
 logging.basicConfig(level=logging.INFO)
 Z = None
-DT = 8760
+DT = 720
+SEL = "MON"
+EPSG = 4326
 
 # In Docker
 DB_HOST = os.environ.get("DB_HOST")
@@ -40,49 +41,52 @@ DB_URL = "postgresql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_DB}".form
 
 
 def prepare(new_dp):
-    for resource in new_dp["resources"]:
+    if not os.path.exists("tmp"):
+        os.mkdir("tmp")
+    for resource_idx,resource in enumerate(dp["resources"]):
         file = "https://doi.pangaea.de/10.1594/PANGAEA.898014?format=textfile"
         r = requests.get(file,stream=True)
         lines = [line for line in r.iter_lines()]
         skiprows = [ind for ind, i in enumerate(lines) if i.startswith(b'*/')][0]
         files = pd.read_csv(file,skiprows=skiprows+1,delimiter="\t")
+        
+        files = files.loc[files["File name"].str.contains(SEL),:]
+        
+        # Prepare df containing paths to rasters
+        rasters = []
         for r, row in files.iterrows():
-            utilities.download_url(row["URL file"],row["File name"])
-            
-        for resource_idx in range(files.shape[0]):
-            if "temporal" in new_dp["resources"][resource_idx]:
-                start_at = pd.to_datetime(
-                    new_dp["resources"][resource_idx]["temporal"]["start"]
-                )
-            else:
-                start_at = None
-    
-            if "unit" in new_dp["resources"][resource_idx]:
-                unit = new_dp["resources"][resource_idx]["unit"]
-            else:
-                unit = None
-    
-            if new_dp["resources"][resource_idx]["format"] == "tif":
-                # logging.info(new_dp["resources"][resource_idx]["path"])
-                # utilities.download_url(
-                #     repository + new_dp["resources"][resource_idx]["path"],
-                #     os.path.basename(new_dp["resources"][resource_idx]["path"]),
-                # )
+            if not os.path.exists(os.path.join("tmp",row["File name"])):
+                utilities.download_url(row["URL file"],os.path.join("tmp",row["File name"]))
             raster = {
-                "value": os.path.basename(new_dp["resources"][resource_idx]["path"]),
-                "start_at": start_at,
-                "z": Z,
-                "unit": unit,
+                "value": os.path.join("tmp",row["File name"]),
+                "start_at": pd.to_datetime(row["File name"].split("_")[6]),
+                "z": None,
+                "unit": None,
                 "dt": DT,
+                "crs": CRS.from_epsg(EPSG),
+                "variable": row["File name"].split("_")[0]
             }
-                rasters.append(raster)
-                # check statistics for each resource
-                if dp != None and "stats" in new_dp["resources"][resource_idx]:
+            rasters.append(raster)
+            if dp != None and "stats" in new_dp["resources"][resource_idx]:
                     if (
                         dp["resources"][resource_idx]["stats"]
                         != new_dp["resources"][resource_idx]["stats"]
                     ):
                         isChangedStats = True
+        rasters = pd.DataFrame(rasters)
+    isChangedVersion = dp["version"] != new_dp["version"]
+    if isChangedStats or isChangedVersion:
+        logging.info("Data has changed")
+        data_enermaps = utilities.prepareRaster(rasters, delete_orig=True)
+    elif isForced:
+        logging.info("Forced update")
+        data_enermaps = utilities.prepareRaster(rasters, delete_orig=True)
+    else:
+        logging.info("Data has not changed. Use --force if you want to reupload.")
+        return None, None
+    else:  # New dataset
+        data_enermaps = utilities.prepareRaster(rasters, delete_orig=True)
+
         
 
 def get(url: str, dp: frictionless.package.Package, force: bool = False):
