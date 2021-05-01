@@ -54,6 +54,7 @@ def prepareRaster(
         if filename_orig.startswith("http"):
             filename = "/vsicurl/" + filename_orig
         if filename_orig[-2:] == "nc":
+            isNC = True
             if "variable" in row.index:
                 variable = row["variable"]
             filename = "NETCDF:{0}:{1}".format(filename_orig, variable)
@@ -133,6 +134,8 @@ def prepareRaster(
             my_dict["variable"] = variable
             my_dict["fid"] = dest_filename
             my_dict["israster"] = True
+            if isNC:
+                my_dict["fields"] = json.dumps(nc_metadata(filename_orig, variable))
             dicts.append(my_dict)
     data = pd.DataFrame(
         dicts,
@@ -406,3 +409,23 @@ def full_country_to_code(
         table.to_csv("country_codes.csv")
     transl = table.set_index("name_engl").T.to_dict(orient="records")[0]
     return countries.replace(transl)
+
+
+def nc_metadata(file: str, variable: str) -> dict:
+    """
+    Extract NetCDF metadata using gdalinfo
+    """
+    gdalinfo = os.popen("gdalinfo NETCDF:{}:{}".format(file, variable)).read()
+    nc_metadata = [
+        x.split("#")[1].split("=") for x in gdalinfo.split("\n") if "NC_GLOBAL" in x
+    ]
+    var_metadata = [
+        x.split("#")[1].split("=")
+        for x in gdalinfo.split("\n")
+        if x.startswith("  {}".format(variable))
+    ]
+    dict_metadata = dict()
+    all_metadata = nc_metadata + var_metadata
+    for x in all_metadata:
+        dict_metadata[x[0]] = x[1]
+    return dict_metadata

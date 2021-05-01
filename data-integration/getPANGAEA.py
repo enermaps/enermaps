@@ -25,6 +25,7 @@ Z = None
 DT = 720
 SEL = "MON"
 EPSG = 4326
+LIMIT = 5  # TO BE REMOVED
 
 # In Docker
 DB_HOST = os.environ.get("DB_HOST")
@@ -93,7 +94,7 @@ def prepare(dp: frictionless.package.Package):
         skiprows = [ind for ind, i in enumerate(lines) if i.startswith(b"*/")][0]
         files = pd.read_csv(file_list, skiprows=skiprows + 1, delimiter="\t")
 
-        files = files.loc[files["File name"].str.contains(SEL), :]
+        files = files.loc[files["File name"].str.contains(SEL), :].iloc[:LIMIT]
 
         # Prepare df containing paths to rasters
         rasters = []
@@ -185,6 +186,28 @@ def get(url: str, dp: frictionless.package.Package, force: bool = False):
     return enermaps_data, new_dp
 
 
+def postProcess(data: pd.DataFrame):
+    """
+    Coplete additional columns of the dataframe.
+
+    Parameters
+    ----------
+    data : pd.DataFrame
+        DataFrame in EnerMaps format.
+
+    Returns
+    -------
+    data : pd.DataFrame
+        DataFrame in EnerMaps format with completed fields.
+
+    """
+    for i, row in data.iterrows():
+        fields = json.loads(row["fields"])
+        data.loc[i, "variable"] = fields["definition"]
+        data.loc[i, "unit"] = fields["units"]
+    return data
+
+
 if __name__ == "__main__":
     datasets = pd.read_csv("datasets.csv", engine="python", index_col=[0])
     ds_ids = datasets[datasets["di_script"] == os.path.basename(sys.argv[0])].index
@@ -215,6 +238,8 @@ if __name__ == "__main__":
         )
 
         data, dp = get(datasets.loc[ds_id, "di_URL"], dp, isForced)
+
+        data = postProcess(data)
 
         if isinstance(data, pd.DataFrame):
             if utilities.datasetExists(ds_id, DB_URL,):
