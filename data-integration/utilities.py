@@ -79,64 +79,68 @@ def prepareRaster(
         dest_wkt = osr.SpatialReference()
         dest_wkt.ImportFromEPSG(crs.to_epsg())
         dest_wkt = dest_wkt.ExportToPrettyWkt()
+        if src_ds is not None:
+            for b in range(src_ds.RasterCount):
+                my_dict = {}
+                b += 1
+                dest_filename = Path(filename).stem
+                dest_filename += "_band" + str(b)
 
-        for b in range(src_ds.RasterCount):
-            my_dict = {}
-            b += 1
-            dest_filename = Path(filename).stem
-            dest_filename += "_band" + str(b)
-
-            # Translating to make sure that the raster settings are consistent for each band
-            logging.info("Translating band {}".format(b))
-            os.system(
-                "gdal_translate {filename} {dest_filename}.tif -b {b} -of GTIFF --config GDAL_PAM_ENABLED NO -co COMPRESS=DEFLATE -co BIGTIFF=YES".format(
-                    filename=filename, dest_filename=dest_filename, b=b
-                )
-            )
-
-            # Reprojecting if needed
-            if source_crs.to_epsg() != crs.to_epsg():
-                logging.info(
-                    "Warping from {} to {}".format(source_crs.to_epsg(), crs.to_epsg())
-                )
-                intermediate_filename = dest_filename + ".tif"  # from previous step
-                dest_filename += "_{}".format(crs.to_epsg())
+                # Translating to make sure that the raster settings are consistent for each band
+                logging.info("Translating band {}".format(b))
                 os.system(
-                    "gdalwarp {intermediate_filename} {dest_filename}.tif -of GTIFF -s_srs {sourceSRS} -t_srs {outputSRS} --config GDAL_PAM_ENABLED NO -co COMPRESS=DEFLATE -co BIGTIFF=YES".format(
-                        intermediate_filename=intermediate_filename,
-                        dest_filename=dest_filename,
-                        outputSRS=crs.to_string(),
-                        sourceSRS=source_crs.to_string(),
+                    "gdal_translate {filename} {dest_filename}.tif -b {b} -of GTIFF --config GDAL_PAM_ENABLED NO -co COMPRESS=DEFLATE -co BIGTIFF=YES".format(
+                        filename=filename, dest_filename=dest_filename, b=b
                     )
                 )
-                os.remove(intermediate_filename)
 
-            dest_filename += ".tif"
-            logging.info(dest_filename)
-            if row["dt"] == 720 and row["start_at"] is not None:  # month case
-                month_count = b - 1  # starting at 0
-                month_number = month_count % 12 + 1  # 1-12
-                year = row["start_at"].year + month_count // 12
-                date = pd.to_datetime("{}-{}".format(year, month_number))
-                if month_number == 12:
-                    month_number = 0
-                    year += 1
-                date_future = pd.to_datetime("{}-{}".format(year, month_number + 1))
-                my_dict["dt"] = (date_future - date).total_seconds() / 3600
-                my_dict["start_at"] = date
-            else:
-                my_dict["start_at"] = row["start_at"] + pd.Timedelta(
-                    hours=row["dt"]
-                ) * (b - 1)
-                my_dict["dt"] = row["dt"]
-            my_dict["z"] = row["z"]
-            my_dict["unit"] = row["unit"]
-            my_dict["variable"] = variable
-            my_dict["fid"] = dest_filename
-            my_dict["israster"] = True
-            if isNC:
-                my_dict["fields"] = json.dumps(nc_metadata(filename_orig, variable))
-            dicts.append(my_dict)
+                # Reprojecting if needed
+                if source_crs.to_epsg() != crs.to_epsg():
+                    logging.info(
+                        "Warping from {} to {}".format(
+                            source_crs.to_epsg(), crs.to_epsg()
+                        )
+                    )
+                    intermediate_filename = dest_filename + ".tif"  # from previous step
+                    dest_filename += "_{}".format(crs.to_epsg())
+                    os.system(
+                        "gdalwarp {intermediate_filename} {dest_filename}.tif -of GTIFF -s_srs {sourceSRS} -t_srs {outputSRS} --config GDAL_PAM_ENABLED NO -co COMPRESS=DEFLATE -co BIGTIFF=YES".format(
+                            intermediate_filename=intermediate_filename,
+                            dest_filename=dest_filename,
+                            outputSRS=crs.to_string(),
+                            sourceSRS=source_crs.to_string(),
+                        )
+                    )
+                    os.remove(intermediate_filename)
+
+                dest_filename += ".tif"
+                logging.info(dest_filename)
+                if row["dt"] == 720 and row["start_at"] is not None:  # month case
+                    month_count = b - 1  # starting at 0
+                    month_number = month_count % 12 + 1  # 1-12
+                    year = row["start_at"].year + month_count // 12
+                    date = pd.to_datetime("{}-{}".format(year, month_number))
+                    if month_number == 12:
+                        month_number = 0
+                        year += 1
+                    date_future = pd.to_datetime("{}-{}".format(year, month_number + 1))
+                    my_dict["dt"] = (date_future - date).total_seconds() / 3600
+                    my_dict["start_at"] = date
+                else:
+                    my_dict["start_at"] = row["start_at"] + pd.Timedelta(
+                        hours=row["dt"]
+                    ) * (b - 1)
+                    my_dict["dt"] = row["dt"]
+                my_dict["z"] = row["z"]
+                my_dict["unit"] = row["unit"]
+                my_dict["variable"] = variable
+                my_dict["fid"] = dest_filename
+                my_dict["israster"] = True
+                if isNC:
+                    my_dict["fields"] = json.dumps(nc_metadata(filename_orig, variable))
+                dicts.append(my_dict)
+        else:
+            logging.error("Cannot open file.")
     data = pd.DataFrame(
         dicts,
         columns=[
