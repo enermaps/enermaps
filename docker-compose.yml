@@ -64,7 +64,7 @@ services:
     build:
       context: ./data-integration
     volumes:
-      - data:/data
+      - data:/data-integration/data
     env_file:
       .env
 
