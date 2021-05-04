@@ -1,0 +1,8 @@
+geojson==2.5.0
+numpy==1.20.1
+scipy==1.6.2
+rasterio==1.1.8
+varname==0.6.3
+requests==2.25.1
+shapely==1.7.1
+pyproj==3.0.0.post1

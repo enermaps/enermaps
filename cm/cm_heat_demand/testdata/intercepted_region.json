@@ -1,0 +1,8 @@
+{
+"type": "FeatureCollection",
+"name": "intercepted_region",
+"crs": { "type": "name", "properties": { "name": "urn:ogc:def:crs:OGC:1.3:CRS84" } },
+"features": [
+{ "type": "Feature", "properties": { "id": 1 }, "geometry": { "type": "MultiPolygon", "coordinates": [ [ [ [ 7.435751998150002, 46.92058692860504 ], [ 7.435823828266732, 46.924561528397433 ], [ 7.4413308038827, 46.925016452470054 ], [ 7.441163200276996, 46.912972936231654 ], [ 7.435823828266732, 46.913260256698578 ], [ 7.435751998150002, 46.92058692860504 ] ] ] ] } }
+]
+}

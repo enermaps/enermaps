@@ -1,0 +1,13 @@
+{
+  "type": "object",
+  "properties": {
+    "pixel_threshold": {
+      "type": "number",
+      "default": 33
+    },
+    "district_heating_zone_threshold": {
+      "type": "number",
+      "default": 330
+    }
+  }
+}

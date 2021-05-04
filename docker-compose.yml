@@ -1,5 +1,16 @@
 version: "3.8"
 services:
+  cm-heat-demand:
+    build:
+      context: ./cm
+      dockerfile: cm_heat_demand/Dockerfile
+    environment:
+      UPLOAD_DIR: /upload-dir
+    volumes:
+      - upload-data:/upload-dir
+    env_file:
+      .env
+
   cm-multiply:
     build:
       context: ./cm
