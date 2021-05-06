@@ -14,10 +14,10 @@ GRANT SELECT ON public.datasets TO api_user;
 -- Sample query
 DROP FUNCTION IF EXISTS enermaps_query(dataset_id integer);
 CREATE FUNCTION enermaps_query(dataset_id integer)
-    RETURNS TABLE(fid char, json_object_agg json, fields jsonb, start_at timestamp without time zone, dt float, z float, ds_id int, geometry text)
+    RETURNS TABLE(fid char, variables json, fields json, start_at timestamp without time zone, dt float, z float, ds_id int, geometry text)
     AS 'SELECT data.fid,
-            json_object_agg(variable, value),
-            fields,
+            json_object_agg(variable, value) as variables,
+            to_json(fields),
             start_at, dt, z, data.ds_id, st_astext(geometry)
            FROM data
     INNER JOIN spatial ON data.fid = spatial.fid
@@ -27,7 +27,38 @@ CREATE FUNCTION enermaps_query(dataset_id integer)
     LANGUAGE SQL
     IMMUTABLE
     RETURNS NULL ON NULL INPUT;
-GRANT EXECUTE ON FUNCTION enermaps_query(ds_id integer) to api_user;
+GRANT EXECUTE ON FUNCTION enermaps_query(dataset_id integer) to api_user;
+
+-- Sample query returning geojson
+DROP FUNCTION IF EXISTS enermaps_geojson(dataset_id integer);
+CREATE FUNCTION enermaps_geojson(dataset_id integer)
+    RETURNS JSONB
+    AS $$
+    SELECT jsonb_build_object(
+    'type',     'FeatureCollection',
+    'features', jsonb_agg(features.feature)
+)
+FROM (
+  SELECT jsonb_build_object(
+    'type',       'Feature',
+    'id',         fid,
+    'geometry',   ST_AsGeoJSON(ST_TRANSFORM(geometry, 4326))::jsonb,
+    'properties', to_jsonb(inputs) - 'fid' - 'geometry'
+  ) AS feature
+  FROM (SELECT data.fid,
+        jsonb_object_agg(variable, value) as variables,
+        fields,
+        start_at, dt, z, data.ds_id, geometry
+        FROM data
+        INNER JOIN spatial ON data.fid = spatial.fid
+        WHERE data.ds_id = dataset_id
+        GROUP BY data.fid, start_at, dt, z, data.ds_id, fields, geometry
+        ORDER BY data.fid) inputs) features;
+        $$
+    LANGUAGE SQL
+    IMMUTABLE
+    RETURNS NULL ON NULL INPUT;
+GRANT EXECUTE ON FUNCTION enermaps_query(dataset_id integer) to api_user;
 
 
 -- Code to support OPENAIRE gateway

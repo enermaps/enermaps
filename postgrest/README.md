@@ -57,6 +57,7 @@ print(response)
 This is based on the PostgreSQL function `enermaps_query()`.
 
 After adding/updating functions, you need to rebuild Postgrest cache using the following command:
+
 ```docker-compose kill -s SIGUSR1 postgrest```
 
 ## Gateway API - WIP
