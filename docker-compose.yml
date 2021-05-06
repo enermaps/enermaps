@@ -54,8 +54,7 @@ services:
     ports:
       - "0.0.0.0:80:80"
     volumes:
-      - web:/web
-      - data:/web/raster
+      - data:/usr/share/nginx/html/raster
 
   postgrest:
     build:
@@ -89,4 +88,3 @@ services:
 volumes:
   upload-data:
   data:
-  web:
