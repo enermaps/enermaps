@@ -16,9 +16,8 @@ import sys
 import frictionless
 import numpy as np
 import pandas as pd
-from pandas_datapackage_reader import read_datapackage
-
 import utilities
+from pandas_datapackage_reader import read_datapackage
 
 # Constants
 logging.basicConfig(level=logging.INFO)
@@ -91,7 +90,7 @@ def isValid(dp: frictionless.package.Package, new_dp: frictionless.package.Packa
     Parameters
     ----------
     dp : frictionless.package.Package
-        Original datapackage 
+        Original datapackage
     new_dp : frictionless.package.Package
         Datapackage describing the new loaded data
 
@@ -121,7 +120,7 @@ def prepare(dp: frictionless.package.Package, name: str):
     Parameters
     ----------
     dp : frictionless.package.Package
-        Valid datapackage 
+        Valid datapackage
     name : str
         Name of the dataset (used for constructing the FID)
 
@@ -133,7 +132,7 @@ def prepare(dp: frictionless.package.Package, name: str):
     data = read_datapackage(dp)
 
     # Encoding FID as country code
-    data["fid"] = utilities.full_country_to_code(data[SPATIAL_VARS],DB_URL)
+    data["fid"] = utilities.full_country_to_code(data[SPATIAL_VARS], DB_URL)
 
     # Other fields to json
     def np_encoder(object):
@@ -177,7 +176,7 @@ def prepare(dp: frictionless.package.Package, name: str):
             "unit",
         ]
     )
-
+    enermaps_data["fid"] = data["fid"]
     enermaps_data["value"] = data["value"]
     enermaps_data["variable"] = data["variable"]
     enermaps_data["fields"] = data["fields"]
@@ -230,7 +229,7 @@ def get(repository: str, dp: frictionless.package.Package, force: bool = False):
     new_dp["datePublished"] = datePublished
 
     # Logic for update
-    if dp != None:  # Existing dataset
+    if dp is not None:  # Existing dataset
         # check stats
         isChangedStats = dp["resources"][0]["stats"] != new_dp["resources"][0]["stats"]
         isChangedDate = dp["datePublished"] != new_dp["datePublished"]
