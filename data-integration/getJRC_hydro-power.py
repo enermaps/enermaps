@@ -108,6 +108,7 @@ def prepare(dp: frictionless.package.Package, name: str):
         ignore_index=False,
     )
     # Other fields to json
+    enermaps_data = enermaps_data.replace({np.nan: None})
 
     def np_encoder(object):
         """
