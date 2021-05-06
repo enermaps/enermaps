@@ -59,6 +59,7 @@ class BaseApiTest(unittest.TestCase):
         return response
 
     def import_nuts(self):
+        """Upload NUTS(0|1|2|3)"""
         for nuts_level in range(4):
             filename = "nuts{!s}.zip".format(nuts_level)
             self.import_testdata(filename)
@@ -120,7 +121,12 @@ class LabelTestRunner(unittest.runner.TextTestRunner):
                 yield test
 
     def run(self, testlist):
-        # Change given testlist into a TestSuite
+        """Change given testlist into a TestSuite.
+        And then run all the tests of the TestSuite
+        without (or with the right) label.
+        """
+
+        # Create TestSuite instance
         suite = unittest.TestSuite()
 
         # Add each test in testlist, apply skip mechanism if necessary

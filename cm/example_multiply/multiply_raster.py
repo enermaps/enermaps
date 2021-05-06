@@ -99,5 +99,5 @@ def rasterstats(geojson, raster_path, factor, stat_types: Optional[List[Text]] =
     ret["values"] = stat
 
     logging.info("We took {!s} to calculate stats".format(stat_done - start))
-    validate(ret)
-    return ret
+    res = validate(ret)
+    return res

@@ -102,7 +102,7 @@ def list_cms() -> Dict[Text, CalculationModule]:
 
 
 class UnexistantCalculationModule(Exception):
-    """Exception thrown for a non existant calculation module"""
+    """Exception thrown for a non-existing calculation module"""
 
     pass
 
@@ -111,7 +111,7 @@ def cm_by_name(cm_name):
     """Return a single cm by name.
 
     Raise an UnexistantCalculationModuleException if it cannot be found.
-    found."""
+    """
     cms = list_cms()
     try:
         calculation_module = cms[cm_name]
@@ -123,7 +123,8 @@ def cm_by_name(cm_name):
 
 
 class InvalidRegistrationString(Exception):
-    """Exception raised by from_registration_string upon encountering an invalid registration string"""
+    """Exception raised by from_registration_string upon encountering
+    an invalid registration string"""
 
     pass
 

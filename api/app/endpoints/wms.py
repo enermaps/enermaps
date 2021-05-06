@@ -1,3 +1,15 @@
+"""
+The Web Map Service (WMS) provides a simple HTTP interface for requesting
+geo-registered map images from one or more distributed geospatial databases.
+(source : https://www.ogc.org/standards/wms#schemas)
+
+The three operations defined for a WMS are :
+* GetCapabilities (to obtain service metadata) [MANDATORY],
+* GetMap (to obtain the map) [MANDATORY],
+* and GetFeatureInfo [OPTIONAL].
+
+For more information about the WMS, see https://portal.ogc.org/files/?artifact_id=14416.
+"""
 import json
 import os
 from collections import namedtuple
@@ -18,6 +30,7 @@ current_file_dir = os.path.dirname(os.path.abspath(__file__))
 
 
 def parse_envelope(params):
+    """Parse the map and return the bounding box."""
     raw_extremas = params["bbox"].split(",")
     if len(raw_extremas) != 4:
         raise abort(400, "bounding box need four extremas")
@@ -36,6 +49,7 @@ def parse_envelope(params):
 
 
 def parse_layers(params):
+    """Parse the map and return the list of layers."""
     try:
         raw_layers = params["layers"]
     except KeyError:
@@ -45,6 +59,7 @@ def parse_layers(params):
 
 
 def parse_projection(params):
+    """Parse the map and return the projection."""
     srs = params.get("srs", params.get("crs"))
     if not srs:
         abort(400, "Parameter srs was not found")
@@ -55,6 +70,9 @@ Size = namedtuple("Size", ("width", "height"))
 
 
 def parse_size(params) -> Size:
+    """Parse the map, check if it doesn't exceed the maximal size allowed,
+    and then return the size of the map.
+    """
     try:
         height = int(params["height"])
         width = int(params["width"])
@@ -65,14 +83,15 @@ def parse_size(params) -> Size:
             "correctly from the list of parameters ",
         )
     if (height * width) > current_app.config["WMS"]["MAX_SIZE"]:
-        abort(400, "Total size is bigger than the maximaml allowed size")
+        abort(400, "Total size is bigger than the maximal allowed size")
     return Size(width=width, height=height)
 
 
 Position = namedtuple("Position", ("x", "y"))
 
 
-def parse_position(params) -> Size:
+def parse_position(params) -> Position:
+    """Parse the map and return position parameter (x and y)."""
     try:
         x = float(params["x"])
         y = float(params["y"])
@@ -86,8 +105,9 @@ def parse_position(params) -> Size:
 
 
 def parse_format(params):
-    """Parse the map return format, check that it is in the allowed list of
-    format"""
+    """Parse the map and return format.
+    Check that it is in the allowed list of format.
+    """
     try:
         mime_format = params["format"]
     except KeyError:
@@ -215,6 +235,7 @@ class WMS(Resource):
         return Response(etree.tostring(root, pretty_print=True), mimetype="text/xml")
 
     def _get_map(self, normalized_args):
+        """Return the Mapnik object (with hardcoded symbology/rule)."""
         # miss:
         # bgcolor
         # exceptions
@@ -262,6 +283,7 @@ class WMS(Resource):
         return mp
 
     def get_map(self, normalized_args):
+        """Return the map."""
         mapnik_format, mime_format = parse_format(normalized_args)
         size = parse_size(normalized_args)
         mp = self._get_map(normalized_args)

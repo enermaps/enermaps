@@ -15,6 +15,7 @@ GETCAPABILITIES_ARGS = {"service": "WMS", "request": "GetCapabilities"}
 
 class BaseWMSTest(BaseApiTest):
     def testFailWhenNoRequestSpecified(self):
+        """Try to achieve the WMS without request."""
         response = self.client.get("api/wms", query_string={"service": "WMS"})
         self.assertEqual(response.status, "400 BAD REQUEST", response.data)
 
@@ -24,6 +25,7 @@ class WMSGetCapabilitiesTest(BaseApiTest):
 
     @classmethod
     def setUpClass(cl):
+        """Create the xml schema validator."""
         schema_path = filepath.get_testdata_path("WMS_MS_Capabilities_1.3.0.xsd")
         # load additonal schemas
         with open(schema_path, "rb") as schema_fd:
@@ -111,14 +113,19 @@ class WMSGetCapabilitiesTest(BaseApiTest):
         self._testLayerList("nuts.zip", is_queryable="1")
 
     def testRasterLayerList(self):
+        """Verify that upon uploading a raster layer, we return a
+        list of layers containing the uploaded raster layer.
+        """
         testfile = "hotmaps-cdd_curr_adapted.tif"
         self._testLayerList(testfile, is_queryable="0")
 
     def _validate_xml_string(self, xml_string):
+        """Validate a xml schema saved as string based on the xml validator."""
         root = etree.fromstring(xml_string)
         self._validate_xml(root)
 
     def _validate_xml(self, xml_root):
+        """Validate a xml schema based on the xml validator."""
         valid = self.schema.validate(xml_root)
         self.assertTrue(valid, self.schema.error_log.filter_from_errors())
 
@@ -146,6 +153,9 @@ class WMSGetMapTest(BaseApiTest):
     GETMAP_ARGS = {"service": "WMS", "request": "GetMap"}
 
     def testVectorTileWorkflow(self):
+        """Post a vector file, retrieve it as image from WMS endpoint,
+        check if the image has the right size  without being empty.
+        """
         testfile = "nuts.zip"
         test_data, testfile_content = self.get_testformdata(testfile)
         response = self.client.post(
@@ -190,6 +200,8 @@ class WMSGetMapTest(BaseApiTest):
 
 
 class WMSGetFeatureInfoTest(BaseApiTest):
+    """Test the wms GetMap endpoint"""
+
     INFO_PARAMETERS = {
         "REQUEST": "GetFeatureInfo",
         "SERVICE": "WMS",
@@ -211,6 +223,7 @@ class WMSGetFeatureInfoTest(BaseApiTest):
     }
 
     def testGetInfoGermany(self):
+        """Post a vector and retrieve it by the WMS endpoint as geojson file."""
         testfile = "nuts.zip"
         test_data, testfile_content = self.get_testformdata(testfile)
         response = self.client.post(

@@ -22,6 +22,8 @@ from app.common.projection import epsg_to_wkt, proj4_from_geotiff, proj4_from_sh
 
 
 class SaveException(Exception):
+    """Exception thrown when saving geofile is not possible."""
+
     pass
 
 
@@ -31,11 +33,13 @@ def get_tmp_upload():
 
 
 def get_user_upload(subdirectory):
-    """Return the location of a subdirectory for uploads. this also uses a
+    """Return the location of a subdirectory for uploads. This also uses a
     subdirectories path component in the main user upload directory.
     This function is safe to path injection (such as .. in filename).
     This function will also care about directory creation if it doesn't exist
-    yet"""
+    yet.
+    Path example : /upload-dir/subdirectory
+    """
     user_dir = safe_join(current_app.config["UPLOAD_DIR"], subdirectory)
     os.makedirs(user_dir, exist_ok=True)
     return user_dir
@@ -43,7 +47,7 @@ def get_user_upload(subdirectory):
 
 def list_layers():
     """Return the list of all layers from all direct subclasses
-    of Layer
+    of Layer class.
     """
     layers = []
     for layer_type in Layer.__subclasses__():
@@ -198,6 +202,15 @@ class RasterLayer(Layer):
 
     @staticmethod
     def save(file_upload: FileStorage):
+        """Save a FileStorage instance and return the RasterLayer instance.
+        To do so,
+        * the layer is saved in a temporary directory as tiff.
+          -> path : /upload-dir/tmp/raster.tiff,
+        * and then replace its in the raster directory.
+          -> path : /upload-dir/raster/(file_upload_filename)/raster.tiff.
+
+        An error is raised if the geofile already exists.
+        """
         with TemporaryDirectory(prefix=get_tmp_upload()) as tmp_dir:
             tmp_filepath = safe_join(tmp_dir, RasterLayer._RASTER_NAME)
             file_upload.save(tmp_filepath)
@@ -211,6 +224,7 @@ class RasterLayer(Layer):
         return RasterLayer(file_upload.filename)
 
     def as_mapnik_layer(self):
+        """Open the geofile as Mapnik layer."""
         # TODO: extract this from raster in advance
         layer = mapnik.Layer(self.name)
         layer_path = self._get_raster_path()
@@ -255,6 +269,7 @@ class VectorLayer(Layer):
         return zipbuffer, self.MIMETYPE[0]
 
     def as_mapnik_layer(self):
+        """Open the geofile as Mapnik layer."""
         layer = mapnik.Layer(self.name)
         shapefiles = glob(os.path.join(self._get_vector_dir(), "*.shp"))
         if not shapefiles:
@@ -269,6 +284,7 @@ class VectorLayer(Layer):
 
     @property
     def projection(self):
+        """Return the projection of the vector layer."""
         vector_dir = self._get_vector_dir()
         return proj4_from_shapefile(vector_dir)
 

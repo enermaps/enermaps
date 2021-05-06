@@ -15,6 +15,7 @@ CELERY_RESULT_BACKEND = os.environ.get("CELERY_RESULT_BACKEND")
 
 
 def get_default_app():
+    """Create default Celery application."""
     app = Celery(__name__, broker=CELERY_BROKER_URL, backend=CELERY_RESULT_BACKEND)
 
     app.conf.update(
