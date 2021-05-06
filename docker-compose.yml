@@ -1,5 +1,16 @@
 version: "3.8"
 services:
+  cm-heatlearn:
+    build:
+      context: ./cm
+      dockerfile: heatlearn/Dockerfile
+    environment:
+      UPLOAD_DIR: /upload-dir
+    volumes:
+      - upload-data:/upload-dir
+    env_file:
+      .env
+
   cm-multiply:
     build:
       context: ./cm
