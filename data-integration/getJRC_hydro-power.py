@@ -1,15 +1,16 @@
-import os
-import argparse
 import json
-import sys
-import utilities
 import logging
-import frictionless
-from pandas_datapackage_reader import read_datapackage
-import geopandas as gpd
-import pandas as pd
+import os
+import sys
 
-#Constants
+import frictionless
+import geopandas as gpd
+import numpy as np
+import pandas as pd
+import utilities
+from pandas_datapackage_reader import read_datapackage
+
+# Constants
 
 # In Docker
 DB_HOST = os.environ.get("DB_HOST")
@@ -28,10 +29,12 @@ DB_URL = "postgresql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_DB}".form
 
 logging.basicConfig(level=logging.INFO)
 
-UNPIVOTING_FIELDS = ['installed_capacity_MW',
-                     'pumping_MW',
-                     'storage_capacity_MWh',
-                     'avg_annual_generation_GWh']
+UNPIVOTING_FIELDS = [
+    "installed_capacity_MW",
+    "pumping_MW",
+    "storage_capacity_MWh",
+    "avg_annual_generation_GWh",
+]
 
 VALUE_VARS = ["lat", "lon"]
 SPATIAL_VARS = ["lat", "lon"]
@@ -46,7 +49,7 @@ def isValid(dp: frictionless.package.Package, new_dp: frictionless.package.Packa
     Parameters
     ----------
     dp : frictionless.package.Package
-        Original datapackage 
+        Original datapackage
     new_dp : frictionless.package.Package
         Datapackage describing the new loaded data
 
@@ -76,7 +79,7 @@ def prepare(dp: frictionless.package.Package, name: str):
     Parameters
     ----------
     dp : frictionless.package.Package
-        Valid datapackage 
+        Valid datapackage
     name : str
         Name of the dataset (used for constructing the FID)
 
@@ -90,28 +93,45 @@ def prepare(dp: frictionless.package.Package, name: str):
     """
     data = read_datapackage(dp)
     data["fid"] = name + "_" + data[ID].astype(str)
-    
-    data.set_index("fid",inplace=True)
+
+    data.set_index("fid", inplace=True)
 
     spatial = gpd.GeoDataFrame(
         data.index,
         geometry=gpd.points_from_xy(data[SPATIAL_VARS[1]], data[SPATIAL_VARS[0]]),
-        crs="EPSG:4326"
+        crs="EPSG:4326",
     )
     spatial = spatial.to_crs("EPSG:3035")
-    enermaps_data = data.melt(id_vars = data.columns[~data.columns.isin(UNPIVOTING_FIELDS)],
-                    value_vars=UNPIVOTING_FIELDS,
-                     ignore_index=False)
-    enermaps_data["fields"] = enermaps_data[data.columns[~data.columns.isin(UNPIVOTING_FIELDS)]].to_dict(orient="records")
-    enermaps_data["fields"] =  enermaps_data["fields"].apply(lambda  x: json.dumps(x))
-    enermaps_data = enermaps_data.drop(data.columns[~data.columns.isin(UNPIVOTING_FIELDS)],axis=1)
-    enermaps_data = pd.merge(enermaps_data,data, on="fid")
-    enermaps_data["fields"] =  enermaps_data["fields"].apply(lambda  x: json.dumps(x))
-    enermaps_data = enermaps_data.drop(data.columns,axis=1,errors="ignore")
+    enermaps_data = data.melt(
+        id_vars=data.columns[~data.columns.isin(UNPIVOTING_FIELDS)],
+        value_vars=UNPIVOTING_FIELDS,
+        ignore_index=False,
+    )
+    # Other fields to json
+
+    def np_encoder(object):
+        """
+        Source: https://stackoverflow.com/a/65151218.
+        """
+        if isinstance(object, np.generic):
+            return object.item()
+
+    enermaps_data["fields"] = enermaps_data[
+        data.columns[~data.columns.isin(UNPIVOTING_FIELDS)]
+    ].to_dict(orient="records")
+    enermaps_data["fields"] = enermaps_data["fields"].apply(
+        lambda x: json.dumps(x, default=np_encoder)
+    )
+    enermaps_data = enermaps_data.drop(
+        data.columns[~data.columns.isin(UNPIVOTING_FIELDS)], axis=1
+    )
+    enermaps_data = pd.merge(enermaps_data, data, on="fid")
+    enermaps_data = enermaps_data.drop(data.columns, axis=1, errors="ignore")
     enermaps_data["unit"] = enermaps_data.variable.apply(lambda x: x.split("_")[-1])
     enermaps_data.reset_index(inplace=True)
 
     return enermaps_data, spatial
+
 
 def get(url: str, dp: frictionless.package.Package, force: bool = False):
     """
@@ -144,13 +164,10 @@ def get(url: str, dp: frictionless.package.Package, force: bool = False):
     # Inferring and completing metadata
     logging.info("Creating datapackage for input data")
     # Add date
-    try:
-        new_dp["datePublished"] = datePublished
-    except:
-        utilities.getGitHub(user,repo,"date")
+    utilities.getGitHub(user, repo, "date")
 
     # Logic for update
-    if dp != None:  # Existing dataset
+    if dp is not None:  # Existing dataset
         # check stats
         isChangedStats = dp["resources"][0]["stats"] != new_dp["resources"][0]["stats"]
         isChangedDate = dp["datePublished"] != new_dp["datePublished"]
@@ -174,6 +191,7 @@ def get(url: str, dp: frictionless.package.Package, force: bool = False):
             enermaps_data, spatial = prepare(new_dp, name)
 
     return enermaps_data, spatial, new_dp
+
 
 if __name__ == "__main__":
     argv = sys.argv
@@ -220,6 +238,3 @@ if __name__ == "__main__":
         utilities.toPostGIS(
             spatial, DB_URL, schema="spatial",
         )
-
-    
-    

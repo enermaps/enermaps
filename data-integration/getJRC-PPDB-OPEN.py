@@ -17,11 +17,9 @@ import frictionless
 import geopandas as gpd
 import numpy as np
 import pandas as pd
-from pandas_datapackage_reader import read_datapackage
-
 import utilities
-
-from getJRC_GEOPP_DB_csv import isValid, prepare
+from getJRC_GEOPP_DB_csv import isValid
+from pandas_datapackage_reader import read_datapackage
 
 # Constants
 logging.basicConfig(level=logging.INFO)
@@ -83,10 +81,13 @@ def get(url: str, dp: frictionless.package.Package, force: bool = False):
     logging.info("Creating datapackage for input data")
 
     # Logic for update
-    if dp != None:  # Existing dataset
+    if dp is not None:  # Existing dataset
         # check stats
         if "stats" in dp["resources"][RESOURCE_IDX].keys():
-            isChangedStats = dp["resources"][RESOURCE_IDX]["stats"] != new_dp["resources"][RESOURCE_IDX]["stats"]
+            isChangedStats = (
+                dp["resources"][RESOURCE_IDX]["stats"]
+                != new_dp["resources"][RESOURCE_IDX]["stats"]
+            )
         else:
             isChangedStats = False
         isChangedVersion = dp["version"] != new_dp["version"]
@@ -119,7 +120,7 @@ def prepare(dp: frictionless.package.Package, name: str):
     Parameters
     ----------
     dp : frictionless.package.Package
-        Valid datapackage 
+        Valid datapackage
     name : str
         Name of the dataset (used for constructing the FID)
 
@@ -155,8 +156,8 @@ def prepare(dp: frictionless.package.Package, name: str):
     ]
 
     # Int64 to int
-    data.loc[:,other_cols].loc[:, data[other_cols].dtypes == "int64"] = (
-        data.loc[:,other_cols].loc[:, data[other_cols].dtypes == "int64"].astype(int)
+    data.loc[:, other_cols].loc[:, data[other_cols].dtypes == "int64"] = (
+        data.loc[:, other_cols].loc[:, data[other_cols].dtypes == "int64"].astype(int)
     )
     data = data.replace({np.nan: None})
     data["fields"] = data[other_cols].to_dict(orient="records")
@@ -183,7 +184,7 @@ def prepare(dp: frictionless.package.Package, name: str):
             "unit",
         ]
     )
-
+    enermaps_data["fid"] = data["fid"]
     enermaps_data["value"] = data["value"]
     enermaps_data["variable"] = data["variable"]
     enermaps_data["fields"] = data["fields"]
@@ -191,6 +192,7 @@ def prepare(dp: frictionless.package.Package, name: str):
     enermaps_data["israster"] = ISRASTER
 
     return enermaps_data, spatial
+
 
 if __name__ == "__main__":
     argv = sys.argv
