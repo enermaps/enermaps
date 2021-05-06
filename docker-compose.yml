@@ -48,7 +48,6 @@ services:
     env_file:
       .env
 
-
   nginx:
     build:
       context: ./nginx
@@ -56,6 +55,7 @@ services:
       - "0.0.0.0:80:80"
     volumes:
       - web:/web
+      - data:/web/raster
 
   postgrest:
     build:
