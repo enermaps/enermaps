@@ -46,15 +46,15 @@ print(response)
 ```
 where the `{API_KEY}` is the signed token created with the password. See [here](https://postgrest.org/en/v4.1/tutorials/tut1.html#step-3-sign-a-token) for a tutorial.
 
-Sample query returning all records of a given dataset:
+Sample query returning all records of a given dataset as a GeoJSON:
 ```python
-r = requests.post('http://localhost:3000/rpc/enermaps_query',
+r = requests.post('http://localhost:3000/rpc/enermaps_geojson',
 	headers={'Authorization': 'Bearer {}'.format(API_KEY)},
 	json={"dataset_id": 2})
 response = r.json()
 print(response)
 ```
-This is based on the PostgreSQL function `enermaps_query()`.
+This is based on the PostgreSQL function `enermaps_geojson()`.
 
 After adding/updating functions, you need to rebuild Postgrest cache using the following command:
 
@@ -76,7 +76,7 @@ CREATE TABLE public.datasets_full
     metadata json
 );
 GRANT SELECT ON public.datasets_full TO api_user;
--- Make it public to anynomous users 
+-- Make it public to anynomous users
 GRANT SELECT ON public.datasets_full TO api_anon;
 ```
 This is provisional, waiting for the `datasets` table to be filled in with all datasets and to avoid conflicts with data-integration during development.
