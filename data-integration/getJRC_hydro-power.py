@@ -164,12 +164,11 @@ def get(url: str, dp: frictionless.package.Package, force: bool = False):
     # Inferring and completing metadata
     logging.info("Creating datapackage for input data")
     # Add date
-    utilities.getGitHub(user, repo, "date")
+    new_dp["datePublished"] = utilities.getGitHub(user, repo, "date")
 
     # Logic for update
     if dp is not None:  # Existing dataset
         # check stats
-        isChangedStats = dp["resources"][0]["stats"] != new_dp["resources"][0]["stats"]
         isChangedDate = dp["datePublished"] != new_dp["datePublished"]
 
         if (
