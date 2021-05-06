@@ -1,0 +1,9 @@
+{
+  "type": "object",
+  "properties": {
+    "factor": {
+      "type": "number",
+      "default": 1
+    }
+  }
+}
