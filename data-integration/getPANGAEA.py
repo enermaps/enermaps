@@ -11,6 +11,7 @@ import argparse
 import json
 import logging
 import os
+import shutil
 import sys
 
 import frictionless
@@ -238,6 +239,14 @@ if __name__ == "__main__":
         )
 
         data, dp = get(datasets.loc[ds_id, "di_URL"], dp, isForced)
+
+        # Move rasters into the data directory
+        if not os.path.exists("data"):
+            os.mkdir("data")
+        if not os.path.exists(os.path.join("data", str(ds_id))):
+            os.mkdir(os.path.join("data", str(ds_id)))
+        for i, row in data.iterrows():
+            shutil.move(row.fid, os.path.join("data", str(ds_id), row.fid))
 
         data = postProcess(data)
 
