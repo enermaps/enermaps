@@ -268,7 +268,7 @@ if __name__ == "__main__":
     if "--force" in argv:
         isForced = True
     else:
-        isForced = True
+        isForced = False
     dp = utilities.getDataPackage(ds_id, DB_URL)
 
     data, dp = get(repository=url, dp=dp, force=isForced)
