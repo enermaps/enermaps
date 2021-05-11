@@ -11,9 +11,13 @@ PGRST_JWT_SECRET={PASSWORD}
 ```
 where `{PASSWORD}` is a secret password.
 You can generate one with:
-`
-openssl rand -base64 32
-`
+```bash
+# Allow "tr" to process non-utf8 byte sequences
+export LC_CTYPE=C
+
+# read random bytes and keep only alphanumerics
+< /dev/urandom tr -dc A-Za-z0-9 | head -c32
+```
 
 ## Preparing the DB
 The API users and custom functions are initialized in the db service.
@@ -44,7 +48,15 @@ r = requests.get('http://localhost:3000/datasets',
 response = r.json()
 print(response)
 ```
-where the `{API_KEY}` is the signed token created with the password. See [here](https://postgrest.org/en/v4.1/tutorials/tut1.html#step-3-sign-a-token) for a tutorial.
+where the `{API_KEY}` is the signed token created with the password. See [here](https://postgrest.org/en/v7.0.0/tutorials/tut1.html) for a tutorial.
+
+The payload should include the `api_user`:
+
+```javascript
+{
+  "user": "api_user",
+}
+```
 
 Sample query returning all records of a given dataset as a GeoJSON:
 ```python
