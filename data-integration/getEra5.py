@@ -1,12 +1,3 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-"""
-
-
-@author: giuseppeperonato
-"""
-
-
 import argparse
 import json
 import logging
@@ -14,19 +5,39 @@ import os
 import shutil
 import sys
 
-import frictionless
+import cdsapi
 import pandas as pd
-import requests
 import utilities
 from pyproj import CRS
 
-# Constants
 logging.basicConfig(level=logging.INFO)
-Z = None
-DT = 720
-SEL = "MON"
 EPSG = 4326
-LIMIT = 5  # TO BE REMOVED
+DT = 1  # hours per final file
+LIMIT = 1  # number of days
+YEARS_BACK = 5
+AREA = [
+    84.17,
+    -24.8,  # -16.1 excludes Iceland
+    32.88,
+    40.18,
+]  # North-West-South-East
+DELETE_ORIG = False
+c = cdsapi.Client()
+
+
+VARIABLES = {
+    "10m_u_component_of_wind": "u10",
+    "10m_v_component_of_wind": "v10",
+    "2m_dewpoint_temperature": "d2m",
+    "2m_temperature": "t2m",
+    "mean_sea_level_pressure": "msl",
+    "mean_wave_direction": "mwd",
+    "mean_wave_period": "mwp",
+    "sea_surface_temperature": "sst",
+    "significant_height_of_combined_wind_waves_and_swell": "swh",
+    "surface_pressure": "sp",
+    "total_precipitation": "tp",
+}
 
 # In Docker
 DB_HOST = os.environ.get("DB_HOST")
@@ -44,92 +55,94 @@ DB_URL = "postgresql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_DB}".form
 )
 
 
-def isValid(dp: frictionless.package.Package, new_dp: frictionless.package.Package):
+def prepare(dp: dict = None):
     """
-
-    Check whether the new DataPackage is valid.
+    Prepare rasters.
 
     Parameters
     ----------
-    dp : frictionless.package.Package
-        Original datapackage
-    new_dp : frictionless.package.Package
-        Datapackage describing the new loaded data
+    dp : dict, optional
+        meatadata (not a real dp). The default is None.
 
     Returns
     -------
-    Boolean
+    None.
 
-    """
-    val = frictionless.validate(new_dp)
-    if val["valid"]:
-        logging.info("Returning valid data")
-        return True
-    else:
-        logging.error("Data is not valid")
-        print(val)
-        return False
-
-
-def prepare(dp: frictionless.package.Package):
-    """
-    Prepare data in EnerMaps format.
-
-    Parameters
-    ----------
-    dp : frictionless.package.Package
-          Valid datapackage
-
-    Returns
-    -------
-    DataFrame
-         Data in EnerMaps format.
     """
     if not os.path.exists("tmp"):
         os.mkdir("tmp")
-    for resource_idx, resource in enumerate(dp["resources"]):
-        file_list = resource["path"]
-        r = requests.get(file_list, stream=True)
-        lines = [line for line in r.iter_lines()]
-        skiprows = [ind for ind, i in enumerate(lines) if i.startswith(b"*/")][0]
-        files = pd.read_csv(file_list, skiprows=skiprows + 1, delimiter="\t")
-
-        files = files.loc[files["File name"].str.contains(SEL), :].iloc[:LIMIT]
-
-        # Prepare df containing paths to rasters
-        rasters = []
-        for r, row in files.iterrows():
-            if not os.path.exists(os.path.join("tmp", row["File name"])):
-                logging.info("Downloading {}".format(row["File name"]))
-                utilities.download_url(
-                    row["URL file"], os.path.join("tmp", row["File name"])
+    times = pd.date_range(dp["start_at"], dp["end_at"], freq="d")
+    rasters = []
+    for time in times[:LIMIT]:
+        for variable in VARIABLES.keys():
+            filename = str(time.date()) + "_" + VARIABLES[variable] + ".nc"
+            if not os.path.exists(os.path.join("tmp", filename)):
+                logging.info("Downloading {}".format(filename))
+                c = cdsapi.Client()
+                c.retrieve(
+                    "reanalysis-era5-single-levels",
+                    {
+                        "product_type": "reanalysis",
+                        "format": "netcdf",
+                        "variable": variable,
+                        "year": [time.year],
+                        "month": [time.month],
+                        "day": [time.day],
+                        "time": [
+                            "00:00",
+                            "01:00",
+                            "02:00",
+                            "03:00",
+                            "04:00",
+                            "05:00",
+                            "06:00",
+                            "07:00",
+                            "08:00",
+                            "09:00",
+                            "10:00",
+                            "11:00",
+                            "12:00",
+                            "13:00",
+                            "14:00",
+                            "15:00",
+                            "16:00",
+                            "17:00",
+                            "18:00",
+                            "19:00",
+                            "20:00",
+                            "21:00",
+                            "22:00",
+                            "23:00",
+                        ],
+                        "area": AREA,
+                    },
+                    os.path.join("tmp", filename),
                 )
-            raster = {
-                "value": os.path.join("tmp", row["File name"]),
-                "start_at": pd.to_datetime(row["File name"].split("_")[6]),
-                "z": None,
-                "unit": None,
-                "dt": DT,
-                "crs": CRS.from_epsg(EPSG),
-                "variable": row["File name"].split("_")[0],
-            }
-            rasters.append(raster)
+                raster = {
+                    "value": os.path.join("tmp", filename),
+                    "start_at": time,
+                    "z": None,
+                    "unit": None,
+                    "dt": DT,
+                    "crs": CRS.from_epsg(EPSG),
+                    "variable": VARIABLES[variable],
+                }
+                rasters.append(raster)
     rasters = pd.DataFrame(rasters)
-    data_enermaps = utilities.prepareRaster(rasters, delete_orig=True)
-    return data_enermaps
+    enermaps_data = utilities.prepareRaster(rasters, delete_orig=DELETE_ORIG)
+    return enermaps_data
 
 
-def get(url: str, dp: frictionless.package.Package, force: bool = False):
+def get(url: str, dp: dict, force: bool = False):
     """
-
     Retrieve data and check update.
 
     Parameters
     ----------
     url : str
         URL to retrieve the data from.
-    dp : frictionless.package.Package
-        Datapackage against which validating the data.
+    dp : dict
+        metadata (not a real dp) against which validating the data.
     force : Boolean, optional
         If True, new data will be uploaded even if the same as in the db. The default is False.
 
@@ -137,51 +150,33 @@ def get(url: str, dp: frictionless.package.Package, force: bool = False):
     -------
     DataFrame
         Data in EnerMaps format.
-    GeoDataFrame
-        Spatial data in EnerMaps format.
-    frictionless.package.Package
-        Pakage descring the data.
+    dict
+        metadata
 
     """
-    ld = utilities.get_ld_json(url)
-    for resource in ld["distribution"]:
-        if resource["@type"] == "DataDownload":
-            if (
-                resource["encodingFormat"] == "CSV"
-                or resource["encodingFormat"] == "text/tab-separated-values"
-            ):
-                file = resource["contentUrl"]
-    datePublished = ld["datePublished"]
+    end_year = pd.Timestamp.today().year - 1
+    start_year = end_year - YEARS_BACK
+    times = pd.date_range(
+        "01-01-{}".format(start_year), "31-12-{}".format(end_year), freq="d"
+    )
 
-    # Inferring and completing metadata
-    logging.info("Creating datapackage for input data")
-    new_dp = frictionless.describe_package(file, stats=True,)  # Add stats
-    # Add date
-    new_dp["datePublished"] = datePublished
+    new_dp = {"start_at": str(times[0]), "end_at": str(times[-1])}
 
     # Logic for update
     if dp is not None:  # Existing dataset
         # check stats
-        isChangedStats = dp["resources"][0]["stats"] != new_dp["resources"][0]["stats"]
-        isChangedDate = dp["datePublished"] != new_dp["datePublished"]
-
-        if (
-            isChangedStats or isChangedDate
-        ):  # Data integration will continue, regardless of force argument
+        isChanged = dp != new_dp
+        if isChanged:  # Data integration will continue, regardless of force argument
             logging.info("Data has changed")
-            if isValid(dp, new_dp):
-                enermaps_data = prepare(new_dp)
+            enermaps_data = prepare(new_dp)
         elif force:  # Data integration will continue, even if data has not changed
             logging.info("Forced update")
-            if isValid(dp, new_dp):
-                enermaps_data = prepare(new_dp)
+            enermaps_data = prepare(new_dp)
         else:  # Data integration will stop here, returning Nones
             logging.info("Data has not changed. Use --force if you want to reupload.")
-            return None, None, None
+            return None, None
     else:  # New dataset
-        dp = new_dp  # this is just for the sake of the schema control
-        if isValid(dp, new_dp):
-            enermaps_data = prepare(new_dp)
+        enermaps_data = prepare(new_dp)
 
     return enermaps_data, new_dp
 
@@ -201,10 +196,12 @@ def postProcess(data: pd.DataFrame):
         DataFrame in EnerMaps format with completed fields.
 
     """
+    # invert dict -> short_name: long_name
+    variables = {v: k for k, v in VARIABLES.items()}
     for i, row in data.iterrows():
         fields = json.loads(row["fields"])
-        data.loc[i, "variable"] = fields["definition"]
         data.loc[i, "unit"] = fields["units"]
+    data["variable"] = data["variable"].replace(variables)
     return data
 
 

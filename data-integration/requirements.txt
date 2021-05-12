@@ -10,3 +10,4 @@ frictionless==4.0.8
 beautifulsoup4==4.9.3
 click==7.1.1
 pandasdmx==1.5.0
+cdsapi==0.5.1
