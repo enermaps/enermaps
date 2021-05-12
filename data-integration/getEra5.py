@@ -21,7 +21,7 @@ AREA = [
     32.88,
     40.18,
 ]  # North-West-South-East
-DELETE_ORIG = False
+DELETE_ORIG = True
 c = cdsapi.Client()
 
 
