@@ -71,7 +71,7 @@ def prepare(dp: dict = None):
     """
     if not os.path.exists("tmp"):
         os.mkdir("tmp")
-    times = pd.date_range(dp["start_at"], dp["end_at"], freq="d")
+    times = pd.date_range(dp["start_at"], dp["end_at"], freq="MS")
     rasters = []
     for time in times[:LIMIT]:
         for variable in VARIABLES.keys():
@@ -132,7 +132,7 @@ def get(url: str, dp: dict, force: bool = False):
     end_year = pd.Timestamp.today().year - 1
     start_year = end_year - YEARS_BACK
     times = pd.date_range(
-        "01-01-{}".format(start_year), "31-12-{}".format(end_year), freq="d"
+        "01-01-{}".format(start_year), "31-12-{}".format(end_year), freq="MS"
     )
 
     new_dp = {"start_at": str(times[0]), "end_at": str(times[-1])}
