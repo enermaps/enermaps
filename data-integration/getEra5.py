@@ -118,16 +118,16 @@ def prepare(dp: dict = None):
                     },
                     os.path.join("tmp", filename),
                 )
-                raster = {
-                    "value": os.path.join("tmp", filename),
-                    "start_at": time,
-                    "z": None,
-                    "unit": None,
-                    "dt": DT,
-                    "crs": CRS.from_epsg(EPSG),
-                    "variable": VARIABLES[variable],
-                }
-                rasters.append(raster)
+            raster = {
+                "value": os.path.join("tmp", filename),
+                "start_at": time,
+                "z": None,
+                "unit": None,
+                "dt": DT,
+                "crs": CRS.from_epsg(EPSG),
+                "variable": VARIABLES[variable],
+            }
+            rasters.append(raster)
     rasters = pd.DataFrame(rasters)
     enermaps_data = utilities.prepareRaster(rasters, delete_orig=DELETE_ORIG)
     return enermaps_data
@@ -236,20 +236,21 @@ if __name__ == "__main__":
 
         data, dp = get(datasets.loc[ds_id, "di_URL"], dp, isForced)
 
-        # Move rasters into the data directory
-        if not os.path.exists("data"):
-            os.mkdir("data")
-        if not os.path.exists(os.path.join("data", str(ds_id))):
-            os.mkdir(os.path.join("data", str(ds_id)))
-        for i, row in data.iterrows():
-            shutil.move(row.fid, os.path.join("data", str(ds_id), row.fid))
-
-        data = postProcess(data)
-
         if isinstance(data, pd.DataFrame):
             if utilities.datasetExists(ds_id, DB_URL,):
                 utilities.removeDataset(ds_id, DB_URL)
                 logging.info("Removed existing dataset")
+
+            # Move rasters into the data directory
+            if not os.path.exists("data"):
+                os.mkdir("data")
+            if not os.path.exists(os.path.join("data", str(ds_id))):
+                os.mkdir(os.path.join("data", str(ds_id)))
+            for i, row in data.iterrows():
+                shutil.move(row.fid, os.path.join("data", str(ds_id), row.fid))
+
+            # Postprocess
+            data = postProcess(data)
 
             # Create dataset table
             metadata = datasets.loc[ds_id].fillna("").to_dict()

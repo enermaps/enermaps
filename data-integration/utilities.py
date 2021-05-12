@@ -141,6 +141,8 @@ def prepareRaster(
                 dicts.append(my_dict)
         else:
             logging.error("Cannot open file.")
+        if delete_orig:
+            os.remove(filename_orig)
     data = pd.DataFrame(
         dicts,
         columns=[
@@ -156,8 +158,6 @@ def prepareRaster(
             "israster",
         ],
     )
-    if delete_orig:
-        os.remove(filename_orig)
     return data
 
 
