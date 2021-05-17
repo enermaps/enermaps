@@ -1,3 +1,11 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""
+Get ERA5 datasets using Copernicus API.
+
+@author: giuseppeperonato
+"""
+
 import argparse
 import json
 import logging
@@ -22,21 +30,25 @@ AREA = [
     40.18,
 ]  # North-West-South-East
 DELETE_ORIG = True
+PRESSURE_LEVEL = 1000
 c = cdsapi.Client()
 
 
 VARIABLES = {
-    "10m_u_component_of_wind": "u10",
-    "10m_v_component_of_wind": "v10",
-    "2m_dewpoint_temperature": "d2m",
-    "2m_temperature": "t2m",
-    "mean_sea_level_pressure": "msl",
-    "mean_wave_direction": "mwd",
-    "mean_wave_period": "mwp",
-    "sea_surface_temperature": "sst",
-    "significant_height_of_combined_wind_waves_and_swell": "swh",
-    "surface_pressure": "sp",
-    "total_precipitation": "tp",
+    "reanalysis-era5-single-levels": {
+        "10m_u_component_of_wind": "u10",
+        "10m_v_component_of_wind": "v10",
+        "2m_dewpoint_temperature": "d2m",
+        "2m_temperature": "t2m",
+        "mean_sea_level_pressure": "msl",
+        "mean_wave_direction": "mwd",
+        "mean_wave_period": "mwp",
+        "sea_surface_temperature": "sst",
+        "significant_height_of_combined_wind_waves_and_swell": "swh",
+        "surface_pressure": "sp",
+        "total_precipitation": "tp",
+    },
+    "reanalysis-era5-pressure-levels": {"relative_humidity": "rh"},
 }
 
 # In Docker
@@ -55,12 +67,14 @@ DB_URL = "postgresql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_DB}".form
 )
 
 
-def prepare(dp: dict = None):
+def prepare(dataset_name: str, dp: dict = None):
     """
     Prepare rasters.
 
     Parameters
     ----------
+    datase_name : str
+        name of the Copernicus product
     dp : dict, optional
         meatadata (not a real dp). The default is None.
 
@@ -74,25 +88,48 @@ def prepare(dp: dict = None):
     times = pd.date_range(dp["start_at"], dp["end_at"], freq="MS")
     rasters = []
     for time in times[:LIMIT]:
-        for variable in VARIABLES.keys():
-            filename = str(time.date()) + "_" + VARIABLES[variable] + ".nc"
+        for variable in VARIABLES[dataset_name].keys():
+            filename = (
+                str(time.date()) + "_" + VARIABLES[dataset_name][variable] + ".nc"
+            )
             if not os.path.exists(os.path.join("tmp", filename)):
                 logging.info("Downloading {}".format(filename))
                 c = cdsapi.Client()
-                c.retrieve(
-                    "reanalysis-era5-single-levels",
-                    {
-                        "product_type": "reanalysis",
-                        "format": "netcdf",
-                        "variable": variable,
-                        "year": [time.year],
-                        "month": [time.month],
-                        "day": [str(d + 1).zfill(2) for d in range(time.days_in_month)],
-                        "time": [str(d).zfill(2) + ":00" for d in range(24)],
-                        "area": AREA,
-                    },
-                    os.path.join("tmp", filename),
-                )
+                if dataset_name == "reanalysis-era5-single-levels":
+                    c.retrieve(
+                        dataset_name,
+                        {
+                            "product_type": "reanalysis",
+                            "format": "netcdf",
+                            "variable": variable,
+                            "year": [time.year],
+                            "month": [time.month],
+                            "day": [
+                                str(d + 1).zfill(2) for d in range(time.days_in_month)
+                            ],
+                            "time": [str(d).zfill(2) + ":00" for d in range(24)],
+                            "area": AREA,
+                        },
+                        os.path.join("tmp", filename),
+                    )
+                elif dataset_name == "reanalysis-era5-pressure-levels":
+                    c.retrieve(
+                        dataset_name,
+                        {
+                            "product_type": "reanalysis",
+                            "format": "netcdf",
+                            "pressure_level": str(PRESSURE_LEVEL),
+                            "variable": variable,
+                            "year": [time.year],
+                            "month": [time.month],
+                            "day": [
+                                str(d + 1).zfill(2) for d in range(time.days_in_month)
+                            ],
+                            "time": [str(d).zfill(2) + ":00" for d in range(24)],
+                            "area": AREA,
+                        },
+                        os.path.join("tmp", filename),
+                    )
             raster = {
                 "value": os.path.join("tmp", filename),
                 "start_at": time,
@@ -100,7 +137,7 @@ def prepare(dp: dict = None):
                 "unit": None,
                 "dt": DT,
                 "crs": CRS.from_epsg(EPSG),
-                "variable": VARIABLES[variable],
+                "variable": VARIABLES[dataset_name][variable],
             }
             rasters.append(raster)
     rasters = pd.DataFrame(rasters)
@@ -108,14 +145,14 @@ def prepare(dp: dict = None):
     return enermaps_data
 
 
-def get(url: str, dp: dict, force: bool = False):
+def get(dataset_name: str, dp: dict, force: bool = False):
     """
     Retrieve data and check update.
 
     Parameters
     ----------
-    url : str
-        URL to retrieve the data from.
+    dataset_name : str
+        Copernicus dataset name to retrieve the data from.
     dp : dict
         metadata (not a real dp) against which validating the data.
     force : Boolean, optional
@@ -143,20 +180,20 @@ def get(url: str, dp: dict, force: bool = False):
         isChanged = dp != new_dp
         if isChanged:  # Data integration will continue, regardless of force argument
             logging.info("Data has changed")
-            enermaps_data = prepare(new_dp)
+            enermaps_data = prepare(dataset_name, new_dp)
         elif force:  # Data integration will continue, even if data has not changed
             logging.info("Forced update")
-            enermaps_data = prepare(new_dp)
+            enermaps_data = prepare(dataset_name, new_dp)
         else:  # Data integration will stop here, returning Nones
             logging.info("Data has not changed. Use --force if you want to reupload.")
             return None, None
     else:  # New dataset
-        enermaps_data = prepare(new_dp)
+        enermaps_data = prepare(dataset_name, new_dp)
 
     return enermaps_data, new_dp
 
 
-def postProcess(data: pd.DataFrame):
+def postProcess(dataset_name, data: pd.DataFrame):
     """
     Coplete additional columns of the dataframe.
 
@@ -172,7 +209,7 @@ def postProcess(data: pd.DataFrame):
 
     """
     # invert dict -> short_name: long_name
-    variables = {v: k for k, v in VARIABLES.items()}
+    variables = {v: k for k, v in VARIABLES[dataset_name].items()}
     for i, row in data.iterrows():
         fields = json.loads(row["fields"])
         data.loc[i, "unit"] = fields["units"]
@@ -209,7 +246,9 @@ if __name__ == "__main__":
             ),
         )
 
-        data, dp = get(datasets.loc[ds_id, "di_URL"], dp, isForced)
+        dataset_name = datasets.loc[ds_id, "di_URL"]
+
+        data, dp = get(dataset_name, isForced)
 
         if isinstance(data, pd.DataFrame):
             if utilities.datasetExists(ds_id, DB_URL,):
@@ -225,7 +264,7 @@ if __name__ == "__main__":
                 shutil.move(row.fid, os.path.join("data", str(ds_id), row.fid))
 
             # Postprocess
-            data = postProcess(data)
+            data = postProcess(dataset_name, data)
 
             # Create dataset table
             metadata = datasets.loc[ds_id].fillna("").to_dict()
