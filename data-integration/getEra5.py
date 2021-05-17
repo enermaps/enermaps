@@ -48,7 +48,7 @@ VARIABLES = {
         "surface_pressure": "sp",
         "total_precipitation": "tp",
     },
-    "reanalysis-era5-pressure-levels": {"relative_humidity": "rh"},
+    "reanalysis-era5-pressure-levels": {"relative_humidity": "r"},
 }
 
 # In Docker
