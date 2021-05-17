@@ -121,7 +121,7 @@ def prepare(dataset_name: str, dp: dict = None):
                             "pressure_level": str(PRESSURE_LEVEL),
                             "variable": variable,
                             "year": [time.year],
-                            "month": [time.month],
+                            "month": [str(d) for d in range(1, 13)],
                             "day": [
                                 str(d + 1).zfill(2) for d in range(time.days_in_month)
                             ],
