@@ -85,7 +85,7 @@ def prepare(dataset_name: str, dp: dict = None):
     """
     if not os.path.exists("tmp"):
         os.mkdir("tmp")
-    times = pd.date_range(dp["start_at"], dp["end_at"], freq="MS")
+    times = pd.date_range(dp["start_at"], dp["end_at"], freq="YS")
     rasters = []
     for time in times[:LIMIT]:
         for variable in VARIABLES[dataset_name].keys():
@@ -103,7 +103,7 @@ def prepare(dataset_name: str, dp: dict = None):
                             "format": "netcdf",
                             "variable": variable,
                             "year": [time.year],
-                            "month": [time.month],
+                            "month": [str(d) for d in range(1, 13)],
                             "day": [
                                 str(d + 1).zfill(2) for d in range(time.days_in_month)
                             ],
