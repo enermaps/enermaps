@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
-import BaseCM.cm_base as cm_base
+
+from BaseCM import cm_base as cm_base
 from BaseCM.cm_output import validate
 
-app = cm_base.get_default_app()
+app = cm_base.get_default_app("empty")
 schema_path = cm_base.get_default_schema_path()
 
 
