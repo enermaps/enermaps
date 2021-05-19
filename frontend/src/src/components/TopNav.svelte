@@ -175,6 +175,7 @@ button, button:hover {
   <slot id='slot'></slot>
   <a href="https://enermaps.eu/" target="_blank" class="link">Wiki</a>
   <a href="https://beta.enermaps.openaire.eu/" target="_blank" class="link">OpenAIRE</a>
+  <a href="https://www.kialo.com/" target="_blank" class="link">Kialo</a>
   <!-- Trigger/Open The Modal -->
   <button id="myBtn" class="link">About</button>
 
@@ -188,30 +189,30 @@ button, button:hover {
     </div>
     <div class="modal-body">
       <p>
-        Intellectum est enim mihi quidem in multis, et maxime in me ipso, sed paulo ante in omnibus, 
-        cum M. Marcellum senatui reique publicae concessisti, commemoratis praesertim offensionibus, 
+        Intellectum est enim mihi quidem in multis, et maxime in me ipso, sed paulo ante in omnibus,
+        cum M. Marcellum senatui reique publicae concessisti, commemoratis praesertim offensionibus,
         te auctoritatem huius ordinis dignitatemque rei publicae tuis vel doloribus vel suspicionibus anteferre.
-        Ille quidem fructum omnis ante actae vitae hodierno die maximum cepit, cum summo consensu senatus, tum iudicio 
+        Ille quidem fructum omnis ante actae vitae hodierno die maximum cepit, cum summo consensu senatus, tum iudicio
         tuo gravissimo et maximo.
         Ex quo profecto intellegis quanta in dato beneficio sit laus, cum in accepto sit tanta gloria.
       </p>
       <p>
-        Nunc vero inanes flatus quorundam vile esse quicquid extra urbis pomerium 
+        Nunc vero inanes flatus quorundam vile esse quicquid extra urbis pomerium
         nascitur aestimant praeter orbos et caelibes, nec credi potest qua obsequiorum
          diversitate coluntur homines sine liberis Romae.
       </p>
       <p>
-        Principium autem unde latius se funditabat, emersit ex negotio tali. 
-        Chilo ex vicario et coniux eius Maxima nomine, questi apud Olybrium ea tempestate urbi praefectum, 
-        vitamque suam venenis petitam adseverantes inpetrarunt ut hi, quos suspectati sunt, ilico rapti 
+        Principium autem unde latius se funditabat, emersit ex negotio tali.
+        Chilo ex vicario et coniux eius Maxima nomine, questi apud Olybrium ea tempestate urbi praefectum,
+        vitamque suam venenis petitam adseverantes inpetrarunt ut hi, quos suspectati sunt, ilico rapti
         conpingerentur in vincula, organarius Sericus et Asbolius palaestrita et aruspex Campensis.
       </p>
       <p>
-        Novitates autem si spem adferunt, ut tamquam in herbis non fallacibus fructus appareat, non sunt 
-        illae quidem repudiandae, vetustas tamen suo loco conservanda; maxima est enim vis vetustatis et 
-        consuetudinis. Quin in ipso equo, cuius modo feci mentionem, si nulla res impediat, nemo est, quin eo, 
-        quo consuevit, libentius utatur quam intractato et novo. Nec vero in hoc quod est animal, sed in iis etiam 
-        quae sunt inanima, consuetudo valet, cum locis ipsis delectemur, montuosis etiam et silvestribus, in quibus 
+        Novitates autem si spem adferunt, ut tamquam in herbis non fallacibus fructus appareat, non sunt
+        illae quidem repudiandae, vetustas tamen suo loco conservanda; maxima est enim vis vetustatis et
+        consuetudinis. Quin in ipso equo, cuius modo feci mentionem, si nulla res impediat, nemo est, quin eo,
+        quo consuevit, libentius utatur quam intractato et novo. Nec vero in hoc quod est animal, sed in iis etiam
+        quae sunt inanima, consuetudo valet, cum locis ipsis delectemur, montuosis etiam et silvestribus, in quibus
         diutius commorati sumus.
       </p>
     </div>
@@ -221,7 +222,4 @@ button, button:hover {
   </div>
 </div>
 
-</div> 
-
-
-
+</div>
