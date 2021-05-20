@@ -54,7 +54,7 @@ The payload should include the `api_user`:
 
 ```javascript
 {
-  "user": "api_user",
+  "role": "api_user",
 }
 ```
 
