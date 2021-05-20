@@ -136,9 +136,9 @@ SELECT shared_id AS id, row_to_json((
                         ) as "rightsList",
     json_build_array(
         json_build_object('lang', text('EN'),
-        'description',metadata->>'Description (in brief)'),
+        'description',metadata->>'Description (in brief)',
         'descriptionType', text('Abstract')
-                                        ) as descriptions,
+                                        )) as descriptions,
     metadata->>'Publisher' as publisher,
     metadata->>'Publication Year' as "publicationYear",
     json_build_array(
