@@ -8,11 +8,11 @@ Add list of datasets
 @author: giuseppeperonato
 """
 import json
-import os
 import logging
+import os
+
 import pandas as pd
 import sqlalchemy as sqla
-import utilities
 
 # Constants
 logging.basicConfig(level=logging.INFO)
@@ -36,17 +36,21 @@ SCHEMA = "datasets_full"
 
 if __name__ == "__main__":
     datasets = pd.read_csv("datasets.csv", engine="python", index_col=[0])
-    datasets.drop(["di_script","di_URL"],inplace=True,axis=1) #remove di columns
-    
+    datasets.drop(["di_script", "di_URL"], inplace=True, axis=1)  # remove di columns
+
+    # Format the date
+    datasets["Publication Date"] = pd.to_datetime(
+        datasets["Publication Date"].replace("/", "")
+    ).astype(str)
+
     metadata = datasets.fillna("").to_dict(orient="records")
     metadata = [json.dumps(entry) for entry in metadata]
-    
+
     data = pd.DataFrame()
     data["ds_id"] = datasets.index
     data["shared_id"] = datasets.shared_id.values
     data["metadata"] = metadata
-    
+
     db_engine = sqla.create_engine(DB_URL)
     logging.info("Loading to PostgreSQL...")
     data.to_sql(SCHEMA, db_engine, if_exists="append", index=False)
-
