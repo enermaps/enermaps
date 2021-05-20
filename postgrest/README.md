@@ -114,3 +114,17 @@ r = requests.post('http://localhost:3000/rpc/enermaps_get_metadata',
 response = r.json()
 print(response)
 ```
+
+#### Datacite view using GET
+A custom view has been created to provide an endpoint for OpenAIRE aggregator and list all records using the[Datacite schema](https://support.datacite.org/docs/api-get-lists).
+This is available on: http://localhost:3000/datacite
+
+By default, the PostgREST view results in [an array](https://postgrest.org/en/v7.0.0/api.html#singular-or-plural).
+To change the behavior and return a JSON object, we can add a specification in the header:
+
+```python
+r = requests.get('http://localhost:3000/datacite',
+	headers={'Accept': 'application/vnd.pgrst.object+json'})
+response = r.json()
+print(json.dumps(response,indent=4, sort_keys=True))
+``
