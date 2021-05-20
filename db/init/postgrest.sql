@@ -74,7 +74,7 @@ GRANT SELECT ON public.datasets_full TO api_user;
 -- Make it public to anynomous users
 GRANT SELECT ON public.datasets_full TO api_anon;
 
--- Example of custom function
+-- Example of custom function (to be used with POST request and authentication)
 DROP FUNCTION IF EXISTS enermaps_get_metadata(shared_id text);
 CREATE FUNCTION enermaps_get_metadata(shared_id text)
     RETURNS TABLE(title text, url text, description text)
@@ -88,3 +88,69 @@ CREATE FUNCTION enermaps_get_metadata(shared_id text)
     IMMUTABLE
     RETURNS NULL ON NULL INPUT;
 GRANT EXECUTE ON FUNCTION enermaps_get_metadata(shared_id text) to api_user;
+
+-- Utility function for making a JSON array out of CSV values (used for authors list)
+DROP VIEW IF EXISTS datacite;
+DROP FUNCTION IF EXISTS array_to_json_with_key(text[], text);
+CREATE FUNCTION array_to_json_with_key(text[],text) RETURNS JSON AS $$
+DECLARE
+  s text;
+  x text;
+  counter int;
+BEGIN
+counter := 0;
+s := '[';
+  FOREACH x  IN ARRAY $1
+  LOOP
+    s := s || '{"' || $2 || '":"' || x || '"}';
+    counter := counter + 1;
+    IF counter < array_length($1,1) THEN
+        s := s || ',';
+    END IF;
+  END LOOP;
+s := s  || ']';
+  RETURN JSON(s);
+END;
+$$ LANGUAGE plpgsql;
+GRANT EXECUTE ON FUNCTION array_to_json_with_key(text[], text) to api_user;
+GRANT EXECUTE ON FUNCTION array_to_json_with_key(text[], text) to api_anon;
+
+CREATE VIEW datacite AS
+SELECT jsonb_build_object(
+    'data',  json_agg(t)) from (
+SELECT shared_id AS id, row_to_json((
+ SELECT x from (SELECT
+    json_build_array(json_build_object('title',metadata->>'Title (with Hyperlink)')) as titles,
+    json_build_array(
+        json_build_object('identifier',metadata->>'Identifier',
+        'identifierType', (CASE metadata->>'Identifier Type'
+                                            WHEN 'Digital Object Identifier (DOI)' THEN 'DOI'
+                                            WHEN 'Uniform Resource Locator (URL)' THEN 'URL'
+                                            ELSE '?' END)
+                                            )) as identifiers,
+    array_to_json_with_key(string_to_array(metadata->>'Creator',','),'name') as creators,
+    json_build_array(
+        json_build_object('rights', text('OPEN'),
+        'rightsUri','info:eu-repo/semantics/openAccess'),
+        json_build_object('rights', metadata->>'License',
+        'rightsUri','')
+                        ) as "rightsList",
+    json_build_array(
+        json_build_object('lang', text('EN'),
+        'description',metadata->>'Description (in brief)'),
+        'descriptionType', text('Abstract')
+                                        ) as descriptions,
+    metadata->>'Publisher' as publisher,
+    metadata->>'Publication Year' as "publicationYear",
+    json_build_array(
+            json_build_object('date',metadata->>'Publication Date',
+            'dateType', text('Issued'))
+                                        ) as dates,
+    json_build_array(
+            json_build_object('resourceTypeGeneral',('Dataset'))
+                                        )as "types",
+    text('http://datacite.org/schema/kernel-4') as "schemaVersion",
+    text('EnerMaps') as "source",
+    bool(true) as "isActive")
+    AS x )) AS "attributes" FROM datasets_full)t;
+GRANT SELECT ON public.datacite to api_anon;
