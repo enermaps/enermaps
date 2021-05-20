@@ -116,8 +116,7 @@ GRANT EXECUTE ON FUNCTION array_to_json_with_key(text[], text) to api_user;
 GRANT EXECUTE ON FUNCTION array_to_json_with_key(text[], text) to api_anon;
 
 CREATE VIEW datacite AS
-SELECT jsonb_build_object(
-    'data',  json_agg(t)) from (
+SELECT json_agg(t) as data from (
 SELECT shared_id AS id, row_to_json((
  SELECT x from (SELECT
     json_build_array(json_build_object('title',metadata->>'Title (with Hyperlink)')) as titles,
