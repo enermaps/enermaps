@@ -148,7 +148,7 @@ DEFAULT_API_URL = "http://127.0.0.1:7000"
 
 @labeledTest("integration")
 class BaseIntegrationTest(unittest.TestCase):
-    def waitForReachability(self, max_retry=10, wait_time=3):
+    def wait_for_reachability(self, max_retry=10, wait_time=3):
         """Wait for the api to be reachable by poking its healthz endpoint"""
         retry = 0
         logging.info("Waiting for the api to be reachable")
@@ -157,7 +157,9 @@ class BaseIntegrationTest(unittest.TestCase):
                 resp = self.session.get(self.url + "/healthz")
             except (
                 urllib3.exceptions.MaxRetryError,
+                urllib3.exceptions.TimeoutError,
                 requests.exceptions.ConnectionError,
+                requests.exceptions.RequestException,
             ):
                 logging.info(".")
             else:
@@ -171,4 +173,4 @@ class BaseIntegrationTest(unittest.TestCase):
         self.api_url = self.url + "/api"
         self.session = requests.Session()
         super().__init__(*args, **kwargs)
-        self.waitForReachability()
+        self.wait_for_reachability()
