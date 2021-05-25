@@ -4,10 +4,12 @@
 </script>
 
 <style>
+  
 :global(body) {
 	width: 100%;
 	height: 100%;
 }
+
 :global(.close_button) {
   float: right;
   padding: 3px;
@@ -18,11 +20,16 @@
   background-size: cover;
   background: url('/images/clear-icon.png');
 }
+
+
 #main {
 	width: 100%;
 	height: 100%;
 	display: flex;
+  flex-direction: column;
 }
+
+
 :global(.close_button) {
   right: 0;
   position: absolute;
@@ -35,7 +42,9 @@
   background: url('/images/clear-icon.png');
 }
 </style>
+
+
 <div id="main">
-<Map/>
-<CMList/>
+  <Map/>
+  <CMList/>
 </div>

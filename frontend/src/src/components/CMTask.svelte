@@ -21,6 +21,7 @@
   onMount(async () => {
     updateTaskResult();
   });
+
   async function updateTaskResult() {
     const taskResponse = await getTaskResult(cm, task);
     // The above reponse can be undefined if it encountered an error,
@@ -32,6 +33,7 @@
       taskResult = taskResponse;
     }
   }
+
   async function cancel() {
     await deleteTaskResult(cm, task);
   }
@@ -52,13 +54,16 @@
     dispatch('delete', {});
   }
 </script>
+
 <style>
 .cmresult {
-  border: 2px solid rgba(0,0,0,0.5);
+  border: 1px solid #27275b;
   border-radius: 4px;
-  padding: 5px;
+  padding: 8px;
+  background-color: white;
 }
 </style>
+
 <div class="cmresult">
   <div class="close_button" on:click="{removeTask}"></div>
   <dl>
