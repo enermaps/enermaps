@@ -95,6 +95,8 @@ All CM provide a output dictionary. The 3 keys required are as follows:
 
 See [cm_output.py](./base/BaseCM/cm_output.py) for more information about the output json schema.
 
+Warning: the name of the function of in the file `worker.py` corresponds to the name of the CM as it will appear in the front-end. Make sure that this name is unique, otherwise it will generate conflicts with other CMs. 
+
 ## Test.py
 
 To perform unit tests on CMs, we use the Unittest library.
