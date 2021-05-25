@@ -1,10 +1,11 @@
 #!/usr/bin/env python3
-import BaseCM.cm_base as cm_base
-import BaseCM.cm_input as cm_input
+
+from BaseCM import cm_base as cm_base
+from BaseCM import cm_input as cm_input
 
 from multiply_raster import rasterstats
 
-app = cm_base.get_default_app()
+app = cm_base.get_default_app("multiply")
 schema_path = cm_base.get_default_schema_path()
 
 

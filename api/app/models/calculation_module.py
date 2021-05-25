@@ -59,6 +59,7 @@ class CalculationModule:
 
     def __init__(self, cm_id, **kwargs):
         self.app = get_celery_app()
+        self.queue = kwargs.get("queue", cm_id)
         self.cm_id = cm_id
         self.name = kwargs.get("name", cm_id)
         self.pretty_name = kwargs.get("pretty_name", self.name)
@@ -73,7 +74,8 @@ class CalculationModule:
         this task id serves as a reference for getting the status of the task
         (failure, running or done) and its results.
         """
-        return self.app.send_task(self.cm_id, args, kwargs)
+        # Send to proper queue
+        return self.app.send_task(self.cm_id, args, kwargs, queue=self.queue)
 
 
 def list_cms() -> Dict[Text, CalculationModule]:

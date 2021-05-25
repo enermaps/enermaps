@@ -14,9 +14,9 @@ CELERY_BROKER_URL = os.environ.get("CELERY_BROKER_URL")
 CELERY_RESULT_BACKEND = os.environ.get("CELERY_RESULT_BACKEND")
 
 
-def get_default_app():
+def get_default_app(name):
     """Create default Celery application."""
-    app = Celery(__name__, broker=CELERY_BROKER_URL, backend=CELERY_RESULT_BACKEND)
+    app = Celery(name, broker=CELERY_BROKER_URL, backend=CELERY_RESULT_BACKEND)
 
     app.conf.update(
         task_serializer="json",
@@ -24,6 +24,7 @@ def get_default_app():
         result_serializer="json",
         timezone="Europe/Zurich",
         enable_utc=True,
+        task_default_queue=name,
     )
     return app
 
@@ -47,6 +48,7 @@ class CMBase(Task):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        self.queue = self.app.conf.task_default_queue
         signature = inspect.signature(self.__wrapped__)
         self.parameters = [p for p in signature.parameters]
         self.pretty_name = CMBase.format_function(self.__wrapped__)
@@ -83,12 +85,13 @@ class CMBase(Task):
         d["doc"] = self.__doc__
         d["pretty_name"] = self.pretty_name
         d["name"] = self.name
+        d["queue"] = self.queue
         return json.dumps(d)
 
 
 def base_task(app, schema_path):
     """Wrapper for the app.task decoration"""
-    return app.task(base=CMBase, bind=True, schema_path=schema_path)
+    return app.task(base=CMBase, bind=True, schema_path=schema_path, queue=app.name)
 
 
 def start_app(app):
