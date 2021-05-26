@@ -1,9 +1,9 @@
 {
   "type": "object",
   "properties": {
-    "factor": {
+    "tile_size": {
       "type": "number",
-      "default": 1
+      "default": 500
     }
   }
 }

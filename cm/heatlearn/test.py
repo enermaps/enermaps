@@ -2,6 +2,8 @@ import json
 import os
 import unittest
 
+from heatlearn import heatlearn
+
 CURRENT_FILE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 
@@ -17,7 +19,16 @@ def load_geojson(test_filename):
 
 
 class TestCM(unittest.TestCase):
-    pass
+    def test_rasterstats(self):
+        selection = load_geojson("selection_esm.geojson")
+        raster = get_testdata_path("2859.tif")
+        stats = heatlearn(selection, raster, 500)
+
+        self.assertEqual(
+            stats["values"]["results"],
+            26000.25,
+            "Request especting 0" " returned different values",
+        )
 
 
 if __name__ == "__main__":
