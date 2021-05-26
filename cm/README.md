@@ -1,9 +1,9 @@
 Base directory for the calculation modules (cm).
 
-A calculation module is an asynchronous slow task (from seconds to hours of latency for the answer). 
+A calculation module is an asynchronous slow task (from seconds to hours of latency for the answer).
 A calculation module takes a set of rasters, a selection vector shape and an optional set of parameters
 
-For a non implemented example, see [example_empty](./example_empty) CM. 
+For a non implemented example, see [example_empty](./example_empty) CM.
 And for a simple example, see [example_multiply](./example_multiply) CM.
 # Create a new cm
 
@@ -13,9 +13,9 @@ It must contain:
 * A setup.cfg symlink to the cm/setup.cfg file. (see
   https://mokacoding.com/blog/symliks-in-git/ for a brief explanation on symbolic links)
 * A worker.py entrypoint, this must be an executable that start the worker.
-* A test.py unittest testing the calculation without service dependencies (see 
+* A test.py unittest testing the calculation without service dependencies (see
   https://docs.python.org/3/library/unittest.html for explination about unittest library).
-* A schema.json jsonschema which describes the schema used for the input parameters (if applicable). 
+* A schema.json jsonschema which describes the schema used for the input parameters (if applicable).
   You can find additional information about jsonschema
   (see https://json-schema.org/).
 * A requirements.txt including cm specific dependencies.
@@ -51,7 +51,7 @@ max-line-length=88
 line_length=88
 ```
 
-To keep consistency in the project, 
+To keep consistency in the project,
 the following parameters mustn't be changed.
 
 ## Worker.py
@@ -89,7 +89,7 @@ The variable ```params``` refers to the data provided by the form on the fronten
 
 All CM provide a output dictionary. The 3 keys required are as follows:
 
-* graphs 
+* graphs
 * geofiles
 * values
 
@@ -98,26 +98,26 @@ See [cm_output.py](./base/BaseCM/cm_output.py) for more information about the ou
 ## Test.py
 
 To perform unit tests on CMs, we use the Unittest library.
-For this, we define a class dependent on the Unittest.TestCase class. 
+For this, we define a class dependent on the Unittest.TestCase class.
 In this class are functions that test a particular functionality of the CM.
 
 Pre-implemented methods make it possible to study the behaviour of the CM quite easily.
 Below is a non-exhaustive list of these methods:
 
-| Method                    | Checks that           
+| Method                    | Checks that
 |---------------------------|----------------------
-| assertEqual(a, b)         | a == b                       
-| assertNotEqual(a, b)      | a != b                       
-| assertTrue(x)             | bool(x) is True              
-| assertFalse(x)            | bool(x) is False             
-| assertIs(a, b)            | a is b                   
-| assertIsNot(a, b)         | a is not b               
-| assertIsNone(x)           | x is None            
-| assertIsNotNone(x)        | x is not None        
-| assertIn(a, b)            | a in b               
-| assertNotIn(a, b)         | a not in b           
-| assertIsInstance(a, b)    | isinstance(a, b)     
-| assertNotIsInstance(a, b) | not isinstance(a, b) 
+| assertEqual(a, b)         | a == b
+| assertNotEqual(a, b)      | a != b
+| assertTrue(x)             | bool(x) is True
+| assertFalse(x)            | bool(x) is False
+| assertIs(a, b)            | a is b
+| assertIsNot(a, b)         | a is not b
+| assertIsNone(x)           | x is None
+| assertIsNotNone(x)        | x is not None
+| assertIn(a, b)            | a in b
+| assertNotIn(a, b)         | a not in b
+| assertIsInstance(a, b)    | isinstance(a, b)
+| assertNotIsInstance(a, b) | not isinstance(a, b)
 
 See [unittest documentation](https://docs.python.org/3/library/unittest.html#assert-methods)
 for more information.
@@ -183,8 +183,8 @@ redis==3.5.3
 requests
 ````
 
-Whenever possible, it is preferable to specify 
-the version of the dependency used. 
+Whenever possible, it is preferable to specify
+the version of the dependency used.
 
 ## Docker
 
@@ -242,12 +242,6 @@ def output_raster(raster_name, raster_fd):
     return resp.ok
 ```
 
-def output_raster(raster_name, raster_fd):
-    """Add a raster to the api"""
-    files = {"file": (raster_name, raster_fd, "image/tiff")}
-    resp = requests.post(API_URL + "api/geofile/", files=files)
-    return resp.ok
-
 At the moment, only Geotiff is supported.
 
 # Test a cm
@@ -255,7 +249,7 @@ At the moment, only Geotiff is supported.
 Currently to test a particular cm, you will need to first start enermaps using `docker-compose up` in the root directory.
 Then you can connect to the redis queue. The multiply cm is given as an example.
 
-We strongly encourage you to write unittest that verify the good working of a calculation module 
+We strongly encourage you to write unittest that verify the good working of a calculation module
 and separated from the enermaps api.
 
 # CMs interaction

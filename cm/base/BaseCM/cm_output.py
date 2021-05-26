@@ -80,13 +80,14 @@ def validate(output: Dict) -> Dict:
 
 # get the api url
 API_URL = os.environ.get("API_URL")
+API_URL = "http://api"
 
 
 def output_raster(raster_name, raster_fd):
     """Add a raster to the api."""
     files = {"file": (raster_name, raster_fd, "image/tiff")}
     try:
-        resp = requests.post(API_URL + "api/geofile/", files=files)
+        resp = requests.post(API_URL + "/api/geofile/", files=files)
     except ConnectionError:
         logging.error("Error during the post of the file.")
     return resp.status_code
