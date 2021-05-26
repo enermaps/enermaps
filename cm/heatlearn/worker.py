@@ -12,7 +12,6 @@ schema_path = cm_base.get_default_schema_path()
 def heat_learn(self, selection: dict, rasters: list, params: dict):
     """This is a calculation module that multiplies the raster by an factor.
     If there is no raster, we raise a value error.
-    If there are many rasters, we select the first one.
     """
     # def create_data_indicator_str(json_form):
     #    for
@@ -24,10 +23,10 @@ def heat_learn(self, selection: dict, rasters: list, params: dict):
         raise ValueError("The selection must be a feature set.")
     if not selection["features"]:
         raise ValueError("The selection must be non-empty.")
-    raster_path = cm_input.get_raster_path(rasters[0])
+    raster_paths = cm_input.get_raster_path(rasters[0])
     self.validate_params(params)
     tile_size = params["tile_size"]
-    results = heatlearn(selection, raster_path, tile_size)
+    results = heatlearn(selection, raster_paths, tile_size)
     return results
 
 

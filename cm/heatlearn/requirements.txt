@@ -4,4 +4,5 @@ rasterio==1.1.8
 pyproj==3.0.0.post1
 matplotlib==3.4.2
 tensorflow==2.4.1
-urllib3
+urllib3==1.26.5
+geocube==0.0.17
