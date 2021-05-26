@@ -1,8 +1,10 @@
 FROM ubuntu:20.04
 RUN apt-get update && \
     apt-get --yes install python3 python3-pip &&\
+    apt-get --yes install libpq-dev &&\
     rm -rf /var/cache/apt/archives/
 WORKDIR cm-heatlearn
+
 COPY heatlearn/requirements.txt requirements.txt
 RUN pip3 install -r requirements.txt
 COPY base /tmp/base
