@@ -80,7 +80,6 @@ def validate(output: Dict) -> Dict:
     # data structure
     return output_schema.load(data=output)
 
-
 def output_raster(raster_name, raster_fd):
     """Add a raster to the api."""
     files = {"file": (raster_name, raster_fd, "image/tiff")}
