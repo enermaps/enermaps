@@ -1,8 +1,18 @@
 FROM ubuntu:20.04
+# SET TZ for GDAL
+ENV TZ=Europe/Zurich
+RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
+
 RUN apt-get update && \
     apt-get --yes install python3 python3-pip &&\
     apt-get --yes install libpq-dev &&\
+    apt-get --yes install gdal-bin &&\
+    apt-get --yes install libgdal-dev &&\
     rm -rf /var/cache/apt/archives/
+
+ENV CPLUS_INCLUDE_PATH=/usr/include/gdal
+ENV C_INCLUDE_PATH=/usr/include/gdal
+
 WORKDIR cm-heatlearn
 
 COPY heatlearn/requirements.txt requirements.txt
