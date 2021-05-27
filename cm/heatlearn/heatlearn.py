@@ -33,7 +33,10 @@ ESM_dict = {
     50: 0,  # BU Area - Built-up
 }
 
-MODEL_UUID = "5d7493b6-9705-11eb-b3f9-3e22fb3fc3ab"
+MODELS = {
+    500: "9216fdce-9855-11eb-b3f9-3e22fb3fc3ab",
+    300: "2dcaa71c-9837-11eb-b3f9-3e22fb3fc3ab",
+}
 
 
 def replace_with_dict(ar: np.array, dic: dict = ESM_dict):
@@ -82,29 +85,15 @@ def makeGrid(bounds, size):
     wide = size
     length = size
 
-    cols = list(
-        range(int(np.floor(xmin)), int(np.floor(xmax) - (xmax - xmin) % size), wide)
-    )
-    rows = list(
-        range(int(np.floor(ymin)), int(np.floor(ymax) - (ymax - ymin) % size), length)
-    )
-
-    decimal_x = xmin - int(xmin)
-    decimal_y = ymin - int(ymin)
-
-    # rows.reverse()
+    cols = list(np.arange(xmin, xmax + wide, wide))
+    rows = list(np.arange(ymin, ymax + length, length))
 
     polygons = []
-    for x in cols:
-        for y in rows:
+    for x in cols[:-1]:
+        for y in rows[:-1]:
             polygons.append(
                 Polygon(
-                    [
-                        (x + decimal_x, y + decimal_y),
-                        (x + wide + decimal_x, y + decimal_y),
-                        (x + decimal_x + wide, y + decimal_y + length),
-                        (x + decimal_x, y + decimal_y + length),
-                    ]
+                    [(x, y), (x + wide, y), (x + wide, y + length), (x, y + length)]
                 )
             )
 
@@ -114,10 +103,8 @@ def makeGrid(bounds, size):
 
 def heatlearn(geojson, raster_paths, tile_size):
     """Get heating demand from HeatLearn Model."""
-
-    tile_size = 500
+    assert tile_size in [500, 300]
     pixel_size = 2.5
-
     start = time()
 
     # Create boundary
@@ -148,12 +135,16 @@ def heatlearn(geojson, raster_paths, tile_size):
     tiles = tiles.set_crs("EPSG:3035")
     logging.info(boundary.geometry)
     logging.info(tiles.total_bounds)
-    tiles = tiles.loc[tiles.within(boundary.iloc[0].geometry), :]
+    tiles = tiles.loc[tiles.intersects(boundary.iloc[0].geometry), :]
     tiles = tiles.reset_index()
     assert tiles.shape[0] > 0
 
     # Prepare raster
-    with rasterio.open(raster_paths) as dataset:
+    if len(raster_paths) == 1:
+        raster_path = raster_paths[0]
+    else:
+        pass  # TBD: Use Rasterio to merge rasters
+    with rasterio.open(raster_path) as dataset:
         raster = dataset.read()
         meta = dataset.meta
         raster = replace_with_dict(raster)
@@ -187,7 +178,7 @@ def heatlearn(geojson, raster_paths, tile_size):
                 X[t, :, :, 0] = matrix
 
     # Predictions
-    model = load_model(os.path.join("models", MODEL_UUID, "model"))
+    model = load_model(os.path.join("models", MODELS[tile_size], "model"))
     preds = model.predict(X)
 
     pred_done = time()
@@ -198,12 +189,15 @@ def heatlearn(geojson, raster_paths, tile_size):
     cube = make_geocube(
         vector_data=tiles,
         measurements=["preds"],
-        resolution=(tile_size, -tile_size),
+        resolution=(-tile_size, tile_size),
         output_crs="EPSG:3035",
     )
     cube["preds"].rio.to_raster("tmp/tmp.tif")
 
-    with open("tmp/tmp.tif", "rb") as f:
+    # Colorize
+    os.system("gdaldem color-relief -alpha tmp/tmp.tif colors.txt tmp/tmp_rgb.tif")
+
+    with open("tmp/tmp_rgb.tif", "rb") as f:
         files = {"file": ("out.tif", f, "image/tiff")}
         session = requests.Session()
         if not wait_for_reachability(session, "http://api"):
@@ -216,7 +210,7 @@ def heatlearn(geojson, raster_paths, tile_size):
     ret = dict()
     ret["graphs"] = {}
 
-    ret["geofiles"] = {"file": "tmp/tmp.tif"}
+    ret["geofiles"] = {"file": "tmp/tmp_rgb.tif"}
     ret["values"] = {"results": int(np.round(np.sum(preds), 0))}
 
     logging.info("We took {!s} to deploy the model".format(pred_done - start))
