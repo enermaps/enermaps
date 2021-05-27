@@ -15,12 +15,13 @@ Once EnerMaps launched, the frontend should be available on this adress : http:/
 
 To make the CM work, we need three inputs:
 
-* the raster we want to study (TBD: should be forced to ESM),
-* the areas we want to study,
-* the tile size (not implemented).
+* the raster we want to study (TBD: should be forced to ESM);
+* the boundary of the area we want to study;
+* the tile size.
 
 
 ### Ouputs
 
 As an output, we get the following data:
-* a raster representing the heating density;
+* a false-color raster representing the absolute heating demand for each tile;
+* aggregated results for all tiles within the boundary;
