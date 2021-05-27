@@ -25,8 +25,8 @@ class TestCM(unittest.TestCase):
         stats = heatlearn(selection, raster_paths, 500)
 
         self.assertEqual(
-            stats["values"]["results"],
-            167943,
+            stats["values"]["Annual heating demand [GWh]"],
+            168,
             "Request especting 0" " returned different values",
         )
 

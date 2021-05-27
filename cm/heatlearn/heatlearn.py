@@ -154,11 +154,25 @@ def heatlearn(geojson, raster_paths, tile_size):
         """Prepare features for rasterio (source: https://automating-gis-processes.github.io/CSC18/lessons/L6/clipping-raster.html)."""
         return [json.loads(gdf.to_json())["features"][0]["geometry"]]
 
+    def checkTile(matrix, tile_size):
+        """Check whether tile complies with minimum requirements."""
+        with open(
+            os.path.join("models", MODELS[tile_size], "parameters.json"), "r"
+        ) as f:
+            parameters = json.loads(f.read())
+        coverage_ratio = np.sum(matrix == 0) / np.sum(matrix >= 0)
+        if coverage_ratio > parameters["idc_coverage_ratio"]:
+            return True
+        else:
+            return False
+
     # Prepare inputs for the model
+    # Initialize variables
     X = np.zeros(
         [tiles.shape[0], int(tile_size / pixel_size), int(tile_size / pixel_size), 2]
     )  # the second channel (mask) must have zeros
-
+    tiles["suitable"] = False
+    # Clip and check raster tiles
     with rasterio.io.MemoryFile() as memfile:
         with memfile.open(**meta) as dataset:
             dataset.write(raster)  # dataset with new encoding
@@ -172,10 +186,18 @@ def heatlearn(geojson, raster_paths, tile_size):
                     dataset=dataset, shapes=coords, crop=True, pad=0
                 )
                 matrix = np.squeeze(out_img)
+
+                # Check suitability
+                tiles.loc[t, "suitable"] = checkTile(matrix, tile_size)
+
                 # Make sure that the Rasterio clipping is successful
                 assert 256 not in np.unique(out_img)  # no 256-encoded pixels at borders
                 assert matrix.shape == (tile_size / 2.5, tile_size / 2.5)  # exact size
                 X[t, :, :, 0] = matrix
+
+    # Filter tiles
+    X = X[tiles["suitable"] == True, :, :, :]
+    tiles = tiles.loc[tiles["suitable"] == True, :]
 
     # Predictions
     model = load_model(os.path.join("models", MODELS[tile_size], "model"))
@@ -211,7 +233,12 @@ def heatlearn(geojson, raster_paths, tile_size):
     ret["graphs"] = {}
 
     ret["geofiles"] = {"file": "tmp/tmp_rgb.tif"}
-    ret["values"] = {"results": int(np.round(np.sum(preds), 0))}
+    ret["values"] = {
+        "Annual heating demand [GWh]": int(np.round(np.sum(preds) / 1000, 0)),
+        "Heating density [MWh/ha]": int(
+            np.round(np.sum(preds) / (tiles.shape[0] * (tile_size ** 2) * 0.0001), 0)
+        ),
+    }
 
     logging.info("We took {!s} to deploy the model".format(pred_done - start))
     validate(ret)
