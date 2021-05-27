@@ -5,7 +5,7 @@
     "tile_type": "overlapped",
     "ratio_with_idc": 0.4,
     "idc_coverage_ratio": 0.05,
-    "difference_ratio": 0.8,
+    "difference_ratio": 2,
     "predicting_variable": "idc_abs",
     "predicting_on_tile100": false,
     "flipping": false,
