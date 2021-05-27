@@ -24,11 +24,11 @@ class TestCM(unittest.TestCase):
         raster = get_testdata_path("200km_2p5m_N26E38_07_18.tif")
         stats = heatlearn(selection, raster, 500)
 
-        # self.assertEqual(
-        #     stats["values"]["results"],
-        #     224393.58,
-        #     "Request especting 0" " returned different values",
-        # )
+        self.assertEqual(
+            stats["values"]["results"],
+            224394,
+            "Request especting 0" " returned different values",
+        )
 
 
 if __name__ == "__main__":
