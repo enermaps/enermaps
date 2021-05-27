@@ -113,14 +113,14 @@ def makeGrid(bounds, size):
 
 
 def heatlearn(geojson, raster_paths, tile_size):
-    """Get heating demand from HeatLearn Model
-    """
+    """Get heating demand from HeatLearn Model."""
 
     tile_size = 500
     pixel_size = 2.5
 
     start = time()
 
+    # Create boundary
     geometries = []
     for feature in geojson["features"]:
         geometry = feature["geometry"]
@@ -129,8 +129,30 @@ def heatlearn(geojson, raster_paths, tile_size):
     boundary = gpd.GeoSeries(cascaded_union(geometries))
     boundary = boundary.set_crs("EPSG:4326")
     boundary = boundary.to_crs("EPSG:3035")
+    boundary = gpd.GeoDataFrame(boundary)
+    boundary = boundary.rename(columns={0: "geometry"}).set_geometry("geometry")
     assert boundary.shape[0] == 1
 
+    # Make sure that the clipping geometry does not leave any pixel out
+    boundary["geometry"] = boundary["geometry"].apply(
+        lambda x: wkt.loads(wkt.dumps(x, rounding_precision=0))
+    )
+    offset = boundary.total_bounds % pixel_size
+    boundary["geometry"] = boundary["geometry"].translate(
+        xoff=-offset[0], yoff=-offset[1]
+    )
+
+    # Make tiles
+    bounds = boundary.total_bounds
+    tiles = makeGrid(bounds, tile_size)
+    tiles = tiles.set_crs("EPSG:3035")
+    logging.info(boundary.geometry)
+    logging.info(tiles.total_bounds)
+    tiles = tiles.loc[tiles.within(boundary.iloc[0].geometry), :]
+    tiles = tiles.reset_index()
+    assert tiles.shape[0] > 0
+
+    # Prepare raster
     with rasterio.open(raster_paths) as dataset:
         raster = dataset.read()
         meta = dataset.meta
@@ -141,55 +163,38 @@ def heatlearn(geojson, raster_paths, tile_size):
         """Prepare features for rasterio (source: https://automating-gis-processes.github.io/CSC18/lessons/L6/clipping-raster.html)."""
         return [json.loads(gdf.to_json())["features"][0]["geometry"]]
 
-    bounds = boundary.total_bounds
-    tiles = makeGrid(bounds, tile_size)
-    tiles = tiles.set_crs("EPSG:3035")
-    # tiles = tiles.loc[tiles.within(boundary),:]
-    try:
-        assert tiles.shape[0] > 0
-    except AssertionError:
-        logging.error("Empty tiles.")
-
-    # Make sure that the clipping geometry does not leave any pixel out
-    tiles["geometry"] = tiles["geometry"].apply(
-        lambda x: wkt.loads(wkt.dumps(x, rounding_precision=0))
-    )
-    offset = tiles.total_bounds % pixel_size
-    tiles["geometry"] = tiles["geometry"].translate(xoff=-offset[0], yoff=-offset[1])
-
+    # Prepare inputs for the model
     X = np.zeros(
         [tiles.shape[0], int(tile_size / pixel_size), int(tile_size / pixel_size), 2]
-    )
+    )  # the second channel (mask) must have zeros
+
     with rasterio.io.MemoryFile() as memfile:
         with memfile.open(**meta) as dataset:
-            dataset.write(raster)
+            dataset.write(raster)  # dataset with new encoding
             for t, row in tiles.iterrows():
+                # Clipping geometry in Rasterio format
                 coords = getFeatures(
                     gpd.GeoDataFrame({"geometry": row.geometry}, index=[0])
                 )
+                # Clip using rasterio
                 out_img, out_transform = mask(
                     dataset=dataset, shapes=coords, crop=True, pad=0
                 )
                 matrix = np.squeeze(out_img)
-                try:
-                    assert 256 not in np.unique(out_img)
-                    assert matrix.shape == (tile_size / 2.5, tile_size / 2.5)
-                except AssertionError:
-                    logging.error("The clipping was not successful.")
+                # Make sure that the Rasterio clipping is successful
+                assert 256 not in np.unique(out_img)  # no 256-encoded pixels at borders
+                assert matrix.shape == (tile_size / 2.5, tile_size / 2.5)  # exact size
                 X[t, :, :, 0] = matrix
 
+    # Predictions
     model = load_model(os.path.join("models", MODEL_UUID, "model"))
     preds = model.predict(X)
 
-    stat_done = time()
-    ret = dict()
-    ret["graphs"] = {}
+    pred_done = time()
 
-    ret["geofiles"] = {"file": "tmp/tmp.tif"}
-    ret["values"] = {"results": float(np.mean(preds))}
-
+    # Prepare output
+    # Raster output
     tiles["preds"] = preds
-
     cube = make_geocube(
         vector_data=tiles,
         measurements=["preds"],
@@ -199,7 +204,6 @@ def heatlearn(geojson, raster_paths, tile_size):
     cube["preds"].rio.to_raster("tmp/tmp.tif")
 
     with open("tmp/tmp.tif", "rb") as f:
-        # output_raster("out.tif",f)
         files = {"file": ("out.tif", f, "image/tiff")}
         session = requests.Session()
         if not wait_for_reachability(session, "http://api"):
@@ -208,6 +212,13 @@ def heatlearn(geojson, raster_paths, tile_size):
             session.delete("http://api/api/geofile/out.tif")
             session.post("http://api/api/geofile", files=files)
 
-    logging.info("We took {!s} to deploy the model".format(stat_done - start))
+    # Dict return response
+    ret = dict()
+    ret["graphs"] = {}
+
+    ret["geofiles"] = {"file": "tmp/tmp.tif"}
+    ret["values"] = {"results": int(np.round(np.sum(preds), 0))}
+
+    logging.info("We took {!s} to deploy the model".format(pred_done - start))
     validate(ret)
     return ret
