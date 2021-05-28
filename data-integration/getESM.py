@@ -167,50 +167,50 @@ if __name__ == "__main__":
 
     directory = "data/{}".format(ds_id)
 
-    try:
-        assert os.path.exists(directory)
-        assert os.path.isdirectory(directory)
-        assert len(os.listdir(directory)) > 0
-    except AssertionError:
+    if (
+        os.path.exists(directory)
+        and os.path.isdir(directory)
+        and len(os.listdir(directory)) == N_FILES
+    ):
+        # Dezip
+        convertZip(directory)
+
+        # Retile
+        tiling(directory)
+
+        data, spatial = get(directory)
+
+        # Remove existing dataset
+        if utilities.datasetExists(ds_id, DB_URL) and not isForced:
+            raise FileExistsError("Use --force to replace the existing dataset.")
+        elif utilities.datasetExists(ds_id, DB_URL) and isForced:
+            utilities.removeDataset(ds_id, DB_URL)
+            logging.info("Removed existing dataset")
+        else:
+            pass
+
+        # Create dataset table
+        metadata = datasets.loc[ds_id].fillna("").to_dict()
+        metadata = json.dumps(metadata)
+        dataset = pd.DataFrame([{"ds_id": ds_id, "metadata": metadata}])
+        utilities.toPostgreSQL(
+            dataset, DB_URL, schema="datasets",
+        )
+
+        # Create data table
+        data["ds_id"] = ds_id
+        utilities.toPostgreSQL(
+            data, DB_URL, schema="data",
+        )
+
+        # Create spatial table
+        spatial["ds_id"] = ds_id
+        utilities.toPostgreSQL(
+            spatial, DB_URL, schema="spatial",
+        )
+    else:
         logging.error(
             "The {} directory must exist and contain {} files from Copernicus.".format(
                 directory, N_FILES
             )
         )
-
-    # Dezip
-    convertZip(directory)
-
-    # Retile
-    tiling(directory)
-
-    data, spatial = get(directory)
-
-    # Remove existing dataset
-    if utilities.datasetExists(ds_id, DB_URL) and not isForced:
-        raise FileExistsError("Use --force to replace the existing dataset.")
-    elif utilities.datasetExists(ds_id, DB_URL) and isForced:
-        utilities.removeDataset(ds_id, DB_URL)
-        logging.info("Removed existing dataset")
-    else:
-        pass
-
-    # Create dataset table
-    metadata = datasets.loc[ds_id].fillna("").to_dict()
-    metadata = json.dumps(metadata)
-    dataset = pd.DataFrame([{"ds_id": ds_id, "metadata": metadata}])
-    utilities.toPostgreSQL(
-        dataset, DB_URL, schema="datasets",
-    )
-
-    # Create data table
-    data["ds_id"] = ds_id
-    utilities.toPostgreSQL(
-        data, DB_URL, schema="data",
-    )
-
-    # Create spatial table
-    spatial["ds_id"] = ds_id
-    utilities.toPostgreSQL(
-        spatial, DB_URL, schema="spatial",
-    )
