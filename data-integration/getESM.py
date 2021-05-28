@@ -6,7 +6,7 @@ Prepare the ESM dataset for EnerMaps.
 Note that the 2.5-m resolution files must be downloaded from Copernicus (requires log-in)
 and extracted in the data/21 directory.
 This script expects that the original zip file from Copernicus is extracted
-in multiple zip files, which will be then converted in GeoTIFF.
+in multiple zip files, which will be then extracted and tiled.
 Created on Fri May 21 09:51:41 2021
 
 @author: giuseppeperonato
@@ -62,13 +62,9 @@ def convertZip(directory: str):
     files_list = glob.glob(os.path.join(directory, "*.zip"))
     if len(files_list) > 0:
         logging.info("Extracting zip files")
+        if not os.path.exists(os.path.join(directory, "orig_tiles")):
+            os.mkdir(os.path.join(directory, "orig_tiles"))
         for zipfile in files_list:
-            try:
-                assert len(files_list) == N_FILES
-            except AssertionError:
-                logging.error(
-                    "You should manually upload the files downloaded from Copernicus."
-                )
             extract_dir = os.path.join(
                 os.path.dirname(zipfile), pathlib.Path(zipfile).stem
             )
@@ -77,30 +73,46 @@ def convertZip(directory: str):
 
             logging.info(source_file)
 
-            dest_file = extract_dir + ".tif"
+            dest_file = os.path.join(
+                os.path.dirname(extract_dir),
+                "orig_tiles",
+                os.path.basename(extract_dir) + ".tif",
+            )
             os.system(
                 "gdal_translate {source_file} {dest_file}  -of GTIFF --config GDAL_PAM_ENABLED NO -co COMPRESS=DEFLATE -co BIGTIFF=YES".format(
                     source_file=source_file, dest_file=dest_file
                 )
             )
             shutil.rmtree(extract_dir)
-            shutil.rmtree(zipfile)
+            os.remove(zipfile)
     else:
         logging.info("There are no zip files to extract")
 
 
+def tiling(directory: str):
+    """Tile data from Copernicus."""
+    files_list = glob.glob(os.path.join(directory, "orig_tiles", "*.tif"))
+    if len(files_list) > 0:
+        logging.info("Extracting zip files")
+        for file in files_list:
+            target_dir = os.path.join(directory, os.path.basename(file))[:-4]
+            os.mkdir(target_dir)
+            os.system(
+                "gdal_retile.py -ps 400 400 -targetDir {target_dir} {source_file} ".format(
+                    target_dir=target_dir, source_file=file
+                )
+            )
+        shutil.rmtree(os.path.join(directory, "orig_tiles"))
+    else:
+        logging.info("There are no files to tile")
+
+
 def get(directory):
     """Prepare df and gdf with ESM data."""
-    files_list = glob.glob(os.path.join(directory, "*.tif"))
+    files_list = glob.glob(os.path.join(directory, "*", "*.tif"))
     fids = []
     extents = []
     for file in files_list:
-        try:
-            assert len(files_list) == N_FILES
-        except AssertionError:
-            logging.error(
-                "You should manually upload the files downloaded from Copernicus."
-            )
         logging.info(file)
         src_ds = gdal.Open(file)
         prj = src_ds.GetProjection()
@@ -166,7 +178,12 @@ if __name__ == "__main__":
             )
         )
 
+    # Dezip
     convertZip(directory)
+
+    # Retile
+    tiling(directory)
+
     data, spatial = get(directory)
 
     # Remove existing dataset
@@ -192,7 +209,7 @@ if __name__ == "__main__":
         data, DB_URL, schema="data",
     )
 
-    # Create empty spatial table
+    # Create spatial table
     spatial["ds_id"] = ds_id
     utilities.toPostgreSQL(
         spatial, DB_URL, schema="spatial",
