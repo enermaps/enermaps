@@ -23,8 +23,6 @@ import sys
 import geopandas as gpd
 import pandas as pd
 import utilities
-from osgeo import gdal, osr
-from pyproj import CRS
 from shapely.geometry import box
 
 N_FILES = 279
@@ -45,16 +43,6 @@ DB_URL = "postgresql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_DB}".form
     DB_PASSWORD=DB_PASSWORD,
     DB_DB=DB_DB,
 )
-
-
-def getExtentBox(ds):
-    """Return shapely box of corner coordinates from a gdal Dataset."""
-    xmin, xpixel, _, ymax, _, ypixel = ds.GetGeoTransform()
-    width, height = ds.RasterXSize, ds.RasterYSize
-    xmax = xmin + width * xpixel
-    ymin = ymax + height * ypixel
-
-    return box(xmin, ymin, xmax, ymax)
 
 
 def convertZip(directory: str):
@@ -93,12 +81,12 @@ def tiling(directory: str):
     """Tile data from Copernicus."""
     files_list = glob.glob(os.path.join(directory, "orig_tiles", "*.tif"))
     if len(files_list) > 0:
-        logging.info("Extracting zip files")
+        logging.info("Tiling")
         for file in files_list:
             target_dir = os.path.join(directory, os.path.basename(file))[:-4]
             os.mkdir(target_dir)
             os.system(
-                "gdal_retile.py -ps 400 400 -targetDir {target_dir} {source_file} ".format(
+                "gdal_retile.py -ps 400 400 -targetDir {target_dir} -csv tiles.csv -csvDelim , {source_file} ".format(
                     target_dir=target_dir, source_file=file
                 )
             )
@@ -109,24 +97,20 @@ def tiling(directory: str):
 
 def get(directory):
     """Prepare df and gdf with ESM data."""
-    files_list = glob.glob(os.path.join(directory, "*", "*.tif"))
-    fids = []
-    extents = []
+    files_list = glob.glob(os.path.join(directory, "*", "*.csv"))
+    data = []
     for file in files_list:
         logging.info(file)
-        src_ds = gdal.Open(file)
-        prj = src_ds.GetProjection()
-        srs = osr.SpatialReference(wkt=prj)
-        source_crs = CRS.from_epsg(srs.GetAttrValue("authority", 1))
-
-        try:
-            assert source_crs.to_string() == "EPSG:3035"
-        except AssertionError:
-            logging.error("Input files must be in EPSG:3035")
-
-        extentBox = getExtentBox(src_ds)
-        fids.append(os.path.basename(file))
-        extents.append(extentBox)
+        tiles = pd.read_csv(file, header=None)
+        tiles.columns = ["tilename", "minx", "maxx", "miny", "maxy"]
+        tiles["extentBox"] = tiles.apply(
+            lambda x: box(x.minx, x.miny, x.maxx, x.maxy), axis=1
+        )
+        tiles["tilename"] = (
+            os.path.basename(os.path.dirname(file)) + "/" + tiles["tilename"]
+        )
+        data.append(tiles)
+    data = pd.concat(data, ignore_index=True)
 
     enermaps_data = pd.DataFrame(
         columns=[
@@ -142,10 +126,11 @@ def get(directory):
             "unit",
         ]
     )
-    enermaps_data["fid"] = fids
+    enermaps_data["fid"] = data["tilename"]
+    enermaps_data["israster"] = ISRASTER
 
-    spatial = gpd.GeoDataFrame(geometry=extents, crs="EPSG:3035",)
-    spatial["fid"] = fids
+    spatial = gpd.GeoDataFrame(geometry=data["extentBox"], crs="EPSG:3035",)
+    spatial["fid"] = data["tilename"]
 
     return enermaps_data, spatial
 
@@ -205,7 +190,7 @@ if __name__ == "__main__":
 
         # Create spatial table
         spatial["ds_id"] = ds_id
-        utilities.toPostgreSQL(
+        utilities.toPostGIS(
             spatial, DB_URL, schema="spatial",
         )
     else:
