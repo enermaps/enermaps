@@ -22,10 +22,16 @@ def cm_multiply_raster(self, selection: dict, rasters: list, params: dict):
     if not selection["features"]:
         raise ValueError("The selection must be non-empty.")
     raster_path = cm_input.get_raster_path(rasters[0])
-    self.validate_params(params)
-    factor = params["factor"]
-    val_multiply = rasterstats(selection, raster_path, factor)
-    return val_multiply
+    selection_valid, invalid_selection_response = cm_input.validate_selection(
+        selection=selection, raster=raster_path
+    )
+    if selection_valid is True:
+        self.validate_params(params)
+        factor = params["factor"]
+        val_multiply = rasterstats(selection, raster_path, factor)
+        return val_multiply
+    else:
+        return invalid_selection_response
 
 
 if __name__ == "__main__":
