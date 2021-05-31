@@ -31,13 +31,14 @@ def validate_selection(
     """
     Find the number of count for given a raster and a area selection in order to define if the
     selection is valid or not.
+    The count is a non-null pixel of a raster.
 
     Inputs:
-        * raster : path to the raster selected from the frontend.
-        * selection : area selection made from the frontend
+        * raster : selected raster from the frontend.
+        * selection : selected area from the frontend
     Outputs:
-        * selection_valid : boolean that define if raster selection is valid.
-        * response : response return to the front end when are selected is not valid.
+        * selection_valid : boolean that defines if the selection is valid.
+        * response : dictionary of the validation result
     """
     with rasterio.open(raster) as src:
         project = pyproj.Transformer.from_crs(
@@ -68,7 +69,7 @@ def validate_selection(
 
     if count > 0:
         selection_valid = True
-        response = None
+        response = {}
     else:
         selection_valid = False
         response = dict()
