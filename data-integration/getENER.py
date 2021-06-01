@@ -1,9 +1,12 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-jhj.
+Custom script to recover results from ENER/C2/2014-641 project.
 
-Created on Mon May 31 18:04:18 2021
+Only WP3 results are integrated (scenarios up to 2020 and 2030).
+The files must be manually downloaded  to be integrated
+
+Created on Tue Jun  1 13:47:49 2021
 
 @author: giuseppeperonato
 """
@@ -18,19 +21,31 @@ import utilities
 
 # Constants
 logging.basicConfig(level=logging.INFO)
-N_FILES = 2
+N_FILES = 14
+SPATIAL = ["CO_ID"]
+TIME = ["Year"]
+TRANSL = {"EL": "GR", "UK": "GB"}
+UNIT = "TWh"
 ISRASTER = False
-VARIABLE = ["Parameter"]
-FIELDS = [
-    "Scenario",
-    "Sector",
-    "Perspective",
-    "Supertype",
-    "Type",
-    "Technology",
-    "Specification",
-    "Fuel",
-]
+DT = 8760
+FIELDS = ["Scenario", "Sector", "Sub-sector", "Energy Carrier", "Energy type"]
+
+VARIABLES = {
+    "MappingHC Total": "Total Heating and Cooling",
+    "H: Heating": "Heating",
+    "C: Cooling": "Cooling",
+    "Space heating total": "Space heating",
+    "Water heating total": "Water heating",
+    "Process heating total": "Process heating",
+    "Process cooling total": "Process cooling",
+    "Space cooling total": "Space cooling",
+}
+
+FILES = {
+    "WP3_DataAnnex_FinalEnergy_ForPublication_201607.xlsx": "Final Energy",
+    "WP3_DataAnnex_PrimaryEnergy_ForPublication_201607.xlsx": "Primary Energy",
+    "WP3_DataAnnex_UsefulEnergy_ForPublication_201607.xlsx": "Useful Energy",
+}
 
 
 # In Docker
@@ -64,29 +79,30 @@ def get(directory: str) -> pd.DataFrame:
         Data in EnerMaps schema.
 
     """
-    energy = pd.read_excel(
-        os.path.join(directory, "1557750718403-Invert_EE-lab_energy_demand_v1.0.xlsm"),
-        skiprows=5,
-        header=0,
-    )
-    costs = pd.read_excel(
-        os.path.join(directory, "1557750689653-Invert_EE-lab_costs_v1.0.xlsm"),
-        skiprows=5,
-        header=0,
-    )
+    data = []
+    for file in FILES.keys():
+        path = os.path.join(directory, file)
+        for sheet in range(2, 6):
+            sheet = pd.read_excel(path, sheet_name=sheet)
+            sheet = sheet.iloc[1:, :-7]
+            sheet["Energy type"] = FILES[file]
+            data.append(sheet)
 
-    data = pd.concat([energy, costs], ignore_index=True)
-    data = data.iloc[:, :-3]
+    data = pd.concat(data, ignore_index=True)
+    data[SPATIAL] = data[SPATIAL].replace(TRANSL)
+    data = data.melt(id_vars=FIELDS + SPATIAL + TIME, value_vars=VARIABLES.keys())
+
+    data["variable"] = data["variable"].replace(VARIABLES)
+    data["variable"] = data["Energy type"] + " | " + data["variable"]
 
     # Remove nan
-    data = data.loc[~data["Value"].isnull(), :]
+    data = data.loc[~data["value"].isnull(), :]
     data = data.where(data.notnull(), None)
 
     # Make extra fields in JSON
     data["fields"] = data[FIELDS].to_dict(orient="records")
     data["fields"] = data["fields"].apply(lambda x: json.dumps(x))
 
-    # Conversion
     enermaps_data = pd.DataFrame(
         columns=[
             "start_at",
@@ -101,13 +117,14 @@ def get(directory: str) -> pd.DataFrame:
             "unit",
         ]
     )
-    enermaps_data["fid"] = data["Country"]
-    enermaps_data["value"] = data["Value"]
+    enermaps_data["fid"] = data[SPATIAL].iloc[:, 0]
+    enermaps_data["value"] = data["value"]
     enermaps_data["fields"] = data["fields"]
-    enermaps_data["variable"] = data[VARIABLE].astype(str).agg(" | ".join, axis=1)
-    enermaps_data["unit"] = data["Unit"]
+    enermaps_data["variable"] = data["variable"]
+    enermaps_data["unit"] = UNIT
     enermaps_data["start_at"] = pd.to_datetime(data["Year"], format="%Y")
     enermaps_data["israster"] = ISRASTER
+    enermaps_data["dt"] = DT
 
     return enermaps_data
 
@@ -124,7 +141,7 @@ if __name__ == "__main__":
     else:
         isForced = False
 
-    files_dir = os.path.join("data", str(ds_id))
+    files_dir = os.path.join(str(ds_id))
     if os.path.exists(files_dir) and len(os.listdir(files_dir)) == N_FILES:
 
         data = get(files_dir)
