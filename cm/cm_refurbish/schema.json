@@ -1,0 +1,21 @@
+{
+  "type": "object",
+  "properties": {
+    "reference year": {
+      "type": "number",
+      "default": 2020
+    },
+    "scenario RCP": {
+      "type": "number",
+      "default": 4.5
+    },
+    "epoch of construction": {
+      "type": "string",
+      "default": "1960-1970"
+    },
+    "percentage refurbish rate": {
+      "type": "number",
+      "default": 10.0
+    }
+  }
+}

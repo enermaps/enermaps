@@ -22,6 +22,17 @@ services:
     env_file:
       .env
 
+  cm-refurbish:
+    build:
+      context: ./cm
+      dockerfile: cm_refurbish/Dockerfile
+    environment:
+      UPLOAD_DIR: /upload-dir
+    volumes:
+      - upload-data:/upload-dir
+    env_file:
+      .env
+
   frontend:
     build:
       context: ./frontend
