@@ -29,8 +29,8 @@ def validate_selection(
     raster: str,
 ):
     """
-    Find the number of count for given a raster and a area selection in order to define if the
-    selection is valid or not.
+    Find the number of counts for a given raster and area selection to define
+    whether the selection is valid or not.
     The count is a non-null pixel of a raster.
 
     Inputs:
