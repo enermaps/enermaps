@@ -1,0 +1,21 @@
+{
+  "type": "object",
+  "properties": {
+    "reference year": {
+      "type": "number",
+      "default": 2020
+    },
+    "scenario RCP": {
+      "type": "number",
+      "default": 4.5
+    },
+    "base temperature for HDD": {
+      "type": "number",
+      "default": 18.0
+    },
+    "base temperature for CDD": {
+      "type": "number",
+      "default": 22.0
+    }
+  }
+}
