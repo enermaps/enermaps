@@ -39,6 +39,17 @@ services:
     env_file:
       .env
 
+  cm-hdd_cdd:
+    build:
+      context: ./cm
+      dockerfile: cm_hdd_cdd/Dockerfile
+    environment:
+      UPLOAD_DIR: /upload-dir
+    volumes:
+      - upload-data:/upload-dir
+    env_file:
+      .env
+
   frontend:
     build:
       context: ./frontend
