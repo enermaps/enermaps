@@ -1,12 +1,12 @@
 import os
 
 import pyproj
+import rasterio
+from rasterstats import zonal_stats
 from shapely.geometry import shape
 from shapely.ops import cascaded_union, transform
 
-import rasterio
 from BaseCM.cm_output import validate
-from rasterstats import zonal_stats
 
 GEOJSON_PROJ = "EPSG:4326"
 
