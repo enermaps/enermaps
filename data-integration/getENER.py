@@ -141,7 +141,7 @@ if __name__ == "__main__":
     else:
         isForced = False
 
-    files_dir = os.path.join(str(ds_id))
+    files_dir = os.path.join("data", str(ds_id))
     if os.path.exists(files_dir) and len(os.listdir(files_dir)) == N_FILES:
 
         data = get(files_dir)
