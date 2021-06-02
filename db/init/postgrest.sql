@@ -13,7 +13,8 @@ GRANT SELECT ON public.datasets TO api_user;
 
 -- Sample query
 DROP FUNCTION IF EXISTS enermaps_query(dataset_id integer);
-CREATE FUNCTION enermaps_query(dataset_id integer)
+DROP FUNCTION IF EXISTS enermaps_query(dataset_id integer, row_limit integer, row_offset integer);
+CREATE FUNCTION enermaps_query(dataset_id integer, row_limit integer default 100, row_offset integer default 0)
     RETURNS TABLE(fid char, variables json, fields json, start_at timestamp without time zone, dt float, z float, ds_id int, geometry text)
     AS 'SELECT data.fid,
             json_object_agg(variable, value) as variables,
@@ -23,15 +24,17 @@ CREATE FUNCTION enermaps_query(dataset_id integer)
     INNER JOIN spatial ON data.fid = spatial.fid
     WHERE data.ds_id = dataset_id
     GROUP BY data.fid, start_at, dt, z, data.ds_id, fields, geometry
-    ORDER BY data.fid;'
+    ORDER BY data.fid
+    LIMIT row_limit OFFSET row_offset;'
     LANGUAGE SQL
     IMMUTABLE
     RETURNS NULL ON NULL INPUT;
-GRANT EXECUTE ON FUNCTION enermaps_query(dataset_id integer) to api_user;
+GRANT EXECUTE ON FUNCTION enermaps_query(dataset_id integer, row_limit integer, row_offset integer) to api_user;
 
 -- Sample query returning geojson
 DROP FUNCTION IF EXISTS enermaps_geojson(dataset_id integer);
-CREATE FUNCTION enermaps_geojson(dataset_id integer)
+DROP FUNCTION IF EXISTS enermaps_geojson(dataset_id integer, row_limit integer, row_offset integer);
+CREATE FUNCTION enermaps_geojson(dataset_id integer, row_limit integer default 100, row_offset integer default 0)
     RETURNS JSONB
     AS $$
     SELECT jsonb_build_object(
@@ -53,12 +56,12 @@ FROM (
         INNER JOIN spatial ON data.fid = spatial.fid
         WHERE data.ds_id = dataset_id
         GROUP BY data.fid, start_at, dt, z, data.ds_id, fields, geometry
-        ORDER BY data.fid) inputs) features;
+        ORDER BY data.fid LIMIT row_limit OFFSET row_offset) inputs) features;
         $$
     LANGUAGE SQL
     IMMUTABLE
     RETURNS NULL ON NULL INPUT;
-GRANT EXECUTE ON FUNCTION enermaps_query(dataset_id integer) to api_user;
+GRANT EXECUTE ON FUNCTION enermaps_geojson(dataset_id integer, row_limit integer, row_offset integer) to api_user;
 
 
 -- Code to support OPENAIRE gateway

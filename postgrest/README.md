@@ -68,6 +68,11 @@ print(response)
 ```
 This is based on the PostgreSQL function `enermaps_geojson()`.
 
+To prevent large queries, these optional parameters are set by default:
+
+- `row_limit = 100`
+- `row_offset = 0`
+
 After adding/updating functions, you need to rebuild Postgrest cache using the following command:
 
 ```docker-compose kill -s SIGUSR1 postgrest```
