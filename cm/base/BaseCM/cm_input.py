@@ -1,3 +1,4 @@
+import logging
 import os
 
 import pyproj
@@ -25,8 +26,7 @@ class StatNotComputeError(Exception):
 
 
 def validate_selection(
-    selection: dict,
-    raster: str,
+    selection: dict, raster: str, max_count: int = None,
 ):
     """
     Find the number of counts for a given raster and area selection to define
@@ -47,15 +47,15 @@ def validate_selection(
 
     try:
         features = selection["features"]
-    except:
-        raise KeyError("GEOJSON does not have features key.")
+    except KeyError:
+        logging.error("Selection does not have any feature.")
 
     geometries = []
     for feature in features:
         try:
             geometry = feature["geometry"]
-        except:
-            raise KeyError("GEOJSON does not have geometry key.")
+        except KeyError:
+            logging.error("Feature does not have geometry key.")
         geoshape = shape(geometry)
         projected_shape = transform(project, geoshape)
         geometries.append(projected_shape)
@@ -64,18 +64,22 @@ def validate_selection(
 
     try:
         count = stats[0]["count"]
-    except:
+    except KeyError:
         raise StatNotComputeError(f"Statistics not compute: {stats}")
 
-    if count > 0:
-        selection_valid = True
-        response = {}
+    response = dict()
+    response["graphs"] = {}
+    response["geofiles"] = {}
+    response["values"] = {}
+    selection_valid = False
+    if count <= 0:
+        response["values"] = {"No count found:": 0}
     else:
-        selection_valid = False
-        response = dict()
-        response["graphs"] = {}
-        response["geofiles"] = {}
-        response["values"] = {"Selection not valid - Count :": 0}
-        validate(response)
-
+        if max_count is not None and count > max_count:
+            response["values"] = {
+                "Too many count found (max." + str(max_count) + "):": str(count)
+            }
+        else:
+            selection_valid = True
+    validate(response)
     return selection_valid, response
