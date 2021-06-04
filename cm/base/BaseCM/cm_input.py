@@ -26,7 +26,9 @@ class StatNotComputeError(Exception):
 
 
 def validate_selection(
-    selection: dict, raster: str, max_count: int = None,
+    selection: dict,
+    raster: str,
+    max_count: int = None,
 ):
     """
     Find the number of counts for a given raster and area selection to define
