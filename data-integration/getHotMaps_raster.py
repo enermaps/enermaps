@@ -15,7 +15,6 @@ import sys
 
 import frictionless
 import pandas as pd
-
 import utilities
 
 # Constants
@@ -93,7 +92,7 @@ def get(repository: str, dp: frictionless.package.Package, isForced: bool = Fals
             }
             rasters.append(raster)
             # check statistics for each resource
-            if dp != None and "stats" in new_dp["resources"][resource_idx]:
+            if dp is not None and "stats" in new_dp["resources"][resource_idx]:
                 if (
                     dp["resources"][resource_idx]["stats"]
                     != new_dp["resources"][resource_idx]["stats"]
@@ -101,7 +100,7 @@ def get(repository: str, dp: frictionless.package.Package, isForced: bool = Fals
                     isChangedStats = True
     rasters = pd.DataFrame(rasters)
 
-    if dp != None:  # Existing dataset
+    if dp is not None:  # Existing dataset
         # check stats
         isChangedVersion = dp["version"] != new_dp["version"]
         if isChangedStats or isChangedVersion:
