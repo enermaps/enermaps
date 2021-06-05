@@ -8,3 +8,4 @@ psycopg2==2.8.6
 geoalchemy2==0.6.3
 frictionless==4.0.8
 beautifulsoup4==4.9.3
+click==7.1.1
