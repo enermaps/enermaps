@@ -17,9 +17,8 @@ import frictionless
 import geopandas as gpd
 import numpy as np
 import pandas as pd
-from pandas_datapackage_reader import read_datapackage
-
 import utilities
+from pandas_datapackage_reader import read_datapackage
 
 # Constants
 logging.basicConfig(level=logging.INFO)
@@ -56,7 +55,7 @@ def isValid(dp: frictionless.package.Package, new_dp: frictionless.package.Packa
     Parameters
     ----------
     dp : frictionless.package.Package
-        Original datapackage 
+        Original datapackage
     new_dp : frictionless.package.Package
         Datapackage describing the new loaded data
 
@@ -86,7 +85,7 @@ def prepare(dp: frictionless.package.Package, name: str):
     Parameters
     ----------
     dp : frictionless.package.Package
-        Valid datapackage 
+        Valid datapackage
     name : str
         Name of the dataset (used for constructing the FID)
 
@@ -119,8 +118,8 @@ def prepare(dp: frictionless.package.Package, name: str):
     ]
 
     # Int64 to int
-    data.loc[:,other_cols].loc[:, data[other_cols].dtypes == "int64"] = (
-        data.loc[:,other_cols].loc[:, data[other_cols].dtypes == "int64"].astype(int)
+    data.loc[:, other_cols].loc[:, data[other_cols].dtypes == "int64"] = (
+        data.loc[:, other_cols].loc[:, data[other_cols].dtypes == "int64"].astype(int)
     )
     data = data.replace({np.nan: None})
     data["fields"] = data[other_cols].to_dict(orient="records")
@@ -198,7 +197,7 @@ def get(url: str, dp: frictionless.package.Package, force: bool = False):
         new_dp.resources[0].schema.get_field(field).type = "number"
 
     # Logic for update
-    if dp != None:  # Existing dataset
+    if dp is not None:  # Existing dataset
         # check stats
         isChangedStats = dp["resources"][0]["stats"] != new_dp["resources"][0]["stats"]
         isChangedDate = dp["datePublished"] != new_dp["datePublished"]
