@@ -10,7 +10,6 @@ import logging
 import os
 from pathlib import Path
 
-import geopandas as gpd
 import pandas as pd
 import psycopg2 as ps
 import requests
@@ -65,8 +64,8 @@ def prepareRaster(
             source_crs = CRS.from_wkt(source_wkt)
         else:
             prj = src_ds.GetProjection()
-            srs=osr.SpatialReference(wkt=prj)
-            source_crs = CRS.from_epsg(srs.GetAttrValue('authority',1))
+            srs = osr.SpatialReference(wkt=prj)
+            source_crs = CRS.from_epsg(srs.GetAttrValue("authority", 1))
 
         dest_wkt = osr.SpatialReference()
         dest_wkt.ImportFromEPSG(crs.to_epsg())
@@ -89,11 +88,9 @@ def prepareRaster(
             # Reprojecting if needed
             if source_crs.to_epsg() != crs.to_epsg():
                 logging.info(
-                    "Warping from {} to {}".format(
-                        source_crs.to_epsg(), crs.to_epsg()
-                    )
+                    "Warping from {} to {}".format(source_crs.to_epsg(), crs.to_epsg())
                 )
-                intermediate_filename = dest_filename + ".tif" # from previous step
+                intermediate_filename = dest_filename + ".tif"  # from previous step
                 dest_filename += "_{}".format(crs.to_epsg())
                 os.system(
                     "gdalwarp {intermediate_filename} {dest_filename}.tif -of GTIFF -s_srs {sourceSRS} -t_srs {outputSRS} --config GDAL_PAM_ENABLED NO -co COMPRESS=DEFLATE -co BIGTIFF=YES".format(
@@ -304,5 +301,3 @@ def get_ld_json(url: str) -> dict:
     return json.loads(
         "".join(soup.find("script", {"type": "application/ld+json"}).contents)
     )
-
-

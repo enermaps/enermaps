@@ -4,7 +4,7 @@ ENV TZ=Europe/Zurich
 RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 
 RUN apt-get update &&\
-    apt-get --yes install python3 python3-pip \
+    apt-get --yes install python3 python3-pip git \
     postgresql-client \
     gdal-bin \
     libgdal-dev &&\
@@ -19,14 +19,14 @@ WORKDIR di
 RUN pip3 install -r requirements.txt
 
 # PROVISIONAL: Installed a forked version of pandas-datapackage-reader
-RUN apt-get --yes install git
-RUN git clone https://github.com/enermaps/pandas-datapackage-reader.git
-RUN cd pandas-datapackage-reader && pip3 install -e .
+RUN git clone https://github.com/enermaps/pandas-datapackage-reader.git && \
+    cd pandas-datapackage-reader && \
+    pip3 install -e .
 
 COPY . .
 
-# Provisional command to keep the container alive
-CMD ["sleep", "infinity"]
+#add the pipeline command in the path
+ENV PATH="${PWD}:${PATH}"
 
 # Future pipeline, keep commented for now (=manual integration)
 # CMD ["python3", "admin_units.py"]

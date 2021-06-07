@@ -41,6 +41,10 @@ Some service will initialize and create their initial state:
 * the api will fetch an initial dataset
 * the db will create its initial schema
 
+## Dataset importation
+
+To import datasets, check the data-integration directory readme.
+
 ## Cleanup
 
 You can stop the entire stack with
