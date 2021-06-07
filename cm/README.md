@@ -226,6 +226,23 @@ cm-new_cm:
   env_file:
     .env
 ```
+
+## cm_script.py
+
+This python script file contains all the functions that make the CM work.
+If the need arises, it is possible to organise these functions in directories.
+But, to keep the structure the same throughout each CM, it is recommended to keep 
+a main function in a separate file at the root of the CM directory 
+(as shown in first section or in the [example_multiply](./example_multiply) folder).
+
+It is also important to note that before running CM, we need to check that the selection made 
+contains non-null pixels and at most a maximum number of pixels.
+
+For this purpose the function `validate_selection` has been developed.
+The script for this function can be found in the [cm_input.py](./base/BaseCM/cm_input.py) file. 
+If, for some reason, this function does not work for you, it is up to each CM developer to develop 
+a function compatible with the CM in question.
+
 # Post geofile
 
 In case a CM would like to post a goofile to API, this is possible.
