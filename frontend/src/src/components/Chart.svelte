@@ -13,6 +13,7 @@
 
   let xyChart;
   let lineChart;
+  // let barChart;
 
   function processDatasets() {
     for (const [datasetName, dataset] of Object.entries(datasets)) {

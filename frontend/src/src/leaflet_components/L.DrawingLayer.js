@@ -8,12 +8,12 @@ L.DrawingLayer = L.FeatureGroup.extend({
   },
   onAdd: function(map) {
     const drawPluginOptions = {
-      position: 'topleft',
+      position: 'topright',
       draw: {
         polygon: {
           allowIntersection: true,
           shapeOptions: {
-            color: '#4d88c7',
+            color: '#bada55',
           },
         },
         polyline: false,
@@ -32,11 +32,9 @@ L.DrawingLayer = L.FeatureGroup.extend({
     map.addControl(this.drawControl);
     map.on(L.Draw.Event.CREATED, L.Util.bind(this.drawCreated, this));
   },
-
   getSelection: function() {
     return this.toGeoJSON();
   },
-
   drawCreated: function(e) {
     const layer = e.layer;
     this.addLayer(layer);

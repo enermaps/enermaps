@@ -11,17 +11,20 @@ function toggleCM() {
   display: block;
   cursor: pointer;
 }
-
+#cm_toggle_container:hover {
+  background-color: #f4f4f4;
+  background: url('/images/analytics-icon.png') #fafafa;
+}
 #cm_toggle_container {
   background-repeat: no-repeat;
   background-size: cover;
-  height: 45px;
-  width: 45px;
-  box-sizing: border-box;
-  background-color: #eff4fa;
+  background: url('/images/analytics-icon.png');
+  height: 30px;
+  width: 30px;
+  background-color: white;
   padding: 4px;
   border-radius: 4px;
-  border: 1px solid #27275b;
+  border: 2px solid rgba(0,0,0,0.2);
 }
 </style>
 <div id="cm_toggle_container" hidden={$isCMPaneActiveStore}>
