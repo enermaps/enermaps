@@ -49,18 +49,20 @@ def prepareRaster(
 
     """
     dicts = []
+    isNC = False
     for i, row in df.iterrows():
         filename_orig = row["value"]
         if filename_orig.startswith("http"):
             filename = "/vsicurl/" + filename_orig
         if filename_orig[-2:] == "nc":
             isNC = True
-            if "variable" in row.index:
-                variable = row["variable"]
             filename = "NETCDF:{0}:{1}".format(filename_orig, variable)
         else:
-            isNC = False
             filename = filename_orig
+        # Override function parameter
+        if "variable" in row.index:
+            variable = row["variable"]
+
         src_ds = gdal.Open(filename)
 
         # Override function parameter
