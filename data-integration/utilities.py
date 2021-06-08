@@ -59,6 +59,7 @@ def prepareRaster(
                 variable = row["variable"]
             filename = "NETCDF:{0}:{1}".format(filename_orig, variable)
         else:
+            isNC = False
             filename = filename_orig
         src_ds = gdal.Open(filename)
 
