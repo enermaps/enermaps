@@ -19,10 +19,8 @@ import 'leaflet.gridlayer.googlemutant/Leaflet.GoogleMutant';
 import 'leaflet-search/dist/leaflet-search.src.js';
 import 'leaflet-search/dist/leaflet-search.src.css';
 
-import AreaSelection from './AreaSelection.svelte';
 import LayerSelection from './LayerSelection.svelte';
 import CMToggle from './CMToggle.svelte';
-
 import {activeOverlayLayersStore, activeSelectionLayerStore} from '../stores.js';
 
 import {INITIAL_MAP_CENTER, INITIAL_ZOOM, BASE_LAYER_URL} from '../settings.js';
@@ -33,9 +31,9 @@ let map;
 $: activeSelectionLayer = $activeSelectionLayerStore;
 $: activeOverlayLayers = $activeOverlayLayersStore;
 
-const overlaysGroup = L.layerGroup();  // energy map etc
-const selectionsGroup = L.layerGroup();  // nuts and custom selection layer
-const baseLayersGroup = L.layerGroup();  // openstreetmap ?
+const overlaysGroup = L.layerGroup();
+const selectionsGroup = L.layerGroup();
+const baseLayersGroup = L.layerGroup();
 
 
 onMount(async () => {
@@ -43,18 +41,20 @@ onMount(async () => {
   map = L.map('map', {zoomControl : false})
   map.setView(INITIAL_MAP_CENTER, INITIAL_ZOOM);
 
-  map.addLayer(baseLayersGroup);  
-  map.addLayer(selectionsGroup);  
-  map.addLayer(overlaysGroup);   
+
+
+  map.addLayer(baseLayersGroup);
+  map.addLayer(selectionsGroup);
+  map.addLayer(overlaysGroup);
 
   const baseLayer = L.tileLayer(BASE_LAYER_URL, BASE_LAYER_PARAMS);
-  baseLayersGroup.addLayer(baseLayer); // Add the openstreetmap layer
+  baseLayersGroup.addLayer(baseLayer);
 
   // Add the "left" tools
-  map.addControl(makeAreaSelectionControl())  // Separate box with only the overlay layers
-  map.addControl(makeSearchControl())   // Search tools
-  map.addControl(makeLayerControl());   // Box with the area selection layers and the overlay layers
-  map.addControl(makeCMToggleControl());  // Button to open calculation module pane
+  //map.addControl(makeSearchControl());
+  map.addControl(makeSearchControl())
+  map.addControl(makeLayerControl());
+  map.addControl(makeCMToggleControl());
 });
 
 function resizeMap() {
@@ -69,7 +69,6 @@ $: {
   syncSelectionLayer();
   syncOverlayLayers();
 }
-
 function syncOverlayLayers() {
   const overlayToBePruned = new Set(overlaysGroup.getLayers());
   for (const activeOverlayLayer of activeOverlayLayers) {
@@ -83,7 +82,6 @@ function syncOverlayLayers() {
     overlaysGroup.removeLayer(overlay);
   }
 }
-
 function syncSelectionLayer() {
   if (!activeSelectionLayer) {
     return;
@@ -98,36 +96,22 @@ function syncSelectionLayer() {
   }
 }
 
-/* Box for the */
 function makeLayerControl() {
   const layerControl = L.control({position: 'topleft'});
   layerControl.onAdd = (map) => {
     const div = L.DomUtil.create('div');
-    L.DomUtil.addClass(div, 'test');
+    L.DomUtil.addClass(div, 'leaflet-control-layers');
     toolbar = new LayerSelection({target: div});
     return div;
   };
   return layerControl;
 }
 
-/* Box for */
-function makeAreaSelectionControl() {
-  const areaSelectionControl = L.control({position: 'topleft'});
-  areaSelectionControl.onAdd = (map) => {
-    const div = L.DomUtil.create('div');
-    L.DomUtil.addClass(div, 'test');
-    toolbar = new AreaSelection({target: div})
-    return div
-  };
-  return areaSelectionControl;
-}
-
-
 function makeCMToggleControl() {
   const CMToggleControl = L.control({position: 'topright'});
   CMToggleControl.onAdd = (map) => {
     const div = L.DomUtil.create('div');
-    L.DomUtil.addClass(div, 'test');
+    L.DomUtil.addClass(div, 'leaflet-control-zoom');
     toolbar = new CMToggle({target: div});
     return div;
   };
@@ -136,7 +120,6 @@ function makeCMToggleControl() {
 
 function makeSearchControl() {
   const searchControl = new L.Control.Search({
-    //position : 'bottomleft',
     url: 'https://nominatim.openstreetmap.org/search?format=json&q={s}',
     jsonpParam: 'json_callback',
     propertyName: 'display_name',
