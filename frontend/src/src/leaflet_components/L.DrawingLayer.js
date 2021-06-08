@@ -13,7 +13,7 @@ L.DrawingLayer = L.FeatureGroup.extend({
         polygon: {
           allowIntersection: true,
           shapeOptions: {
-            color: '#4d88c7',
+            color: '#bada55',
           },
         },
         polyline: false,
