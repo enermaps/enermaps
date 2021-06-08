@@ -13,7 +13,6 @@
   // List of queryable layers that are used as selection layers.
   // The order in which they appear is mirrored in the order the layers
   // are displayed.
-  // If the names are changed, the list isn't of layers isn't loading...why?
   export const SELECTIONS_LIST= [
     'nuts0.zip',
     'nuts1.zip',
@@ -48,42 +47,34 @@
     );
     return layer;
   }
-
   onMount(async () => {
     const layers = await getGeofiles();
     for (const [layer, layerParameters] of Object.entries(layers)) {
       let leafletLayer;
       console.log(layer, layerParameters);
       if (SELECTIONS.has(layer)) {
-        // NUTS and LAU layers
         leafletLayer = toNutsLayer(layer);
         leafletLayer.name = layer;
         // selection go on top
         leafletLayer.setZIndex(1000);
+        //
         selectionLayers.push(leafletLayer);
-      }
-      // What is a queryable layer? When is it used? 
-      // toQueryableLayer is only used here but 
-       else if (layerParameters.isQueryable) {
+      } else if (layerParameters.isQueryable) {
         leafletLayer = toQueryableLayer(layer);
         leafletLayer.name = layer;
         overlayLayers.push(leafletLayer);
       } 
     }
 
-    // Sort layers by name
     function compareSelectionLayer(layer0, layer1) {
       const layer0Name = layer0.name;
       const layer1Name = layer1.name;
       return SELECTIONS_LIST.indexOf(layer0Name) > SELECTIONS_LIST.indexOf(layer1Name);
     }
-    // Sort the layer list by name
+
     selectionLayers.sort(compareSelectionLayer);
-        
-    // Add the layer for custom selection - we get a new layer from leaflet
     const drawingLayer = getDrawingLayer();
     drawingLayer.name = 'Custom area';
-    // Add the custom selection layer at the end of the list
     selectionLayers.push(drawingLayer);
     selectionLayers = selectionLayers;
     setSelectionFromGetParameter();
@@ -121,17 +112,14 @@
   border: 1px solid #27275b;
 	border-radius: 0px;
   background-color: #eff4fa;
-  width: 100%;
-  box-sizing: border-box;
 }
-
-
 
 #map_selection h3 {
   margin: 0px;
   height: 40%;
   display: flex;
   flex-direction: column;
+  max-width: 200px;
   white-space: nowrap;
   text-overflow: ellipsis;
   overflow: hidden !important;
@@ -145,6 +133,7 @@ h3 {
 #selection_layers {
   overflow-y: auto;
   border : none;
+
 }
 
 </style>

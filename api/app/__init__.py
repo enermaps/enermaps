@@ -34,7 +34,6 @@ def init_datasets():
     the selection of:
     * NUTS(0|1|2|3)
     * LAU
-    * And an overlay layer!
 
     Currently, we fetch the dataset from hotmaps.eu
     """
@@ -54,7 +53,6 @@ def init_datasets():
         filename = "nuts{!s}.zip".format(i)
         fetch_dataset(base_url, nuts_query, filename, "application/zip")
 
-    # TODO replace with data from the database
     filename = "lau.zip"
     fetch_dataset(base_url, lau_query, filename, "application/zip")
 
