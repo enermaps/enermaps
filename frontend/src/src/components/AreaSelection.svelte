@@ -1,6 +1,5 @@
 <script>
-    /*  CE SCRIPT CONTIENT EN FAIT LA SELECTION DES CALQUES QU'ON
-    RAJOUTE POUR FAIRE LES CALCULS*/
+    /*  CE SCRIPT CONTIENT EN FAIT LA SELECTION DES CALQUES QU'ON RAJOUTE POUR FAIRE LES CALCULS*/
     
     import {onMount} from 'svelte';
     import '../leaflet_components/L.TileLayer.NutsLayer.js';
@@ -9,12 +8,12 @@
     import queryString from 'query-string';
     import {getGeofiles, WMS_URL} from '../client.js';
     import {activeOverlayLayersStore} from '../stores.js';
-
+  
     // List of queryable layers that are used as selection layers.
     // The order in which they appear is mirrored in the order the layers are displayed.
     let overlayLayers = [];
     let isLayerListReady = false;
-
+  
     function toOverlayLayer(layerName) {
       const layer = L.tileLayer.wms(
           WMS_URL,
@@ -64,7 +63,7 @@
     $: {
       console.log('layer changed in selector to ' + $activeOverlayLayersStore);
     }
-</script>
+  </script>
   
   <style>
     
