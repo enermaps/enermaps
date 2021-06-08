@@ -86,7 +86,7 @@ def get(repository: str, dp: frictionless.package.Package, isForced: bool = Fals
             )
             raster = {
                 "value": os.path.basename(new_dp["resources"][resource_idx]["path"]),
-                "variable": new_dp["resources"][resource_idx]["variable"],
+                "variable": new_dp["resources"][resource_idx]["title"],
                 "start_at": start_at,
                 "z": Z,
                 "unit": unit,
