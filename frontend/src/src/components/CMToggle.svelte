@@ -15,6 +15,7 @@ function toggleCM() {
 #cm_toggle_container {
   background-repeat: no-repeat;
   background-size: cover;
+  /*background: url('/images/analytics-icon.png');*/
   height: 45px;
   width: 45px;
   box-sizing: border-box;

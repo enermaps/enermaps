@@ -10,7 +10,8 @@
     import {activeOverlayLayersStore} from '../stores.js';
   
     // List of queryable layers that are used as selection layers.
-    // The order in which they appear is mirrored in the order the layers are displayed.
+    // The order in which they appear is mirrored in the order the layers
+    // are displayed.
     let overlayLayers = [];
     let isLayerListReady = false;
   

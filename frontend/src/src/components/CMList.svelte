@@ -1,6 +1,7 @@
 <script>
   import {onMount} from 'svelte';
   import {getCMs} from '../client.js';
+
   import {isCMPaneActiveStore} from '../stores.js';
   import CM from './CM.svelte';
 

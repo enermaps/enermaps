@@ -21,7 +21,6 @@
   onMount(async () => {
     updateTaskResult();
   });
-
   async function updateTaskResult() {
     const taskResponse = await getTaskResult(cm, task);
     // The above reponse can be undefined if it encountered an error,
@@ -33,7 +32,6 @@
       taskResult = taskResponse;
     }
   }
-
   async function cancel() {
     await deleteTaskResult(cm, task);
   }
@@ -59,6 +57,7 @@
 .cmresult {
   border: 1px solid #27275b;
   border-radius: 4px;
+  /*margin-top: 10;*/
   padding: 8px;
   background-color: white;
 }
