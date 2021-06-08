@@ -50,7 +50,6 @@
 #list {
   overflow-y: auto;
 }
-
 </style>
 
 <div id="calculation_modules_pane" hidden={!$isCMPaneActiveStore}>
