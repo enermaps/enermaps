@@ -1,7 +1,6 @@
 <script>
     import CMList from './components/CMList.svelte';
     import Map from './components/Map.svelte';
-    import TopNav from './components/TopNav.svelte';
 </script>
 
 <style>
@@ -36,9 +35,7 @@
   background: url('/images/clear-icon.png');
 }
 </style>
-
-<TopNav/>
 <div id="main">
-  <Map/>
-  <CMList/>
+<Map/>
+<CMList/>
 </div>
