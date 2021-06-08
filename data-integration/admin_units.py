@@ -11,10 +11,8 @@ import os
 
 import geopandas as gpd
 import pandas as pd
-import sqlalchemy as sqla
-from pyproj import CRS
-
 import utilities
+from pyproj import CRS
 
 # Constants
 # GISCO datasets GEOJSON EPSG:4326 1:1milion

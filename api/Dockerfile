@@ -7,6 +7,7 @@ RUN apt update && apt install --yes \
     python3-pip \
     python3-gunicorn \
     gunicorn \
+    libpq-dev \
     python3-gdal && \
     rm -rf /var/cache/apt/archives/
 

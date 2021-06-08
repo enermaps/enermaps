@@ -85,6 +85,12 @@ def create_app(environment="production", testing=False):
     app.config["WMS"]["MAX_SIZE"] = 2048 ** 2
     app.config["WMS"]["GETMAP"] = {}
     app.config["WMS"]["GETMAP"]["ALLOWED_OUTPUTS"] = ["image/png", "image/jpg"]
+
+    app.config["DB_PASSWORD"] = ""
+    app.config["DB_HOST"] = ""
+    app.config["DB_DB"] = ""
+    app.config["DB_USER"] = ""
+    app.config["DB_PORT"] = 0
     for k, v in app.config.items():
         app.config[k] = os.environ.get(k, v)
     api_bp = Blueprint("api", "api", url_prefix="/api")
