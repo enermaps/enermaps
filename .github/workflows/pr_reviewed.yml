@@ -12,6 +12,6 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - name: start the stack
-        run: docker-compose up -d --build
+        run: docker-compose up -d db api frontend redis cm-empty
       - name: run integration test
         run: docker-compose exec -T api ./test.py integration
