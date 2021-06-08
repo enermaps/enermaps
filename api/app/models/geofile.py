@@ -15,7 +15,8 @@ from glob import glob
 from tempfile import TemporaryDirectory
 
 import mapnik
-from flask import current_app, safe_join
+import psycopg2
+from flask import current_app, g, safe_join
 from werkzeug.datastructures import FileStorage
 
 from app.common.projection import epsg_to_wkt, proj4_from_geotiff, proj4_from_shapefile
@@ -381,3 +382,138 @@ class GeoJSONLayer(VectorLayer):
             except FileExistsError:
                 raise SaveException("Geofile already exists")
         return VectorLayer(shape_name + ".geojson")
+
+
+def teardown_db(exception):
+    db = g.pop('db', None)
+
+    if db is not None:
+        db.close()
+
+
+def get_db():
+    if "db" not in g:
+        current_app.teardown_appcontext(teardown_db)
+        g.db = psycopg2.connect(
+            host=current_app.config["DB_HOST"],
+            password=current_app.config["DB_PASSWORD"],
+            database=current_app.config["DB_DB"],
+            user=current_app.config["DB_USER"],
+        )
+
+    return g.db
+
+
+def get_gis_layer(select_raster: bool) -> list:
+    if current_app.config["TESTING"]:
+        return []
+    with get_db().cursor() as cur:
+        cur.execute(
+            "SELECT variable from public.data where isRaster = %s group by variable",
+            (select_raster,),
+        )
+        raw_datasets = cur.fetchall()
+    return [raw_dataset[0] for raw_dataset in raw_datasets]
+
+
+class PostGISVectorLayer(Layer):
+
+    @abstractmethod
+    def as_fd(self):
+        raise NotImplementedError()
+
+    @abstractmethod
+    def as_mapnik_layer(self):
+        raise NotImplementedError()
+
+    @property
+    @abstractmethod
+    def projection(self):
+        raise NotImplementedError()
+
+    @property
+    @abstractmethod
+    def is_queryable(self):
+        return True
+
+    @staticmethod
+    @abstractmethod
+    def save(file_upload: FileStorage):
+        raise NotImplementedError()
+
+    @staticmethod
+    @abstractmethod
+    def list_layers():
+        return [
+            PostGISVectorLayer(layer_name)
+            for layer_name in get_gis_layer(select_raster=False)
+        ]
+
+    @abstractmethod
+    def delete(self):
+        """Remove the geofile from the geofile database.
+        This operation must also guarantee to be atomic, so you can end up
+        with a half deleted datasource.
+        """
+        pass
+
+    def __init__(self, name):
+        self.name = name
+
+
+    def as_dict(self):
+        """Return a description of this layer as a dict"""
+        return {
+            "isQueryable": self.is_queryable,
+        }
+
+
+class PostGISRasterLayer(Layer):
+
+    @abstractmethod
+    def as_fd(self):
+        raise NotImplementedError()
+
+    @abstractmethod
+    def as_mapnik_layer(self):
+        raise NotImplementedError()
+
+    @property
+    @abstractmethod
+    def projection(self):
+        raise NotImplementedError()
+
+    @property
+    @abstractmethod
+    def is_queryable(self):
+        return False
+
+    @staticmethod
+    @abstractmethod
+    def save(file_upload: FileStorage):
+        raise NotImplementedError()
+
+    @staticmethod
+    @abstractmethod
+    def list_layers():
+        return [
+            PostGISRasterLayer(layer_name)
+            for layer_name in get_gis_layer(select_raster=True)
+        ]
+
+    @abstractmethod
+    def delete(self):
+        """Remove the geofile from the geofile database.
+        This operation must also guarantee to be atomic, so you can end up
+        with a half deleted datasource.
+        """
+        pass
+
+    def __init__(self, name):
+        self.name = name
+
+    def as_dict(self):
+        """Return a description of this layer as a dict"""
+        return {
+            "isQueryable": self.is_queryable,
+        }

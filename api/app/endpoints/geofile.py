@@ -42,7 +42,6 @@ class GeoFiles(Resource):
             abort(400, "The uploaded file didn't contain a projection")
         return redirect(url_for(".geofile_geo_files"))
 
-
 @api.route("/<string:layer_name>")
 class GeoFile(Resource):
     def get(self, layer_name):
