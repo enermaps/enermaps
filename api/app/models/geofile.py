@@ -6,6 +6,8 @@ also catch those on accessing the layer.
 
 """
 import io
+from flask import g
+import psycopg2
 import os
 import shutil
 import subprocess  # nosec
@@ -18,7 +20,7 @@ import mapnik
 from flask import current_app, safe_join
 from werkzeug.datastructures import FileStorage
 
-from app.common.projection import epsg_to_wkt, proj4_from_geotiff, proj4_from_shapefile
+from app.common.projection import epsg_to_wkt, proj4_from_geotiff, proj4_from_shapefile, epsg_to_proj4
 
 
 class SaveException(Exception):
@@ -72,8 +74,9 @@ def load(name):
     """Create a new instance of RasterLayer based on its name"""
     if name.endswith("zip") or name.endswith("geojson"):
         return VectorLayer(name)
-    else:
+    if name.endswith("tiff") or name.endswith("tif"):
         return RasterLayer(name)
+    return PostGISVectorLayer(name)
 
 
 class Layer(ABC):
@@ -325,7 +328,8 @@ class VectorLayer(Layer):
         """
         layers = os.listdir(get_user_upload("vectors"))
         non_hidden_layers = filter(lambda a: not a.startswith("."), layers)
-        return map(VectorLayer, non_hidden_layers)
+        layers = map(VectorLayer, non_hidden_layers)
+        return layers
 
     def delete(self):
         """Here we do a little switcheroo to guarantee that the directory deletion is
@@ -338,6 +342,84 @@ class VectorLayer(Layer):
         with TemporaryDirectory(prefix=get_tmp_upload()) as tmp_dir:
             os.rename(self._get_vector_dir(), tmp_dir)
             shutil.rmtree(tmp_dir)
+
+
+def get_db():
+    if "db" not in g:
+        g.db = psycopg2.connect(
+            host=current_app.config["DB_HOST"],
+            password=current_app.config["DB_PASSWORD"],
+            database=current_app.config["DB_DB"],
+            user=current_app.config["DB_USER"],
+        )
+
+    return g.db
+
+
+class PostGISVectorLayer(Layer):
+    """Another shim to a vector layer, it will use postgresql as a source"""
+
+    MIMETYPE = ["application/zip"]
+
+    TO_BE_DELETED_DIR = "vectors_to_be_deleted"
+
+    def __init__(self, name):
+        self.name = name
+
+    def as_fd(self):
+        """Export the entire dataset as a geojson file"""
+        return NotImplemented()
+
+    @property
+    def projection(self):
+        return epsg_to_proj4(3035)
+
+    def as_mapnik_layer(self):
+        """Open the geofile as Mapnik layer."""
+        lyr = mapnik.Layer(self.name)
+        query = f"(select spatial.geometry as geometry, spatial.name as name from spatial join datasets on spatial.ds_id = datasets.ds_id and datasets.name = '{self.name}') as world"
+        lyr.datasource = mapnik.PostGIS(
+            host=current_app.config["DB_HOST"],
+            port=current_app.config["DB_PORT"],
+            dbname=current_app.config["DB_DB"],
+            user=current_app.config["DB_USER"],
+            password=current_app.config["DB_PASSWORD"],
+            table=query,
+        )
+        lyr.srs = self.projection
+        lyr.queryable = self.is_queryable
+        return lyr
+
+    @property
+    def is_queryable(self):
+        """Return true if the layer has features, this allow the layer to be
+        queried for feature at a given location
+        """
+        return True
+
+    @staticmethod
+    def save(file_upload: FileStorage):
+        """This is an atomic operation for taking a geojson and inserting it into the database
+        """
+        raise NotImplementedError()
+
+    @staticmethod
+    def list_layers():
+        """List file in the vector directory
+        Ignore hidden file as they are used for unzipping destination and don't
+        provide ondisk consistency.
+        """
+        if current_app.config["TESTING"]:
+            return []
+        with get_db().cursor() as cur:
+            cur.execute("SELECT name from public.datasets")
+            raw_datasets = cur.fetchall()
+        return [PostGISVectorLayer(raw_dataset[0]) for raw_dataset in raw_datasets]
+
+    def delete(self):
+        """Currently not implemented, this should delete the dataset and cascade.
+        """
+        raise NotImplementedError()
 
 
 class GeoJSONLayer(VectorLayer):

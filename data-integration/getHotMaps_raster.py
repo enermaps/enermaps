@@ -12,6 +12,7 @@ import json
 import logging
 import os
 import sys
+import shutil
 
 import frictionless
 import pandas as pd
@@ -29,6 +30,7 @@ DB_PORT = os.environ.get("DB_PORT")
 DB_USER = os.environ.get("DB_USER")
 DB_PASSWORD = os.environ.get("DB_PASSWORD")
 DB_DB = os.environ.get("DB_DB")
+API_URL = os.environ['API_URL']
 
 DB_URL = "postgresql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_DB}".format(
     DB_HOST=DB_HOST,
@@ -93,7 +95,7 @@ def get(repository: str, dp: frictionless.package.Package, isForced: bool = Fals
             }
             rasters.append(raster)
             # check statistics for each resource
-            if dp != None and "stats" in new_dp["resources"][resource_idx]:
+            if dp is not None and "stats" in new_dp["resources"][resource_idx]:
                 if (
                     dp["resources"][resource_idx]["stats"]
                     != new_dp["resources"][resource_idx]["stats"]
@@ -101,7 +103,7 @@ def get(repository: str, dp: frictionless.package.Package, isForced: bool = Fals
                     isChangedStats = True
     rasters = pd.DataFrame(rasters)
 
-    if dp != None:  # Existing dataset
+    if dp is not None:  # Existing dataset
         # check stats
         isChangedVersion = dp["version"] != new_dp["version"]
         if isChangedStats or isChangedVersion:
@@ -117,31 +119,38 @@ def get(repository: str, dp: frictionless.package.Package, isForced: bool = Fals
         data_enermaps = utilities.prepareRaster(rasters, delete_orig=True)
 
     # Move rasters into the data directory
-    if not os.path.exists("data"):
-        os.mkdir("data")
-    if not os.path.exists(os.path.join("data", str(ds_id))):
-        os.mkdir(os.path.join("data", str(ds_id)))
+    raster_path = utilities.get_rasters_path()
+    os.makedirs(raster_path, exist_ok=True)
     for i, row in data_enermaps.iterrows():
-        os.rename(row.fid, os.path.join("data", str(ds_id), row.fid))
+        filename = f"{ds_id}_{row.fid}.tiff"
+        shutil.move(row.fid, os.path.join(raster_path, filename))
 
     return data_enermaps, new_dp
 
 
+def get_parser():
+    parser = argparse.ArgumentParser(description="Import HotMaps raster")
+    parser.add_argument("--force", action="store_const", const=True, default=False)
+    parser.add_argument(
+        "--select-ds-ids", action="extend", nargs="+", type=int, default=[]
+    )
+    parser.add_argument(
+        "--list-ds-ids", action="store_true", default=False
+    )
+    return parser
+
+
 if __name__ == "__main__":
+    parser = get_parser()
+    args = parser.parse_args()
+
     datasets = pd.read_csv("datasets.csv", engine="python", index_col=[0])
     ds_ids = datasets[datasets["di_script"] == os.path.basename(sys.argv[0])].index
-    if len(sys.argv) > 1:
-        parser = argparse.ArgumentParser(description="Import HotMaps raster")
-        parser.add_argument("--force", action="store_const", const=True, default=False)
-        parser.add_argument(
-            "--select_ds_ids", action="extend", nargs="+", type=int, default=[]
-        )
-        args = parser.parse_args()
-        isForced = args.force
-        if len(args.select_ds_ids) > 0:
-            ds_ids = args.select_ds_ids
-    else:
-        isForced = False
+    isForced = args.force
+    ds_ids = args.select_ds_ids
+    if args.list_ds_ids:
+        print(datasets)
+        exit(0)
 
     for ds_id in ds_ids:
         logging.info("Retrieving Dataset {}".format(ds_id))
@@ -159,7 +168,10 @@ if __name__ == "__main__":
         data, dp = get(datasets.loc[ds_id, "di_URL"], dp, isForced)
 
         if isinstance(data, pd.DataFrame):
-            if utilities.datasetExists(ds_id, DB_URL,):
+            if utilities.datasetExists(
+                ds_id,
+                DB_URL,
+            ):
                 utilities.removeDataset(ds_id, DB_URL)
                 logging.info("Removed existing dataset")
 
@@ -169,18 +181,24 @@ if __name__ == "__main__":
             metadata = json.dumps(metadata)
             dataset = pd.DataFrame([{"ds_id": ds_id, "metadata": metadata}])
             utilities.toPostgreSQL(
-                dataset, DB_URL, schema="datasets",
+                dataset,
+                DB_URL,
+                schema="datasets",
             )
 
             # Create data table
             data["ds_id"] = ds_id
             utilities.toPostgreSQL(
-                data, DB_URL, schema="data",
+                data,
+                DB_URL,
+                schema="data",
             )
 
             # Create empty spatial table
             spatial = pd.DataFrame()
             spatial[["fid", "ds_id"]] = data[["fid", "ds_id"]]
             utilities.toPostgreSQL(
-                spatial, DB_URL, schema="spatial",
+                spatial,
+                DB_URL,
+                schema="spatial",
             )

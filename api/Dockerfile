@@ -5,6 +5,7 @@ RUN apt update && apt install --yes \
     gdal-bin \
     python3-mapnik \
     python3-pip \
+    libpq-dev \
     python3-gunicorn \
     gunicorn \
     python3-gdal && \

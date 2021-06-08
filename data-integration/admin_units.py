@@ -11,7 +11,6 @@ import os
 
 import geopandas as gpd
 import pandas as pd
-import sqlalchemy as sqla
 from pyproj import CRS
 
 import utilities
@@ -23,8 +22,16 @@ GISCO_DATASETS = {
     "nuts": "https://gisco-services.ec.europa.eu/distribution/v2/nuts/geojson/NUTS_RG_01M_2021_{}.geojson",
     "lau": "https://gisco-services.ec.europa.eu/distribution/v2/lau/geojson/LAU_RG_01M_2019_{}.geojson",
 }
-# Dataset id
-DS_ID = 0
+DS_MAP = {
+        "country": 0 ,
+        "NUTS1": 1,
+        "NUTS2": 2,
+        "NUTS3": 3,
+        "LAU": 4
+ }
+# Datasets id
+def fs_id(data_frame):
+    return DS_MAP[data_frame['levl_code']]
 
 DB_HOST = os.environ.get("DB_HOST")
 DB_PORT = os.environ.get("DB_PORT")
@@ -115,9 +122,17 @@ def get(
 if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO)
     admin_units = get(GISCO_DATASETS, crs=CRS.from_epsg(3035))
-    admin_units["ds_id"] = DS_ID
-    dataset = pd.DataFrame([{"ds_id": DS_ID}])
-    utilities.toPostgreSQL(
-        dataset, DB_URL, schema="datasets",
-    )
+    admin_units["ds_id"] = admin_units.apply(fs_id, axis=1)
+    dses = []
+    for ds_name, ds_id in DS_MAP.items():
+        dataset = pd.DataFrame([{"ds_id": ds_id, "name": ds_name}])
+        try:
+            utilities.toPostgreSQL(
+                dataset,
+                DB_URL,
+                if_exists='append',
+                schema="datasets",
+            )
+        except ValueError:
+            logging.info(f"dataset {ds_name} is already present")
     utilities.toPostGIS(admin_units, DB_URL)

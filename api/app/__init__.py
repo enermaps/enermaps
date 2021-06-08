@@ -7,6 +7,7 @@ import os
 
 import requests
 from flask import Blueprint, Flask
+import psycopg2
 from flask_restx import Api
 from werkzeug.datastructures import FileStorage
 
@@ -71,6 +72,14 @@ def init_datasets():
     filename = "gfa_tot_curr_density.tiff"
     fetch_dataset(base_url, tif_query, filename, "image/tiff")
 
+from flask import g
+
+def teardown_db(exception):
+    db = g.pop('db', None)
+
+    if db is not None:
+        db.close()
+
 
 def create_app(environment="production", testing=False):
     """Create the application and set the configuration.
@@ -85,8 +94,16 @@ def create_app(environment="production", testing=False):
     app.config["WMS"]["MAX_SIZE"] = 2048 ** 2
     app.config["WMS"]["GETMAP"] = {}
     app.config["WMS"]["GETMAP"]["ALLOWED_OUTPUTS"] = ["image/png", "image/jpg"]
+
+    app.config["DB_PASSWORD"] = ""
+    app.config["DB_HOST"] = ""
+    app.config["DB_DB"] = ""
+    app.config["DB_USER"] = ""
+    app.config["DB_PORT"] = 0
     for k, v in app.config.items():
         app.config[k] = os.environ.get(k, v)
+    app.teardown_appcontext(teardown_db)
+
     api_bp = Blueprint("api", "api", url_prefix="/api")
     api = Api(api_bp)
     api.add_namespace(geofile.api)

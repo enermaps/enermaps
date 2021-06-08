@@ -65,8 +65,8 @@ def prepareRaster(
             source_crs = CRS.from_wkt(source_wkt)
         else:
             prj = src_ds.GetProjection()
-            srs=osr.SpatialReference(wkt=prj)
-            source_crs = CRS.from_epsg(srs.GetAttrValue('authority',1))
+            srs = osr.SpatialReference(wkt=prj)
+            source_crs = CRS.from_epsg(srs.GetAttrValue("authority", 1))
 
         dest_wkt = osr.SpatialReference()
         dest_wkt.ImportFromEPSG(crs.to_epsg())
@@ -89,11 +89,9 @@ def prepareRaster(
             # Reprojecting if needed
             if source_crs.to_epsg() != crs.to_epsg():
                 logging.info(
-                    "Warping from {} to {}".format(
-                        source_crs.to_epsg(), crs.to_epsg()
-                    )
+                    "Warping from {} to {}".format(source_crs.to_epsg(), crs.to_epsg())
                 )
-                intermediate_filename = dest_filename + ".tif" # from previous step
+                intermediate_filename = dest_filename + ".tif"  # from previous step
                 dest_filename += "_{}".format(crs.to_epsg())
                 os.system(
                     "gdalwarp {intermediate_filename} {dest_filename}.tif -of GTIFF -s_srs {sourceSRS} -t_srs {outputSRS} --config GDAL_PAM_ENABLED NO -co COMPRESS=DEFLATE -co BIGTIFF=YES".format(
@@ -138,7 +136,7 @@ def prepareRaster(
 
 
 def toPostgreSQL(
-    data, dbURL="postgresql://postgres:postgres@localhost:5432/dataset", schema="data"
+    data, dbURL="postgresql://postgres:postgres@localhost:5432/dataset", schema="data", if_exists='replace'
 ):
     """
     Load admin_units to pgsql.
@@ -149,6 +147,8 @@ def toPostgreSQL(
         Table with all rasters to be loaded
     dbURL : string, optional
         SQLAlchemy database URL. The default is 'postgresql://postgres:postgres@localhost:5432/dataset'.
+    if_exists: string, optional
+        behaviour of the insertion if the entry is already present, possibilities are {‘fail’, ‘replace’, ‘append’}
 
     Returns
     -------
@@ -157,12 +157,12 @@ def toPostgreSQL(
     """
     db_engine = sqla.create_engine(dbURL)
     logging.info("Loading to PostgreSQL...")
-    data.to_sql(schema, db_engine, if_exists="append", index=False)
+    data.to_sql(schema, db_engine, if_exists=if_exists, index=False)
     logging.info("Done.")
 
 
 def toPostGIS(
-    gdf, dbURL="postgresql://postgres:postgres@localhost:5432/dataset", schema="spatial"
+    gdf, dbURL="postgresql://postgres:postgres@localhost:5432/dataset", schema="spatial", if_exists="append"
 ):
     """
     Load admin_units to pgsql.
@@ -173,6 +173,8 @@ def toPostGIS(
         Table with all administrative units..
     dbURL : string, optional
         SQLAlchemy database URL. The default is 'postgresql://postgres:postgres@localhost:5432/dataset'.
+    if_exists: string, optional
+        behaviour of the insertion if the entry is already present, possibilities are {‘fail’, ‘replace’, ‘append’}
 
     Returns
     -------
@@ -181,7 +183,7 @@ def toPostGIS(
     """
     db_engine = sqla.create_engine(dbURL)
     logging.info("Loading to PostGIS...")
-    gdf.to_postgis(schema, db_engine, if_exists="append", index=False)
+    gdf.to_postgis(schema, db_engine, if_exists=if_exists, index=False)
     logging.info("Done.")
 
 
@@ -223,6 +225,10 @@ def datasetExists(
         return False
 
 
+def get_rasters_path():
+    raster_dir = os.path.join(os.environ["UPLOAD_DIR"], "raster")
+    return raster_dir
+
 def removeDataset(ds_id, dbURL="postgresql://test:example@localhost:5433/dataset"):
     """
     Delete the dataset.
@@ -240,7 +246,10 @@ def removeDataset(ds_id, dbURL="postgresql://test:example@localhost:5433/dataset
     engine = sqla.create_engine(dbURL)
     with engine.connect() as con:
         con.execute(
-            "DELETE FROM datasets WHERE ds_id = %(ds_id)s;", {"ds_id": ds_id,},
+            "DELETE FROM datasets WHERE ds_id = %(ds_id)s;",
+            {
+                "ds_id": ds_id,
+            },
         )
 
 
@@ -304,5 +313,3 @@ def get_ld_json(url: str) -> dict:
     return json.loads(
         "".join(soup.find("script", {"type": "application/ld+json"}).contents)
     )
-
-

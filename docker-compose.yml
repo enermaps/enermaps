@@ -65,8 +65,10 @@ services:
   data-integration:
     build:
       context: ./data-integration
+    environment:
+      UPLOAD_DIR: /upload-dir
     volumes:
-      - data:/data
+      - upload-data:/upload-dir
     env_file:
       .env
 
@@ -74,6 +76,7 @@ services:
     image: redis:6-alpine
     ports:
       - "127.0.0.1:6379:6379"
+
   flower:
     image: mher/flower:0.9.4
     ports:
@@ -82,6 +85,5 @@ services:
       .env
 
 volumes:
-  upload-data:
   db-data:
-  data:
+  upload-data:
