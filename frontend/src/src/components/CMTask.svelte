@@ -52,17 +52,13 @@
     dispatch('delete', {});
   }
 </script>
-
 <style>
 .cmresult {
-  border: 1px solid #27275b;
+  border: 2px solid rgba(0,0,0,0.5);
   border-radius: 4px;
-  /*margin-top: 10;*/
-  padding: 8px;
-  background-color: white;
+  padding: 5px;
 }
 </style>
-
 <div class="cmresult">
   <div class="close_button" on:click="{removeTask}"></div>
   <dl>
