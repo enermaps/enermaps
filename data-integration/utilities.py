@@ -57,6 +57,10 @@ def prepareRaster(
         else:
             src_ds = gdal.Open(filename)
 
+        # Override function parameter
+        if "variable" in row.index:
+            variable = row["variable"]
+
         if "crs" in df.columns:
             source_wkt = osr.SpatialReference()
             source_wkt.ImportFromEPSG(row.crs.to_epsg())
