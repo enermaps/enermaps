@@ -15,6 +15,7 @@ import json
 import logging
 import os
 import sys
+from typing import Tuple
 
 import pandas as pd
 import utilities
@@ -64,7 +65,7 @@ DB_URL = "postgresql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_DB}".form
 )
 
 
-def get(directory: str) -> pd.DataFrame:
+def get(directory: str) -> Tuple[pd.DataFrame, dict]:
     """
     Parse original Excel file and returns df in EnerMaps schema.
 
@@ -77,6 +78,9 @@ def get(directory: str) -> pd.DataFrame:
     -------
     enermaps_data : pd.DataFrame
         Data in EnerMaps schema.
+
+    parameters : dict
+        Unique parameters to be queried in the "fields".
 
     """
     data = []
@@ -98,6 +102,9 @@ def get(directory: str) -> pd.DataFrame:
     # Remove nan
     data = data.loc[~data["value"].isnull(), :]
     data = data.where(data.notnull(), None)
+
+    # Retrieve parameters from unique fields
+    parameters = data[FIELDS].apply(lambda x: list(pd.unique(x)), axis=0).to_dict()
 
     # Make extra fields in JSON
     data["fields"] = data[FIELDS].to_dict(orient="records")
@@ -126,7 +133,7 @@ def get(directory: str) -> pd.DataFrame:
     enermaps_data["israster"] = ISRASTER
     enermaps_data["dt"] = DT
 
-    return enermaps_data
+    return enermaps_data, parameters
 
 
 if __name__ == "__main__":
@@ -144,7 +151,7 @@ if __name__ == "__main__":
     files_dir = os.path.join("data", str(ds_id))
     if os.path.exists(files_dir) and len(os.listdir(files_dir)) == N_FILES:
 
-        data = get(files_dir)
+        data, parameters = get(files_dir)
 
         # Remove existing dataset
         if utilities.datasetExists(ds_id, DB_URL) and not isForced:
@@ -157,6 +164,8 @@ if __name__ == "__main__":
 
         # Create dataset table
         metadata = datasets.loc[ds_id].fillna("").to_dict()
+        # Add parameters as metadata
+        metadata["parameters"] = parameters
         metadata = json.dumps(metadata)
         dataset = pd.DataFrame([{"ds_id": ds_id, "metadata": metadata}])
         utilities.toPostgreSQL(
