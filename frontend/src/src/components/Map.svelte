@@ -20,7 +20,6 @@ import 'leaflet-search/dist/leaflet-search.src.css';
 import AreaSelection from './AreaSelection.svelte';
 import LayerSelection from './LayerSelection.svelte';
 import CMToggle from './CMToggle.svelte';
-import TopNav from './TopNav.svelte';
 
 import {activeOverlayLayersStore, activeSelectionLayerStore} from '../stores.js';
 
@@ -136,7 +135,7 @@ function makeCMToggleControl() {
 // https://github.com/stefanocudini/leaflet-search
 function makeSearchControl() {
   const searchControl = new L.Control.Search({
-    container : 'findbox',
+    position : 'topleft',
     url: 'https://nominatim.openstreetmap.org/search?format=json&q={s}',
     jsonpParam: 'json_callback',
     propertyName: 'display_name',
@@ -159,41 +158,14 @@ function makeSearchControl() {
 
 <style>
 
-#page {
-  width: 100%;
-  height: 100%;
-  display: flex;
-  box-sizing: border-box;
-  flex-direction: column;
-}
-
 #map {
   width: 100%;
   height: 100%;
-  display: flex;
   box-sizing: border-box;
 }
-
-#findbox {
-  display: inline-block;
-  overflow: visible;
-  vertical-align: middle;
-}
-
-/*
-.search-tooltip {
-	width: 200px;
-}
-.leaflet-control-search  {
-  background-color: tomato;
-}
-*/
 
 </style>
 
 <svelte:window on:resize={resizeMap} />
 
-<div id="page">
-<TopNav><div id="findbox"> </div></TopNav>
 <div id="map"></div>
-</div>

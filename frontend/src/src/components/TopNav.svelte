@@ -1,16 +1,48 @@
 <script context="module">
   import 'leaflet-search/dist/leaflet-search.src.js';
   import 'leaflet-search/dist/leaflet-search.src.css';
+
+  //import CMToggle from './CMToggle.svelte';
+
+  // import {onMount} from 'svelte';
+
+  //let topnav;
+
+  // runs after the component is first rendered to the DOM
+  /*
+  onMount(async () => {
+    toogle_div = makeCMToggleControl();
+  });
+  */
+ 
+
+/*
+function makeCMToggleControl() {
+  const CMToggleControl = L.control({position: 'topright'});
+  CMToggleControl.onAdd = (map) => {
+    const div = L.DomUtil.create('div');
+    L.DomUtil.addClass(div, 'test');
+    toolbar = new CMToggle({target: div});
+    return div;
+  };
+  return CMToggleControl;
+}
+*/
+
 </script>
 
 <style>
 
+/* Add a black background color to the top navigation */
+
 #topnav {
   background-color: #27275b;
-  overflow: visible;
+  overflow: hidden;
   padding: 8px 20px;
-  display: inline-block;
 }
+
+
+/* Style the links inside the navigation bar */
 
 #topnav div {
   color: #eff4fa;
@@ -41,12 +73,6 @@ img {
   box-sizing: border-box;
 }
 
-#slot {
-  vertical-align: middle;
-  display: inline-block;
-  box-sizing: border-box;
-}
-
 
 
 </style>
@@ -55,6 +81,6 @@ img {
   <div id='logo'> <img src='images/logo.png' alt='EnerMaps'> </div>
   <span></span>
   <div id='title'>EnerMaps</div>
-  <span></span>
-  <slot id='slot'></slot>
+  <div id='cm_control'> 
+  </div>
 </div> 
