@@ -77,8 +77,22 @@ def load(name):
     """Create a new instance of RasterLayer based on its name"""
     if name.endswith("zip") or name.endswith("geojson"):
         return VectorLayer(name)
-    else:
+    elif name.endswith("tif") or name.endswith("tiff"):
         return RasterLayer(name)
+    db_con = db.get_db()
+    if not db_con:
+        raise Exception("Layer not found")
+    with db_con.cursor() as cur:
+        cur.execute(
+            "SELECT isRaster from public.data where variable = %s ",
+            (name,),)
+        is_raster = cur.fetchone()
+    logging.error("***************************")
+    logging.error(is_raster)
+    logging.error("***************************")
+    if is_raster:
+        return PostGISRasterLayer(name)
+    return PostGISVectorLayer(name)
 
 
 class Layer(ABC):
@@ -444,11 +458,19 @@ class PostGISVectorLayer(Layer):
         }
 
 
-class PostGISRasterLayer(Layer):
-    def as_fd(self):
-        raise NotImplementedError()
+class PostGISRasterLayer(RasterLayer):
 
-    def as_mapnik_layer(self):
+    def _get_raster_path(self):
+        db_con = get_db()
+        if not db_con:
+            raise Exception
+        with db_con.cursor() as cur:
+            cur.execute("select ds_id, fid from public.data where variable = %s", (self.name, ))
+            ds_id, fid = cur.fetchone()
+        raster_base_dir = os.path.join(current_app.config["RASTER_DB_DIR"], "data")
+        return os.path.join(raster_base_dir, ds_id, fid)
+
+    def as_fd(self):
         raise NotImplementedError()
 
     @property

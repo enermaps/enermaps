@@ -41,8 +41,10 @@ services:
       - "db"
     environment:
       UPLOAD_DIR: /upload-dir
+      RASTER_DB_DIR: /db-dir
     volumes:
       - upload-data:/upload-dir
+      - data:/raster-db-dir
     env_file:
       .env
 
