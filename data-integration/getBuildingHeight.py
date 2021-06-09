@@ -62,8 +62,6 @@ def convertZip(directory: str):
     files_list = glob.glob(os.path.join(directory, "*.zip"))
     if len(files_list) > 0:
         logging.info("Extracting zip files")
-        if not os.path.exists(os.path.join(directory, "orig_tiles")):
-            os.mkdir(os.path.join(directory, "orig_tiles"))
         for zipfile in files_list:
             extract_dir = os.path.join(
                 os.path.dirname(zipfile), pathlib.Path(zipfile).stem
@@ -74,12 +72,10 @@ def convertZip(directory: str):
             logging.info(source_file)
 
             dest_file = os.path.join(
-                os.path.dirname(extract_dir),
-                "orig_tiles",
-                os.path.basename(extract_dir) + ".tif",
+                os.path.dirname(extract_dir), os.path.basename(extract_dir) + ".tif",
             )
             os.system(
-                "gdal_translate {source_file} {dest_file}  -of GTIFF --config GDAL_PAM_ENABLED NO -co COMPRESS=DEFLATE -co BIGTIFF=YES".format(
+                "gdal_translate {source_file} {dest_file}  -a_srs EPSG:3035 -of GTIFF --config GDAL_PAM_ENABLED NO -co COMPRESS=DEFLATE -co BIGTIFF=YES".format(
                     source_file=source_file, dest_file=dest_file
                 )
             )
@@ -181,7 +177,6 @@ if __name__ == "__main__":
         utilities.toPostgreSQL(
             data, DB_URL, schema="data",
         )
-
         # Create spatial table
         spatial["ds_id"] = ds_id
         utilities.toPostGIS(
