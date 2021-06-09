@@ -16,11 +16,11 @@ from glob import glob
 from tempfile import TemporaryDirectory
 
 import mapnik
-import psycopg2
 from flask import current_app, g, safe_join
 from werkzeug.datastructures import FileStorage
 
 from app.common.projection import epsg_to_wkt, proj4_from_geotiff, proj4_from_shapefile
+from app.common import db
 
 
 class SaveException(Exception):
@@ -53,9 +53,9 @@ def list_layers():
     """
     def list_subclass_layers(cl):
         layers = []
-        for layer_type in Layer.__subclasses__():
-            layers += layer_type.list_layers()
-            layers += list_subclass_layers(cl)
+        for subclass in cl.__subclasses__():
+            layers += subclass.list_layers()
+            layers += list_subclass_layers(subclass)
         return layers
     return list_subclass_layers(Layer)
 
@@ -391,30 +391,11 @@ class GeoJSONLayer(VectorLayer):
         return VectorLayer(shape_name + ".geojson")
 
 
-def teardown_db(exception):
-    db = g.pop("db", None)
-
-    if db is not None:
-        db.close()
-
-
-def get_db():
-    if "db" not in g:
-        current_app.teardown_appcontext(teardown_db)
-        g.db = psycopg2.connect(
-            host=current_app.config["DB_HOST"],
-            password=current_app.config["DB_PASSWORD"],
-            database=current_app.config["DB_DB"],
-            user=current_app.config["DB_USER"],
-        )
-
-    return g.db
-
-
 def get_gis_layer(select_raster: bool) -> list:
-    if current_app.config["TESTING"]:
+    db_con = db.get_db()
+    if not db_con:
         return []
-    with get_db().cursor() as cur:
+    with db_con.cursor() as cur:
         cur.execute(
             "SELECT variable from public.data where isRaster = %s group by variable",
             (select_raster,),
