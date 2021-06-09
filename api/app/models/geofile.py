@@ -5,6 +5,7 @@ really prevent race condition on list vs delete. We
 also catch those on accessing the layer.
 
 """
+import functools
 import io
 import os
 import shutil
@@ -15,10 +16,10 @@ from glob import glob
 from tempfile import TemporaryDirectory
 
 import mapnik
-import psycopg2
-from flask import current_app, g, safe_join
+from flask import current_app, safe_join
 from werkzeug.datastructures import FileStorage
 
+from app.common import db
 from app.common.projection import epsg_to_wkt, proj4_from_geotiff, proj4_from_shapefile
 
 
@@ -50,10 +51,15 @@ def list_layers():
     """Return the list of all layers from all direct subclasses
     of Layer class.
     """
-    layers = []
-    for layer_type in Layer.__subclasses__():
-        layers += layer_type.list_layers()
-    return layers
+
+    def list_subclass_layers(cl):
+        layers = []
+        for subclass in cl.__subclasses__():
+            layers += subclass.list_layers()
+            layers += list_subclass_layers(subclass)
+        return layers
+
+    return list_subclass_layers(Layer)
 
 
 def create(file_upload: FileStorage):
@@ -69,12 +75,25 @@ def create(file_upload: FileStorage):
     raise Exception("Unknown file format {}".format(file_upload.mimetype))
 
 
+@functools.lru_cache
 def load(name):
     """Create a new instance of RasterLayer based on its name"""
     if name.endswith("zip") or name.endswith("geojson"):
         return VectorLayer(name)
-    else:
+    elif name.endswith("tif") or name.endswith("tiff"):
         return RasterLayer(name)
+    db_con = db.get_db()
+    if not db_con:
+        raise Exception("Layer not found")
+    with db_con.cursor() as cur:
+        cur.execute(
+            "SELECT isRaster from public.data where variable = %s ",
+            (name,),
+        )
+        is_raster = cur.fetchone()
+    if is_raster:
+        return PostGISRasterLayer(name)
+    return PostGISVectorLayer(name)
 
 
 class Layer(ABC):
@@ -347,6 +366,11 @@ class GeoJSONLayer(VectorLayer):
     MIMETYPE = ["application/json", "application/geojson", "application/geo+json"]
     DEFAULT_PROJECTION = epsg_to_wkt(4326)
 
+    @staticmethod
+    def list_layers():
+        """This method doesn't store anything. All is done in Vector Layer."""
+        return []
+
     def save(file_upload: FileStorage):
         """This method takes a geojson as input and present it as a raster file"""
         with TemporaryDirectory(prefix=get_tmp_upload()) as tmp_dir:
@@ -381,30 +405,11 @@ class GeoJSONLayer(VectorLayer):
         return VectorLayer(shape_name + ".geojson")
 
 
-def teardown_db(exception):
-    db = g.pop("db", None)
-
-    if db is not None:
-        db.close()
-
-
-def get_db():
-    if "db" not in g:
-        current_app.teardown_appcontext(teardown_db)
-        g.db = psycopg2.connect(
-            host=current_app.config["DB_HOST"],
-            password=current_app.config["DB_PASSWORD"],
-            database=current_app.config["DB_DB"],
-            user=current_app.config["DB_USER"],
-        )
-
-    return g.db
-
-
 def get_gis_layer(select_raster: bool) -> list:
-    if current_app.config["TESTING"]:
+    db_con = db.get_db()
+    if not db_con:
         return []
-    with get_db().cursor() as cur:
+    with db_con.cursor() as cur:
         cur.execute(
             "SELECT variable from public.data where isRaster = %s group by variable",
             (select_raster,),
@@ -453,16 +458,21 @@ class PostGISVectorLayer(Layer):
         }
 
 
-class PostGISRasterLayer(Layer):
-    def as_fd(self):
-        raise NotImplementedError()
+class PostGISRasterLayer(RasterLayer):
+    def __init__(self, name):
+        self.name = name
+        db_con = db.get_db()
+        if not db_con:
+            raise Exception
+        with db_con.cursor() as cur:
+            cur.execute(
+                "select ds_id, fid from public.data where variable = %s", (self.name,)
+            )
+            self.ds_id, self.fid = cur.fetchone()
 
-    def as_mapnik_layer(self):
-        raise NotImplementedError()
-
-    @property
-    def projection(self):
-        raise NotImplementedError()
+    def _get_raster_path(self):
+        raster_base_dir = current_app.config["RASTER_DB_DIR"]
+        return os.path.join(raster_base_dir, str(self.ds_id), str(self.fid))
 
     @property
     def is_queryable(self):

@@ -12,6 +12,7 @@ For more information about the WMS, see https://portal.ogc.org/files/?artifact_i
 """
 import json
 import os
+import urllib
 from collections import namedtuple
 
 import mapnik
@@ -54,7 +55,8 @@ def parse_layers(params):
         raw_layers = params["layers"]
     except KeyError:
         abort(400, "Parameter layers was not found")
-    layers = raw_layers.split(",")
+    raw_layers = raw_layers.split(",")
+    layers = [urllib.parse.unquote(layer) for layer in raw_layers]
     return layers
 
 

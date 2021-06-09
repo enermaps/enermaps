@@ -29,7 +29,7 @@
         WMS_URL,
         {
           transparent: 'true',
-          layers: layerName,
+          layers: encodeURIComponent(layerName),
           format: 'image/png',
         },
     );
@@ -41,7 +41,7 @@
         WMS_URL,
         {
           transparent: 'true',
-          layers: layerName,
+          layers: encodeURIComponent(layerName),
           format: 'image/png',
         },
     );
