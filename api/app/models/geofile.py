@@ -91,7 +91,7 @@ def load(name):
             (name,),
         )
         is_raster = cur.fetchone()
-    if raster is None:
+    if is_raster is None:
         raise Exception("Layer not found")
     if is_raster:
         return PostGISRasterLayer(name)
