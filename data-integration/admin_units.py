@@ -8,6 +8,7 @@ Created on Thu Oct 22 17:53:54 2020
 
 import logging
 import os
+import sys
 
 import geopandas as gpd
 import pandas as pd
@@ -21,6 +22,8 @@ GISCO_DATASETS = {
     "nuts": "https://gisco-services.ec.europa.eu/distribution/v2/nuts/geojson/NUTS_RG_01M_2021_{}.geojson",
     "lau": "https://gisco-services.ec.europa.eu/distribution/v2/lau/geojson/LAU_RG_01M_2019_{}.geojson",
 }
+logging.basicConfig(level=logging.INFO)
+
 # Dataset id
 DS_ID = 0
 
@@ -110,14 +113,39 @@ def get(
     return admin_units
 
 
-if __name__ == "__main__":
-    logging.basicConfig(level=logging.INFO)
+def integrate():
+    """Integrate datasets."""
+    # Get spatial records
     admin_units = get(GISCO_DATASETS, crs=CRS.from_epsg(3035))
-    admin_units["ds_id"] = DS_ID
+    # Upload dataset record
     dataset = pd.DataFrame([{"ds_id": DS_ID}])
     utilities.toPostgreSQL(
-        dataset,
-        DB_URL,
-        schema="datasets",
+        dataset, DB_URL, schema="datasets",
     )
+    # Upload spatial records
+    admin_units["ds_id"] = DS_ID
     utilities.toPostGIS(admin_units, DB_URL)
+    # Upload empty data records
+    data = admin_units.loc[:, ["ds_id", "fid"]].copy()
+    data["value"] = 0
+    data["variable"] = ""
+    utilities.toPostgreSQL(
+        data, DB_URL, schema="data",
+    )
+
+
+if __name__ == "__main__":
+    argv = sys.argv
+    if "--force" in argv:
+        isForced = True
+    else:
+        isForced = False
+    if utilities.datasetExists(DS_ID, DB_URL):
+        if isForced:
+            utilities.removeDataset(DS_ID, DB_URL)
+            logging.info("Removed existing dataset")
+            integrate()
+        else:
+            logging.info("The dataset already exists. Use --force to replace it.")
+    else:
+        integrate()
