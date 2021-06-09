@@ -26,7 +26,7 @@ import pandas as pd
 import utilities
 from shapely.geometry import box
 
-N_FILES = 279
+N_FILES = {21: 27, 35: 279}
 ISRASTER = True
 logging.basicConfig(level=logging.INFO)
 
@@ -159,7 +159,7 @@ if __name__ == "__main__":
         if (
             os.path.exists(directory)
             and os.path.isdir(directory)
-            and len(os.listdir(directory)) == N_FILES
+            and len(os.listdir(directory)) == N_FILES[ds_id]
         ):
             # Dezip
             convertZip(directory)
