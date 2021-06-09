@@ -8,6 +8,7 @@ also catch those on accessing the layer.
 import io
 import os
 import shutil
+import logging
 import subprocess  # nosec
 import zipfile
 from abc import ABC, abstractmethod
@@ -50,10 +51,13 @@ def list_layers():
     """Return the list of all layers from all direct subclasses
     of Layer class.
     """
-    layers = []
-    for layer_type in Layer.__subclasses__():
-        layers += layer_type.list_layers()
-    return layers
+    def list_subclass_layers(cl):
+        layers = []
+        for layer_type in Layer.__subclasses__():
+            layers += layer_type.list_layers()
+            layers += list_subclass_layers(cl)
+        return layers
+    return list_subclass_layers(Layer)
 
 
 def create(file_upload: FileStorage):
@@ -346,6 +350,12 @@ class GeoJSONLayer(VectorLayer):
 
     MIMETYPE = ["application/json", "application/geojson", "application/geo+json"]
     DEFAULT_PROJECTION = epsg_to_wkt(4326)
+
+    @staticmethod
+    def list_layers():
+        """This method doesn't store anything. All is done in Vector Layer.
+        """
+        return []
 
     def save(file_upload: FileStorage):
         """This method takes a geojson as input and present it as a raster file"""
