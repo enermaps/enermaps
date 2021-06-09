@@ -10,11 +10,11 @@ from flask import Blueprint, Flask
 from flask_restx import Api
 from werkzeug.datastructures import FileStorage
 
+from app.common import db
 from app.endpoints import calculation_module, geofile, wms
 from app.healthz import healthz
 from app.models.geofile import create, list_layers
 from app.redirect import redirect_to_api
-from app.common import db
 
 
 def fetch_dataset(base_url, get_parameters, filename, content_type):

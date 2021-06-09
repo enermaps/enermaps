@@ -5,26 +5,27 @@ really prevent race condition on list vs delete. We
 also catch those on accessing the layer.
 
 """
+import functools
 import io
 import os
 import shutil
 import subprocess  # nosec
-import functools
 import zipfile
 from abc import ABC, abstractmethod
 from glob import glob
 from tempfile import TemporaryDirectory
 
 import mapnik
-from flask import current_app, g, safe_join
+from flask import current_app, safe_join
 from werkzeug.datastructures import FileStorage
 
-from app.common.projection import epsg_to_wkt, proj4_from_geotiff, proj4_from_shapefile
 from app.common import db
+from app.common.projection import epsg_to_wkt, proj4_from_geotiff, proj4_from_shapefile
 
 
 class SaveException(Exception):
     """Exception thrown when saving geofile is not possible."""
+
     pass
 
 
@@ -50,12 +51,14 @@ def list_layers():
     """Return the list of all layers from all direct subclasses
     of Layer class.
     """
+
     def list_subclass_layers(cl):
         layers = []
         for subclass in cl.__subclasses__():
             layers += subclass.list_layers()
             layers += list_subclass_layers(subclass)
         return layers
+
     return list_subclass_layers(Layer)
 
 
@@ -85,7 +88,8 @@ def load(name):
     with db_con.cursor() as cur:
         cur.execute(
             "SELECT isRaster from public.data where variable = %s ",
-            (name,),)
+            (name,),
+        )
         is_raster = cur.fetchone()
     if is_raster:
         return PostGISRasterLayer(name)
@@ -364,8 +368,7 @@ class GeoJSONLayer(VectorLayer):
 
     @staticmethod
     def list_layers():
-        """This method doesn't store anything. All is done in Vector Layer.
-        """
+        """This method doesn't store anything. All is done in Vector Layer."""
         return []
 
     def save(file_upload: FileStorage):
@@ -456,14 +459,15 @@ class PostGISVectorLayer(Layer):
 
 
 class PostGISRasterLayer(RasterLayer):
-
     def __init__(self, name):
         self.name = name
         db_con = db.get_db()
         if not db_con:
             raise Exception
         with db_con.cursor() as cur:
-            cur.execute("select ds_id, fid from public.data where variable = %s", (self.name, ))
+            cur.execute(
+                "select ds_id, fid from public.data where variable = %s", (self.name,)
+            )
             self.ds_id, self.fid = cur.fetchone()
 
     def _get_raster_path(self):

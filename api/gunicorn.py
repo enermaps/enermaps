@@ -3,8 +3,8 @@ we need to keep this file in python (see
 https://github.com/benoitc/gunicorn/blob/master/examples/example_config.py)
 for an example.
 """
-import sys
 import multiprocessing
+import sys
 
 from app import create_app
 

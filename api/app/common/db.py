@@ -2,8 +2,8 @@
 """
 import logging
 
-from flask import g, current_app
 import psycopg2
+from flask import current_app, g
 
 
 def teardown_db(_):
@@ -17,8 +17,7 @@ def teardown_db(_):
 
 
 def get_db():
-    """Create the database connection when it is needed
-    """
+    """Create the database connection when it is needed"""
     if "db" not in g:
         try:
             g.db = psycopg2.connect(

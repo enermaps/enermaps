@@ -12,8 +12,8 @@ For more information about the WMS, see https://portal.ogc.org/files/?artifact_i
 """
 import json
 import os
-from collections import namedtuple
 import urllib
+from collections import namedtuple
 
 import mapnik
 from flask import Response, abort, current_app, request
