@@ -425,7 +425,19 @@ class PostGISVectorLayer(Layer):
         raise NotImplementedError()
 
     def as_mapnik_layer(self):
-        raise NotImplementedError()
+        lyr = mapnik.Layer(self.name)
+        query = f"(select spatial.geometry as geometry, spatial.name as name from spatial join datasets on spatial.ds_id = datasets.ds_id and datasets.name = '{self.name}') as world"
+        lyr.datasource = mapnik.PostGIS(
+            host=current_app.config["DB_HOST"],
+            port=current_app.config["DB_PORT"],
+            dbname=current_app.config["DB_DB"],
+            user=current_app.config["DB_USER"],
+            password=current_app.config["DB_PASSWORD"],
+            table=query,
+        )
+        lyr.srs = self.projection
+        lyr.queryable = self.is_queryable
+        return lyr
 
     @property
     def projection(self):
