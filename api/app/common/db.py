@@ -28,7 +28,6 @@ def get_db():
                 user=current_app.config["DB_USER"],
             )
         except psycopg2.OperationalError as err:
-            logging.error("Cannot connect to postgres: %s", err)
             if not current_app.config["TESTING"]:
                 logging.error("Cannot connect to postgres: %s", err)
 

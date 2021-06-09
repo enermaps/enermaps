@@ -25,7 +25,6 @@ from app.common import db
 
 class SaveException(Exception):
     """Exception thrown when saving geofile is not possible."""
-
     pass
 
 
@@ -460,22 +459,18 @@ class PostGISVectorLayer(Layer):
 
 class PostGISRasterLayer(RasterLayer):
 
-    def _get_raster_path(self):
-        db_con = get_db()
+    def __init__(self, name):
+        self.name = name
+        db_con = db.get_db()
         if not db_con:
             raise Exception
         with db_con.cursor() as cur:
             cur.execute("select ds_id, fid from public.data where variable = %s", (self.name, ))
-            ds_id, fid = cur.fetchone()
-        raster_base_dir = os.path.join(current_app.config["RASTER_DB_DIR"], "data")
-        return os.path.join(raster_base_dir, ds_id, fid)
-
-    def as_fd(self):
-        raise NotImplementedError()
-
-    @property
-    def projection(self):
-        raise NotImplementedError()
+            self.ds_id, self.fid = cur.fetchone()
+    
+    def _get_raster_path(self):
+        raster_base_dir = current_app.config["RASTER_DB_DIR"]
+        return os.path.join(raster_base_dir, str(self.ds_id), str(self.fid))
 
     @property
     def is_queryable(self):
