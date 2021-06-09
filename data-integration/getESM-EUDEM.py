@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Prepare the ESM dataset for EnerMaps.
+Prepare the ESM dataset and EUDEM for EnerMaps.
 
-Note that the 2.5-m resolution files must be downloaded from Copernicus (requires log-in)
-and extracted in the data/21 directory.
+Note that the 25-m (EU-DEM) and 2.5-m (ESM) resolution files must be downloaded from Copernicus (requires log-in)
+and extracted in the data/21 and data/35 directory.
 This script expects that the original zip file from Copernicus is extracted
 in multiple zip files, which will be then extracted and tiled.
 Created on Fri May 21 09:51:41 2021
@@ -12,6 +12,7 @@ Created on Fri May 21 09:51:41 2021
 @author: giuseppeperonato
 """
 
+import argparse
 import glob
 import json
 import logging
@@ -136,66 +137,69 @@ def get(directory):
 
 
 if __name__ == "__main__":
-    argv = sys.argv
     datasets = pd.read_csv("datasets.csv", engine="python", index_col=[0])
-    ds_id = int(
-        datasets[datasets["di_script"] == os.path.basename(argv[0])].index.values[0]
-    )
-    url = datasets.loc[
-        datasets["di_script"] == os.path.basename(argv[0]), "di_URL"
-    ].values[0]
-
-    if "--force" in argv:
-        isForced = True
+    ds_ids = datasets[datasets["di_script"] == os.path.basename(sys.argv[0])].index
+    if len(sys.argv) > 1:
+        parser = argparse.ArgumentParser(description="Import HotMaps raster")
+        parser.add_argument("--force", action="store_const", const=True, default=False)
+        parser.add_argument(
+            "--select_ds_ids", action="extend", nargs="+", type=int, default=[]
+        )
+        args = parser.parse_args()
+        isForced = args.force
+        if len(args.select_ds_ids) > 0:
+            ds_ids = args.select_ds_ids
     else:
         isForced = False
 
-    directory = "data/{}".format(ds_id)
+    for ds_id in ds_ids:
 
-    if (
-        os.path.exists(directory)
-        and os.path.isdir(directory)
-        and len(os.listdir(directory)) == N_FILES
-    ):
-        # Dezip
-        convertZip(directory)
+        directory = "data/{}".format(ds_id)
 
-        # Retile
-        tiling(directory)
+        if (
+            os.path.exists(directory)
+            and os.path.isdir(directory)
+            and len(os.listdir(directory)) == N_FILES
+        ):
+            # Dezip
+            convertZip(directory)
 
-        data, spatial = get(directory)
+            # Retile
+            tiling(directory)
 
-        # Remove existing dataset
-        if utilities.datasetExists(ds_id, DB_URL) and not isForced:
-            raise FileExistsError("Use --force to replace the existing dataset.")
-        elif utilities.datasetExists(ds_id, DB_URL) and isForced:
-            utilities.removeDataset(ds_id, DB_URL)
-            logging.info("Removed existing dataset")
-        else:
-            pass
+            data, spatial = get(directory)
 
-        # Create dataset table
-        metadata = datasets.loc[ds_id].fillna("").to_dict()
-        metadata = json.dumps(metadata)
-        dataset = pd.DataFrame([{"ds_id": ds_id, "metadata": metadata}])
-        utilities.toPostgreSQL(
-            dataset, DB_URL, schema="datasets",
-        )
+            # Remove existing dataset
+            if utilities.datasetExists(ds_id, DB_URL) and not isForced:
+                raise FileExistsError("Use --force to replace the existing dataset.")
+            elif utilities.datasetExists(ds_id, DB_URL) and isForced:
+                utilities.removeDataset(ds_id, DB_URL)
+                logging.info("Removed existing dataset")
+            else:
+                pass
 
-        # Create data table
-        data["ds_id"] = ds_id
-        utilities.toPostgreSQL(
-            data, DB_URL, schema="data",
-        )
-
-        # Create spatial table
-        spatial["ds_id"] = ds_id
-        utilities.toPostGIS(
-            spatial, DB_URL, schema="spatial",
-        )
-    else:
-        logging.error(
-            "The {} directory must exist and contain {} files from Copernicus.".format(
-                directory, N_FILES
+            # Create dataset table
+            metadata = datasets.loc[ds_id].fillna("").to_dict()
+            metadata = json.dumps(metadata)
+            dataset = pd.DataFrame([{"ds_id": ds_id, "metadata": metadata}])
+            utilities.toPostgreSQL(
+                dataset, DB_URL, schema="datasets",
             )
-        )
+
+            # Create data table
+            data["ds_id"] = ds_id
+            utilities.toPostgreSQL(
+                data, DB_URL, schema="data",
+            )
+
+            # Create spatial table
+            spatial["ds_id"] = ds_id
+            utilities.toPostGIS(
+                spatial, DB_URL, schema="spatial",
+            )
+        else:
+            logging.error(
+                "The {} directory must exist and contain {} files from Copernicus.".format(
+                    directory, N_FILES
+                )
+            )
