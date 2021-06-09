@@ -77,6 +77,21 @@ After adding/updating functions, you need to rebuild Postgrest cache using the f
 
 ```docker-compose kill -s SIGUSR1 postgrest```
 
+### Retrieving administrative units
+To filter administrative units, the `level` parameter can be used.
+The available options are: `country`, `NUTS1`, `NUTS2`, `NUTS3`, `LAU`.
+
+Example for `NUTS1`:
+```python
+r = requests.post('http://localhost:3000/rpc/enermaps_geojson',
+	headers={'Authorization': 'Bearer {}'.format(API_KEY)},
+	json={"dataset_id": 0, "level": "{NUTS1}"})
+response = r.json()
+```
+Multiple options can be included, separated with a comma, e.g. `"level": "{NUTS1,NUTS2}"`
+By default all levels are queried, including the level `geometry`, which corresponds to custom geometries (e.g. points of power plants).
+
+
 ## Gateway API - WIP
 Here are the first steps towards an API linking EnerMaps EDMT to OpenAIRE Gateway.
 

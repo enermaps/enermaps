@@ -26,7 +26,7 @@ CREATE TABLE public.spatial
     name varchar(200),
     name_engl varchar(200),
     cntr_code char(2),
-    levl_code levl,
+    levl_code levl DEFAULT 'geometry',
     ds_id int,
     geometry geometry(Geometry,3035)
 );
