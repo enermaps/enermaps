@@ -20,7 +20,12 @@ from flask import current_app, safe_join
 from werkzeug.datastructures import FileStorage
 
 from app.common import db
-from app.common.projection import epsg_to_wkt, proj4_from_geotiff, proj4_from_shapefile
+from app.common.projection import (
+    epsg_to_proj4,
+    epsg_to_wkt,
+    proj4_from_geotiff,
+    proj4_from_shapefile,
+)
 
 
 class SaveException(Exception):
@@ -87,10 +92,12 @@ def load(name):
         raise Exception("Layer not found")
     with db_con.cursor() as cur:
         cur.execute(
-            "SELECT isRaster from public.data where variable = %s ",
+            "SELECT isRaster from public.data where variable = %s group by variable, isRaster",
             (name,),
         )
-        is_raster = cur.fetchone()
+        is_raster, *_ = cur.fetchone()
+    if is_raster is None:
+        raise Exception("Layer not found")
     if is_raster:
         return PostGISRasterLayer(name)
     return PostGISVectorLayer(name)
@@ -423,11 +430,23 @@ class PostGISVectorLayer(Layer):
         raise NotImplementedError()
 
     def as_mapnik_layer(self):
-        raise NotImplementedError()
+        lyr = mapnik.Layer(self.name)
+        query = f"(select spatial.geometry as geometry, spatial.name as name from spatial join data on spatial.fid = data.fid and data.variable= '{self.name}') as world"
+        lyr.datasource = mapnik.PostGIS(
+            host=current_app.config["DB_HOST"],
+            port=current_app.config["DB_PORT"],
+            dbname=current_app.config["DB_DB"],
+            user=current_app.config["DB_USER"],
+            password=current_app.config["DB_PASSWORD"],
+            table=query,
+        )
+        lyr.srs = self.projection
+        lyr.queryable = self.is_queryable
+        return lyr
 
     @property
     def projection(self):
-        raise NotImplementedError()
+        return epsg_to_proj4(3035)
 
     @property
     def is_queryable(self):
