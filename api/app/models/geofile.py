@@ -8,8 +8,8 @@ also catch those on accessing the layer.
 import io
 import os
 import shutil
-import logging
 import subprocess  # nosec
+import functools
 import zipfile
 from abc import ABC, abstractmethod
 from glob import glob
@@ -72,6 +72,7 @@ def create(file_upload: FileStorage):
     raise Exception("Unknown file format {}".format(file_upload.mimetype))
 
 
+@functools.lru_cache
 def load(name):
     """Create a new instance of RasterLayer based on its name"""
     if name.endswith("zip") or name.endswith("geojson"):
@@ -86,9 +87,6 @@ def load(name):
             "SELECT isRaster from public.data where variable = %s ",
             (name,),)
         is_raster = cur.fetchone()
-    logging.error("***************************")
-    logging.error(is_raster)
-    logging.error("***************************")
     if is_raster:
         return PostGISRasterLayer(name)
     return PostGISVectorLayer(name)
@@ -467,7 +465,7 @@ class PostGISRasterLayer(RasterLayer):
         with db_con.cursor() as cur:
             cur.execute("select ds_id, fid from public.data where variable = %s", (self.name, ))
             self.ds_id, self.fid = cur.fetchone()
-    
+
     def _get_raster_path(self):
         raster_base_dir = current_app.config["RASTER_DB_DIR"]
         return os.path.join(raster_base_dir, str(self.ds_id), str(self.fid))

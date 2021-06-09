@@ -4,8 +4,11 @@ https://github.com/benoitc/gunicorn/blob/master/examples/example_config.py)
 for an example.
 """
 import sys
+import multiprocessing
 
 from app import create_app
+
+workers = multiprocessing.cpu_count() + 1
 
 
 def on_starting(_):
