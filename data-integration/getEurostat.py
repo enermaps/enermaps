@@ -112,7 +112,6 @@ def get(eurostat_id, dimensions=[], filters={}, parameters={}):
         )
         data = resp.to_pandas()
     if len(data) > 0:
-        print(data)
         # Remove multi-index
         data = data.reset_index()
 
@@ -125,10 +124,10 @@ def get(eurostat_id, dimensions=[], filters={}, parameters={}):
                     data_transl[column] = data_transl[column].replace(
                         sdmx.to_pandas(metadata.codelist[key]).to_dict()
                     )
-
+                except KeyError:
+                    pass
         # Remove lines with no values
         data_transl = data_transl.dropna()
-
         # Translate frequency to hours
         if "FREQ" in data_transl.columns:
             freq = {
@@ -217,18 +216,21 @@ if __name__ == "__main__":
             else:
                 logging.error("Dataset already existing. Use --force to replace it.")
 
-        print("Processing ds {} - {}".format(ds_id, datasets.loc[ds_id].iloc[2]))
-        data = get(**QUERIES[ds_id])
+        if not utilities.datasetExists(ds_id, DB_URL,):
+            logging.info(
+                "Processing ds {} - {}".format(ds_id, datasets.loc[ds_id].iloc[2])
+            )
+            data = get(**QUERIES[ds_id])
 
-        dataset = pd.DataFrame(
-            [{"ds_id": ds_id, "metadata": datasets.loc[ds_id].to_json()}]
-        )
-        utilities.toPostgreSQL(
-            dataset, DB_URL, schema="datasets",
-        )
+            dataset = pd.DataFrame(
+                [{"ds_id": ds_id, "metadata": datasets.loc[ds_id].to_json()}]
+            )
+            utilities.toPostgreSQL(
+                dataset, DB_URL, schema="datasets",
+            )
 
-        data["ds_id"] = ds_id
-        data["israster"] = False
-        utilities.toPostgreSQL(
-            data, DB_URL, schema="data",
-        )
+            data["ds_id"] = ds_id
+            data["israster"] = False
+            utilities.toPostgreSQL(
+                data, DB_URL, schema="data",
+            )
