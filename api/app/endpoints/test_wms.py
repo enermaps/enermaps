@@ -2,12 +2,14 @@ import io
 import json
 
 import lxml
+import unittest
 from lxml import etree
 from owslib.wms import WebMapService
 from PIL import Image
 
 import app.common.xml as xml
 from app.common import filepath
+from app.endpoints import wms
 from app.common.test import BaseApiTest, BaseIntegrationTest
 
 GETCAPABILITIES_ARGS = {"service": "WMS", "request": "GetCapabilities"}
@@ -18,6 +20,18 @@ class BaseWMSTest(BaseApiTest):
         """Try to achieve the WMS without request."""
         response = self.client.get("api/wms", query_string={"service": "WMS"})
         self.assertEqual(response.status, "400 BAD REQUEST", response.data)
+
+
+class WMSHelperTest(unittest.TestCase):
+    def testLayerSplit(self):
+        raw_l = "a,b,c"
+        parsed_list = wms.parse_list(raw_l)
+        self.assertEqual(parsed_list, ['a', 'b', 'c'], )
+
+    def testLayerSplitWithComma(self):
+        raw_l = "a%2C,b,c"
+        parsed_list = wms.parse_list(raw_l)
+        self.assertEqual(parsed_list, ['a,', 'b', 'c'], )
 
 
 class WMSGetCapabilitiesTest(BaseApiTest):
