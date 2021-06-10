@@ -6,6 +6,7 @@ RUN apt update && apt install --yes \
     python3-mapnik \
     python3-pip \
     python3-gunicorn \
+    libev-dev \
     gunicorn \
     libpq-dev \
     python3-gdal && \
@@ -20,4 +21,5 @@ COPY . .
 RUN python3 test.py
 
 EXPOSE 80
-CMD ["gunicorn", "--config", "gunicorn.py", "--bind", "0.0.0.0:80", "wsgi:app"]
+#CMD ["gunicorn", "--config", "gunicorn.py", "--bind", "0.0.0.0:80", "wsgi:app"]
+CMD ["python3", "main.py"]

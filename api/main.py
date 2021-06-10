@@ -10,8 +10,31 @@ run this script with the main.py as an absolute path, for example:
 python $(pwd)/main.py
 
 """
+import os
+import signal
 from app import create_app
+import bjoern
 
-if __name__ == "__main__":
-    app = create_app()
-    app.run(host="0.0.0.0", port=7000, debug=True)
+
+NUM_WORKERS = 4
+worker_pids = []
+app = create_app()
+bjoern.listen(app, "0.0.0.0", 80)
+
+for _ in range(NUM_WORKERS):
+    pid = os.fork()
+    if pid > 0:
+        worker_pids.append(pid)
+    elif pid == 0:
+        try:
+            bjoern.run()
+        except KeyboardInterrupt:
+            pass
+        exit()
+
+try:
+    for _ in range(NUM_WORKERS):
+        os.wait()
+except KeyboardInterrupt:
+    for pid in worker_pids:
+        os.kill(pid, signal.SIGINT)

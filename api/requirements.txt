@@ -7,3 +7,4 @@ celery==5.0.2
 redis==3.5.3
 OWSLib==0.20.0
 psycopg2==2.8.6
+bjoern
