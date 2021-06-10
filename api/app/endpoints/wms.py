@@ -34,7 +34,7 @@ def parse_envelope(params):
     """Parse the map and return the bounding box."""
     raw_extremas = params["bbox"].split(",")
     if len(raw_extremas) != 4:
-        raise abort(400, "bounding box need four extremas")
+        abort(400, "bounding box need four extremas")
     try:
         minx, miny, maxx, maxy = [float(extrema) for extrema in raw_extremas]
     except ValueError:
@@ -55,16 +55,24 @@ def parse_layers(params):
         raw_layers = params["layers"]
     except KeyError:
         abort(400, "Parameter layers was not found")
-    raw_layers = raw_layers.split(",")
-    layers = [urllib.parse.unquote(layer) for layer in raw_layers]
-    return layers
+    return parse_list(raw_layers)
+
+
+def parse_list(raw_string):
+    """Read a comma separated list of quoted string, this is used for the list of layer
+    and the list of style in the wms.
+    """
+    raw_list = raw_string.split(",")
+    parsed_list = [urllib.parse.unquote(el) for el in raw_list]
+    return parsed_list
 
 
 def parse_projection(params):
     """Parse the map and return the projection."""
-    srs = params.get("srs", params.get("crs"))
-    if not srs:
-        abort(400, "Parameter srs was not found")
+    srs = params.get("srs")
+    crs = params.get("crs")
+    if not (srs or crs):
+        abort(400, "Parameter srs nor crs was not found")
     return srs.lower()
 
 
@@ -303,7 +311,7 @@ class WMS(Resource):
         mp = self._get_map(normalized_args)
         mp.zoom_to_box(parse_envelope(normalized_args))
         raw_query_layers = normalized_args.get("query_layers", "")
-        query_layers = raw_query_layers.split(",")
+        query_layers = parse_list(raw_query_layers)
         if set(query_layers) != {layer.name for layer in mp.layers}:
             abort(400, "Requested layer didnt match the query_layers " "parameter")
         features = {"features": []}
