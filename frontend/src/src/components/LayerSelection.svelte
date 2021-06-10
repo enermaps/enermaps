@@ -152,6 +152,13 @@ h3 {
 #overlay_layers {
   overflow-y: auto;
 }
+label {
+  display: block;
+  overflow-y: auto;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow-x: hidden;
+}
 </style>
 <div id="map_selection" on:click|stopPropagation="">
   {#if !isLayerListReady}
@@ -160,7 +167,7 @@ h3 {
   <h3>Selection</h3>
   <div id="selection_layers">
   {#each selectionLayers as selectionLayer}
-  <label>
+  <label title={selectionLayer.name}>
     <input type=radio bind:group={$activeSelectionLayerStore} value={selectionLayer}>
     {selectionLayer.name}
   </label>
@@ -170,7 +177,7 @@ h3 {
   <h3>Overlays</h3>
   <div id="overlay_layers">
   {#each overlayLayers as overlayLayer}
-  <label>
+  <label title={overlayLayer.name}>
     <input type=checkbox bind:group={$activeOverlayLayersStore} value={overlayLayer}>
       {overlayLayer.name}
     </label>
