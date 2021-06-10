@@ -1,16 +1,16 @@
 import io
 import json
+import unittest
 
 import lxml
-import unittest
 from lxml import etree
 from owslib.wms import WebMapService
 from PIL import Image
 
 import app.common.xml as xml
 from app.common import filepath
-from app.endpoints import wms
 from app.common.test import BaseApiTest, BaseIntegrationTest
+from app.endpoints import wms
 
 GETCAPABILITIES_ARGS = {"service": "WMS", "request": "GetCapabilities"}
 
@@ -26,12 +26,18 @@ class WMSHelperTest(unittest.TestCase):
     def testLayerSplit(self):
         raw_l = "a,b,c"
         parsed_list = wms.parse_list(raw_l)
-        self.assertEqual(parsed_list, ['a', 'b', 'c'], )
+        self.assertEqual(
+            parsed_list,
+            ["a", "b", "c"],
+        )
 
     def testLayerSplitWithComma(self):
         raw_l = "a%2C,b,c"
         parsed_list = wms.parse_list(raw_l)
-        self.assertEqual(parsed_list, ['a,', 'b', 'c'], )
+        self.assertEqual(
+            parsed_list,
+            ["a,", "b", "c"],
+        )
 
 
 class WMSGetCapabilitiesTest(BaseApiTest):
