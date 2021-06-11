@@ -50,7 +50,7 @@ FROM (
   SELECT jsonb_build_object(
     'type',       'Feature',
     'id',         fid,
-    'geometry',   ST_AsGeoJSON(ST_TRANSFORM(geometry, 4326))::jsonb,
+    'geometry',   ST_AsGeoJSON(ST_Reverse(ST_ForceRHR(ST_TRANSFORM(geometry, 4326))))::jsonb,
     'properties', to_jsonb(inputs) - 'fid' - 'geometry'
   ) AS feature
   FROM (SELECT data.fid,
