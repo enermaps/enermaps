@@ -1,13 +1,15 @@
-CREATE ROLE dataset WITH UNENCRYPTED PASSWORD 'dataset';
-ALTER ROLE dataset WITH LOGIN;
-CREATE DATABASE dataset OWNER 'test';
--- REVOKE ALL PRIVILEGES ON DATABASE dataset FROM public;
+-- get the environment variable for the database and user creation
+\set db_user `echo "${DB_USER}"`
+\set db_password `echo "${DB_PASSWORD}"`
+\set db_db `echo "${DB_DB}"`
 
--- GRANT ALL PRIVILEGES ON DATABASE dataset TO dataset;
+CREATE USER :db_user WITH UNENCRYPTED PASSWORD :'db_password';
+ALTER USER :db_user WITH LOGIN;
+CREATE DATABASE :db_db OWNER :'db_user';
 
-ALTER DATABASE dataset SET search_path = public, postgis;
-\c dataset
+ALTER DATABASE :db_db SET search_path = public, postgis;
 
+\c :db_db;
 CREATE EXTENSION IF NOT EXISTS postgis ;
 
 CREATE TYPE levl AS ENUM ('country', 'NUTS1', 'NUTS2', 'NUTS3', 'LAU', 'geometry');
@@ -58,3 +60,6 @@ ALTER TABLE data
     REFERENCES datasets(ds_id)
     ON DELETE CASCADE
 ;
+
+GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA public TO :db_user;
+GRANT ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA public TO :db_user;
