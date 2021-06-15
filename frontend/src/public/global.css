@@ -62,5 +62,5 @@ button:focus {
 	border-color: #666;
 }
 .leaflet-control-layers {
-	max-width: 40%;
+	max-width: 170px;
 }

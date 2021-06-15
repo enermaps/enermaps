@@ -23,6 +23,8 @@
   let overlayLayers = [];
   // export let activeOverlayLayers = $activeOverlayLayersStore;
   let isLayerListReady = false;
+  let overlayLayersFilter = '';
+  let filteredOverlayLayers = [];
 
   function toQueryableLayer(layerName) {
     const layer = L.tileLayer.queryableLayer(
@@ -92,6 +94,7 @@
     selectionLayers.push(drawingLayer);
     selectionLayers = selectionLayers;
     overlayLayers = overlayLayers;
+    filteredOverlayLayers = overlayLayers;
     setSelectionFromGetParameter();
     isLayerListReady = true;
   });
@@ -127,6 +130,8 @@
   $: {
     console.log('layer changed in selector to ' + $activeSelectionLayerStore);
     console.log('layer changed in selector to ' + $activeOverlayLayersStore);
+    filteredOverlayLayers = overlayLayers.filter((layer) =>
+      layer.name.indexOf(overlayLayersFilter) !== -1);
   }
 </script>
 <style>
@@ -159,6 +164,9 @@ label {
   text-overflow: ellipsis;
   overflow-x: hidden;
 }
+.overlay_search {
+  width: 100%;
+}
 </style>
 <div id="map_selection" on:click|stopPropagation="">
   {#if !isLayerListReady}
@@ -176,7 +184,8 @@ label {
 
   <h3>Overlays</h3>
   <div id="overlay_layers">
-  {#each overlayLayers as overlayLayer}
+  Filter: <input bind:value={overlayLayersFilter} class="overlay_search">
+  {#each filteredOverlayLayers as overlayLayer (overlayLayer.name)}
   <label title={overlayLayer.name}>
     <input type=checkbox bind:group={$activeOverlayLayersStore} value={overlayLayer}>
       {overlayLayer.name}
