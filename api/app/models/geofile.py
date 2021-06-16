@@ -173,10 +173,15 @@ class Layer(ABC):
         pass
 
     def as_dict(self):
-        """Return a description of this layer as a dict"""
+        """Return a description of this layer as a dict. This is a very short version of metadata"""
         return {
             "isQueryable": self.is_queryable,
         }
+
+    @property
+    def metadata(self):
+        """Return a long description of the metadata of the layer."""
+        return {}
 
 
 class RasterLayer(Layer):
