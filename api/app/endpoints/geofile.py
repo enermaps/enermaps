@@ -56,3 +56,12 @@ class GeoFile(Resource):
         """Remove a geofile by name."""
         geofile.load(layer_name).delete()
         return redirect(url_for(".geofile_geo_files"))
+
+
+@api.route("/<string:layer_name>/metadata")
+class GeoFileMetadata(Resource):
+    def get(self, layer_name):
+        """Get the long form of metadata out of a layer
+        and raster as geotiff is supported."""
+        layer = geofile.load(layer_name)
+        return layer.metadata
