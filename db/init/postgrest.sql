@@ -70,6 +70,115 @@ FROM (
 GRANT EXECUTE ON FUNCTION enermaps_geojson(dataset_id integer, level text[], row_limit integer, row_offset integer) to api_user;
 
 
+-- Sample query returning geojson with flexible json input (actually in text format, to be PostgREST-friendly)
+-- Utility function to check whether a string is a json object
+CREATE OR REPLACE FUNCTION is_json_object(p_json text)
+  RETURNS boolean
+AS
+$$
+BEGIN
+    IF 0 < count(*) FROM json_object_keys(p_json::json) THEN
+    RETURN TRUE;
+    ELSE
+    RETURN FALSE;
+    END IF;
+exception
+  when others then
+     return false;
+END
+$$
+LANGUAGE plpgsql
+IMMUTABLE;
+
+-- Utility function to create a where-clause from json arguments
+CREATE OR REPLACE FUNCTION create_json_where(_key text, _value json)
+  RETURNS text
+AS
+$$
+DECLARE
+        _subkey text;
+        _subvalue text;
+        where_string text := '';
+        counter int := 0;
+BEGIN
+    FOR _subkey, _subvalue IN SELECT * FROM json_each_text(_value)
+        LOOP
+        where_string := where_string || _key || ' ->> ''' || _subkey ||  ''' = ''' || _subvalue || '''';
+        counter := counter + 1;
+        IF counter < count(*) FROM json_object_keys(_value) THEN
+            where_string := where_string || ' AND ';
+        END IF;
+        END LOOP;
+    RETURN where_string;
+END
+$$
+LANGUAGE plpgsql
+IMMUTABLE;
+
+-- Main function
+CREATE OR REPLACE FUNCTION enermaps_query_geojson(parameters text,
+                                                    row_limit int default 100,
+                                                    row_offset int default 0)
+    RETURNS JSONB
+    AS $$
+    DECLARE
+        -- where string
+        where_string text := 'WHERE ';
+        -- variables to loop on the json input
+        _key text;
+        _value text;
+        _subkey text;
+        _subvalue text;
+        counter int := 0;
+        -- output
+        out_jsonb jsonb;
+    BEGIN
+        FOR _key, _value IN
+           SELECT * FROM json_each_text(parameters::json)
+            LOOP
+            IF _key = 'level' THEN
+                where_string := where_string || 'spatial.levl_code = ANY(''' || _value || '''::levl[])';
+            ELSIF is_json_object(_value) THEN
+                where_string :=  where_string ||  create_json_where(_key, _value::json);
+            ELSE
+                where_string := where_string || _key || ' = ' || _value;
+            END IF;
+            counter := counter + 1;
+            IF counter < count(*) FROM json_object_keys(parameters::json) THEN
+                where_string := where_string || ' AND ';
+            END IF;
+        END LOOP;
+        EXECUTE format('
+        SELECT jsonb_build_object(
+        ''type'',     ''FeatureCollection'',
+        ''features'', jsonb_agg(features.feature)
+        )
+            FROM (
+              SELECT jsonb_build_object(
+                ''type'',       ''Feature'',
+                ''id'',         fid,
+                ''geometry'',   ST_AsGeoJSON(ST_Reverse(ST_ForceRHR(ST_TRANSFORM(geometry, 4326))))::jsonb,
+                ''properties'', to_jsonb(inputs) - ''fid'' - ''geometry''
+              ) AS feature
+                FROM (SELECT data.fid,
+                    jsonb_object_agg(variable, value) as variables,
+                    fields,
+                    start_at, dt, z, data.ds_id, geometry
+                    FROM data
+                    INNER JOIN spatial ON data.fid = spatial.fid
+                    %s
+                    GROUP BY data.fid, start_at, dt, z, data.ds_id, fields, geometry
+                    ORDER BY data.fid LIMIT %s OFFSET %s)
+                inputs)
+            features;', where_string, row_limit, row_offset)
+        INTO out_jsonb;
+        RETURN out_jsonb;
+    END;
+    $$
+    LANGUAGE plpgsql;
+GRANT EXECUTE ON FUNCTION enermaps_query_geojson(text, integer, integer) to api_user;
+
+
 -- Code to support OPENAIRE gateway
 -- Create a new datasets table to be filled in
 -- as the original datasets table only contains integrated datasets

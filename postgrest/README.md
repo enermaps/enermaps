@@ -60,9 +60,9 @@ The payload should include the `api_user`:
 
 Sample query returning all records of a given dataset as a GeoJSON:
 ```python
-r = requests.post('http://localhost:3000/rpc/enermaps_geojson',
+r = requests.post('http://localhost:3000/rpc/enermaps_query_geojson',
 	headers={'Authorization': 'Bearer {}'.format(API_KEY)},
-	json={"dataset_id": 2})
+	json={"parameters": {"data.ds_id": 2})
 response = r.json()
 print(response)
 ```
@@ -73,6 +73,12 @@ To prevent large queries, these optional parameters are set by default:
 - `row_limit = 100`
 - `row_offset = 0`
 
+More complex queries can be composed using the `enermaps_query_geojson endpoint`, e.g.:
+```python
+	json={"parameters" : {"data.ds_id": "2", "fields": {"min_temp": "240", "max_temp": "310"}}}
+```
+
+**IMPORTANT**
 After adding/updating functions, you need to rebuild Postgrest cache using the following command:
 
 ```docker-compose kill -s SIGUSR1 postgrest```
@@ -83,9 +89,9 @@ The available options are: `country`, `NUTS1`, `NUTS2`, `NUTS3`, `LAU`.
 
 Example for `NUTS1`:
 ```python
-r = requests.post('http://localhost:3000/rpc/enermaps_geojson',
+r = requests.post('http://localhost:3000/rpc/enermaps_query_geojson',
 	headers={'Authorization': 'Bearer {}'.format(API_KEY)},
-	json={"dataset_id": 0, "level": "{NUTS1}"})
+	json={"parameters": {"data.ds_id": 2, "level": "{NUTS1}"}})
 response = r.json()
 ```
 Multiple options can be included, separated with a comma, e.g. `"level": "{NUTS1,NUTS2}"`
