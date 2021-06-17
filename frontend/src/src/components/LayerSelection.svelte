@@ -137,6 +137,11 @@
 <style>
 #map_selection {
   padding: 4px;
+  border: 1px solid #27275b;
+	border-radius: 0px;
+  background-color: #eff4fa;
+  width: 100%;
+  box-sizing: border-box;
 }
 #map_selection h3 {
   margin: 0px;
@@ -153,6 +158,7 @@ h3 {
 }
 #selection_layers {
   overflow-y: auto;
+  border: none;
 }
 #overlay_layers {
   overflow-y: auto;
@@ -167,6 +173,22 @@ label {
 .overlay_search {
   width: 100%;
 }
+
+#map_selection h3 {
+  margin: 0px;
+  height: 40%;
+  display: flex;
+  flex-direction: column;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden !important;
+}
+
+h3 {
+  flex-shrink: 0;
+  border : none;
+}
+
 </style>
 <div id="map_selection" on:click|stopPropagation="">
   {#if !isLayerListReady}
