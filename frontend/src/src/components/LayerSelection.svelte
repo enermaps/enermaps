@@ -142,6 +142,7 @@
   background-color: #eff4fa;
   width: 100%;
   box-sizing: border-box;
+  max-width: 140px;
 }
 #map_selection h3 {
   margin: 0px;
