@@ -3,14 +3,10 @@
     import 'leaflet-search/dist/leaflet-search.src.js';
     import 'leaflet-search/dist/leaflet-search.src.css';
 
-    import {getGeofile} from '../client.js';
-    import {OVERLAY_LAYERS} from '../settings';
 
     let btn;
     let modal;
     let span;
-    let btn_add_vector_layer;
-    let btn_add_raster_layer;
 
     onMount(async () => {
       // Get the modal
@@ -19,9 +15,6 @@
       btn = document.getElementById('myBtn');
       // Get the <span> element that closes the modal
       span = document.getElementsByClassName('close')[0];
-      btn_add_vector_layer = document.getElementById('addVectorLayerBtn')
-      btn_add_raster_layer = document.getElementById('addRasterLayerBtn')
-
 
       // When the user clicks the button, open the modal
       btn.onclick = function() {
@@ -41,33 +34,9 @@
       };
 
 
-      btn_add_raster_layer.onclick = async function() {
-        // Get one layer of type raster
-        let layer_to_add = OVERLAY_LAYERS["test_layer_01"];
-        const [layer, layerParameters] = await getGeofile(layer_to_add["id"]);
-        console.log("btn add raster layer clicked");
 
-        // TODO add the layer to the interface: specific to the raster layer type!
-        // if (!layerParameters.isQueryable) {
-        //     leafletLayer = toOverlayLayer(layer);
-        //     leafletLayer.name = layer;
-        //     overlayLayers.push(leafletLayer);
-        //   }
-      };
 
-      btn_add_vector_layer.onclick = async function() {
-        // Get one layer of type vector
-        let layer_to_add = OVERLAY_LAYERS["test_layer_02"];
-        const [layer, layerParameters] = await getGeofile(layer_to_add["id"]);
-        console.log("btn add vector layer clicked");
 
-        // TODO add the layer to the interface: specific to the vector layer type!
-        // if (!layerParameters.isQueryable) {
-        //     leafletLayer = toOverlayLayer(layer);
-        //     leafletLayer.name = layer;
-        //     overlayLayers.push(leafletLayer);
-        //   }
-      };
 
     });
   </script>
@@ -215,8 +184,6 @@
     <a href="https://www.kialo.com/" target="_blank" class="link">Kialo</a>
     <!-- Trigger/Open The Modal -->
     <button id="myBtn" class="link">About</button>
-    <button id="addVectorLayerBtn" class="link">Add vector layer</button>
-    <button id="addRasterLayerBtn" class="link">Add raster layer</button>
 
     <!-- The Modal -->
   <div id="myModal" class="modal">

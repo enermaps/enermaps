@@ -1,133 +1,196 @@
-<script>
-import {onMount} from 'svelte';
-// Import CSS from Leaflet and plugins.
-import 'leaflet/dist/leaflet.css';
-import 'leaflet.markercluster/dist/MarkerCluster.css';
-import 'leaflet.markercluster/dist/MarkerCluster.Default.css';
+<script >
+  import {onMount} from 'svelte';
 
-// Import images directly that got missed via the CSS imports above.
-// import 'leaflet/dist/images/marker-icon-2x.png';
-// import 'leaflet/dist/images/marker-shadow.png';
+  // Import CSS from Leaflet and plugins.
+  import 'leaflet/dist/leaflet.css';
+  import 'leaflet.markercluster/dist/MarkerCluster.css';
+  import 'leaflet.markercluster/dist/MarkerCluster.Default.css';
 
-// Import JS from Leaflet and plugins.
-import 'leaflet/dist/leaflet';
-import 'leaflet.markercluster/dist/leaflet.markercluster';
-import 'leaflet.gridlayer.googlemutant/Leaflet.GoogleMutant';
-import 'leaflet-search/dist/leaflet-search.src.js';
-import 'leaflet-search/dist/leaflet-search.src.css';
+  // Import JS from Leaflet and plugins.
+  import 'leaflet/dist/leaflet';
+  import 'leaflet.markercluster/dist/leaflet.markercluster';
+  import 'leaflet.gridlayer.googlemutant/Leaflet.GoogleMutant';
+  import 'leaflet-search/dist/leaflet-search.src.js';
+  import 'leaflet-search/dist/leaflet-search.src.css';
 
-import LayerSelection from './LayerSelection.svelte';
-import CMToggle from './CMToggle.svelte';
-import {activeOverlayLayersStore, activeSelectionLayerStore} from '../stores.js';
+  import LayerSelection from './LayerSelection.svelte';
+  import CMToggle from './CMToggle.svelte';
+  import TopNav from './TopNav.svelte';
 
-import {INITIAL_MAP_CENTER, INITIAL_ZOOM, BASE_LAYER_URL} from '../settings.js';
-import {BASE_LAYER_PARAMS} from '../settings.js';
+  import {activeOverlayLayersStore, activeSelectionLayerStore} from '../stores.js';
 
-let map;
-$: activeSelectionLayer = $activeSelectionLayerStore;
-$: activeOverlayLayers = $activeOverlayLayersStore;
+  import {INITIAL_MAP_CENTER, INITIAL_ZOOM, BASE_LAYER_URL} from '../settings.js';
 
-const overlaysGroup = L.layerGroup();
-const selectionsGroup = L.layerGroup();
-const baseLayersGroup = L.layerGroup();
+  // Base layer = the map
+  import {BASE_LAYER_PARAMS} from '../settings.js';
 
+  let map;
 
-onMount(async () => {
-  console.log('init map');
-  map = L.map('map').setView(INITIAL_MAP_CENTER, INITIAL_ZOOM);
+  $: activeSelectionLayer = $activeSelectionLayerStore;
+  $: activeOverlayLayers = $activeOverlayLayersStore;
+
+  const overlaysGroup = L.layerGroup(); // energy map etc
+  const selectionsGroup = L.layerGroup(); // nuts and custom selection layer
+  const baseLayersGroup = L.layerGroup(); // openstreetmap ?
 
 
-  map.addLayer(baseLayersGroup);
-  map.addLayer(selectionsGroup);
-  map.addLayer(overlaysGroup);
+  onMount(async () => {
+    console.log('init map');
+    // To add the draw toolbar set the option drawControl: true in the map options.
+    map = L.map('map', {zoomControl: false});
+    map.setView(INITIAL_MAP_CENTER, INITIAL_ZOOM);
 
-  const baseLayer = L.tileLayer(BASE_LAYER_URL, BASE_LAYER_PARAMS);
-  baseLayersGroup.addLayer(baseLayer);
+    map.addLayer(baseLayersGroup);
+    map.addLayer(selectionsGroup);
+    map.addLayer(overlaysGroup);
 
-  map.addControl(makeSearchControl());
-  map.addControl(makeLayerControl());
-  map.addControl(makeCMToggleControl());
-});
+    const baseLayer = L.tileLayer(BASE_LAYER_URL, BASE_LAYER_PARAMS);
+    baseLayersGroup.addLayer(baseLayer); // Add the openstreetmap layer
 
-function resizeMap() {
-  if (map) {
-    map.invalidateSize();
-  }
-}
+    // Add the map controls
+    map.addControl(makeSearchControl()); // Search tools
+    map.addControl(makeCMToggleControl()); // Button to open calculation module pane
+    map.addControl(makeAreaSelectionControl());
+    map.addControl(makeOverlayLayersControl());
+  });
 
-$: {
-  console.log(`selected layer was changed: ${activeSelectionLayer}`);
-  console.log(`overlay layer was changed: ${activeOverlayLayers}`);
-  syncSelectionLayer();
-  syncOverlayLayers();
-}
-function syncOverlayLayers() {
-  const overlayToBePruned = new Set(overlaysGroup.getLayers());
-  for (const activeOverlayLayer of activeOverlayLayers) {
-    if (!overlaysGroup.hasLayer(activeOverlayLayer)) {
-      overlaysGroup.addLayer(activeOverlayLayer);
-    } else {
-      overlayToBePruned.delete(activeOverlayLayer);
+  function resizeMap() {
+    if (map) {
+      map.invalidateSize();
     }
   }
-  for (const overlay of overlayToBePruned) {
-    overlaysGroup.removeLayer(overlay);
-  }
-}
-function syncSelectionLayer() {
-  if (!activeSelectionLayer) {
-    return;
-  }
-  if (!selectionsGroup.hasLayer(activeSelectionLayer)) {
-    // currently the activated layer is not the right one
-    // so remove it
-    selectionsGroup.clearLayers();
-  }
-  if (selectionsGroup.getLayers().length === 0) {
-    selectionsGroup.addLayer(activeSelectionLayer);
-  }
-}
-function makeLayerControl() {
-  const layerControl = L.control({position: 'topleft'});
-  layerControl.onAdd = (map) => {
-    const div = L.DomUtil.create('div');
-    L.DomUtil.addClass(div, 'leaflet-control-layers');
-    toolbar = new LayerSelection({target: div});
-    return div;
-  };
-  return layerControl;
-}
-function makeCMToggleControl() {
-  const CMToggleControl = L.control({position: 'topright'});
-  CMToggleControl.onAdd = (map) => {
-    const div = L.DomUtil.create('div');
-    L.DomUtil.addClass(div, 'leaflet-control-zoom');
-    toolbar = new CMToggle({target: div});
-    return div;
-  };
-  return CMToggleControl;
-}
-function makeSearchControl() {
-  const searchControl = new L.Control.Search({
-    url: 'https://nominatim.openstreetmap.org/search?format=json&q={s}',
-    jsonpParam: 'json_callback',
-    propertyName: 'display_name',
-    propertyLoc: ['lat', 'lon'],
-    marker: false, // L.circleMarker([0, 0], { radius: 30 }),
-    autoCollapse: true,
-    autoType: false,
-    minLength: 2,
-  });
-  return searchControl;
-}
-</script>
-<style>
-#map {
-  width: 100%;
-  height: 100%;
-}
-</style>
 
-<svelte:window on:resize={resizeMap} />
+  $: {
+    console.log(`selected layer was changed: ${activeSelectionLayer}`);
+    console.log(`overlay layer was changed: ${activeOverlayLayers}`);
+    syncSelectionLayer();
+    syncOverlayLayers();
+  }
 
-<div id="map"></div>
+
+  function syncOverlayLayers() {
+    const overlayToBePruned = new Set(overlaysGroup.getLayers());
+    for (const activeOverlayLayer of activeOverlayLayers) {
+      if (!overlaysGroup.hasLayer(activeOverlayLayer)) {
+        overlaysGroup.addLayer(activeOverlayLayer);
+      } else {
+        overlayToBePruned.delete(activeOverlayLayer);
+      }
+    }
+    for (const overlay of overlayToBePruned) {
+      overlaysGroup.removeLayer(overlay);
+    }
+  }
+
+
+  function syncSelectionLayer() {
+    if (!activeSelectionLayer) {
+      return;
+    }
+    if (!selectionsGroup.hasLayer(activeSelectionLayer)) {
+      // currently the activated layer is not the right one so remove it
+      selectionsGroup.clearLayers();
+    }
+    if (selectionsGroup.getLayers().length === 0) {
+      selectionsGroup.addLayer(activeSelectionLayer);
+    }
+  }
+
+
+  /* Left control (area selection and overlay layers)*/
+  function makeAreaSelectionControl() {
+    const ctr = L.control({position: 'topleft'});
+    ctr.onAdd = (map) => {
+      const overlayDiv = L.DomUtil.create('div' );
+      L.DomUtil.addClass(overlayDiv, 'testComponent');
+      toolbar = new LayerSelection({target: overlayDiv});
+      return overlayDiv;
+    };
+    return ctr;
+  }
+
+  /* Left control (area selection and overlay layers)*/
+  function makeOverlayLayersControl() {
+    const ctr = L.control({position: 'topleft'});
+    ctr.onAdd = (map) => {
+      const areaDiv = L.DomUtil.create('div' );
+      L.DomUtil.addClass(areaDiv, 'testComponent');
+      toolbar = new AreaSelection({target: areaDiv});
+      // Enable the overlay layers to be dragged
+      // var draggable = new L.Draggable(area_div);
+      // draggable.enable();
+      return areaDiv;
+    };
+    return ctr;
+  }
+
+
+  function makeCMToggleControl() {
+    const CMToggleControl = L.control({position: 'topright'});
+    CMToggleControl.onAdd = (map) => {
+      const div = L.DomUtil.create('div');
+      L.DomUtil.addClass(div, 'test');
+      toolbar = new CMToggle({target: div});
+      return div;
+    };
+    return CMToggleControl;
+  }
+
+  // https://github.com/stefanocudini/leaflet-search
+  function makeSearchControl() {
+    const searchControl = new L.Control.Search({
+      container: 'findbox',
+      url: 'https://nominatim.openstreetmap.org/search?format=json&q={s}',
+      jsonpParam: 'json_callback',
+      propertyName: 'display_name',
+      propertyLoc: ['lat', 'lon'],
+      marker: false,
+      autoCollapse: false,
+      autoResize: false,
+      autoType: false,
+      minLength: 2,
+      collapsed: false,
+      textPlaceholder: 'Search location...',
+      moveToLocation: function(latlng, title, map) {
+        map.setView(latlng, 12); // access the zoom
+      },
+    });
+
+    return searchControl;
+  }
+
+  </script>
+
+  <style>
+
+  #page {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    box-sizing: border-box;
+    flex-direction: column;
+  }
+
+  #map {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    box-sizing: border-box;
+  }
+
+
+  #findbox {
+    display: inline-block;
+    overflow: visible;
+    vertical-align: middle;
+    margin-left: 35px;
+  }
+
+  </style>
+
+  <svelte:window on:resize={resizeMap} />
+
+  <div id="page">
+    <TopNav><div id="findbox"> </div></TopNav>
+    <div id="map"></div>
+  </div>
