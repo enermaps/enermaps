@@ -32,14 +32,8 @@
           modal.style.display = 'none';
         }
       };
-
-
-
-
-
-
     });
-  </script>
+</script>
 
 
   <style>
