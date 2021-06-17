@@ -152,7 +152,10 @@ if __name__ == "__main__":
 
 ## Schema.json
 
-Below is an example of the data schema expected by the cm.
+The calculation module form is built thanks to a JSON file using `org.brutusin:json-forms`, 
+a javascript library.
+
+Below is an example of the data schema expected by the library to build the form.
 
 ```
 {
@@ -166,10 +169,16 @@ Below is an example of the data schema expected by the cm.
 }
 ```
 
-Generally, the data entered by the user is numerical data (see [documentation on JSON numeric variable type](https://json-schema.org/understanding-json-schema/reference/numeric.html)), 
-but other types of data are supported by JSON schemas (see [documentation on JSON variable types](https://json-schema.org/understanding-json-schema/reference/)).
+As shown in the example above, generally the data entered by the user is numerical data 
+(see [documentation on JSON numeric variable type](https://json-schema.org/understanding-json-schema/reference/numeric.html)), 
+but other types of data are supported by JSON schemas (see [documentation on JSON variable types]
+(https://json-schema.org/understanding-json-schema/reference/)).
 
-As mentioned above, this file refers to the optional input parameter `params` in the worker.py file.
+See the [GitHub repository](https://github.com/brutusin/json-forms) or 
+[the demo website](http://brutusin.org/json-forms/) of the project for more information.
+
+
+NB : As mentioned above, this file refers to the optional input parameter `params` in the worker.py file.
 
 ## Requirements.txt
 
