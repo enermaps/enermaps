@@ -138,6 +138,8 @@ CREATE OR REPLACE FUNCTION enermaps_query_geojson(parameters text,
             LOOP
             IF _key = 'level' THEN
                 where_string := where_string || 'spatial.levl_code = ANY(''' || _value || '''::levl[])';
+            ELSIF _key = 'intersecting' THEN
+                where_string := where_string || 'ST_intersects(spatial.geometry,ST_TRANSFORM(ST_GeometryFromText(''' || _value || ''',4326),3035))';
             ELSIF is_json_object(_value) THEN
                 where_string :=  where_string ||  create_json_where(_key, _value::json);
             ELSE
