@@ -6,7 +6,7 @@ from heatlearn import heatlearn
 
 ADMISSIBLE_TILE_SIZES = [500, 300]
 
-app = cm_base.get_default_app()
+app = cm_base.get_default_app("heatlearn")
 schema_path = cm_base.get_default_schema_path()
 
 
