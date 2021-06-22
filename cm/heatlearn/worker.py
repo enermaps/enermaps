@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
-from heatlearn import heatlearn
-
 from BaseCM import cm_base as cm_base
 from BaseCM import cm_input as cm_input
+
+from heatlearn import heatlearn
 
 ADMISSIBLE_TILE_SIZES = [500, 300]
 
@@ -29,7 +29,7 @@ def heat_learn(self, selection: dict, rasters: list, params: dict):
         raster_paths.append(cm_input.get_raster_path(raster))
     self.validate_params(params)
 
-    tile_size = params["tile_size"]
+    tile_size = params["tileSize"]
     if tile_size not in ADMISSIBLE_TILE_SIZES:
         raise ValueError(
             "Admissible values for tile sizes are: {}.".format(
