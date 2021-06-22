@@ -1,12 +1,9 @@
 <script>
   import {onMount} from 'svelte';
   import {getCMs} from '../client.js';
-
   import {isCMPaneActiveStore} from '../stores.js';
   import CM from './CM.svelte';
-
   let cms = [];
-
   onMount(async () => {
     cms = await getCMs();
   });
@@ -14,6 +11,7 @@
     isCMPaneActiveStore.update((n) => !n);
   }
 </script>
+
 <style>
 #calculation_modules_content {
   display: flex;
@@ -27,30 +25,31 @@
   top: 0;
   right: 0;
   padding: 5px;
-  margin: 20px;
-  border-radius: 4px;
-  border: 2px solid rgba(0,0,0,0.2);
-  background-color: rgba(255, 255, 255, 0.8);
-  height: 80%;
-  width: 40%
+  margin: 8px;
+  border-radius: 0px;
+  border: 1px solid #27275b;
+  background-color: #eff4fa;
+  width: 30%
 }
 [hidden]{
   display: none !important;
 }
 #header {
-  padding-top: 5px;
-  padding-bottom: 5px;
+  padding-top: 0px;
+  padding-bottom: 0px;
   margin: 0px;
   flex-shrink: 0;
+  text-align: center;
 }
 #list {
   overflow-y: auto;
 }
 </style>
+
 <div id="calculation_modules_pane" hidden={!$isCMPaneActiveStore}>
   <div class="close_button" on:click={closeCMPanel}></div>
   <div id="calculation_modules_content">
-    <h2 id="header">Call a calculation module</h2>
+    <h2 id="header">Calculation Modules</h2>
     <div id="list">
       {#each cms as cm}
         <CM bind:cm/>

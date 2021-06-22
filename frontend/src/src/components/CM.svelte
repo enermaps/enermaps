@@ -5,7 +5,6 @@
   import {activeOverlayLayersStore, activeSelectionLayerStore} from '../stores.js';
   import 'brutusin-json-forms';
   const BrutusinForms = brutusin['json-forms'];
-
   export let cm;
   let isDisabled = true;
   let tasks = [];
@@ -13,7 +12,6 @@
   let form = undefined;
   let callCMTooltip = 'brutison is a brutison';
   let isCollapsed = false;
-
   async function callCM() {
     const newTaskParams = {};
     newTaskParams['selection'] = $activeSelectionLayerStore.getSelection();
@@ -21,16 +19,13 @@
     newTaskParams['parameters'] = form.getData();
     console.log('Creating new task with parameters: ' + newTaskParams);
     const task = await postCMTask(cm, newTaskParams);
-
     tasks.push(task);
     tasks = tasks;
   }
-
   onMount(() => {
     form = BrutusinForms.create(cm.schema);
     form.render(formElement);
   });
-
   $ : {
     if (!$activeOverlayLayersStore.length) {
       callCMTooltip = 'An overlay layer needs to be selected first';
@@ -43,26 +38,26 @@
                       $activeSelectionLayerStore !== undefined;
     isDisabled = !isEnabled;
   }
-
   function toggleCollapse() {
     isCollapsed = !isCollapsed;
   }
-
   function deleteCMTask(taskToDelete) {
     console.log('Deleting task: ' + taskToDelete.id);
     tasks = tasks.filter((task)=> taskToDelete.id != task.id);
   }
 </script>
+
 <style>
 .tasks {
+  margin-top: 10px;
   position: relative;
 }
 .open_menu {
   display: inline-block;
   height: 25px;
   width: 25px;
-  background-size : 100%;
   background: url('/images/menu-close-icon.png');
+  background-size : 100%;
 }
 .close_menu {
   display: inline-block;
@@ -70,10 +65,6 @@
   width: 25px;
   background: url('/images/menu-open-icon.png');
   background-size : 100%;
-}
-.cm_name {
-  display: inline-block;
-  margin: 0px;
 }
 .cm_run {
   vertical-align: middle;
@@ -106,10 +97,8 @@ h3 {
         <button class="cm_run"  type=submit on:click={() => callCM(cm)} disabled={isDisabled} title={callCMTooltip}>Run CM</button>
       </div>
     </div>
-
-
   </div>
-
+ 
   <div hidden="{isCollapsed}">
     <div>
       <form class="cm_params" bind:this={formElement} />
@@ -121,6 +110,3 @@ h3 {
     </div>
   </div>
 </div>
-
-
-

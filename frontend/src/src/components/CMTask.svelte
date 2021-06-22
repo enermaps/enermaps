@@ -8,11 +8,9 @@
   let graphs = {};
   let values = [];
   let taskResult = {status: 'PENDING'};
-
   const updateTime = 500;
   const PENDING_STATUS = 'PENDING';
   const dispatch = createEventDispatcher();
-
   $: isTaskPending = (taskResult.status === PENDING_STATUS);
   $: {
     console.log(task);
@@ -52,13 +50,16 @@
     dispatch('delete', {});
   }
 </script>
+
 <style>
 .cmresult {
-  border: 2px solid rgba(0,0,0,0.5);
+  border: 1px solid #27275b;
   border-radius: 4px;
-  padding: 5px;
+  padding: 8px;
+  background-color: white;
 }
 </style>
+
 <div class="cmresult">
   <div class="close_button" on:click="{removeTask}"></div>
   <dl>
