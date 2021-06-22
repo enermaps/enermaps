@@ -17,8 +17,11 @@ To make the CM work, we need three inputs:
 
 * the raster we want to study (TBD: should be forced to ESM);
 * the boundary of the area we want to study;
-* the tile size.
+* the tile size;
+* the year (to obtain Heating Degree Days from Eurostat);
 
+Heating Degree Days (HDD) are obtained at the NUTS3 level from dataset 9 (Eurostat), including EU countries only.
+Pre-computed HDD for the Canton of Geneva are also available.
 
 ### Ouputs
 

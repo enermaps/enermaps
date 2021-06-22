@@ -26,7 +26,7 @@ class TestCM(unittest.TestCase):
 
         self.assertEqual(
             stats["values"]["Annual heating demand [GWh]"],
-            168,
+            148,
             "Request especting 0" " returned different values",
         )
 
