@@ -120,12 +120,30 @@ function makeSearchControl() {
 }
 </script>
 <style>
-#map {
-  width: 100%;
-  height: 100%;
-}
+  #page {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    box-sizing: border-box;
+    flex-direction: column;
+  }
+  #map {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    box-sizing: border-box;
+  }
+  #findbox {
+    display: inline-block;
+    overflow: visible;
+    vertical-align: middle;
+    margin-left: 35px;
+  }
 </style>
 
 <svelte:window on:resize={resizeMap} />
 
-<div id="map"></div>
+<div id="page">
+  <TopNav><div id="findbox"> </div></TopNav>
+  <div id="map"></div>
+</div>
