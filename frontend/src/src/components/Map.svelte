@@ -5,10 +5,6 @@ import 'leaflet/dist/leaflet.css';
 import 'leaflet.markercluster/dist/MarkerCluster.css';
 import 'leaflet.markercluster/dist/MarkerCluster.Default.css';
 
-// Import images directly that got missed via the CSS imports above.
-// import 'leaflet/dist/images/marker-icon-2x.png';
-// import 'leaflet/dist/images/marker-shadow.png';
-
 // Import JS from Leaflet and plugins.
 import 'leaflet/dist/leaflet';
 import 'leaflet.markercluster/dist/leaflet.markercluster';
@@ -16,8 +12,10 @@ import 'leaflet.gridlayer.googlemutant/Leaflet.GoogleMutant';
 import 'leaflet-search/dist/leaflet-search.src.js';
 import 'leaflet-search/dist/leaflet-search.src.css';
 
+import AreaSelection from './AreaSelection.svelte';
 import LayerSelection from './LayerSelection.svelte';
 import CMToggle from './CMToggle.svelte';
+import TopNav from './TopNav.svelte';
 import {activeOverlayLayersStore, activeSelectionLayerStore} from '../stores.js';
 
 import {INITIAL_MAP_CENTER, INITIAL_ZOOM, BASE_LAYER_URL} from '../settings.js';
