@@ -1,9 +1,17 @@
 {
+  "$schema": "http://json-schema.org/draft-03/schema#",
   "type": "object",
   "properties": {
-    "tile_size": {
-      "type": "number",
-      "default": 500
+    "tileSize": {
+      "type": "integer",
+      "title": "Tile size (m)",
+      "description": "Tile width in meters",
+      "required": true,
+      "default": 500,
+      "enum": [
+        300,
+      500
+      ]
     }
   }
 }

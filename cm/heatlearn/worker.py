@@ -29,7 +29,7 @@ def heat_learn(self, selection: dict, rasters: list, params: dict):
         raster_paths.append(cm_input.get_raster_path(raster))
     self.validate_params(params)
 
-    tile_size = params["tile_size"]
+    tile_size = params["tileSize"]
     if tile_size not in ADMISSIBLE_TILE_SIZES:
         raise ValueError(
             "Admissible values for tile sizes are: {}.".format(
