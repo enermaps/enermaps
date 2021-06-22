@@ -23,6 +23,7 @@
   let overlayLayers = [];
   // export let activeOverlayLayers = $activeOverlayLayersStore;
   let isLayerListReady = false;
+  
   let overlayLayersFilter = '';
   let filteredOverlayLayers = [];
 
@@ -170,13 +171,13 @@ label {
   text-overflow: ellipsis;
   overflow-x: hidden;
 }
-.overlay_search {
+/* .overlay_search {
   width: 100%;
-}
+} */
 </style>
 <div id="map_selection" on:click|stopPropagation="">
   {#if !isLayerListReady}
-  Loading layers
+  Loading layers...
   {:else}
   <h3>Selection</h3>
   <div id="selection_layers">
@@ -187,17 +188,5 @@ label {
   </label>
   {/each}
   </div>
-
-  <h3>Overlays</h3>
-  <div id="overlay_layers">
-  Filter: <input bind:value={overlayLayersFilter} class="overlay_search">
-  {#each filteredOverlayLayers as overlayLayer (overlayLayer.name)}
-  <label title={overlayLayer.name}>
-    <input type=checkbox bind:group={$activeOverlayLayersStore} value={overlayLayer}>
-      {overlayLayer.name}
-    </label>
-  {/each}
-  </div>
-
   {/if}
 </div>
