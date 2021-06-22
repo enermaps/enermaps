@@ -12,6 +12,15 @@
         300,
       500
       ]
+    },
+    "year": {
+      "type": "integer",
+      "title": "Year",
+      "minimum": 1980,
+      "maximum": 2020,
+      "default": 2020,
+      "required": true,
+      "description": "Year"
     }
   }
 }
