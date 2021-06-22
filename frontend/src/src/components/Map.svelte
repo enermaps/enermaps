@@ -107,6 +107,7 @@ function makeCMToggleControl() {
 }
 function makeSearchControl() {
   const searchControl = new L.Control.Search({
+    container: 'findbox',
     url: 'https://nominatim.openstreetmap.org/search?format=json&q={s}',
     jsonpParam: 'json_callback',
     propertyName: 'display_name',
