@@ -29,11 +29,11 @@
       for (const [layer, layerParameters] of Object.entries(layers)) {
         let leafletLayer;
         console.log(layer, layerParameters);
-        if (!layerParameters.isQueryable) {
+        //if (!layerParameters.isQueryable) {
           leafletLayer = toOverlayLayer(layer);
           leafletLayer.name = layer;
           overlayLayers.push(leafletLayer);
-        }
+        //}
       }
       overlayLayers = overlayLayers;
       // Add all the overlay layers

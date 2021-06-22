@@ -73,15 +73,17 @@
         leafletLayer.setZIndex(1000);
         //
         selectionLayers.push(leafletLayer);
-      } else if (layerParameters.isQueryable) {
-        leafletLayer = toQueryableLayer(layer);
-        leafletLayer.name = layer;
-        overlayLayers.push(leafletLayer);
-      } else {
-        leafletLayer = toOverlayLayer(layer);
-        leafletLayer.name = layer;
-        overlayLayers.push(leafletLayer);
-      }
+      } 
+      
+      // else if (layerParameters.isQueryable) {
+      //   leafletLayer = toQueryableLayer(layer);
+      //   leafletLayer.name = layer;
+      //   overlayLayers.push(leafletLayer);
+      // } else {
+      //   leafletLayer = toOverlayLayer(layer);
+      //   leafletLayer.name = layer;
+      //   overlayLayers.push(leafletLayer);
+      // }
     }
     function compareSelectionLayer(layer0, layer1) {
       const layer0Name = layer0.name;
