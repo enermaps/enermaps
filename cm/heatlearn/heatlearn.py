@@ -5,12 +5,12 @@ from time import sleep, time
 
 import geopandas as gpd
 import numpy as np
+import pandas as pd
 import rasterio
 import requests
 import urllib3
 from BaseCM.cm_output import validate
 from geocube.api.core import make_geocube
-from matplotlib import pyplot as plt
 from rasterio.mask import mask
 from shapely import wkt
 from shapely.geometry import Polygon, shape
@@ -19,6 +19,13 @@ from tensorflow.keras.models import load_model
 
 logging.basicConfig(level=logging.INFO)
 
+# REST API for HDD
+if not os.path.exists("API_KEY.txt"):
+    raise FileNotFoundError("Missing API key.")
+with open("API_KEY.txt", "r") as f:
+    API_KEY = f.read().replace("\n", "")
+API_URL = "https://lab.idiap.ch/enermaps/api/rpc/enermaps_query_table"
+HEADERS = {"Authorization": "Bearer {}".format(API_KEY)}
 
 CURRENT_FILE_DIR = os.path.dirname(os.path.abspath(__file__))
 
@@ -37,6 +44,8 @@ MODELS = {
     500: "9216fdce-9855-11eb-b3f9-3e22fb3fc3ab",
     300: "2dcaa71c-9837-11eb-b3f9-3e22fb3fc3ab",
 }
+
+HDD_MODEL = {"slope": -0.0002855045732455094, "intercept": 1.8116549365250931}
 
 
 def replace_with_dict(ar: np.array, dic: dict = ESM_dict):
@@ -101,9 +110,58 @@ def makeGrid(bounds, size):
     return grid
 
 
-def heatlearn(geojson, raster_paths, tile_size):
+def getHDD(polygon, year=2020):
+    """Get HeatinDegreeDays from EUROSTAT, or precomputed ones for Geneva."""
+    df = []
+    for month in range(1, 13):
+        r = requests.post(
+            API_URL,
+            headers=HEADERS,
+            json={
+                "parameters": {
+                    "data.ds_id": 9,
+                    "start_at": "'{}-{}-01'".format(year, str(month).zfill(2)),
+                    "intersecting": "{}".format(polygon.wkt),
+                    "level": "{NUTS3}",
+                }
+            },
+        )
+
+        df.append(pd.DataFrame(r.json()))
+    df = pd.concat(df, ignore_index=True)
+    if df.shape[0] > 0:  # there are NUTS3 with HDD
+        df["HDD"] = df["variables"].apply(lambda x: x["Heating degree days"])
+        df["HDD_nosummer"] = df.loc[
+            df.index.isin([0, 1, 2, 3, 4, 8, 9, 10, 11]), "HDD"
+        ]  # used for the model
+        return df.groupby("fid").sum().mean()[["HDD", "HDD_nosummer"]].values.tolist()
+    else:
+        # Find the NUTS3 code
+        r = requests.post(
+            API_URL,
+            headers=HEADERS,
+            json={
+                "parameters": {
+                    "data.ds_id": 0,
+                    "intersecting": "{}".format(polygon.wkt),
+                    "level": "{NUTS3}",
+                }
+            },
+        )
+        if r.json()[0]["fid"] == "CH013":  # this is the Canton of Geneva
+            CH013 = pd.read_csv("CH013_HDD.csv", index_col="time", parse_dates=True)
+            return CH013.loc[CH013.index.year == year, :].values.tolist()[0]
+        else:
+            raise ValueError("In this area Heating Degree Days are not available.")
+
+
+def heatlearn(geojson, raster_paths, tile_size=500, year=2020):
     """Get heating demand from HeatLearn Model."""
-    assert tile_size in [500, 300]
+    if tile_size not in MODELS.keys():
+        raise ValueError(
+            "Only these tile sizes are possible: {}".format(", ".join(MODELS.keys()))
+        )
+
     pixel_size = 2.5
     start = time()
 
@@ -113,12 +171,12 @@ def heatlearn(geojson, raster_paths, tile_size):
         geometry = feature["geometry"]
         geoshape = shape(geometry)
         geometries.append(geoshape)
-    boundary = gpd.GeoSeries(cascaded_union(geometries))
+    union_geometry = cascaded_union(geometries)
+    boundary = gpd.GeoSeries(union_geometry)
     boundary = boundary.set_crs("EPSG:4326")
     boundary = boundary.to_crs("EPSG:3035")
     boundary = gpd.GeoDataFrame(boundary)
     boundary = boundary.rename(columns={0: "geometry"}).set_geometry("geometry")
-    assert boundary.shape[0] == 1
 
     # Make sure that the clipping geometry does not leave any pixel out
     boundary["geometry"] = boundary["geometry"].apply(
@@ -137,13 +195,15 @@ def heatlearn(geojson, raster_paths, tile_size):
     logging.info(tiles.total_bounds)
     tiles = tiles.loc[tiles.intersects(boundary.iloc[0].geometry), :]
     tiles = tiles.reset_index()
-    assert tiles.shape[0] > 0
+    if tiles.shape[0] == 0:
+        raise ValueError("No tiles were created.")
 
     # Prepare raster
     if len(raster_paths) == 1:
         raster_path = raster_paths[0]
     else:
-        pass  # TBD: Use Rasterio to merge rasters
+        raise ValueError("Only a single raster is supported for now.")
+        # TBD: Use Rasterio to merge rasters
     with rasterio.open(raster_path) as dataset:
         raster = dataset.read()
         meta = dataset.meta
@@ -191,17 +251,26 @@ def heatlearn(geojson, raster_paths, tile_size):
                 tiles.loc[t, "suitable"] = checkTile(matrix, tile_size)
 
                 # Make sure that the Rasterio clipping is successful
-                assert 256 not in np.unique(out_img)  # no 256-encoded pixels at borders
-                assert matrix.shape == (tile_size / 2.5, tile_size / 2.5)  # exact size
+                if 256 in np.unique(out_img):  # no 256-encoded pixels at borders
+                    raise ValueError("Clipping was not succesful.")
+                if matrix.shape != (tile_size / 2.5, tile_size / 2.5):  # exact size
+                    raise ValueError("Clipping was not succesful.")
                 X[t, :, :, 0] = matrix
 
     # Filter tiles
-    X = X[tiles["suitable"] == True, :, :, :]
-    tiles = tiles.loc[tiles["suitable"] == True, :]
+    X = X[tiles["suitable"], :, :, :]
+    tiles = tiles.loc[tiles["suitable"], :]
 
     # Predictions
     model = load_model(os.path.join("models", MODELS[tile_size], "model"))
     preds = model.predict(X)
+
+    # Get HDD
+    HDD, HDD_nosummer = getHDD(union_geometry, year=year)
+    HDD_coeff = HDD_MODEL["slope"] * HDD_nosummer + HDD_MODEL["intercept"]
+
+    # Adjust predictions
+    preds = preds / HDD_coeff
 
     pred_done = time()
 
@@ -238,6 +307,7 @@ def heatlearn(geojson, raster_paths, tile_size):
         "Heating density [MWh/ha]": int(
             np.round(np.sum(preds) / (tiles.shape[0] * (tile_size ** 2) * 0.0001), 0)
         ),
+        "Heating Degree Days [°C]": int(np.round(HDD, 0)),
     }
 
     logging.info("We took {!s} to deploy the model".format(pred_done - start))

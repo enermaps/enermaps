@@ -4,8 +4,6 @@ from BaseCM import cm_input as cm_input
 
 from heatlearn import heatlearn
 
-ADMISSIBLE_TILE_SIZES = [500, 300]
-
 app = cm_base.get_default_app("heatlearn")
 schema_path = cm_base.get_default_schema_path()
 
@@ -30,13 +28,8 @@ def heat_learn(self, selection: dict, rasters: list, params: dict):
     self.validate_params(params)
 
     tile_size = params["tileSize"]
-    if tile_size not in ADMISSIBLE_TILE_SIZES:
-        raise ValueError(
-            "Admissible values for tile sizes are: {}.".format(
-                ", ".join([str(x) for x in ADMISSIBLE_TILE_SIZES])
-            )
-        )
-    results = heatlearn(selection, raster_paths, tile_size)
+    year = params["year"]
+    results = heatlearn(selection, raster_paths, tile_size, year)
     return results
 
 
