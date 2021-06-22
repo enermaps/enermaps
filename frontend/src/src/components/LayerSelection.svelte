@@ -19,9 +19,7 @@
   ];
   export const SELECTIONS = new Set(SELECTIONS_LIST);
   let selectionLayers = [];
-  // export let activeSelectionLayer = ;
   let overlayLayers = [];
-  // export let activeOverlayLayers = $activeOverlayLayersStore;
   let isLayerListReady = false;
   
   let overlayLayersFilter = '';
@@ -75,16 +73,6 @@
         //
         selectionLayers.push(leafletLayer);
       } 
-      
-      // else if (layerParameters.isQueryable) {
-      //   leafletLayer = toQueryableLayer(layer);
-      //   leafletLayer.name = layer;
-      //   overlayLayers.push(leafletLayer);
-      // } else {
-      //   leafletLayer = toOverlayLayer(layer);
-      //   leafletLayer.name = layer;
-      //   overlayLayers.push(leafletLayer);
-      // }
     }
     function compareSelectionLayer(layer0, layer1) {
       const layer0Name = layer0.name;
@@ -139,6 +127,7 @@
 </script>
 <style>
 #map_selection {
+  width: 140px;
   padding: 4px;
   border: 1px solid #27275b;
 	border-radius: 0px;
@@ -160,6 +149,7 @@ h3 {
   border : none;
 }
 #selection_layers {
+  width: 140px;
   overflow-y: auto;
   border : none;
 }
@@ -171,10 +161,8 @@ label {
   text-overflow: ellipsis;
   overflow-x: hidden;
 }
-/* .overlay_search {
-  width: 100%;
-} */
 </style>
+
 <div id="map_selection" on:click|stopPropagation="">
   {#if !isLayerListReady}
   Loading layers...

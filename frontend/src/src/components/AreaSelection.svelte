@@ -8,9 +8,7 @@
   import {activeOverlayLayersStore, activeSelectionLayerStore} from '../stores.js';
   
   let selectionLayers = [];
-  // export let activeSelectionLayer = ;
   let overlayLayers = [];
-  //export let activeOverlayLayers = $activeOverlayLayersStore;
   let isLayerListReady = false;
   let overlayLayersFilter = '';
   let filteredOverlayLayers = [];
@@ -57,39 +55,25 @@
     );
     return layer;
   }
+  
   onMount(async () => {
     const layers = await getGeofiles();
     for (const [layer, layerParameters] of Object.entries(layers)) {
       let leafletLayer;
       console.log(layer, layerParameters);
       if (!SELECTIONS.has(layer)) {
-        // leafletLayer = toNutsLayer(layer);
-        // leafletLayer.name = layer;
-        // // selection go on top
-        // leafletLayer.setZIndex(1000);
-        // //
-        // selectionLayers.push(leafletLayer);
         if (layerParameters.isQueryable) {
-        leafletLayer = toQueryableLayer(layer);
-        leafletLayer.name = layer;
-        overlayLayers.push(leafletLayer);
-      } else {
-        leafletLayer = toOverlayLayer(layer);
-        leafletLayer.name = layer;
-        overlayLayers.push(leafletLayer);
-      }
+          leafletLayer = toQueryableLayer(layer);
+          leafletLayer.name = layer;
+          overlayLayers.push(leafletLayer);
+        } else {
+          leafletLayer = toOverlayLayer(layer);
+          leafletLayer.name = layer;
+          overlayLayers.push(leafletLayer);
+        }
       } 
-      
-      // else if (layerParameters.isQueryable) {
-      //   leafletLayer = toQueryableLayer(layer);
-      //   leafletLayer.name = layer;
-      //   overlayLayers.push(leafletLayer);
-      // } else {
-      //   leafletLayer = toOverlayLayer(layer);
-      //   leafletLayer.name = layer;
-      //   overlayLayers.push(leafletLayer);
-      // }
     }
+
     function compareSelectionLayer(layer0, layer1) {
       const layer0Name = layer0.name;
       const layer1Name = layer1.name;
@@ -145,6 +129,7 @@
   <style>
     
   #map_selection {
+    width: 140px;
     padding: 4px;
     border: 1px solid #27275b;
     border-radius: 0px;
@@ -170,6 +155,7 @@
     border : none;
   }
   #overlay_layers {
+    width: 140px;
     overflow-y: auto;
     border : none;
   }
