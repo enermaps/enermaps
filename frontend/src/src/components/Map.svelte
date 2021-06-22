@@ -113,9 +113,10 @@ function makeSearchControl() {
     propertyName: 'display_name',
     propertyLoc: ['lat', 'lon'],
     marker: false, // L.circleMarker([0, 0], { radius: 30 }),
-    autoCollapse: true,
+    autoCollapse: false,
     autoType: false,
     minLength: 2,
+    collapsed: false,
   });
   return searchControl;
 }
