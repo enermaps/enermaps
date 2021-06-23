@@ -50,20 +50,7 @@ EXTRA_COUNTRIES = {
     "CHE_LIE": {"assigned": "CH", "disclaimer": "Includes emission of Liechtenstein."},
 }
 
-# In Docker
-DB_HOST = os.environ.get("DB_HOST")
-DB_PORT = os.environ.get("DB_PORT")
-DB_USER = os.environ.get("DB_USER")
-DB_PASSWORD = os.environ.get("DB_PASSWORD")
-DB_DB = os.environ.get("DB_DB")
-
-DB_URL = "postgresql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_DB}".format(
-    DB_HOST=DB_HOST,
-    DB_PORT=DB_PORT,
-    DB_USER=DB_USER,
-    DB_PASSWORD=DB_PASSWORD,
-    DB_DB=DB_DB,
-)
+DB_URL = utilities.DB_URL
 
 
 def get(url: str, dp: frictionless.package.Package, force: bool = False):

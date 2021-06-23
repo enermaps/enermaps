@@ -23,20 +23,7 @@ logging.basicConfig(level=logging.INFO)
 Z = None
 DT = 8760
 
-# In Docker
-DB_HOST = os.environ.get("DB_HOST")
-DB_PORT = os.environ.get("DB_PORT")
-DB_USER = os.environ.get("DB_USER")
-DB_PASSWORD = os.environ.get("DB_PASSWORD")
-DB_DB = os.environ.get("DB_DB")
-
-DB_URL = "postgresql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_DB}".format(
-    DB_HOST=DB_HOST,
-    DB_PORT=DB_PORT,
-    DB_USER=DB_USER,
-    DB_PASSWORD=DB_PASSWORD,
-    DB_DB=DB_DB,
-)
+DB_URL = utilities.DB_URL
 
 
 def get(repository: str, dp: frictionless.package.Package, isForced: bool = False):
@@ -146,16 +133,7 @@ if __name__ == "__main__":
 
     for ds_id in ds_ids:
         logging.info("Retrieving Dataset {}".format(ds_id))
-        dp = utilities.getDataPackage(
-            ds_id,
-            "postgresql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_DB}".format(
-                DB_HOST=DB_HOST,
-                DB_PORT=DB_PORT,
-                DB_USER=DB_USER,
-                DB_PASSWORD=DB_PASSWORD,
-                DB_DB=DB_DB,
-            ),
-        )
+        dp = utilities.getDataPackage(ds_id, DB_URL,)
 
         data, dp = get(datasets.loc[ds_id, "di_URL"], dp, isForced)
 

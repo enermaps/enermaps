@@ -21,6 +21,20 @@ from osgeo import gdal, osr
 from psycopg2 import sql
 from pyproj import CRS
 
+DB_HOST = os.environ.get("DB_HOST")
+DB_PORT = os.environ.get("DB_PORT")
+DB_USER = os.environ.get("DB_USER")
+DB_PASSWORD = os.environ.get("DB_PASSWORD")
+DB_DB = os.environ.get("DB_DB")
+
+DB_URL = "postgresql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_DB}".format(
+    DB_HOST=DB_HOST,
+    DB_PORT=DB_PORT,
+    DB_USER=DB_USER,
+    DB_PASSWORD=DB_PASSWORD,
+    DB_DB=DB_DB,
+)
+
 
 def prepareRaster(
     df: pd.DataFrame,
@@ -164,9 +178,7 @@ def prepareRaster(
     return data
 
 
-def toPostgreSQL(
-    data, dbURL="postgresql://postgres:postgres@localhost:5432/dataset", schema="data"
-):
+def toPostgreSQL(data, dbURL=DB_URL, schema="data"):
     """
     Load admin_units to pgsql.
 
@@ -175,7 +187,6 @@ def toPostgreSQL(
     rasterdf : GeoDataFrame
         Table with all rasters to be loaded
     dbURL : string, optional
-        SQLAlchemy database URL. The default is 'postgresql://postgres:postgres@localhost:5432/dataset'.
 
     Returns
     -------
@@ -188,9 +199,7 @@ def toPostgreSQL(
     logging.info("Done.")
 
 
-def toPostGIS(
-    gdf, dbURL="postgresql://postgres:postgres@localhost:5432/dataset", schema="spatial"
-):
+def toPostGIS(gdf, dbURL=DB_URL, schema="spatial"):
     """
     Load admin_units to pgsql.
 
@@ -199,7 +208,6 @@ def toPostGIS(
     admin_units : GeoDataFrame
         Table with all administrative units..
     dbURL : string, optional
-        SQLAlchemy database URL. The default is 'postgresql://postgres:postgres@localhost:5432/dataset'.
 
     Returns
     -------
@@ -213,9 +221,7 @@ def toPostGIS(
 
 
 def datasetExists(
-    ds_id,
-    dbURL="postgresql://test:example@localhost:5433/dataset",
-    tables=["datasets", "spatial", "data"],
+    ds_id, dbURL=DB_URL, tables=["datasets", "spatial", "data"],
 ):
     """
     Check whether the dataset exist in any table.
@@ -224,7 +230,6 @@ def datasetExists(
     ----------
     ds_id : int.
     dbURL : str, optional
-        The default is "postgresql://test:example@localhost:5433/dataset".
     tables : list of string, optional
         The default is ["datasets", "spatial", "data"].
 
@@ -250,7 +255,7 @@ def datasetExists(
         return False
 
 
-def removeDataset(ds_id, dbURL="postgresql://test:example@localhost:5433/dataset"):
+def removeDataset(ds_id, dbURL=DB_URL):
     """
     Delete the dataset.
 
@@ -258,7 +263,6 @@ def removeDataset(ds_id, dbURL="postgresql://test:example@localhost:5433/dataset
     ----------
     ds_id : int.
     dbURL : str, optional
-        The default is "postgresql://test:example@localhost:5433/dataset".
 
     Returns
     -------
@@ -271,7 +275,7 @@ def removeDataset(ds_id, dbURL="postgresql://test:example@localhost:5433/dataset
         )
 
 
-def getDataPackage(ds_id, dbURL="postgresql://test:example@localhost:5433/dataset"):
+def getDataPackage(ds_id, dbURL=DB_URL):
     """
     Retrieve the datapackage.
 
@@ -279,7 +283,6 @@ def getDataPackage(ds_id, dbURL="postgresql://test:example@localhost:5433/datase
     ----------
     ds_id : int.
     dbURL : str, optional
-        The default is "postgresql://test:example@localhost:5433/dataset".
 
     Returns
     -------
