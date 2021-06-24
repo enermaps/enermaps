@@ -43,18 +43,6 @@
     );
     return layer;
   }
-
-  function toNutsLayer(layerName) {
-    const layer = L.tileLayer.nutsLayer(
-        WMS_URL,
-        {
-          transparent: 'true',
-          layers: layerName,
-          format: 'image/png',
-        },
-    );
-    return layer;
-  }
   
   onMount(async () => {
     const layers = await getGeofiles();

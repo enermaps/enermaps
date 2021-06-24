@@ -25,29 +25,6 @@
   let overlayLayersFilter = '';
   let filteredOverlayLayers = [];
 
-  function toQueryableLayer(layerName) {
-    const layer = L.tileLayer.queryableLayer(
-        WMS_URL,
-        {
-          transparent: 'true',
-          layers: encodeURIComponent(layerName),
-          format: 'image/png',
-        },
-    );
-    return layer;
-  }
-
-  function toOverlayLayer(layerName) {
-    const layer = L.tileLayer.wms(
-        WMS_URL,
-        {
-          transparent: 'true',
-          layers: encodeURIComponent(layerName),
-          format: 'image/png',
-        },
-    );
-    return layer;
-  }
 
   function toNutsLayer(layerName) {
     const layer = L.tileLayer.nutsLayer(
