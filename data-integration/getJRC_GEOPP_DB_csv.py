@@ -210,47 +210,41 @@ def get(url: str, dp: frictionless.package.Package, force: bool = False):
 
 
 if __name__ == "__main__":
-    argv = sys.argv
-    datasets = pd.read_csv("datasets.csv", engine="python", index_col=[0])
-    ds_id = int(
-        datasets[datasets["di_script"] == os.path.basename(argv[0])].index.values[0]
-    )
+    datasets = pd.read_csv("datasets.csv", index_col=[0])
+    script_name = os.path.basename(sys.argv[0])
+    ds_ids, isForced = utilities.parser(script_name, datasets)
     url = datasets.loc[
-        datasets["di_script"] == os.path.basename(argv[0]), "di_URL"
+        datasets["di_script"] == os.path.basename(sys.argv[0]), "di_URL"
     ].values[0]
+    for ds_id in ds_ids:
+        dp = utilities.getDataPackage(ds_id, DB_URL)
 
-    if "--force" in argv:
-        isForced = True
-    else:
-        isForced = False
-    dp = utilities.getDataPackage(ds_id, DB_URL)
+        data, spatial, dp = get(url=url, dp=dp, force=isForced)
 
-    data, spatial, dp = get(url=url, dp=dp, force=isForced)
+        if isinstance(data, pd.DataFrame):
+            # Remove existing dataset
+            if utilities.datasetExists(ds_id, DB_URL,):
+                utilities.removeDataset(ds_id, DB_URL)
+                logging.info("Removed existing dataset")
 
-    if isinstance(data, pd.DataFrame):
-        # Remove existing dataset
-        if utilities.datasetExists(ds_id, DB_URL,):
-            utilities.removeDataset(ds_id, DB_URL)
-            logging.info("Removed existing dataset")
+            # Create dataset table
+            metadata = datasets.loc[ds_id].fillna("").to_dict()
+            metadata["datapackage"] = dp
+            metadata = json.dumps(metadata)
+            dataset = pd.DataFrame([{"ds_id": ds_id, "metadata": metadata}])
+            utilities.toPostgreSQL(
+                dataset, DB_URL, schema="datasets",
+            )
 
-        # Create dataset table
-        metadata = datasets.loc[ds_id].fillna("").to_dict()
-        metadata["datapackage"] = dp
-        metadata = json.dumps(metadata)
-        dataset = pd.DataFrame([{"ds_id": ds_id, "metadata": metadata}])
-        utilities.toPostgreSQL(
-            dataset, DB_URL, schema="datasets",
-        )
+            # Create data table
+            data["ds_id"] = ds_id
+            utilities.toPostgreSQL(
+                data, DB_URL, schema="data",
+            )
 
-        # Create data table
-        data["ds_id"] = ds_id
-        utilities.toPostgreSQL(
-            data, DB_URL, schema="data",
-        )
-
-        # Create spatial table
-        spatial = spatial.to_crs("EPSG:3035")
-        spatial["ds_id"] = ds_id
-        utilities.toPostGIS(
-            spatial, DB_URL, schema="spatial",
-        )
+            # Create spatial table
+            spatial = spatial.to_crs("EPSG:3035")
+            spatial["ds_id"] = ds_id
+            utilities.toPostGIS(
+                spatial, DB_URL, schema="spatial",
+            )

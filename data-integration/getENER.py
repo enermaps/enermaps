@@ -123,45 +123,38 @@ def get(directory: str) -> Tuple[pd.DataFrame, dict]:
 
 
 if __name__ == "__main__":
-    argv = sys.argv
-    datasets = pd.read_csv("datasets.csv", engine="python", index_col=[0])
-    ds_id = int(
-        datasets[datasets["di_script"] == os.path.basename(argv[0])].index.values[0]
-    )
+    datasets = pd.read_csv("datasets.csv", index_col=[0])
+    script_name = os.path.basename(sys.argv[0])
+    ds_ids, isForced = utilities.parser(script_name, datasets)
+    for ds_id in ds_ids:
+        files_dir = os.path.join("data", str(ds_id))
+        if os.path.exists(files_dir) and len(os.listdir(files_dir)) == N_FILES:
 
-    if "--force" in argv:
-        isForced = True
-    else:
-        isForced = False
+            data, parameters = get(files_dir)
 
-    files_dir = os.path.join("data", str(ds_id))
-    if os.path.exists(files_dir) and len(os.listdir(files_dir)) == N_FILES:
+            # Remove existing dataset
+            if utilities.datasetExists(ds_id, DB_URL) and not isForced:
+                raise FileExistsError("Use --force to replace the existing dataset.")
+            elif utilities.datasetExists(ds_id, DB_URL) and isForced:
+                utilities.removeDataset(ds_id, DB_URL)
+                logging.info("Removed existing dataset")
+            else:
+                pass
 
-        data, parameters = get(files_dir)
+            # Create dataset table
+            metadata = datasets.loc[ds_id].fillna("").to_dict()
+            # Add parameters as metadata
+            metadata["parameters"] = parameters
+            metadata = json.dumps(metadata)
+            dataset = pd.DataFrame([{"ds_id": ds_id, "metadata": metadata}])
+            utilities.toPostgreSQL(
+                dataset, DB_URL, schema="datasets",
+            )
 
-        # Remove existing dataset
-        if utilities.datasetExists(ds_id, DB_URL) and not isForced:
-            raise FileExistsError("Use --force to replace the existing dataset.")
-        elif utilities.datasetExists(ds_id, DB_URL) and isForced:
-            utilities.removeDataset(ds_id, DB_URL)
-            logging.info("Removed existing dataset")
+            # Create data table
+            data["ds_id"] = ds_id
+            utilities.toPostgreSQL(
+                data, DB_URL, schema="data",
+            )
         else:
-            pass
-
-        # Create dataset table
-        metadata = datasets.loc[ds_id].fillna("").to_dict()
-        # Add parameters as metadata
-        metadata["parameters"] = parameters
-        metadata = json.dumps(metadata)
-        dataset = pd.DataFrame([{"ds_id": ds_id, "metadata": metadata}])
-        utilities.toPostgreSQL(
-            dataset, DB_URL, schema="datasets",
-        )
-
-        # Create data table
-        data["ds_id"] = ds_id
-        utilities.toPostgreSQL(
-            data, DB_URL, schema="data",
-        )
-    else:
-        logging.error("You must manually download the source files.")
+            logging.error("You must manually download the source files.")

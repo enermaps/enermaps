@@ -10,7 +10,7 @@ in multiple zip files.
 @author: giuseppeperonato
 """
 
-import argparse
+
 import glob
 import json
 import logging
@@ -119,20 +119,8 @@ def get(directory):
 
 if __name__ == "__main__":
     datasets = pd.read_csv("datasets.csv", index_col=[0])
-    ds_ids = datasets[datasets["di_script"] == os.path.basename(sys.argv[0])].index
-    if len(sys.argv) > 1:
-        parser = argparse.ArgumentParser(description="Import dataset")
-        parser.add_argument("--force", action="store_const", const=True, default=False)
-        parser.add_argument(
-            "--select_ds_ids", action="extend", nargs="+", type=int, default=[]
-        )
-        args = parser.parse_args()
-        isForced = args.force
-        if len(args.select_ds_ids) > 0:
-            ds_ids = args.select_ds_ids
-    else:
-        isForced = False
-
+    script_name = os.path.basename(sys.argv[0])
+    ds_ids, isForced = utilities.parser(script_name, datasets)
     for ds_id in ds_ids:
         directory = "./data/{}".format(ds_id)
 

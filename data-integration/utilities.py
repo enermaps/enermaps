@@ -5,9 +5,11 @@ Created on Tue Feb  9 14:18:50 2021
 
 @author: giuseppeperonato
 """
+import argparse
 import json
 import logging
 import os
+import sys
 import zipfile
 from pathlib import Path
 
@@ -481,3 +483,20 @@ def isDPvalid(dp: frictionless.package.Package, new_dp: frictionless.package.Pac
         logging.error("Data is not valid or the schema has changed")
         print(val)
         return False
+
+
+def parser(script_name: str, datasets=pd.DataFrame):
+    """Parse arguments used in data-integration pipelines."""
+    ds_ids = datasets[datasets["di_script"] == script_name].index
+    isForced = False  # initialize
+    if len(sys.argv) > 1:
+        parser = argparse.ArgumentParser(description="Import dataset")
+        parser.add_argument("--force", action="store_const", const=True, default=False)
+        parser.add_argument(
+            "--select_ds_ids", action="extend", nargs="+", type=int, default=[]
+        )
+        args = parser.parse_args()
+        isForced = args.force
+        if len(args.select_ds_ids) > 0:
+            ds_ids = args.select_ds_ids
+    return ds_ids, isForced

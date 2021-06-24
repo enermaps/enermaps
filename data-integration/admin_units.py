@@ -6,8 +6,8 @@ No update check is performed here.
 @author: giuseppeperonato
 """
 
-import argparse
 import logging
+import os
 import sys
 
 import geopandas as gpd
@@ -129,13 +129,8 @@ def integrate(enermaps_spatial: gpd.GeoDataFrame):
 
 if __name__ == "__main__":
     datasets = pd.read_csv("datasets.csv", engine="python", index_col=[0])
-    if len(sys.argv) > 1:
-        parser = argparse.ArgumentParser(description="Import GISCO admin units")
-        parser.add_argument("--force", action="store_const", const=True, default=False)
-        args = parser.parse_args()
-        isForced = args.force
-    else:
-        isForced = False
+    script_name = os.path.basename(sys.argv[0])
+    ds_ids, isForced = utilities.parser(script_name, datasets)
 
     if utilities.datasetExists(DS_ID, DB_URL):
         if isForced:

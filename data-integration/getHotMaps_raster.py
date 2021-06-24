@@ -7,7 +7,6 @@ Created on Tue Mar 23 22:07:47 2021
 """
 
 
-import argparse
 import json
 import logging
 import os
@@ -116,20 +115,9 @@ def get(repository: str, dp: frictionless.package.Package, isForced: bool = Fals
 
 
 if __name__ == "__main__":
-    datasets = pd.read_csv("datasets.csv", engine="python", index_col=[0])
-    ds_ids = datasets[datasets["di_script"] == os.path.basename(sys.argv[0])].index
-    if len(sys.argv) > 1:
-        parser = argparse.ArgumentParser(description="Import HotMaps raster")
-        parser.add_argument("--force", action="store_const", const=True, default=False)
-        parser.add_argument(
-            "--select_ds_ids", action="extend", nargs="+", type=int, default=[]
-        )
-        args = parser.parse_args()
-        isForced = args.force
-        if len(args.select_ds_ids) > 0:
-            ds_ids = args.select_ds_ids
-    else:
-        isForced = False
+    datasets = pd.read_csv("datasets.csv", index_col=[0])
+    script_name = os.path.basename(sys.argv[0])
+    ds_ids, isForced = utilities.parser(script_name, datasets)
 
     for ds_id in ds_ids:
         logging.info("Retrieving Dataset {}".format(ds_id))
