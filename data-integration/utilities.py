@@ -11,6 +11,7 @@ import os
 import zipfile
 from pathlib import Path
 
+import frictionless
 import pandas as pd
 import psycopg2 as ps
 import requests
@@ -33,6 +34,21 @@ DB_URL = "postgresql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_DB}".form
     DB_USER=DB_USER,
     DB_PASSWORD=DB_PASSWORD,
     DB_DB=DB_DB,
+)
+
+ENERMAPS_DF = pd.DataFrame(
+    columns=[
+        "start_at",
+        "fields",
+        "variable",
+        "value",
+        "ds_id",
+        "fid",
+        "dt",
+        "z",
+        "israster",
+        "unit",
+    ]
 )
 
 
@@ -439,3 +455,29 @@ def nc_metadata(file: str, variable: str) -> dict:
     for x in all_metadata:
         dict_metadata[x[0]] = x[1]
     return dict_metadata
+
+
+def isDPvalid(dp: frictionless.package.Package, new_dp: frictionless.package.Package):
+    """
+    Check whether the new DataPackage is valid and make sure the schema has not changed.
+    Parameters
+    ----------
+    dp : frictionless.package.Package
+        Original datapackage
+    new_dp : frictionless.package.Package
+        Datapackage describing the new loaded data
+    Returns
+    -------
+    Boolean
+    """
+    val = frictionless.validate(new_dp)
+    if (
+        val["valid"]
+        and dp["resources"][0]["schema"] == new_dp["resources"][0]["schema"]
+    ):
+        logging.info("Returning valid and schema-compliant data")
+        return True
+    else:
+        logging.error("Data is not valid or the schema has changed")
+        print(val)
+        return False
