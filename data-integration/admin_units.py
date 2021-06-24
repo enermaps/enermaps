@@ -1,13 +1,13 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 """
-Created on Thu Oct 22 17:53:54 2020
+Obtain GISCO admin units that will be loaded as ds_id = 0.
+No update check is performed here.
 
 @author: giuseppeperonato
 """
 
+import argparse
 import logging
-import os
 import sys
 
 import geopandas as gpd
@@ -15,7 +15,6 @@ import pandas as pd
 import utilities
 from pyproj import CRS
 
-# Constants
 # GISCO datasets GEOJSON EPSG:4326 1:1milion
 GISCO_DATASETS = {
     "countries": "https://gisco-services.ec.europa.eu/distribution/v2/countries/geojson/CNTR_RG_01M_2020_{}.geojson",
@@ -27,18 +26,13 @@ logging.basicConfig(level=logging.INFO)
 # Dataset id
 DS_ID = 0
 
-DB_HOST = os.environ.get("DB_HOST")
-DB_PORT = os.environ.get("DB_PORT")
-DB_USER = os.environ.get("DB_USER")
-DB_PASSWORD = os.environ.get("DB_PASSWORD")
-DB_DB = os.environ.get("DB_DB")
-
+DB_URL = utilities.DB_URL
 DB_URL = "postgresql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_DB}".format(
-    DB_HOST=DB_HOST,
-    DB_PORT=DB_PORT,
-    DB_USER=DB_USER,
-    DB_PASSWORD=DB_PASSWORD,
-    DB_DB=DB_DB,
+    DB_HOST="localhost",
+    DB_PORT=5433,
+    DB_USER="test",
+    DB_PASSWORD="example",
+    DB_DB="dataset",
 )
 
 
@@ -113,39 +107,44 @@ def get(
     return admin_units
 
 
-def integrate():
-    """Integrate datasets."""
-    # Get spatial records
-    admin_units = get(GISCO_DATASETS, crs=CRS.from_epsg(3035))
+def integrate(enermaps_spatial: gpd.GeoDataFrame):
+    """Integrate datasets. Each (Geo)DataFrame corresponds to a SQL table."""
     # Upload dataset record
-    dataset = pd.DataFrame([{"ds_id": DS_ID}])
+    enermaps_datasets = pd.DataFrame([{"ds_id": DS_ID}])
     utilities.toPostgreSQL(
-        dataset, DB_URL, schema="datasets",
+        enermaps_datasets, DB_URL, schema="datasets",
     )
     # Upload spatial records
-    admin_units["ds_id"] = DS_ID
-    utilities.toPostGIS(admin_units, DB_URL)
+    enermaps_spatial["ds_id"] = DS_ID
+    utilities.toPostGIS(enermaps_spatial, DB_URL)
+
     # Upload empty data records
-    data = admin_units.loc[:, ["ds_id", "fid"]].copy()
-    data["value"] = 0
-    data["variable"] = ""
+    enermaps_data = enermaps_spatial.loc[:, ["ds_id", "fid"]].copy()
+    enermaps_data["value"] = 0
+    enermaps_data["variable"] = ""
     utilities.toPostgreSQL(
-        data, DB_URL, schema="data",
+        enermaps_data, DB_URL, schema="data",
     )
 
 
 if __name__ == "__main__":
-    argv = sys.argv
-    if "--force" in argv:
-        isForced = True
+    datasets = pd.read_csv("datasets.csv", engine="python", index_col=[0])
+    if len(sys.argv) > 1:
+        parser = argparse.ArgumentParser(description="Import GISCO admin units")
+        parser.add_argument("--force", action="store_const", const=True, default=False)
+        args = parser.parse_args()
+        isForced = args.force
     else:
         isForced = False
+
     if utilities.datasetExists(DS_ID, DB_URL):
         if isForced:
             utilities.removeDataset(DS_ID, DB_URL)
             logging.info("Removed existing dataset")
-            integrate()
+            enermaps_spatial = get()
+            integrate(enermaps_spatial)
         else:
             logging.info("The dataset already exists. Use --force to replace it.")
     else:
-        integrate()
+        enermaps_spatial = get()
+        integrate(enermaps_spatial)
