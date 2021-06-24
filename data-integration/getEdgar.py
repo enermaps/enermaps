@@ -1,9 +1,8 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 """
-Created on Tue Mar 23 09:00:00 2021
-
-Integrate JRC PPDB DB into EnerMaps DB
+Integrate JRC PPDB DB into EnerMaps DB.
+The original datapackage is used to read data.
+This script allows for data updates.
 
 @author: giuseppeperonato
 """

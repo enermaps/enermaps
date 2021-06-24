@@ -1,12 +1,9 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 """
 Custom script to recover results from ENER/C2/2014-641 project.
 
 Only WP3 results are integrated (scenarios up to 2020 and 2030).
-The files must be manually downloaded  to be integrated
-
-Created on Tue Jun  1 13:47:49 2021
+The files must be manually downloaded  to be integrated.
 
 @author: giuseppeperonato
 """
@@ -96,20 +93,7 @@ def get(directory: str) -> Tuple[pd.DataFrame, dict]:
     data["fields"] = data[FIELDS].to_dict(orient="records")
     data["fields"] = data["fields"].apply(lambda x: json.dumps(x))
 
-    enermaps_data = pd.DataFrame(
-        columns=[
-            "start_at",
-            "fields",
-            "variable",
-            "value",
-            "ds_id",
-            "fid",
-            "dt",
-            "z",
-            "israster",
-            "unit",
-        ]
-    )
+    enermaps_data = utilities.ENERMAPS_DF
     enermaps_data["fid"] = data[SPATIAL].iloc[:, 0]
     enermaps_data["value"] = data["value"]
     enermaps_data["fields"] = data["fields"]

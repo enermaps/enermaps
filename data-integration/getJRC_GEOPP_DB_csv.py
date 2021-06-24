@@ -1,9 +1,8 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 """
-Created on Tue Mar 23 09:00:00 2021
-
-Integrate JRC GEOPP DB into EnerMaps DB
+Integrate JRC GEOPP DB into EnerMaps DB.
+The original datapackage is used to retrieve the data.
+This script allows for data updates.
 
 @author: giuseppeperonato
 """
@@ -118,20 +117,7 @@ def prepare(dp: frictionless.package.Package, name: str):
     data = data.dropna()
 
     # Conversion
-    enermaps_data = pd.DataFrame(
-        columns=[
-            "start_at",
-            "fields",
-            "variable",
-            "value",
-            "ds_id",
-            "fid",
-            "dt",
-            "z",
-            "israster",
-            "unit",
-        ]
-    )
+    enermaps_data = utilities.ENERMAPS_DF
     enermaps_data["fid"] = data["fid"]
     enermaps_data["value"] = data["value"]
     enermaps_data["variable"] = data["variable"]

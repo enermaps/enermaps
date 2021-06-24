@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 """
-Created on Tue Mar 23 22:07:47 2021
+Import the Hotmaps rasters.
+The original datapackage is used to retrieve the data.
+This script allows for data updates.
 
 @author: giuseppeperonato
 """
