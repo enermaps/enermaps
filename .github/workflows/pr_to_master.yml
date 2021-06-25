@@ -70,5 +70,7 @@ jobs:
     runs-on: 'ubuntu-18.04'
     steps:
       - uses: actions/checkout@v2
+      - name: Create an empty env file for variables that should be kept only locally (e.g. secret keys)
+        run: touch .env-local
       - name: Run docker-compose stack
         run: docker-compose build --parallel
