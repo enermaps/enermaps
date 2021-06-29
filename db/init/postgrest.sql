@@ -196,7 +196,7 @@ DROP FUNCTION IF EXISTS enermaps_get_metadata(shared_id text);
 CREATE FUNCTION enermaps_get_metadata(shared_id text)
     RETURNS TABLE(title text, url text, description text)
     AS $$SELECT
-        metadata ->> 'Title (with Hyperlink)' as title,
+        metadata ->> 'Title' as title,
         metadata ->> 'URLs' AS url,
         metadata ->> 'Description (in brief)' as description
         FROM datasets_full
@@ -236,7 +236,7 @@ CREATE VIEW datacite AS
 SELECT json_agg(t) as data from (
 SELECT shared_id AS id, row_to_json((
  SELECT x from (SELECT
-    json_build_array(json_build_object('title',metadata->>'Title (with Hyperlink)')) as titles,
+    json_build_array(json_build_object('title',metadata->>'Title')) as titles,
     json_build_array(
         json_build_object('identifier',metadata->>'Identifier',
         'identifierType', (CASE metadata->>'Identifier Type'
@@ -244,7 +244,7 @@ SELECT shared_id AS id, row_to_json((
                                             WHEN 'Uniform Resource Locator (URL)' THEN 'URL'
                                             ELSE '?' END)
                                             )) as identifiers,
-    array_to_json_with_key(string_to_array(metadata->>'Creator',','),'name') as creators,
+    array_to_json_with_key(string_to_array(metadata->>'Creator','; '),'name') as creators,
     json_build_array(
         json_build_object('rights', text('OPEN'),
         'rightsUri','info:eu-repo/semantics/openAccess'),

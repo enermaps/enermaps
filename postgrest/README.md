@@ -91,7 +91,7 @@ Example for `NUTS1`:
 ```python
 r = requests.post('http://localhost:3000/rpc/enermaps_query_geojson',
 	headers={'Authorization': 'Bearer {}'.format(API_KEY)},
-	json={"parameters": {"data.ds_id": 2, "level": "{NUTS1}"}})
+	json={"parameters": {"data.ds_id": 0, "level": "{NUTS1}"}})
 response = r.json()
 ```
 Multiple options can be included, separated with a comma, e.g. `"level": "{NUTS1,NUTS2}"`

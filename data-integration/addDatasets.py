@@ -1,9 +1,17 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 """
-Created on Tue Apr 28 21:00:00 2021
+Add list of datasets.
+This is temporary to feed a table which is used for the OpenAire APIs.
 
-Add list of datasets
+The following table must exist:
+```sql
+CREATE TABLE public.datasets_full
+(
+    ds_id int PRIMARY KEY,
+    shared_id char(300),
+    metadata jsonb
+);
+```
 
 @author: giuseppeperonato
 """
@@ -17,7 +25,6 @@ import sqlalchemy as sqla
 # Constants
 logging.basicConfig(level=logging.INFO)
 
-# In Docker
 DB_HOST = os.environ.get("DB_HOST")
 DB_PORT = os.environ.get("DB_PORT")
 DB_USER = os.environ.get("DB_USER")
@@ -33,17 +40,29 @@ DB_URL = "postgresql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_DB}".form
 )
 
 SCHEMA = "datasets_full"
+EXCLUDED_FROM_JSON = ["shared_id", "isInEDMT"]
+
 
 if __name__ == "__main__":
     datasets = pd.read_csv("datasets.csv", engine="python", index_col=[0])
     datasets.drop(["di_script", "di_URL"], inplace=True, axis=1)  # remove di columns
 
     # Format the date
-    datasets["Publication Date"] = pd.to_datetime(
-        datasets["Publication Date"].replace("/", "")
-    ).astype(str)
+    datasets["Publication Date"] = pd.to_datetime(datasets["Publication Date"]).astype(
+        str
+    )
 
-    metadata = datasets.fillna("").to_dict(orient="records")
+    # Remove end of line chars
+    datasets = datasets.replace("\\n", "", regex=True)
+
+    metadata = (
+        datasets.loc[
+            :,
+            [column for column in datasets.columns if column not in EXCLUDED_FROM_JSON],
+        ]
+        .fillna("")
+        .to_dict(orient="records")
+    )
     metadata = [json.dumps(entry) for entry in metadata]
 
     data = pd.DataFrame()
