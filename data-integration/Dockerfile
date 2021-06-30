@@ -15,8 +15,6 @@ RUN apt-get update &&\
 ENV CPLUS_INCLUDE_PATH=/usr/include/gdal
 ENV C_INCLUDE_PATH=/usr/include/gdal
 
-COPY .cdsapirc /root/.cdsapirc
-
 COPY requirements.txt /data-integration/requirements.txt
 WORKDIR data-integration
 RUN pip3 install -r requirements.txt
