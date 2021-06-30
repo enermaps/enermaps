@@ -123,7 +123,7 @@ def prepareRaster(
 
                 # Translating to make sure that the raster settings are consistent for each band
                 logging.info("Translating band {}".format(b))
-                os.system(
+                os.system(  # nosec
                     "gdal_translate {filename} {dest_filename}.tif -b {b} -of GTIFF --config GDAL_PAM_ENABLED NO -co COMPRESS=DEFLATE -co BIGTIFF=YES".format(
                         filename=filename, dest_filename=dest_filename, b=b
                     )
@@ -138,7 +138,7 @@ def prepareRaster(
                     )
                     intermediate_filename = dest_filename + ".tif"  # from previous step
                     dest_filename += "_{}".format(crs.to_epsg())
-                    os.system(
+                    os.system(  # nosec
                         "gdalwarp {intermediate_filename} {dest_filename}.tif -of GTIFF -s_srs {sourceSRS} -t_srs {outputSRS} --config GDAL_PAM_ENABLED NO -co COMPRESS=DEFLATE -co BIGTIFF=YES".format(
                             intermediate_filename=intermediate_filename,
                             dest_filename=dest_filename,
@@ -443,7 +443,7 @@ def nc_metadata(file: str, variable: str) -> dict:
     """
     Extract NetCDF metadata using gdalinfo
     """
-    gdalinfo = os.popen("gdalinfo NETCDF:{}:{}".format(file, variable)).read()
+    gdalinfo = os.popen("gdalinfo NETCDF:{}:{}".format(file, variable)).read()  # nosec
     nc_metadata = [
         x.split("#")[1].split("=") for x in gdalinfo.split("\n") if "NC_GLOBAL" in x
     ]
