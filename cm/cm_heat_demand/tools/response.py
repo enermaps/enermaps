@@ -39,20 +39,22 @@ def get_response(
         base_dictionary["graphs"]["Potential"] = dict()
         base_dictionary["graphs"]["Potential"]["type"] = "bar"
         base_dictionary["graphs"]["Potential"]["values"] = [
-            ["District heating potential", total_potential],
-            ["Annual heat demand", total_heat_demand],
+            ["District heating potential (GWh)", total_potential],
+            ["Annual heat demand (GWh)", total_heat_demand],
         ]
 
         # Areas potential
         base_dictionary["graphs"]["Areas potential"] = dict()
         base_dictionary["graphs"]["Areas potential"]["type"] = "bar"
-        if areas_potential.size == 0:
+
+        # labels start from 1, therefore the array size is 'num_labels_array + 1'
+        if areas_potential[1:].size > 0:
             values = [
-                ["Zone " + str(index + 1), value]
-                for index, value in enumerate(areas_potential)
+                ["Zone " + str(index + 1) + " (GWh)", value]
+                for index, value in enumerate(areas_potential[1:])
             ]
         else:
-            values = [["Zone 1", 0.0]]
+            values = [["No area detected", 0.0]]
         base_dictionary["graphs"]["Areas potential"]["values"] = values
 
         base_dictionary["graphs"]["cm-heat-demand test graph"] = dict()
@@ -73,8 +75,8 @@ def get_response(
         """
 
         base_dictionary["values"] = {
-            "Total potential": total_potential,
-            "Total heat demand": total_heat_demand,
+            "Total potential (GWh)": total_potential,
+            "Total heat demand (GWh)": total_heat_demand,
         }
 
         return base_dictionary

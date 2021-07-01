@@ -14,7 +14,7 @@ class TestAreasTools(unittest.TestCase):
             get_browsing_indexes(
                 labels_array=np.zeros(labels_map_size),
                 pixel_filtered_map=np.zeros(map_size),
-                labels_number=0,
+                n_label=0,
             )
 
 

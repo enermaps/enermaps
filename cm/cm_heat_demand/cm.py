@@ -8,16 +8,7 @@ from tools.areas import get_areas
 from tools.geofile import clip_raster, get_projection, write_raster
 from tools.response import get_response
 
-
-def random_filename(extension: str = ""):
-    return str(uuid1()) + extension
-
-
-def create_tmp_file(directory: str, filename: str, inplace: bool = True):
-    file = join(directory, filename)
-    if inplace and isfile(file):
-        remove(file)
-    return file
+from tempfile import TemporaryDirectory
 
 
 def remove_files(*files):
@@ -26,43 +17,57 @@ def remove_files(*files):
         remove(file)
 
 
+class IntervalError(Exception):
+    """
+    Exception thrown when value is not between a given interval.
+    """
+    pass
+
+
+def is_between(value: float, min_value: float, max_value: float):
+    if min_value <= value <= max_value:
+        return True
+    else:
+        raise IntervalError(f"{value} not between {min_value} and {max_value}")
+    
+
 def processing(region: dict, raster: str, parameters: dict):
+    is_between(value=parameters["pixel_threshold"], min_value=0, max_value=1000)
+    is_between(value=parameters["district_heating_zone_threshold"], min_value=0, max_value=500)
 
-    clipped_raster = create_tmp_file(
-        directory=settings.TESTDATA_DIR,
-        filename="raster_tmp.tif",
-    )
+    with TemporaryDirectory(dir=settings.TESTDATA_DIR) as temp_dir:
 
-    clip_raster(src=raster, shapes=region, dst=clipped_raster)
+        clipped_raster = join(temp_dir, "raster_tmp.tif")
+        clip_raster(src=raster, shapes=region, dst=clipped_raster)
 
-    (
-        areas,
-        geo_transform,
-        areas_potential,
-        filtered_map,
-        total_potential,
-        total_heat_demand,
-    ) = get_areas(
-        heat_density_map=clipped_raster,
-        pixel_threshold=parameters["pixel_threshold"],
-        district_heating_zone_threshold=parameters["district_heating_zone_threshold"],
-    )
+        (
+            geo_transform,
+            total_heat_demand,
+            areas,
+            filtered_map,
+            total_potential,
+            areas_potential,
+        ) = get_areas(
+            heat_density_map=clipped_raster,
+            pixel_threshold=parameters["pixel_threshold"],
+            district_heating_zone_threshold=parameters["district_heating_zone_threshold"],
+        )
 
-    ouput_raster = join(settings.TESTDATA_DIR, "out.tif")
-    write_raster(
-        map_array=filtered_map,
-        projection=get_projection(geofile=clipped_raster),
-        geotransform=geo_transform,
-        dst=ouput_raster,
-    )
+        ouput_raster = join(temp_dir, "out.tif")
+        write_raster(
+            map_array=filtered_map,
+            projection=get_projection(geofile=clipped_raster),
+            geotransform=geo_transform,
+            dst=ouput_raster,
+        )
 
-    response = get_response(
-        total_potential=total_potential,
-        total_heat_demand=total_heat_demand,
-        areas_potential=areas_potential,
-    )
+        response = get_response(
+            total_potential=total_potential,
+            total_heat_demand=total_heat_demand,
+            areas_potential=areas_potential,
+        )
 
-    remove_files(clipped_raster, ouput_raster)
+        remove_files(clipped_raster, ouput_raster)
 
     validate(response)
 

@@ -5,13 +5,16 @@ from .geofile import read_raster
 
 
 class MapSizeError(Exception):
-    """Exception thrown for map size error."""
+    """
+    Exception thrown when two maps is compared but
+    but do not have the same size error.
+    """
 
     pass
 
 
 def get_browsing_indexes(
-    labels_array: np.ndarray, pixel_filtered_map: np.ndarray, labels_number: int
+    labels_array: np.ndarray, pixel_filtered_map: np.ndarray, n_label: int
 ):
     """
     This function :
@@ -52,7 +55,7 @@ def get_browsing_indexes(
     start = np.concatenate(
         (
             np.zeros((1)),
-            end[0 : labels_number - 1],
+            end[0 : n_label - 1],
         )
     )
 
@@ -67,8 +70,8 @@ def define_areas(
     area exceeds a certain threshold.
 
     Inputs :
-        * pixel_filtered_map : pixel filtered map (in MWh).
-        * district_heating_zone_threshold : threshold that the areas must meet (in GWh/a).
+        * pixel_filtered_map : pixel filtered map (MWh).
+        * district_heating_zone_threshold : threshold that the areas must meet (MWh).
 
     Outputs :
         * areas :
@@ -91,38 +94,32 @@ def define_areas(
     structure = np.ones((3, 3)).astype(int)
     expanded_map = binary_dilation(input=pixel_filtered_map, structure=structure)
     eroded_map = binary_erosion(input=expanded_map, structure=structure)
-    labels_array, labels_number = measurements.label(
+    labels_array, n_label = measurements.label(
         input=eroded_map,
         structure=structure,
     )
 
-    if labels_array.size > 0:
+    # labels start from 1, therefore the array size is 'num_labels_array + 1'
+    areas_potential = np.zeros((n_label + 1)).astype(float)
+    if n_label > 0:
         end, start, sorted_array = get_browsing_indexes(
             labels_array=labels_array,
             pixel_filtered_map=pixel_filtered_map,
-            labels_number=labels_number,
+            n_label=n_label,
         )
 
-        # labels start from 1, therefore the array size is 'num_labels_array + 1'
-        areas_potential = np.zeros((labels_number + 1)).astype(float)
         for i, (start_, end_) in enumerate(zip(start, end)):
             area = sorted_array[start_:end_, 3]
             area_potential = np.sum(area)
             if area_potential >= district_heating_zone_threshold:
                 # i+1 because labeling starts from 1 and not from 0
                 # factor 0.001 for conversion from MWh/ha to GWh/ha
-                areas_potential[i + 1] = area_potential * 0.001
+                areas_potential[i + 1] = np.around(np.sum(area_potential) / 1000, 2)
 
-        areas = areas_potential[labels_array]
-
-        filtered_map = pixel_filtered_map * (areas > 0).astype(int)
-        total_potential = np.sum(areas_potential)
-
-        return areas, filtered_map, total_potential, areas_potential[1:]
-    else:
-        # TODO :
-        #  * manage when labels_array.size =< 0:
-        return None
+    areas = areas_potential[labels_array]
+    filtered_map = pixel_filtered_map * (areas > 0).astype(int)
+    total_potential = np.sum(areas_potential)
+    return areas, filtered_map, total_potential, areas_potential[1:]
 
 
 def get_areas(
@@ -136,9 +133,9 @@ def get_areas(
     These areas are defined by the set of adjacent pixels that have passed the first filter.
 
     Inputs :
-        * heat_density_map : path to the clipped raster (in MWh).
-        * pixel_threshold : threshold that each pixel must reach (in MWh).
-        * district_heating_zone_threshold : threshold that each zone must reach (in GWh/a).
+        * heat_density_map : path to the clipped raster (MWh) - a value between 0 and 1.000.
+        * pixel_threshold : threshold that each pixel must reach (MWh) - a value between 0 and 500.
+        * district_heating_zone_threshold : threshold that each zone must reach (GWh/a).
 
     Outputs :
         * areas :
@@ -161,16 +158,16 @@ def get_areas(
                 is returned in practice
     """
     array_map, geo_transform = read_raster(raster=heat_density_map)
-    # array_map : MWh
+    # array_map units : MWh
 
-    # factor 1000 for conversion from MWh to GWh
     total_heat_demand = np.around(np.sum(array_map) / 1000, 2)
+    # total_heat_demand units : GWh
 
-    # pixel threshold filter
     pixel_filtered_map = array_map * (array_map > pixel_threshold)
+    # pixel_filtered_map units : MWh
 
-    # factor 1000 for conversion from GWh/a to MWh/a
     district_heating_zone_threshold = district_heating_zone_threshold * 1000
+    # district_heating_zone_threshold units : MWh (after the conversion)
 
     # district_heating_zone_threshold filter
     areas, filtered_map, total_potential, areas_potential = define_areas(
@@ -179,10 +176,10 @@ def get_areas(
     )
 
     return (
-        areas,
         geo_transform,
-        areas_potential,
+        total_heat_demand,
+        areas,
         filtered_map,
         total_potential,
-        total_heat_demand,
+        areas_potential,
     )

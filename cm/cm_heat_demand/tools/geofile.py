@@ -101,10 +101,6 @@ def write_raster(
         * dst: path where the raster is saved.
     """
 
-    if exists(dst):
-        remove(dst)
-        assert exists(dst) is True, "File not delete"
-
     # define color bar value
     data_array_scaled = np.interp(
         map_array, (map_array.min(), map_array.max()), (0, 255)
@@ -137,5 +133,6 @@ def write_raster(
     band.SetRasterColorTable(color_table)
     # band.SetRasterColorInterpretation(gdal.GCI_PaletteIndex)
 
+    driver = None
     band = None
     dst_ds = None
