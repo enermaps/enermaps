@@ -1,0 +1,8 @@
+{
+"type": "FeatureCollection",
+"name": "ge_rive_droite_500",
+"crs": { "type": "name", "properties": { "name": "urn:ogc:def:crs:OGC:1.3:CRS84" } },
+"features": [
+{ "type": "Feature", "properties": { }, "geometry": { "type": "Polygon", "coordinates": [ [ [ 6.108547034702779, 46.227242215478107 ], [ 6.108872518512037, 46.222745840802176 ], [ 6.115338833765925, 46.222981208359776 ], [ 6.115013888299398, 46.227477605779896 ], [ 6.108547034702779, 46.227242215478107 ] ] ] } }
+]
+}
