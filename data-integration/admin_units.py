@@ -27,13 +27,6 @@ logging.basicConfig(level=logging.INFO)
 DS_ID = 0
 
 DB_URL = utilities.DB_URL
-DB_URL = "postgresql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_DB}".format(
-    DB_HOST="localhost",
-    DB_PORT=5433,
-    DB_USER="test",
-    DB_PASSWORD="example",
-    DB_DB="dataset",
-)
 
 
 def get(
