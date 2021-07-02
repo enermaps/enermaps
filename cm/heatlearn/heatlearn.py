@@ -1,6 +1,7 @@
 import json
 import logging
 import os
+import subprocess  # nosec
 from time import sleep, time
 
 import geopandas as gpd
@@ -211,7 +212,10 @@ def heatlearn(geojson, raster_paths, tile_size=500, year=2020):
         raster = raster.astype(np.uint16)
 
     def getFeatures(gdf):
-        """Prepare features for rasterio (source: https://automating-gis-processes.github.io/CSC18/lessons/L6/clipping-raster.html)."""
+        """Prepare features for rasterio.
+        (source: https://automating-gis-processes.github.io/
+        CSC18/lessons/L6/clipping-raster.html).
+        """
         return [json.loads(gdf.to_json())["features"][0]["geometry"]]
 
     def checkTile(matrix, tile_size):
@@ -286,7 +290,16 @@ def heatlearn(geojson, raster_paths, tile_size=500, year=2020):
     cube["preds"].rio.to_raster("tmp/tmp.tif")
 
     # Colorize
-    os.system("gdaldem color-relief -alpha tmp/tmp.tif colors.txt tmp/tmp_rgb.tif")
+    subprocess.run(  # nosec
+        [
+            "gdaldem",
+            "color-relief",
+            "-alpha",
+            "tmp/tmp.tif",
+            "colors.txt",
+            "tmp/tmp_rgb.tif",
+        ],
+    )
 
     with open("tmp/tmp_rgb.tif", "rb") as f:
         files = {"file": ("out.tif", f, "image/tiff")}
