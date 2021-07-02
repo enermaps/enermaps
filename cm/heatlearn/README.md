@@ -11,6 +11,8 @@ If this is not yet the case, see [the general README](../../README.md) to find o
 
 Once EnerMaps launched, the frontend should be available on this adress : http://127.0.0.1:7000.
 
+The API key of the PostgREST API must be placed in a text file `cm/heatlearn/API_KEY.txt`.
+
 ### Inputs
 
 To make the CM work, we need three inputs:
