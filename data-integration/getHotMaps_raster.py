@@ -1,13 +1,13 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 """
-Created on Tue Mar 23 22:07:47 2021
+Import the Hotmaps rasters.
+The original datapackage is used to retrieve the data.
+This script allows for data updates.
 
 @author: giuseppeperonato
 """
 
 
-import argparse
 import json
 import logging
 import os
@@ -23,20 +23,7 @@ logging.basicConfig(level=logging.INFO)
 Z = None
 DT = 8760
 
-# In Docker
-DB_HOST = os.environ.get("DB_HOST")
-DB_PORT = os.environ.get("DB_PORT")
-DB_USER = os.environ.get("DB_USER")
-DB_PASSWORD = os.environ.get("DB_PASSWORD")
-DB_DB = os.environ.get("DB_DB")
-
-DB_URL = "postgresql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_DB}".format(
-    DB_HOST=DB_HOST,
-    DB_PORT=DB_PORT,
-    DB_USER=DB_USER,
-    DB_PASSWORD=DB_PASSWORD,
-    DB_DB=DB_DB,
-)
+DB_URL = utilities.DB_URL
 
 
 def get(repository: str, dp: frictionless.package.Package, isForced: bool = False):
@@ -129,33 +116,13 @@ def get(repository: str, dp: frictionless.package.Package, isForced: bool = Fals
 
 
 if __name__ == "__main__":
-    datasets = pd.read_csv("datasets.csv", engine="python", index_col=[0])
-    ds_ids = datasets[datasets["di_script"] == os.path.basename(sys.argv[0])].index
-    if len(sys.argv) > 1:
-        parser = argparse.ArgumentParser(description="Import HotMaps raster")
-        parser.add_argument("--force", action="store_const", const=True, default=False)
-        parser.add_argument(
-            "--select_ds_ids", action="extend", nargs="+", type=int, default=[]
-        )
-        args = parser.parse_args()
-        isForced = args.force
-        if len(args.select_ds_ids) > 0:
-            ds_ids = args.select_ds_ids
-    else:
-        isForced = False
+    datasets = pd.read_csv("datasets.csv", index_col=[0])
+    script_name = os.path.basename(sys.argv[0])
+    ds_ids, isForced = utilities.parser(script_name, datasets)
 
     for ds_id in ds_ids:
         logging.info("Retrieving Dataset {}".format(ds_id))
-        dp = utilities.getDataPackage(
-            ds_id,
-            "postgresql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_DB}".format(
-                DB_HOST=DB_HOST,
-                DB_PORT=DB_PORT,
-                DB_USER=DB_USER,
-                DB_PASSWORD=DB_PASSWORD,
-                DB_DB=DB_DB,
-            ),
-        )
+        dp = utilities.getDataPackage(ds_id, DB_URL,)
 
         data, dp = get(datasets.loc[ds_id, "di_URL"], dp, isForced)
 
