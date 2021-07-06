@@ -18,8 +18,6 @@ def get_response(
 
     def get_graphs(
         base_dictionary: dict,
-        total_potential: float,
-        total_heat_demand: float,
         areas_potential: np.ndarray,
     ) -> dict:
         """
@@ -27,39 +25,24 @@ def get_response(
 
         Inputs :
             * base_dictionary : dictionary that will be updated.
-            * total_potential : total potential of all areas.
-            * total_heat_demand : total demand of all areas.
             * areas_potential : potential of each area.
         Output :
             * base_dictionary : updated dictionary.
         """
 
-        # Demand - Potential (GWh/year)
         base_dictionary["graphs"] = dict()
-        base_dictionary["graphs"]["Potential"] = dict()
-        base_dictionary["graphs"]["Potential"]["type"] = "bar"
-        base_dictionary["graphs"]["Potential"]["values"] = [
-            ["District heating potential (GWh)", total_potential],
-            ["Annual heat demand (GWh)", total_heat_demand],
-        ]
 
         # Areas potential
-        base_dictionary["graphs"]["Areas potential"] = dict()
-        base_dictionary["graphs"]["Areas potential"]["type"] = "bar"
-
-        # labels start from 1, therefore the array size is 'num_labels_array + 1'
         if areas_potential[1:].size > 0:
+            base_dictionary["graphs"]["Areas potential"] = dict()
+            base_dictionary["graphs"]["Areas potential"]["type"] = "bar"
+
+            # labels start from 1, therefore the array size is 'num_labels_array + 1'
             values = [
                 ["Zone " + str(index + 1) + " (GWh)", value]
                 for index, value in enumerate(areas_potential[1:])
             ]
-        else:
-            values = [["No area detected", 0.0]]
-        base_dictionary["graphs"]["Areas potential"]["values"] = values
-
-        base_dictionary["graphs"]["cm-heat-demand test graph"] = dict()
-        base_dictionary["graphs"]["cm-heat-demand test graph"]["type"] = "xy"
-        base_dictionary["graphs"]["cm-heat-demand test graph"]["values"] = [(i, i) for i in range(100)]
+            base_dictionary["graphs"]["Areas potential"]["values"] = values
 
         return base_dictionary
 
@@ -102,12 +85,7 @@ def get_response(
         return base_dictionary
 
     response = dict()
-    response = get_graphs(
-        base_dictionary=response,
-        total_potential=total_potential,
-        total_heat_demand=total_heat_demand,
-        areas_potential=areas_potential,
-    )
+    response = get_graphs(base_dictionary=response, areas_potential=areas_potential)
     response = get_indicators(base_dictionary=response)
     response = get_geofiles(base_dictionary=response)
 

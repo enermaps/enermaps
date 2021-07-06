@@ -3,9 +3,9 @@
   import Chart from 'chart.js';
   export let datasets;
 
-  let lineDatasets = [];
+  let lineDatasets = {};
   let xyDatasets = [];
-  const barDatasets = [];
+  const barDatasets = {};
 
   let xyCanvas;
   let lineCanvas;
@@ -43,16 +43,28 @@
     }
   }
   function insertBarChart(name, dataset) {
-    // not implemented yet
+    const values = dataset.values;
+    const x_labels = [];
+    const data = [];
+    for (const value of values) {
+      x_labels.push(value[0]);
+      data.push(value[1]);
+    }
+    barDatasets["labels"] = x_labels;
+    barDatasets["datasets"] = [];
+    barDatasets["datasets"].push({label : name, data : data, tension : 0.1});
   }
   function insertLineChart(name, dataset) {
-    const chartPoints = [];
     const values = dataset.values;
-    for (let x = 0; x < values.length; x++) {
-      chartPoints.push({x: x, y: values[x]});
+    const x_labels = [];
+    const data = [];
+    for (const value of values) {
+      x_labels.push(value[0]);
+      data.push(value[1]);
     }
-    lineDatasets.push({label: name, data: chartPoints});
-    lineDatasets = lineDatasets;
+    lineDatasets["labels"] = x_labels;
+    lineDatasets["datasets"] = [];
+    lineDatasets["datasets"].push({label : name, data : data});
   }
 
   function insertXYChart(name, dataset) {
@@ -77,22 +89,18 @@
     } else {
       xyCanvas.hidden = true;
     }
-    if (lineDatasets.length) {
+    if (Object.keys(lineDatasets).length) {
       lineChart = new Chart(lineCanvas, {
-        type: 'scatter',
-        data: {
-          datasets: lineDatasets,
-        },
+        type: 'line',
+        data: lineDatasets,
       });
     } else {
       lineCanvas.hidden = true;
     }
-    if (barDatasets.length) {
+    if (Object.keys(barDatasets).length) {
       lineChart = new Chart(barCanvas, {
         type: 'bar',
-        data: {
-          datasets: barDatasets,
-        },
+        data: barDatasets,
       });
     } else {
       barCanvas.hidden = true;
