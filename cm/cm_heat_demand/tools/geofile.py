@@ -51,7 +51,7 @@ def clip_raster(src: str, shapes: dict, dst: str, quiet: bool = True):
         raise FileNotFoundError(f"The result file has not been created: {dst}")
 
 
-def read_raster(raster: str, return_geo_transform=True):
+def read_raster(raster: str, return_geo_transform: bool = True):
     """
     Open the raster and return the map as a numpy array.
 
