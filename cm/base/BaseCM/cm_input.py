@@ -20,7 +20,7 @@ def get_raster_path(raster_name):
 
 
 class StatNotComputeError(Exception):
-    """Exception thrown for a non-existing calculation module"""
+    """Exception thrown when it's not possible to calculate the statistics."""
 
     pass
 
