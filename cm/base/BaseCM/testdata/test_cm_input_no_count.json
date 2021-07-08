@@ -1,0 +1,44 @@
+{
+    "selection": {
+        "type": "FeatureCollection",
+        "features": [
+            {
+                "type": "Feature",
+                "properties": {},
+                "geometry": {
+                    "type": "Polygon",
+                    "coordinates": [
+                        [
+                            [
+                                5.965576,
+                                46.21512
+                            ],
+                            [
+                                6.089172,
+                                46.220584
+                            ],
+                            [
+                                6.094666,
+                                46.157599
+                            ],
+                            [
+                                5.964546,
+                                46.149275
+                            ],
+                            [
+                                5.965576,
+                                46.21512
+                            ]
+                        ]
+                    ]
+                }
+            }
+        ]
+    },
+    "layers": [
+        "gfa_tot_curr_density.tiff"
+    ],
+    "parameters": {
+        "test": 1
+    }
+}
