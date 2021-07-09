@@ -106,6 +106,7 @@ CREATE OR REPLACE FUNCTION enermaps_query_geojson(parameters text,
               ) AS feature
                 FROM (SELECT data.fid,
                     jsonb_object_agg(variable, value) as variables,
+                    jsonb_object_agg(variable, unit) as units,
                     fields,
                     start_at, dt, z, data.ds_id, geometry
                     FROM data
@@ -129,6 +130,7 @@ CREATE OR REPLACE FUNCTION enermaps_query_table(parameters text,
     RETURNS  table (
         fid varchar,
         variables jsonb,
+        units jsonb,
         fields jsonb,
         start_at timestamp without time zone,
         dt double precision,
@@ -165,6 +167,7 @@ CREATE OR REPLACE FUNCTION enermaps_query_table(parameters text,
         RETURN QUERY EXECUTE format('
         SELECT data.fid,
                     jsonb_object_agg(variable, value) as variables,
+                    jsonb_object_agg(variable, unit) as units,
                     fields,
                     start_at, dt, z, data.ds_id, geometry
                     FROM data
