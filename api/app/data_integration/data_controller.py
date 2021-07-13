@@ -16,11 +16,11 @@ def init_enermaps_datasets():
     # Get the ids of all the datasets that are in the eneramps DB
     print("Datasets ids -------------------------")
     datasets_ids = enermaps_server.get_datasets_ids()
-    print(datasets_ids)
 
     for id in datasets_ids:
         if id not in datasets_to_exclude:
-            data = enermaps_server.get_dataset(id)
+            file_upload = enermaps_server.get_dataset(id)
+            create(file_upload)
 
 
 
