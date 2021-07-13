@@ -11,16 +11,19 @@ DATASETS_DIC = {
     "DS_2" : {
         "id" : 2,
         "params" : """{"data.ds_id":2}""",
+        "json_params" : {"data.ds_id":2},
         "legend" : "blablabla"
     },
     "DS_3" : {
         "id" : 3,
         "params" : """{"data.ds_id":3}""",
+        "json_params" : {"data.ds_id":3},
         "legend" : "blablabla"
     },
     "DS_4" : {
         "id" :  4,
         "params" : """{"data.ds_id":4}""",
+        "json_params" : {"data.ds_id":4},
         "legend" : "blablabla"
     },
     "DS_5" : {
