@@ -246,7 +246,7 @@ DATASETS_DIC = {
         "id" : 42,
         "params" : """{
                         "data.ds_id":42,
-                        "level":"{country}"
+                        "level":" { country } "
                     }""",
         "legend" : "blablabla"
     },
