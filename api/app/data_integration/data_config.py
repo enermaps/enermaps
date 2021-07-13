@@ -10,20 +10,23 @@ DATASETS_DIC = {
     },
     "DS_2" : {
         "id" : 2,
+        "layer_type" : "vector",
         "params" : """{"data.ds_id":2}""",
-        "json_params" : {"data.ds_id":2},
+        "json_params" : {"data.ds_id":2, "row_limit" : 100000},
         "legend" : "blablabla"
     },
     "DS_3" : {
         "id" : 3,
+        "layer_type" : "vector",
         "params" : """{"data.ds_id":3}""",
-        "json_params" : {"data.ds_id":3},
+        "json_params" : {"data.ds_id":3, "row_limit" : 100000},
         "legend" : "blablabla"
     },
     "DS_4" : {
         "id" :  4,
+        "layer_type" : "vector",
         "params" : """{"data.ds_id":4}""",
-        "json_params" : {"data.ds_id":4},
+        "json_params" : {"data.ds_id":4, "row_limit" : 100000},
         "legend" : "blablabla"
     },
     "DS_5" : {
