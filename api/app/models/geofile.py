@@ -383,6 +383,7 @@ class GeoJSONLayer(VectorLayer):
         """This method doesn't store anything. All is done in Vector Layer."""
         return []
 
+    @staticmethod
     def save(file_upload: FileStorage):
         """This method takes a geojson as input and present it as a raster file"""
         with TemporaryDirectory(prefix=get_tmp_upload()) as tmp_dir:
@@ -390,6 +391,11 @@ class GeoJSONLayer(VectorLayer):
             file_upload.save(tmp_filepath)
             shape_name, _ = os.path.splitext(file_upload.filename)
             shapefile_filepath = safe_join(tmp_dir, shape_name + ".shp")
+            
+            assert os.path.isfile(tmp_filepath)
+            print("***********************************")
+            print(shapefile_filepath)
+            print("***********************************")
             args = ["ogr2ogr", "-f", "ESRI Shapefile", shapefile_filepath, tmp_filepath]
             try:
                 # This call is safe, as
@@ -397,9 +403,14 @@ class GeoJSONLayer(VectorLayer):
                 # * we always prepend the location, thus we end up with
                 #   absolute path that don't start with - or --
                 # * all joins are contained in the subdirectories
+                # ??????????????????????????????????????????????????????????????????
                 subprocess.check_call(args)  # nosec
-            except subprocess.CalledProcessError:
-                raise SaveException("File cannot be encoded into a shapefile")
+                print("Not creating shapefiles")
+                # ??????????????????????????????????????????????????????????????????
+            except subprocess.CalledProcessError as e:
+                print(e)
+                #raise SaveException("File cannot be encoded into a shapefile")
+                
             proj_filepath = safe_join(tmp_dir, shape_name + ".prj")
             # geojson can use a single projection,
             # so create that file with the standard geojson projection
@@ -412,9 +423,13 @@ class GeoJSONLayer(VectorLayer):
             output_dirpath = safe_join(upload_dir, shape_name + ".geojson")
             try:
                 os.replace(tmp_dir, output_dirpath)
-            except FileExistsError:
-                raise SaveException("Geofile already exists")
+            except (FileExistsError, OSError):
+                print("Geofile already exists")
+                #raise SaveException("Geofile already exists")
+            except Exception as e:
+                print(e)
         return VectorLayer(shape_name + ".geojson")
+
 
 
 def get_gis_layer(select_raster: bool) -> list:
@@ -428,6 +443,9 @@ def get_gis_layer(select_raster: bool) -> list:
         )
         raw_datasets = cur.fetchall()
     return [raw_dataset[0] for raw_dataset in raw_datasets]
+
+
+
 
 
 class PostGISVectorLayer(Layer):
