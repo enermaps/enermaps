@@ -1,2 +1,2 @@
-5 * * * * python3 parseLog.py &>> /stats/parseLog.log
+5 * * * * python3 parseLog.py all &>> /stats/parseLog.log
 # remember to end this file with an empty new line

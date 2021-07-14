@@ -10,7 +10,7 @@ import pandas as pd
 
 
 def parseLog(log_file: str, parsed_log_file: str):
-    """Parse the original log file and remove it."""
+    """Parse the original log file."""
     header = [
         "log_time",
         "user_name",
@@ -38,9 +38,12 @@ def parseLog(log_file: str, parsed_log_file: str):
         "backend_type",
     ]
     try:
-        log = pd.read_csv(log_file, header=None)
+        log = pd.read_csv(
+            log_file, header=None, error_bad_lines=False, low_memory=False
+        )
         log.columns = header
     except (pd.errors.EmptyDataError, pd.errors.ParserError):
+        print("Cannot decode the content of the log file")
         log = pd.DataFrame()
 
     parsed_log = []
@@ -54,6 +57,7 @@ def parseLog(log_file: str, parsed_log_file: str):
         return js
 
     if log.shape[0] > 0:
+        print("Parsing")
         # Parse log
         # Standard SQL queries
         queries = log.loc[
@@ -114,10 +118,12 @@ def parseLog(log_file: str, parsed_log_file: str):
 
         # Concatenate the two types of query
         if len(parsed_log) > 0:
-            parsed_log = pd.concat(parsed_log, ignore_index=True).reset_index()
-            parsed_log = parsed_log.sort_values("log_time")
+            parsed_log = pd.concat(parsed_log, ignore_index=True)
+            parsed_log["log_time"] = pd.to_datetime(parsed_log["log_time"])
+            parsed_log = parsed_log.sort_values("log_time", ascending=True)
 
             # Append to file parsed log of queries
+            print("Saving log file to {}".format(parsed_log_file))
             parsed_log[["log_time", "ds_id", "ip", "json_query"]].to_csv(
                 parsed_log_file, mode="a", header=None, index=False
             )
@@ -125,12 +131,12 @@ def parseLog(log_file: str, parsed_log_file: str):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Create log")
-    parser.add_argument("source_log_file", default="")
+    parser.add_argument("source_log_file", default="all")
     parser.add_argument("--parsed_log_file", "-o", default="tmp.csv", required=False)
 
     args = parser.parse_args()
 
-    if args.source_log_file == "":
+    if args.source_log_file == "all":
         # By default parse all the log files but the last one and remove them
         for log_file in sorted(
             glob.glob("/db-data/pg_log/*.csv"), key=os.path.getmtime
@@ -142,6 +148,7 @@ if __name__ == "__main__":
             if os.path.exists(log_file2):
                 os.remove(log_file2)
     else:
+        print("Manually loading log file")
         parseLog(
             os.path.join("db-data", "pg_log", args.source_log_file),
             os.path.join("stats", args.parsed_log_file),
