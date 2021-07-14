@@ -1,0 +1,2 @@
+0 * * * * python3 parseLog.py &>> /stats/parseLog.log
+# remember to end this file with an empty new line
