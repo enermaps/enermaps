@@ -10,8 +10,8 @@ DATASETS_DIC = {
         "json_params" : { 
                 "parameters" : {
                     "data.ds_id" : 1,
-                    "variable" : "''Monthly average global irradiance on a horizontal surface (W/m2), period 2005-2015''",
-                    "start_at" : "''01-01-2099  00:00:00''"
+                    "variable" : "'Monthly average global irradiance on a horizontal surface (W/m2), period 2005-2015'",
+                    "start_at" : "'01-01-2099  00:00:00'"
                 },
                 "row_limit" : 100000
             },
@@ -51,7 +51,7 @@ DATASETS_DIC = {
         "json_params" : {
             "parameters" : {
                     "data.ds_id" : 5,
-                    "start_at" : "''01/01/2019  00:00:00''",
+                    "start_at" : "'01/01/2019  00:00:00'",
                     "fields": {
                         "Market_Sector" : "Total"
                         }
@@ -70,7 +70,7 @@ DATASETS_DIC = {
         "json_params" : {
             "parameters" : {
                     "data.ds_id" : 6,
-                    "start_at" : "''01/01/2010  00:00:00''"
+                    "start_at" : "'01/01/2010  00:00:00'"
             },
             "row_limit" : 100000
         },
@@ -87,31 +87,11 @@ DATASETS_DIC = {
         "json_params" : {
             "parameters" : {
                     "data.ds_id" : 9,
-                    "start_at" : "''01/01/2010  00:00:00''",
+                    "start_at" : "'01/01/2010  00:00:00'",
                     "level" : "{ country }"       
             },
             "row_limit" : 100000
         },
-        "legend" : "blablabla"
-    },
-    "DS_10" : {
-        "id" : 10,
-        "layer_type" : "vector",
-        "params" : """{
-                        "data.ds_id":10,
-                        "fields":{
-                            "action":"Buildings (residential): refurbishment"
-                        }
-                    }""",
-        "json_params" : {
-                "parameters" : {
-                        "data.ds_id" : 10,
-                        "fields" : {
-                            "action" : "Buildings (residential): refurbishment"
-                            }
-                    },
-                "row_limit" : 100000
-            },
         "legend" : "blablabla"
     },
     "DS_11" : {
@@ -127,7 +107,7 @@ DATASETS_DIC = {
         "json_params" : {
                 "parameters" : {
                         "data.ds_id" : 11,
-                        "start_at" : "''01/01/2010  00:00:00''",
+                        "start_at" : "'01/01/2010  00:00:00'",
                         "fields" : {
                                 "action" : "Renewable energy technologies"
                             }
@@ -148,8 +128,8 @@ DATASETS_DIC = {
         "json_params" : {
                 "parameters" : {
                         "data.ds_id" : 14,
-                        "start_at" : "''01/01/1970  00:00:00''",
-                        "variable" : "''Maximum monthly 1-day precipitation total''"
+                        "start_at" : "'01/01/1970  00:00:00'",
+                        "variable" : "'Maximum monthly 1-day precipitation total'"
                     },
                 "row_limit" : 100000
             },
@@ -166,8 +146,8 @@ DATASETS_DIC = {
         "json_params" : {
             "parameters" : {
                 "data.ds_id" : 15,
-                "start_at" : "''01/01/2018  00:00:00''",
-                "variable" : "''10m_u_component_of_wind''"
+                "start_at" : "'01/01/2018  00:00:00'",
+                "variable" : "'10m_u_component_of_wind'"
             },
             "row_limit" : 100000
         },
@@ -183,7 +163,7 @@ DATASETS_DIC = {
         "json_params" : {
             "parameters" : {
                     "data.ds_id" : 16,
-                    "start_at" : "''01/01/2014  00:00:00''"
+                    "start_at" : "'01/01/2014  00:00:00'"
                 },
             "row_limit" : 100000
         },
@@ -199,7 +179,7 @@ DATASETS_DIC = {
         "json_params" : {
             "parameters" : {
                     "data.ds_id" : 17,
-                    "start_at" : "''01/01/2014  00:00:00''"             
+                    "start_at" : "'01/01/2014  00:00:00'"             
                 },
             "row_limit" : 100000
         },
@@ -215,7 +195,7 @@ DATASETS_DIC = {
         "json_params" : {
             "parameters" : {
                     "data.ds_id" : 18,
-                    "start_at" : "''01/01/2012  00:00:00''"                
+                    "start_at" : "'01/01/2012  00:00:00'"                
                 },
             "row_limit" : 100000
         },
@@ -235,7 +215,7 @@ DATASETS_DIC = {
         "json_params" : {
             "parameters" : {
                 "data.ds_id" : 19,
-                "start_at" : "''01/01/2012  00:00:00''",
+                "start_at" : "'01/01/2012  00:00:00'",
                 "fields" : {
                         "Sector":"Power Industry"
                     }
@@ -254,7 +234,7 @@ DATASETS_DIC = {
         "json_params" : {
             "parameters" : {
                 "data.ds_id":20,
-                "start_at":"''01/01/2019  00:00:00''"                
+                "start_at":"'01/01/2019  00:00:00'"                
                 },
             "row_limit" : 100000
         },
@@ -287,7 +267,7 @@ DATASETS_DIC = {
         "json_params" : {
             "parameters" : {
                 "data.ds_id" : 22,
-                "start_at" : "''01/01/2018  00:00:00''"
+                "start_at" : "'01/01/2018  00:00:00'"
             },
             "row_limit" : 100000
         },
@@ -304,7 +284,7 @@ DATASETS_DIC = {
         "json_params" : {
             "parameters": {
                 "data.ds_id" : 24,
-                "start_at" : "''01/01/2099  00:00:00''",
+                "start_at" : "'01/01/2099  00:00:00'",
                 "intersecting" : "POLYGON((10.276722801998659 48.889240956946985,10.2747270124557986 48.835409141414466,10.390482805942611 48.847230841511724,10.3445796464564523 48.91023278929048,10.276722801998659 48.889240956946985))"
             },
             "row_limit" : 100000
@@ -325,7 +305,7 @@ DATASETS_DIC = {
         "json_params" : {
             "parameters" : {
                     "data.ds_id" : 27,
-                    "start_at" : "''01/01/2012  00:00:00''",
+                    "start_at" : "'01/01/2012  00:00:00'",
                     "fields" : {
                         "parameter" : "Dry Mass",
                         "potential" : "Base potential"
@@ -351,7 +331,7 @@ DATASETS_DIC = {
         "json_params" : {
             "parameters" : {
                 "data.ds_id" : 28,
-                "start_at" : "''01/01/1945  00:00:00''",
+                "start_at" : "'01/01/1945  00:00:00'",
                 "fields" : {
                     "bage" : "1945 - 1969",
                     "btype" : "Single family- Terraced houses",
@@ -380,7 +360,7 @@ DATASETS_DIC = {
         "json_params" : {
             "parameters" : {
                 "data.ds_id" : 29,
-                "start_at" : "''2012-01-01''",
+                "start_at" : "'2012-01-01'",
                 "fields" : {
                     "Fuel" : "gas",
                     "Type" : "space heating",
@@ -410,7 +390,7 @@ DATASETS_DIC = {
         "json_params" : {
             "parameters" : {
                 "data.ds_id" : 30,
-                "start_at" : "''2012-01-01''",
+                "start_at" : "'2012-01-01'",
                 "fields" : {
                     "Sector":"Industry",
                     "Scenario":"CP",
@@ -433,7 +413,7 @@ DATASETS_DIC = {
         "json_params" : {
             "parameters" : {
                 "data.ds_id" : 31,
-                "variable" : "''Climate zones''"
+                "variable" : "'Climate zones'"
             },
             "row_limit" : 100000
         },
@@ -527,7 +507,7 @@ DATASETS_DIC = {
         "json_params" : {
             "parameters" : {
                 "data.ds_id":46,
-                "start_at":"''2018-01-01''",
+                "start_at":"'2018-01-01'",
                 "fields":{
                     "Pollutant":"Carbon dioxide"
                 }
@@ -546,7 +526,7 @@ DATASETS_DIC = {
         "json_params" : {
             "parameters" : {
                 "data.ds_id":47,
-                "start_at":"''2018-01-01''"               
+                "start_at":"'2018-01-01'"               
             },
             "row_limit" : 100000
         },
@@ -562,7 +542,7 @@ DATASETS_DIC = {
         "json_params" : {
             "parameters" : {
                 "data.ds_id":48,
-                "start_at":"''2018-01-01''"
+                "start_at":"'2018-01-01'"
             },
             "row_limit" : 100000
         },
@@ -578,7 +558,7 @@ DATASETS_DIC = {
         "json_params" : {
             "parameters" : {
                          "data.ds_id":49,
-                        "start_at":"''2018-01-01''"               
+                        "start_at":"'2018-01-01'"               
             },
             "row_limit" : 100000
         },
@@ -594,7 +574,7 @@ DATASETS_DIC = {
         "json_params" : {
             "parameters" : {
                 "data.ds_id":50,
-                "start_at":"''2018-01-01''"
+                "start_at":"'2018-01-01'"
             },
             "row_limit" : 100000
         },

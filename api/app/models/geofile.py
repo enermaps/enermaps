@@ -87,20 +87,20 @@ def load(name):
         return VectorLayer(name)
     elif name.endswith("tif") or name.endswith("tiff"):
         return RasterLayer(name)
-    db_con = db.get_db()
-    if not db_con:
-        raise Exception("Layer not found")
-    with db_con.cursor() as cur:
-        cur.execute(
-            "SELECT isRaster from public.data where variable = %s group by variable, isRaster",
-            (name,),
-        )
-        is_raster, *_ = cur.fetchone()
-    if is_raster is None:
-        raise Exception("Layer not found")
-    if is_raster:
-        return PostGISRasterLayer(name)
-    return PostGISVectorLayer(name)
+    # db_con = db.get_db()
+    # if not db_con:
+    #     raise Exception("Layer not found")
+    # with db_con.cursor() as cur:
+    #     cur.execute(
+    #         "SELECT isRaster from public.data where variable = %s group by variable, isRaster",
+    #         (name,),
+    #     )
+    #     is_raster, *_ = cur.fetchone()
+    # if is_raster is None:
+    #     raise Exception("Layer not found")
+    # if is_raster:
+    #     return PostGISRasterLayer(name)
+    # return PostGISVectorLayer(name)
 
 
 class Layer(ABC):
@@ -205,6 +205,9 @@ class RasterLayer(Layer):
         raster_dir = safe_join(get_user_upload("raster"), self.name)
         return raster_dir
 
+
+
+    
     def _get_raster_path(self):
         """Return the path to the raster directory stored on disk."""
         layer_path = safe_join(self._get_raster_dir(), self._RASTER_NAME)
@@ -251,8 +254,10 @@ class RasterLayer(Layer):
             # if the file already exists before proceeding
             try:
                 os.replace(tmp_dir, output_filepath)
-            except FileExistsError:
-                raise SaveException("Geofile already exists")
+            except (FileExistsError, OSError):
+                print("Geofile already exists")
+            # except FileExistsError:
+            #     raise SaveException("Geofile already exists")
         return RasterLayer(file_upload.filename)
 
     def as_mapnik_layer(self):
@@ -302,9 +307,14 @@ class VectorLayer(Layer):
         layer = mapnik.Layer(self.name)
         shapefiles = glob(os.path.join(self._get_vector_dir(), "*.shp"))
         if not shapefiles:
-            raise FileNotFoundError("Shapefile was not found")
+            print("Shapefile was not found")
+            #raise FileNotFoundError("Shapefile was not found")
         layer.srs = self.projection
-        layer.datasource = mapnik.Shapefile(file=shapefiles[0])
+        try:
+            layer.datasource = mapnik.Shapefile(file=shapefiles[0])
+        except IndexError:
+            print("Shapefile error")
+            raise
         layer.queryable = True
         return layer
 
@@ -343,7 +353,8 @@ class VectorLayer(Layer):
             try:
                 os.replace(tmp_dir, output_dirpath)
             except FileExistsError:
-                raise SaveException("Geofile already exists")
+                #raise SaveException("Geofile already exists")
+                print("Geofile already exists")
         return VectorLayer(file_upload.filename)
 
     @staticmethod
@@ -405,9 +416,9 @@ class GeoJSONLayer(VectorLayer):
                 # * all joins are contained in the subdirectories
                 # ??????????????????????????????????????????????????????????????????
                 subprocess.check_call(args)  # nosec
-                print("Not creating shapefiles")
                 # ??????????????????????????????????????????????????????????????????
             except subprocess.CalledProcessError as e:
+                print("File cannot be encoded into a shapefile")
                 print(e)
                 #raise SaveException("File cannot be encoded into a shapefile")
                 
@@ -432,114 +443,114 @@ class GeoJSONLayer(VectorLayer):
 
 
 
-def get_gis_layer(select_raster: bool) -> list:
-    db_con = db.get_db()
-    if not db_con:
-        return []
-    with db_con.cursor() as cur:
-        cur.execute(
-            "SELECT variable from public.data where isRaster = %s group by variable",
-            (select_raster,),
-        )
-        raw_datasets = cur.fetchall()
-    return [raw_dataset[0] for raw_dataset in raw_datasets]
+# def get_gis_layer(select_raster: bool) -> list:
+#     db_con = db.get_db()
+#     if not db_con:
+#         return []
+#     with db_con.cursor() as cur:
+#         cur.execute(
+#             "SELECT variable from public.data where isRaster = %s group by variable",
+#             (select_raster,),
+#         )
+#         raw_datasets = cur.fetchall()
+#     return [raw_dataset[0] for raw_dataset in raw_datasets]
 
 
 
 
 
-class PostGISVectorLayer(Layer):
-    def as_fd(self):
-        raise NotImplementedError()
+# class PostGISVectorLayer(Layer):
+#     def as_fd(self):
+#         raise NotImplementedError()
 
-    def as_mapnik_layer(self):
-        lyr = mapnik.Layer(self.name)
-        query = f"(select spatial.geometry as geometry, spatial.name as name from spatial join data on spatial.fid = data.fid and data.variable= '{self.name}') as world"
-        lyr.datasource = mapnik.PostGIS(
-            host=current_app.config["DB_HOST"],
-            port=current_app.config["DB_PORT"],
-            dbname=current_app.config["DB_DB"],
-            user=current_app.config["DB_USER"],
-            password=current_app.config["DB_PASSWORD"],
-            table=query,
-        )
-        lyr.srs = self.projection
-        lyr.queryable = self.is_queryable
-        return lyr
+#     def as_mapnik_layer(self):
+#         lyr = mapnik.Layer(self.name)
+#         query = f"(select spatial.geometry as geometry, spatial.name as name from spatial join data on spatial.fid = data.fid and data.variable= '{self.name}') as world"
+#         lyr.datasource = mapnik.PostGIS(
+#             host=current_app.config["DB_HOST"],
+#             port=current_app.config["DB_PORT"],
+#             dbname=current_app.config["DB_DB"],
+#             user=current_app.config["DB_USER"],
+#             password=current_app.config["DB_PASSWORD"],
+#             table=query,
+#         )
+#         lyr.srs = self.projection
+#         lyr.queryable = self.is_queryable
+#         return lyr
 
-    @property
-    def projection(self):
-        return epsg_to_proj4(3035)
+#     @property
+#     def projection(self):
+#         return epsg_to_proj4(3035)
 
-    @property
-    def is_queryable(self):
-        return True
+#     @property
+#     def is_queryable(self):
+#         return True
 
-    @staticmethod
-    def save(file_upload: FileStorage):
-        raise NotImplementedError()
+#     @staticmethod
+#     def save(file_upload: FileStorage):
+#         raise NotImplementedError()
 
-    @staticmethod
-    def list_layers():
-        return [
-            PostGISVectorLayer(layer_name)
-            for layer_name in get_gis_layer(select_raster=False)
-        ]
+#     @staticmethod
+#     def list_layers():
+#         return [
+#             PostGISVectorLayer(layer_name)
+#             for layer_name in get_gis_layer(select_raster=False)
+#         ]
 
-    def delete(self):
-        """Remove the geofile from the geofile database.
-        This operation must also guarantee to be atomic, so you can end up
-        with a half deleted datasource.
-        """
-        pass
+#     def delete(self):
+#         """Remove the geofile from the geofile database.
+#         This operation must also guarantee to be atomic, so you can end up
+#         with a half deleted datasource.
+#         """
+#         pass
 
-    def as_dict(self):
-        """Return a description of this layer as a dict"""
-        return {
-            "isQueryable": self.is_queryable,
-        }
+#     def as_dict(self):
+#         """Return a description of this layer as a dict"""
+#         return {
+#             "isQueryable": self.is_queryable,
+#         }
 
 
-class PostGISRasterLayer(RasterLayer):
-    def __init__(self, name):
-        self.name = name
-        db_con = db.get_db()
-        if not db_con:
-            raise Exception
-        with db_con.cursor() as cur:
-            cur.execute(
-                "select ds_id, fid from public.data where variable = %s", (self.name,)
-            )
-            self.ds_id, self.fid = cur.fetchone()
+# class PostGISRasterLayer(RasterLayer):
+#     def __init__(self, name):
+#         self.name = name
+#         db_con = db.get_db()
+#         if not db_con:
+#             raise Exception
+#         with db_con.cursor() as cur:
+#             cur.execute(
+#                 "select ds_id, fid from public.data where variable = %s", (self.name,)
+#             )
+#             self.ds_id, self.fid = cur.fetchone()
 
-    def _get_raster_path(self):
-        raster_base_dir = current_app.config["RASTER_DB_DIR"]
-        return os.path.join(raster_base_dir, str(self.ds_id), str(self.fid))
+#     def _get_raster_path(self):
+#         raster_base_dir = current_app.config["RASTER_DB_DIR"]
+#         return os.path.join(raster_base_dir, str(self.ds_id), str(self.fid))
 
-    @property
-    def is_queryable(self):
-        return False
+#     @property
+#     def is_queryable(self):
+#         return False
 
-    @staticmethod
-    def save(file_upload: FileStorage):
-        raise NotImplementedError()
+#     @staticmethod
+#     def save(file_upload: FileStorage):
+#         raise NotImplementedError()
 
-    @staticmethod
-    def list_layers():
-        return [
-            PostGISRasterLayer(layer_name)
-            for layer_name in get_gis_layer(select_raster=True)
-        ]
+#     @staticmethod
+#     def list_layers():
+#         return [
+#             PostGISRasterLayer(layer_name)
+#             for layer_name in get_gis_layer(select_raster=True)
+#         ]
 
-    def delete(self):
-        """Remove the geofile from the geofile database.
-        This operation must also guarantee to be atomic, so you can end up
-        with a half deleted datasource.
-        """
-        pass
+#     def delete(self):
+#         """Remove the geofile from the geofile database.
+#         This operation must also guarantee to be atomic, so you can end up
+#         with a half deleted datasource.
+#         """
+#         pass
 
-    def as_dict(self):
-        """Return a description of this layer as a dict"""
-        return {
-            "isQueryable": self.is_queryable,
-        }
+#     def as_dict(self):
+#         """Return a description of this layer as a dict"""
+#         return {
+#             "isQueryable": self.is_queryable,
+#         }

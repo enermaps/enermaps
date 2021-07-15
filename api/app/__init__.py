@@ -49,6 +49,5 @@ def create_app(environment="production", testing=False):
     app.teardown_appcontext(db.teardown_db)
     with app.app_context():
         if not app.testing:
-            #data_controller.init_hotmaps_datasets()
             data_controller.init_enermaps_datasets()
     return app
