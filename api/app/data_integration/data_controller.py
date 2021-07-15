@@ -11,16 +11,21 @@ from app.data_integration import enermaps_server
 def init_enermaps_datasets():
 
     # These datasets are tiled raster datasets (needing input coordinates)
+    # and returning multiple images
     datasets_to_exclude = [21, 24, 33, 35]
 
     # Get the ids of all the datasets that are in the eneramps DB
-    print("Datasets ids -------------------------")
     datasets_ids = enermaps_server.get_datasets_ids()
-
+    
     for id in datasets_ids:
         if id not in datasets_to_exclude:
-            file_upload = enermaps_server.get_dataset(id)
-            create(file_upload)
+            try:
+                file_upload = enermaps_server.get_dataset(id)
+                if file_upload is not None:
+                    create(file_upload)
+            except Exception as e:
+                print("Error creating dataset " + str(id))
+                print(e)
 
 
 
