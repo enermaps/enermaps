@@ -124,6 +124,7 @@ CREATE OR REPLACE FUNCTION enermaps_query_geojson(parameters text,
 GRANT EXECUTE ON FUNCTION enermaps_query_geojson(text, integer, integer) to api_user;
 
 -- Equivalent function returning a table instead of GeoJSON
+DROP FUNCTION IF EXISTS enermaps_query_table(parameters text, row_limit int, row_offset int);
 CREATE OR REPLACE FUNCTION enermaps_query_table(parameters text,
                                                 row_limit int default 100,
                                                 row_offset int default 0)
