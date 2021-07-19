@@ -181,6 +181,26 @@ CREATE OR REPLACE FUNCTION enermaps_query_table(parameters text,
     LANGUAGE plpgsql;
 GRANT EXECUTE ON FUNCTION enermaps_query_table(parameters text, row_limit int, row_offset int) to api_user;
 
+-- View to provide list of parameters to construct the queries
+CREATE OR REPLACE VIEW parameters AS
+SELECT ds_id::int as ds_id,
+        (metadata ->> 'Title (with Hyperlink)') as title,
+        (metadata ->> 'variables')::jsonb as variables,
+        TO_TIMESTAMP(metadata ->> 'start_at', 'YYYY-MM-DD HH24:MI')::timestamp without time zone as start_at,
+        TO_TIMESTAMP(metadata ->> 'end_at', 'YYYY-MM-DD HH24:MI')::timestamp without time zone as end_at,
+        (metadata ->> 'parameters')::jsonb as parameters,
+        (metadata ->> 'is_raster')::bool as is_raster,
+        metadata ->> 'temporal_granularity' as temporal_granularity,
+        (metadata ->> 'custom_periods')::jsonb as custom_periods,
+        (metadata ->> 'is_tiled')::bool as is_tiled,
+        (metadata ->> 'levels')::jsonb as levels,
+        (metadata ->> 'to_be_fixed')::bool as to_be_fixed
+        FROM datasets
+        WHERE (metadata ->> 'Title (with Hyperlink)') <> ''
+        ORDER BY ds_id;
+GRANT SELECT ON public.parameters to api_anon;
+GRANT SELECT ON public.parameters to api_user;
+
 
 -- Code to support OPENAIRE gateway
 -- Create a new datasets table to be filled in
