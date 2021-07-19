@@ -252,7 +252,7 @@ SELECT shared_id AS id, row_to_json((
         json_build_object('rights', text('OPEN'),
         'rightsUri','info:eu-repo/semantics/openAccess'),
         json_build_object('rights', metadata->>'License',
-        'rightsUri','')
+        'rightsUri',metadata->>'License URL')
                         ) as "rightsList",
     json_build_array(
         json_build_object('lang', text('EN'),
