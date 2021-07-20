@@ -1,20 +1,10 @@
 #!/usr/bin/python
-
-import inspect
 import io
-import os
-import sys
-import json
 
 import requests
 from werkzeug.datastructures import FileStorage
 
 from app.data_integration.data_config import DATASETS_DIC
-#from data_config import DATASETS_DIC
-
-# currentdir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
-# parentdir = os.path.dirname(currentdir)
-# sys.path.insert(0, parentdir)
 
 DATASETS_SERVER_URL = "https://lab.idiap.ch/enermaps/api/"
 DATASETS_SERVER_API_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoiYXBpX3VzZXIifQ.gzl3uCe1OdCjf3feliREDJFfNkMTiDkVFcVDrCNlpBU"
@@ -22,35 +12,59 @@ DATASETS_SERVER_API_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoiYXBp
 RASTER_SERVER_URL = "https://lab.idiap.ch/enermaps/raster/"
 
 
-# https://lab.idiap.ch/enermaps/raster/1/gh_0_01_band1_3035.tif
-# https://lab.idiap.ch/enermaps/raster/14/rx1day_MON_GLDAS_0p25_deg_hist_1970_2016_band1_3035.tif
-
-
-# if (params is not None) and (layer_type == "vector"):      
-#     print("Fetching json dataset " + str(dataset_id))
-#     try:
-#         with requests.post(
-#             url,
-#             headers={"Authorization": "Bearer {}".format(DATASETS_SERVER_API_KEY)},
-#             json=params
-#         ) as resp:
-#             # print(resp.json())
-#             # with open(str(dataset_id) + ".geojson", "w") as f:
-#             #     json_data = json.dumps(resp.json(), indent=4, sort_keys=True)
-#             #     f.write(json_data)
-#             # return
-#             resp_data = io.BytesIO(resp.content)
+def get_datasets_metadata():
+    url = DATASETS_SERVER_URL + "parameters"
+    try:
+        with requests.get(
+            url, headers={"Authorization": "Bearer {}".format(DATASETS_SERVER_API_KEY)}
+        ) as resp:
+            resp_data = resp.json()
+            return resp_data
+    except ConnectionError:
+        raise
 
 
 def get_datasets_ids():
-    #TODO get the datasets ids from the server
-    #return [1,2,3,4,5,6,9,11,14,15,16,17]
-    #return [18,19,20,21,22,24,27,28,29]
-    return [30,31,33,35,42,43,45,46,47,48,49,50]
-    #return [1,2,3,4,5,6,9,11,15,16,17,18,19,20,21,22,24,27,28,29,30,31,33,35,42,43,45,46,47,48,49,50]
+    """
+    List the ids of the different datasets to be displayed
+    """
+    return [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        9,
+        11,
+        15,
+        16,
+        17,
+        18,
+        19,
+        20,
+        21,
+        22,
+        24,
+        27,
+        28,
+        29,
+        30,
+        31,
+        33,
+        35,
+        42,
+        43,
+        45,
+        46,
+        47,
+        48,
+        49,
+        50,
+    ]
 
 
-def get_dataset(dataset_id=0):
+def get_dataset(dataset_id, dataset_name):
     """
     Fetch a geojson dataset from the enermaps server with a given Id.
     """
@@ -67,19 +81,20 @@ def get_dataset(dataset_id=0):
         except KeyError:
             raise
 
-    if (params is not None) and (layer_type == "vector"):      
+    if (params is not None) and (layer_type == "vector"):
         print("Fetching json dataset " + str(dataset_id))
         try:
             with requests.post(
                 url,
                 headers={"Authorization": "Bearer {}".format(DATASETS_SERVER_API_KEY)},
-                json=params
+                json=params,
             ) as resp:
+                # TODO check here that we have recieved a valid geojson?
                 resp_data = io.BytesIO(resp.content)
 
-            filename = str(dataset_id) + ".geojson"
+            filename = "{:02d}_{}.geojson".format(dataset_id, dataset_name)
             content_type = "application/geo+json"
-            file_upload = FileStorage(resp_data, filename, content_type=content_type)    
+            file_upload = FileStorage(resp_data, filename, content_type=content_type)
             return file_upload
         except ConnectionError:
             raise
@@ -93,7 +108,7 @@ def get_dataset(dataset_id=0):
             with requests.post(
                 url,
                 headers={"Authorization": "Bearer {}".format(DATASETS_SERVER_API_KEY)},
-                json=params
+                json=params,
             ) as resp:
                 resp_data = resp.json()
 
@@ -109,9 +124,11 @@ def get_dataset(dataset_id=0):
             except ConnectionError:
                 raise
 
-            storage_filename = str(dataset_id) + "_" + file_name + ".tiff"
+            storage_filename = "{:02d}_{}.tiff".format(dataset_id, dataset_name)
             content_type = "image/tiff"
-            file_upload = FileStorage(resp_data, storage_filename, content_type=content_type)
+            file_upload = FileStorage(
+                resp_data, storage_filename, content_type=content_type
+            )
             return file_upload
 
         except Exception:

@@ -1,12 +1,6 @@
-import io
-import os
-import requests
-from werkzeug.datastructures import FileStorage
-from app.common import db
-from app.models.geofile import create, list_layers
-
-from app.data_integration import enermaps_db
 from app.data_integration import enermaps_server
+from app.models.geofile import create
+
 
 def init_enermaps_datasets():
 
@@ -14,75 +8,32 @@ def init_enermaps_datasets():
     # and returning multiple images
     datasets_to_exclude = [21, 24, 33, 35]
 
-    # Get the ids of all the datasets that are in the eneramps DB
+    # Get the ids of the datasets that we want to load
     datasets_ids = enermaps_server.get_datasets_ids()
-    
-    for id in datasets_ids:
-        if id not in datasets_to_exclude:
-            try:
-                file_upload = enermaps_server.get_dataset(id)
-                if file_upload is not None:
-                    create(file_upload)
-            except Exception as e:
-                print("Error creating dataset " + str(id))
-                print(e)
 
+    # Get all the metadata off all the datasets that are in the enermaps DB
+    metadata = enermaps_server.get_datasets_metadata()
 
+    # Check that the datasets that we want to load are in the enermaps DB,
+    # and get the human readable name of the dataset
+    datasets_to_retrieve = []
+    for dataset_id in datasets_ids:
+        if dataset_id not in datasets_to_exclude:
+            for value in metadata:
+                try:
+                    if value["ds_id"] == dataset_id:
+                        dataset_name = value["title"]
+                        datasets_to_retrieve.append((dataset_id, dataset_name))
+                except KeyError:
+                    print(
+                        "Dataset key error skipping dataset {}".format(str(dataset_id))
+                    )
 
-
-# Hotmaps datasets ---------------------------------------------------------------------------
-
-def fetch_dataset(base_url, get_parameters, filename, content_type):
-    """Get a single zip dataset and import it into enermaps."""
-    existing_layers_name = [layer.name for layer in list_layers()]
-    if filename in existing_layers_name:
-        print("Not fetching {}, we already have it locally".format(filename))
-        return
-    print("Fetching " + filename)
-    with requests.get(base_url, params=get_parameters, stream=True) as resp:
-        resp_data = io.BytesIO(resp.content)
-    file_upload = FileStorage(resp_data, filename, content_type=content_type)
-    create(file_upload)
-
-
-def init_hotmaps_datasets():
-    """If the dataset was found to be empty, initialize the datasets for
-    the selection of:
-    * NUTS(0|1|2|3)
-    * LAU
-
-    Currently, we fetch the dataset from hotmaps.eu
-    """
-    print("Ensure we have the initial set of dataset")
-    base_url = "https://geoserver.hotmaps.eu/geoserver/hotmaps/ows"
-    base_query_params = {
-        "service": "WFS",
-        "version": "1.0.0",
-        "request": "GetFeature",
-        "outputFormat": "SHAPE-ZIP",
-    }
-    nuts_query = {**base_query_params, **{"typeName": "hotmaps:nuts"}}
-    cql_filter = "stat_levl_='{!s}' AND year='2013-01-01'"
-    lau_query = {**base_query_params, **{"typeName": "hotmaps:tbl_lau1_2"}}
-    for i in range(4):
-        nuts_query["CQL_FILTER"] = cql_filter.format(i)
-        filename = "nuts{!s}.zip".format(i)
-        fetch_dataset(base_url, nuts_query, filename, "application/zip")
-
-    filename = "lau.zip"
-    fetch_dataset(base_url, lau_query, filename, "application/zip")
-
-    tif_query = {
-        "service": "WMS",
-        "version": "1.1.0",
-        "request": "GetMap",
-        "layers": "hotmaps:gfa_tot_curr_density",
-        "styles": "",
-        "bbox": "944000.0,938000.0,6528000.0,5414000.0",
-        "width": 768,
-        "height": 615,
-        "srs": "EPSG:3035",
-        "format": "image/geotiff",
-    }
-    filename = "gfa_tot_curr_density.tiff"
-    fetch_dataset(base_url, tif_query, filename, "image/tiff")
+    for dataset_id, dataset_name in datasets_to_retrieve:
+        try:
+            file_upload = enermaps_server.get_dataset(dataset_id, dataset_name)
+            if file_upload is not None:
+                create(file_upload)
+        except Exception as e:
+            print("Error creating dataset " + str(dataset_id))
+            print(e)
