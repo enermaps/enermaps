@@ -2,18 +2,17 @@
 This contains the initial creation of dataset in dev
 mode and the initialisation of the applicaton.
 """
-import io
 import os
 
 from flask import Blueprint, Flask
 from flask_restx import Api
 
 from app.common import db
+from app.data_integration import data_controller
 from app.endpoints import calculation_module, geofile, wms
 from app.healthz import healthz
 from app.redirect import redirect_to_api
 
-from app.data_integration import data_controller
 
 def create_app(environment="production", testing=False):
     """Create the application and set the configuration.

@@ -1,8 +1,6 @@
 #!/usr/bin/python
-from configparser import ConfigParser
-import psycopg2
-from app.common import db
 
+import psycopg2
 
 # def connect():
 #     print("Database connection...")
@@ -14,36 +12,37 @@ from app.common import db
 #         raise
 #     return db_con.cursor()
 
+
 def connect():
-    """ Connect to the PostgreSQL database server """
+    """Connect to the PostgreSQL database server"""
     try:
         params = {
-            "host" : "0.0.0.0",
-            "database" : "dataset",
-            "user" : "mel",
-            "password" : "mel",
-            "port" : 5432
+            "host": "0.0.0.0",
+            "database": "dataset",
+            "user": "mel",
+            "password": "mel",
+            "port": 5432,
         }
-        print('Connecting to the PostgreSQL database...')
-        conn = psycopg2.connect(**params, options='-c statement_timeout=300000')
-        return  conn
-    except Exception  as error:
+        print("Connecting to the PostgreSQL database...")
+        conn = psycopg2.connect(**params, options="-c statement_timeout=300000")
+        return conn
+    except Exception as error:
         print("Error while connecting to PostgreSQL", error)
         raise
 
 
 def get_datasets_ids():
     """
-    Get the ids of all datasets in the database 
+    Get the ids of all datasets in the database
     """
     cursor = connect()
     try:
         cursor.execute(
-                """
-                SELECT ds_id FROM datasets 
+            """
+                SELECT ds_id FROM datasets
                 ORDER BY ds_id;
                 """
-            )
+        )
         datasets = cursor.fetchall()
         return datasets
     except psycopg2.Error as e:
@@ -61,18 +60,16 @@ def get_dataset_name(cursor, dataset_id):
     """
     Return the human readable name of a dataset.
     """
-    SQL = (
-                """
-                 SELECT ds_id, metadata ->> 'Title (with Hyperlink)' as "Name" FROM datasets 
+    SQL = """
+                 SELECT ds_id, metadata ->> 'Title (with Hyperlink)' as "Name" FROM datasets
                  ORDER BY ds_id;
                 """
-           )
     data = dataset_id
     try:
         cursor.execute(SQL, data)
         datasets = cursor.fetchall()
         return datasets
-        #return [dataset for dataset in datasets]
+        # return [dataset for dataset in datasets]
     except psycopg2.Error as e:
         print("SQL error in get_datasets_names")
         print(e)
@@ -86,7 +83,7 @@ def get_dataset_name(cursor, dataset_id):
 #     try:
 #         cursor.execute(
 #                 """
-#                 SELECT ds_id, metadata ->> 'Title (with Hyperlink)' as "Name" FROM datasets 
+#                 SELECT ds_id, metadata ->> 'Title (with Hyperlink)' as "Name" FROM datasets
 #                 ORDER BY ds_id;
 #                 """
 #             )
@@ -103,8 +100,7 @@ def dataset_query(cursor, dataset_id):
     THIS FUNCTION CANNOT BE USED WITHOUT PARAMETERS ON ALL DATASETS
     (TAKES TOO MUCH TIME)
     """
-    SQL = (
-            """
+    SQL = """
             SELECT data.fid,
                     json_object_agg(variable, value),
                     fields,
@@ -115,7 +111,6 @@ def dataset_query(cursor, dataset_id):
             GROUP BY data.fid, start_at, dt, z, data.ds_id, fields, geometry, metadata
             ORDER BY data.fid;
             """
-        )
     data = dataset_id
     try:
         cursor.execute(SQL, data)
@@ -126,15 +121,14 @@ def dataset_query(cursor, dataset_id):
     except psycopg2.Error as e:
         print("Other SQL error in dataset_query")
         print(e)
-        raise 
+        raise
 
 
 def get_dataset_metadata(cursor, dataset_id):
     """
     Get the metadata for one dataset
     """
-    SQL = (
-        """
+    SQL = """
         SELECT (metadata ->> 'variables')::jsonb as variables,
                 metadata ->> 'start_at' as start_at ,
                 TO_TIMESTAMP(metadata ->> 'end_at', 'YYYY-MM-DD HH24:MI')::timestamp without time zone as end_at,
@@ -147,7 +141,6 @@ def get_dataset_metadata(cursor, dataset_id):
                 (metadata ->>' to_be_fixed')::bool as to_be_fixed from datasets
         WHERE ds_id = %s;
         """
-        )
     data = (dataset_id,)
     try:
         cursor.execute(SQL, data)
@@ -158,7 +151,7 @@ def get_dataset_metadata(cursor, dataset_id):
     except psycopg2.Error as e:
         print("Other SQL exception in get_dataset_metadata")
         print(e)
-        raise 
+        raise
 
 
 def get_default_datastet_query_parameters(curs, dataset_id):
@@ -178,12 +171,12 @@ def get_default_datastet_query_parameters(curs, dataset_id):
         # This should be only one line of the metadata table
         get_dataset_metadata(curs, dataset_id)
         res = curs.fetchone()
-        #TODO check that there is only one line returned
+        # TODO check that there is only one line returned
     except psycopg2.Error:
         raise
 
     try:
-        variables = res[0] 
+        variables = res[0]
         # start_at = res[1]
         end_at = res[2]
         parameters = res[3]
@@ -201,14 +194,14 @@ def get_default_datastet_query_parameters(curs, dataset_id):
     if to_be_fixed:
         print("TO BE FIXED")
         raise Exception
-        
-    # Construct the query string -------------------------------------------    
+
+    # Construct the query string -------------------------------------------
     default_dataset_query_params = ""
 
     s_1 = """"data.ds_id": {dataset_id}""".format(dataset_id=dataset_id)
 
     # Take the newest dataset
-    s_2 = None 
+    s_2 = None
     if end_at:
         dataset_date = end_at
         s_2 = """"start_at": "'{start_at}'" """.format(start_at=dataset_date)
@@ -228,15 +221,15 @@ def get_default_datastet_query_parameters(curs, dataset_id):
     s_5 = None
     dataset_params = []
     if parameters:
-        l = len(list(parameters))
+        length = len(list(parameters))
         p = ""
         for i, k in enumerate(parameters):
             dataset_params.append(parameters[k][0])
-            if i < (l - 1):
-                p += """ "{k}" : """.format(k=k) + "\"" + parameters[k][0] + "\", " 
+            if i < (length - 1):
+                p += """ "{k}" : """.format(k=k) + '"' + parameters[k][0] + '", '
             else:
-                p += """ "{k}" : """.format(k=k) + "\"" + parameters[k][0] + "\"" 
-        s_5 = """ "fields" : {""" +   """{p}""".format(p=p) + "}"
+                p += """ "{k}" : """.format(k=k) + '"' + parameters[k][0] + '"'
+        s_5 = """ "fields" : {""" + """{p}""".format(p=p) + "}"
 
     if is_raster:
         # print("is raster")
@@ -245,91 +238,144 @@ def get_default_datastet_query_parameters(curs, dataset_id):
             if s_2 is not None:
                 if s_3 is not None:
                     if s_5 is not None:
-                        default_dataset_query_params = "{" + s_1 + ", " + s_2 + ", " + s_3 + ", " + s_5 + "}"
+                        default_dataset_query_params = (
+                            "{" + s_1 + ", " + s_2 + ", " + s_3 + ", " + s_5 + "}"
+                        )
                     else:
-                        default_dataset_query_params = "{" + s_1 + ", " + s_2 + ", " + s_3 + "}"
+                        default_dataset_query_params = (
+                            "{" + s_1 + ", " + s_2 + ", " + s_3 + "}"
+                        )
                 else:
                     if s_5 is not None:
-                        default_dataset_query_params = "{" + s_1 + ", " + s_2 + ", " + s_5 + "}"
+                        default_dataset_query_params = (
+                            "{" + s_1 + ", " + s_2 + ", " + s_5 + "}"
+                        )
                     else:
                         default_dataset_query_params = "{" + s_1 + ", " + s_2 + "}"
             else:
                 if s_3 is not None:
                     if s_5 is not None:
-                        default_dataset_query_params = "{" + s_1 + ", " + s_3 + ", " + s_5 + "}"
+                        default_dataset_query_params = (
+                            "{" + s_1 + ", " + s_3 + ", " + s_5 + "}"
+                        )
                     else:
                         default_dataset_query_params = "{" + s_1 + ", " + s_3 + "}"
                 else:
                     if s_5 is not None:
                         default_dataset_query_params = "{" + s_1 + ", " + s_5 + "}"
                     else:
-                        default_dataset_query_params = "{" + s_1 + """ , "intersecting":"POLYGON((2.276722801998659 48.889240956946985,2.2747270124557986 48.835409141414466,2.390482805942611 48.847230841511724,2.3445796464564523 48.91023278929048,2.276722801998659 48.889240956946985))" """ + "}"
+                        default_dataset_query_params = (
+                            "{"
+                            + s_1
+                            + """ , "intersecting":"POLYGON((2.276722801998659 48.889240956946985,2.2747270124557986 48.835409141414466,2.390482805942611 48.847230841511724,2.3445796464564523 48.91023278929048,2.276722801998659 48.889240956946985))" """
+                            + "}"
+                        )
         else:
             # print("is not tiled")
             if s_2 is not None:
                 if s_3 is not None:
                     if s_4 is not None:
                         if s_5 is not None:
-                            default_dataset_query_params = "{" + s_1 + ", " + s_2 + ", " + s_3 + ", " + s_4 +  ", " + s_5 + "}"
+                            default_dataset_query_params = (
+                                "{"
+                                + s_1
+                                + ", "
+                                + s_2
+                                + ", "
+                                + s_3
+                                + ", "
+                                + s_4
+                                + ", "
+                                + s_5
+                                + "}"
+                            )
                         else:
-                            default_dataset_query_params = "{" + s_1 + ", " + s_2 + ", " + s_3 + ", " + s_4 + "}"
+                            default_dataset_query_params = (
+                                "{" + s_1 + ", " + s_2 + ", " + s_3 + ", " + s_4 + "}"
+                            )
                     else:
                         if s_5 is not None:
-                            default_dataset_query_params = "{" + s_1 + ", " + s_2 + ", " + s_3 +  ", " + s_5 + "}"
+                            default_dataset_query_params = (
+                                "{" + s_1 + ", " + s_2 + ", " + s_3 + ", " + s_5 + "}"
+                            )
                         else:
-                            default_dataset_query_params = "{" + s_1 + ", " + s_2 + ", " + s_3 + "}"
+                            default_dataset_query_params = (
+                                "{" + s_1 + ", " + s_2 + ", " + s_3 + "}"
+                            )
                 else:
                     if s_4 is not None:
                         if s_5 is not None:
-                            default_dataset_query_params = "{" + s_1 + ", " + s_2 + ", " + s_4 +  ", " + s_5 + "}"
+                            default_dataset_query_params = (
+                                "{" + s_1 + ", " + s_2 + ", " + s_4 + ", " + s_5 + "}"
+                            )
                         else:
-                            default_dataset_query_params = "{" + s_1 + ", " + s_2 + ", " + s_4 + "}"
+                            default_dataset_query_params = (
+                                "{" + s_1 + ", " + s_2 + ", " + s_4 + "}"
+                            )
                     else:
                         if s_5 is not None:
-                            default_dataset_query_params = "{" + s_1 + ", " + s_2 +  ", " + s_5 + "}"
+                            default_dataset_query_params = (
+                                "{" + s_1 + ", " + s_2 + ", " + s_5 + "}"
+                            )
                         else:
                             default_dataset_query_params = "{" + s_1 + ", " + s_2 + "}"
             else:
                 if s_3 is not None:
                     if s_4 is not None:
                         if s_5 is not None:
-                            default_dataset_query_params = "{" + s_1 + ", " + s_3 + ", " + s_4 + ", " + s_5 + "}"
+                            default_dataset_query_params = (
+                                "{" + s_1 + ", " + s_3 + ", " + s_4 + ", " + s_5 + "}"
+                            )
                         else:
-                            default_dataset_query_params = "{" + s_1 + ", " + s_3 + ", " + s_4 + "}"
+                            default_dataset_query_params = (
+                                "{" + s_1 + ", " + s_3 + ", " + s_4 + "}"
+                            )
                     else:
                         if s_5 is not None:
-                            default_dataset_query_params = "{" + s_1 + ", " + s_3 +  ", " + s_5 + "}"
+                            default_dataset_query_params = (
+                                "{" + s_1 + ", " + s_3 + ", " + s_5 + "}"
+                            )
                         else:
                             default_dataset_query_params = "{" + s_1 + ", " + s_3 + "}"
                 else:
                     if s_4 is not None:
                         if s_5 is not None:
-                            default_dataset_query_params = "{" + s_1 + ", " + s_4 +  ", " + s_5 +  "}"
+                            default_dataset_query_params = (
+                                "{" + s_1 + ", " + s_4 + ", " + s_5 + "}"
+                            )
                         else:
                             default_dataset_query_params = "{" + s_1 + ", " + s_4 + "}"
                     else:
                         if s_5 is not None:
-                            default_dataset_query_params = "{" + s_1 +  ", " + s_5 + "}"
+                            default_dataset_query_params = "{" + s_1 + ", " + s_5 + "}"
                         else:
                             default_dataset_query_params = "{" + s_1 + "}"
     else:
         # print("is vector")
         if s_2 is not None:
             if s_3 is not None:
-                
+
                 if s_5 is not None:
-                    default_dataset_query_params = "{" + s_1 + ", " + s_2 + ", " + s_3 +  ", " + s_5 + "}"
+                    default_dataset_query_params = (
+                        "{" + s_1 + ", " + s_2 + ", " + s_3 + ", " + s_5 + "}"
+                    )
                 else:
-                    default_dataset_query_params = "{" + s_1 + ", " + s_2 + ", " + s_3 + "}"
+                    default_dataset_query_params = (
+                        "{" + s_1 + ", " + s_2 + ", " + s_3 + "}"
+                    )
             else:
                 if s_5 is not None:
-                    default_dataset_query_params = "{" + s_1 + ", " + s_2 +  ", " + s_5 + "}"
+                    default_dataset_query_params = (
+                        "{" + s_1 + ", " + s_2 + ", " + s_5 + "}"
+                    )
                 else:
                     default_dataset_query_params = "{" + s_1 + ", " + s_2 + "}"
         else:
             if s_3 is not None:
                 if s_5 is not None:
-                    default_dataset_query_params = "{" + s_1 + ", " + s_3 + ", " + s_5 + "}"
+                    default_dataset_query_params = (
+                        "{" + s_1 + ", " + s_3 + ", " + s_5 + "}"
+                    )
                 else:
                     default_dataset_query_params = "{" + s_1 + ", " + s_3 + "}"
             else:
@@ -337,5 +383,5 @@ def get_default_datastet_query_parameters(curs, dataset_id):
                     default_dataset_query_params = "{" + s_1 + ", " + s_5 + "}"
                 else:
                     default_dataset_query_params = "{" + s_1 + "}"
-            
+
     return default_dataset_query_params
