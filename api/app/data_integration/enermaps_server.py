@@ -64,6 +64,32 @@ def get_datasets_ids():
     ]
 
 
+def get_nuts_and_lau_dataset(dataset_name):
+    url = DATASETS_SERVER_URL + "rpc/enermaps_query_geojson"
+    params = {
+        "parameters": {
+            "data.ds_id": "0",
+            "level": "{" + "{}".format(dataset_name) + "}",
+        }
+    }
+    print(params)
+    try:
+        with requests.post(
+            url,
+            headers={"Authorization": "Bearer {}".format(DATASETS_SERVER_API_KEY)},
+            json=params,
+        ) as resp:
+            # TODO check here that we have recieved a valid geojson?
+            resp_data = io.BytesIO(resp.content)
+
+        filename = "{}.geojson".format(dataset_name)
+        content_type = "application/geo+json"
+        file_upload = FileStorage(resp_data, filename, content_type=content_type)
+        return file_upload
+    except ConnectionError:
+        raise
+
+
 def get_dataset(dataset_id, dataset_name):
     """
     Fetch a geojson dataset from the enermaps server with a given Id.

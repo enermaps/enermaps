@@ -4,6 +4,17 @@ from app.models.geofile import create
 
 def init_enermaps_datasets():
 
+    # Get NUTS and LAU datasets
+    nuts_and_lau_datasets = ["country", "NUTS1", "NUTS2", "NUTS3", "LAU"]
+    for dataset_name in nuts_and_lau_datasets:
+        try:
+            file_upload = enermaps_server.get_nuts_and_lau_dataset(dataset_name)
+            if file_upload is not None:
+                create(file_upload)
+        except Exception as e:
+            print("Error creating dataset {}".format(dataset_name))
+            print(e)
+
     # These datasets are tiled raster datasets (needing input coordinates)
     # and returning multiple images
     datasets_to_exclude = [21, 24, 33, 35]
@@ -35,5 +46,5 @@ def init_enermaps_datasets():
             if file_upload is not None:
                 create(file_upload)
         except Exception as e:
-            print("Error creating dataset " + str(dataset_id))
+            print("Error creating dataset {}".format(dataset_id))
             print(e)
