@@ -19,13 +19,9 @@ import mapnik
 from flask import current_app, safe_join
 from werkzeug.datastructures import FileStorage
 
-from app.common import db
-from app.common.projection import (
-    epsg_to_proj4,
-    epsg_to_wkt,
-    proj4_from_geotiff,
-    proj4_from_shapefile,
-)
+# from app.common import db
+from app.common.projection import proj4_from_geotiff  # epsg_to_proj4,
+from app.common.projection import epsg_to_wkt, proj4_from_shapefile
 
 
 class SaveException(Exception):
@@ -205,9 +201,6 @@ class RasterLayer(Layer):
         raster_dir = safe_join(get_user_upload("raster"), self.name)
         return raster_dir
 
-
-
-    
     def _get_raster_path(self):
         """Return the path to the raster directory stored on disk."""
         layer_path = safe_join(self._get_raster_dir(), self._RASTER_NAME)
@@ -308,7 +301,7 @@ class VectorLayer(Layer):
         shapefiles = glob(os.path.join(self._get_vector_dir(), "*.shp"))
         if not shapefiles:
             print("Shapefile was not found")
-            #raise FileNotFoundError("Shapefile was not found")
+            # raise FileNotFoundError("Shapefile was not found")
         layer.srs = self.projection
         try:
             layer.datasource = mapnik.Shapefile(file=shapefiles[0])
@@ -353,7 +346,7 @@ class VectorLayer(Layer):
             try:
                 os.replace(tmp_dir, output_dirpath)
             except FileExistsError:
-                #raise SaveException("Geofile already exists")
+                # raise SaveException("Geofile already exists")
                 print("Geofile already exists")
         return VectorLayer(file_upload.filename)
 
@@ -402,11 +395,6 @@ class GeoJSONLayer(VectorLayer):
             file_upload.save(tmp_filepath)
             shape_name, _ = os.path.splitext(file_upload.filename)
             shapefile_filepath = safe_join(tmp_dir, shape_name + ".shp")
-            
-            assert os.path.isfile(tmp_filepath)
-            print("***********************************")
-            print(shapefile_filepath)
-            print("***********************************")
             args = ["ogr2ogr", "-f", "ESRI Shapefile", shapefile_filepath, tmp_filepath]
             try:
                 # This call is safe, as
@@ -420,8 +408,8 @@ class GeoJSONLayer(VectorLayer):
             except subprocess.CalledProcessError as e:
                 print("File cannot be encoded into a shapefile")
                 print(e)
-                #raise SaveException("File cannot be encoded into a shapefile")
-                
+                # raise SaveException("File cannot be encoded into a shapefile")
+
             proj_filepath = safe_join(tmp_dir, shape_name + ".prj")
             # geojson can use a single projection,
             # so create that file with the standard geojson projection
@@ -436,11 +424,10 @@ class GeoJSONLayer(VectorLayer):
                 os.replace(tmp_dir, output_dirpath)
             except (FileExistsError, OSError):
                 print("Geofile already exists")
-                #raise SaveException("Geofile already exists")
+                # raise SaveException("Geofile already exists")
             except Exception as e:
                 print(e)
         return VectorLayer(shape_name + ".geojson")
-
 
 
 # def get_gis_layer(select_raster: bool) -> list:
@@ -454,9 +441,6 @@ class GeoJSONLayer(VectorLayer):
 #         )
 #         raw_datasets = cur.fetchall()
 #     return [raw_dataset[0] for raw_dataset in raw_datasets]
-
-
-
 
 
 # class PostGISVectorLayer(Layer):
