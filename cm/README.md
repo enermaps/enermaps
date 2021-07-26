@@ -68,18 +68,32 @@ Below is an example of the broker implementation.
 ````python
 #!/usr/bin/env python3
 import BaseCM.cm_base as cm_base
-
+from BaseCM.cm_output import validate
 from cm_script import process
 
 
-app = cm_base.get_default_app()
+app = cm_base.get_default_app(name="queue_name")
 schema_path = cm_base.get_default_schema_path()
 
 
 @app.task(base=cm_base.CMBase, bind=True, schema_path=schema_path)
 def fun(self, selection: dict, rasters: list, params: dict):
     """New cm description"""
+    # Validate the raster used 
+    if not rasters:
+        raise ValueError("Raster list must be non-empty.")
+    # Validate the selection used
+    if "features" not in selection:
+        raise ValueError("The selection must be a feature set.")
+    if not selection["features"]:
+        raise ValueError("The selection must be non-empty.")
+    # Validate the parameters used
+    self.validate_params(params)
+    
     result = process(selection, rasters, params)
+    
+    validate(result)
+    
     return result
 
 
@@ -87,12 +101,19 @@ if __name__ == "__main__":
     cm_base.start_app(app)
 ````
 
+A broker manages the requests made to the calculation module.  
+The requests made to a calculation module are placed in a queue and each calculation 
+module has its own queue. 
+This queue is identified by a name given by the `get_default_app` function.
+
 The selected area (a geojson file) and the selected raster (a geotiff file)
 are in the variable ```selection``` and ```rasters``` respectively.
 
 See [test data](./multiply/testdata) for geojson file and geotiff file example.
 
 The variable ```params``` refers to the data provided by the form on the frontend.
+The method ```validate_params``` verify if the value enter by the user match with the schema 
+of the ```schema.json``` file, see "Schema.json" section below.
 
 All CM provide a output dictionary. The 3 keys required are as follows:
 
@@ -100,6 +121,7 @@ All CM provide a output dictionary. The 3 keys required are as follows:
 * geofiles
 * values
 
+The schema of this dictionary have to be validated before it is sent to the frontend.
 See [cm_output.py](./base/BaseCM/cm_output.py) for more information about the output json schema.
 
 Warning: the name of the function in the file `worker.py` corresponds to the name of the CM as it will appear in the front-end. Make sure that this name is unique, otherwise it will generate conflicts with other CMs. 
