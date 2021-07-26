@@ -15,7 +15,6 @@ DATASETS_DIC = {
             "row_limit": 100000,
         },
         "title": "",
-        "legend": "blablabla",
     },
     "DS_2": {
         "id": 2,
@@ -23,7 +22,9 @@ DATASETS_DIC = {
         "params": """{"data.ds_id":2}""",
         "json_params": {"parameters": {"data.ds_id": 2}, "row_limit": 100000},
         "title": "",
-        "legend": "blablabla",
+        "legend": {
+            "legend_variable": {"variable": "gross_cap_ele", "min": 0, "max": 0}
+        },
     },
     "DS_3": {
         "id": 3,
@@ -31,7 +32,6 @@ DATASETS_DIC = {
         "params": """{"data.ds_id":3}""",
         "json_params": {"parameters": {"data.ds_id": 3}, "row_limit": 100000},
         "title": "",
-        "legend": "blablabla",
     },
     "DS_4": {
         "id": 4,
@@ -39,7 +39,6 @@ DATASETS_DIC = {
         "params": """{"data.ds_id":4}""",
         "json_params": {"parameters": {"data.ds_id": 4}, "row_limit": 100000},
         "title": "",
-        "legend": "blablabla",
     },
     "DS_5": {
         "id": 5,
@@ -60,7 +59,7 @@ DATASETS_DIC = {
             "row_limit": 100000,
         },
         "title": "",
-        "legend": "blablabla",
+        "legend": {"legend_variable": {"variable": "Total", "min": 0.0, "max": 0.6}},
     },
     "DS_6": {
         "id": 6,
@@ -74,7 +73,13 @@ DATASETS_DIC = {
             "row_limit": 100000,
         },
         "title": "",
-        "legend": "blablabla",
+        "legend": {
+            "legend_variable": {
+                "variable": "Electricity : Final consumption - other sectors - households - energy use",
+                "min": 800,
+                "max": 162000,
+            }
+        },
     },
     "DS_9": {
         "id": 9,
@@ -93,7 +98,6 @@ DATASETS_DIC = {
             "row_limit": 100000,
         },
         "title": "",
-        "legend": "blablabla",
     },
     "DS_11": {
         "id": 11,
@@ -114,7 +118,6 @@ DATASETS_DIC = {
             "row_limit": 100000,
         },
         "title": "",
-        "legend": "blablabla",
     },
     "DS_15": {
         "id": 15,
@@ -133,7 +136,6 @@ DATASETS_DIC = {
             "row_limit": 100000,
         },
         "title": "",
-        "legend": "blablabla",
     },
     "DS_16": {
         "id": 16,
@@ -147,7 +149,6 @@ DATASETS_DIC = {
             "row_limit": 100000,
         },
         "title": "",
-        "legend": "blablabla",
     },
     "DS_17": {
         "id": 17,
@@ -161,7 +162,6 @@ DATASETS_DIC = {
             "row_limit": 100000,
         },
         "title": "",
-        "legend": "blablabla",
     },
     "DS_18": {
         "id": 18,
@@ -175,7 +175,6 @@ DATASETS_DIC = {
             "row_limit": 100000,
         },
         "title": "",
-        "legend": "blablabla",
     },
     "DS_19": {
         "id": 19,
@@ -196,7 +195,6 @@ DATASETS_DIC = {
             "row_limit": 100000,
         },
         "title": "",
-        "legend": "blablabla",
     },
     "DS_20": {
         "id": 20,
@@ -210,7 +208,6 @@ DATASETS_DIC = {
             "row_limit": 100000,
         },
         "title": "",
-        "legend": "blablabla",
     },
     "DS_21": {
         "id": 21,
@@ -228,7 +225,6 @@ DATASETS_DIC = {
             "row_limit": 100000,
         },
         "title": "",
-        "legend": "blablabla",
     },
     "DS_22": {
         "id": 22,
@@ -242,7 +238,6 @@ DATASETS_DIC = {
             "row_limit": 100000,
         },
         "title": "",
-        "legend": "blablabla",
     },
     "DS_24": {
         "id": 24,
@@ -261,7 +256,6 @@ DATASETS_DIC = {
             "row_limit": 100000,
         },
         "title": "",
-        "legend": "blablabla",
     },
     "DS_27": {
         "id": 27,
@@ -283,7 +277,6 @@ DATASETS_DIC = {
             "row_limit": 100000,
         },
         "title": "",
-        "legend": "blablalaa",
     },
     "DS_28": {
         "id": 28,
@@ -312,7 +305,6 @@ DATASETS_DIC = {
             "row_limit": 100000,
         },
         "title": "",
-        "legend": "blablabla",
     },
     "DS_29": {
         "id": 29,
@@ -343,7 +335,6 @@ DATASETS_DIC = {
             "row_limit": 100000,
         },
         "title": "",
-        "legend": "blablabla",
     },
     "DS_30": {
         "id": 30,
@@ -373,7 +364,6 @@ DATASETS_DIC = {
             },
             "row_limit": 100000,
         },
-        "legend": "blablabla",
     },
     "DS_31": {
         "id": 31,
@@ -387,7 +377,6 @@ DATASETS_DIC = {
             "row_limit": 100000,
         },
         "title": "",
-        "legend": "blablabla",
     },
     "DS_33": {
         "id": 33,
@@ -404,7 +393,6 @@ DATASETS_DIC = {
             "row_limit": 100000,
         },
         "title": "",
-        "legend": "blablabla",
     },
     "DS_35": {
         "id": 35,
@@ -421,7 +409,6 @@ DATASETS_DIC = {
             "row_limit": 100000,
         },
         "title": "",
-        "legend": "blablabla",
     },
     "DS_42": {
         "id": 42,
@@ -435,7 +422,6 @@ DATASETS_DIC = {
             "row_limit": 100000,
         },
         "title": "",
-        "legend": "blablabla",
     },
     "DS_43": {
         "id": 43,
@@ -445,7 +431,6 @@ DATASETS_DIC = {
                     }""",
         "json_params": {"parameters": {"data.ds_id": 43}, "row_limit": 100000},
         "title": "",
-        "legend": "blablabla",
     },
     "DS_45": {
         "id": 45,
@@ -453,7 +438,6 @@ DATASETS_DIC = {
         "params": """{"data.ds_id":45}""",
         "json_params": {"parameters": {"data.ds_id": 45}, "row_limit": 100000},
         "title": "",
-        "legend": "blablabla",
     },
     "DS_46": {
         "id": 46,
@@ -475,7 +459,6 @@ DATASETS_DIC = {
             "row_limit": 100000,
         },
         "title": "",
-        "legend": "blablabla",
     },
     "DS_47": {
         "id": 47,
@@ -489,7 +472,6 @@ DATASETS_DIC = {
             "row_limit": 100000,
         },
         "title": "",
-        "legend": "blablabla",
     },
     "DS_48": {
         "id": 48,
@@ -503,7 +485,6 @@ DATASETS_DIC = {
             "row_limit": 100000,
         },
         "title": "",
-        "legend": "blablabla",
     },
     "DS_49": {
         "id": 49,
@@ -517,7 +498,6 @@ DATASETS_DIC = {
             "row_limit": 100000,
         },
         "title": "",
-        "legend": "blablabla",
     },
     "DS_50": {
         "id": 50,
@@ -531,6 +511,54 @@ DATASETS_DIC = {
             "row_limit": 100000,
         },
         "title": "",
-        "legend": "blablabla",
+        "legend": {
+            "legend_variable": {"variable": "default", "min": 6000, "max": 250000}
+        },
     },
 }
+
+
+def get_ds(dataset_id):
+    """Return the dataset default parameters in a dict or an
+    empty dict if there is no default parameters for this dataset"""
+    for value in DATASETS_DIC.values():
+        if value.get("id", None) == dataset_id:
+            return value
+    else:
+        return {}
+
+
+def get_legend_style(dataset_id):
+    """Get the style used to color the map or None if the legend
+    is undefined"""
+    dataset_params = get_ds(dataset_id)
+    legend = dataset_params.get("legend", None)
+    if legend is not None:
+        style = legend.get("style", None)
+        if style is None:
+            # If there is no style defined, add a default style
+            style = {
+                "nb_of_colors": 8,
+                "colors": [
+                    (255, 245, 245),
+                    (255, 210, 210),
+                    (255, 175, 175),
+                    (255, 140, 140),
+                    (255, 105, 105),
+                    (255, 70, 70),
+                    (255, 35, 35),
+                    (255, 0, 0),
+                ],
+            }
+    return style
+
+
+def get_legend_variable(dataset_id):
+    """
+    Return the variable used to color the layer, and its min/max values, or
+    None if the legend or the variable used to color the map is not specified.
+    """
+    dataset_params = get_ds(dataset_id)
+    legend = dataset_params.get("legend", None)
+    if legend is not None:
+        return legend.get("legend_variable", None)

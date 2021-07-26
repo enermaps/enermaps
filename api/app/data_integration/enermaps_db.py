@@ -328,8 +328,16 @@ def get_default_datastet_query_parameters(curs, dataset_id):
                             )
                         else:
                             default_dataset_query_params = (
-                                "{" + s_1 + ", " + s_3 + ", " + s_4 + "}"
+                                "{"
+                                + s_1
+                                + ", "
+                                + s_3
+                                + ", "
+                                + s_4
+                                + "}"
+                                # f"{{  {s_1} , {s_3} ,  {s_4} }}"
                             )
+
                     else:
                         if s_5 is not None:
                             default_dataset_query_params = (
