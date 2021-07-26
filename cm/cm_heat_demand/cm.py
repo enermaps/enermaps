@@ -5,6 +5,7 @@ from uuid import uuid1
 
 from BaseCM.cm_output import output_raster as post_raster
 from BaseCM.cm_output import validate
+
 from tools import settings
 from tools.areas import get_areas
 from tools.geofile import clip_raster, get_projection, write_raster

@@ -5,13 +5,8 @@ from os.path import abspath, dirname, exists, isdir, isfile, join
 
 import numpy as np
 
-from .geofile import (
-    RasterNotOverlappedError,
-    clip_raster,
-    get_projection,
-    read_raster,
-    write_raster,
-)
+from .geofile import (RasterNotOverlappedError, clip_raster, get_projection,
+                      read_raster, write_raster)
 from .settings import TESTDATA_DIR
 
 

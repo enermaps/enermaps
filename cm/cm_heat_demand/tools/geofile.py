@@ -3,7 +3,6 @@ from os import remove, system
 from os.path import exists, isfile
 
 import numpy as np
-
 import gdal
 import rasterio
 from osgeo import gdal, osr
