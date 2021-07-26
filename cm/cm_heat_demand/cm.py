@@ -44,7 +44,7 @@ def processing(region: dict, raster: str, parameters: dict):
         color_file = join(settings.SETTINGS_DIR, "colors.txt")
         output_raster = join(temp_dir, "out.tif")
         cmd = f"gdaldem color-relief -alpha {dst_raster} {color_file} {output_raster}"
-        subprocess.run(cmd.split()) # nosec
+        subprocess.run(cmd.split())  # nosec
 
         with open(output_raster, mode="rb") as raster_fd:
 
