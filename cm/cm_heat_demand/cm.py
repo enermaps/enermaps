@@ -1,4 +1,4 @@
-import subprocess
+import subprocess  # nosec
 from os.path import join
 from tempfile import TemporaryDirectory
 from uuid import uuid1
