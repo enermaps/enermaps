@@ -26,10 +26,6 @@ def is_between(value: float, min_value: float, max_value: float):
 
 
 def processing(region: dict, raster: str, parameters: dict):
-    is_between(value=parameters["pixel_threshold"], min_value=0, max_value=1000)
-    is_between(
-        value=parameters["district_heating_zone_threshold"], min_value=0, max_value=500
-    )
 
     with TemporaryDirectory(dir=settings.TESTDATA_DIR) as temp_dir:
 
