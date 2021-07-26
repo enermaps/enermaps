@@ -17,7 +17,8 @@ def init_enermaps_datasets():
 
     # These datasets are tiled raster datasets (needing input coordinates)
     # and returning multiple images
-    datasets_to_exclude = [21, 24, 33, 35]
+    # datasets_to_exclude = [21, 24, 33, 35]
+    datasets_to_exclude = []
 
     # Get the ids of the datasets that we want to load
     datasets_ids = enermaps_server.get_datasets_ids()

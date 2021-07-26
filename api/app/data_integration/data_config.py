@@ -1,3 +1,5 @@
+from app.data_integration.ds_colors import COLORS
+
 DATASETS_DIC = {
     "DS_1": {
         "id": 1,
@@ -23,7 +25,7 @@ DATASETS_DIC = {
         "json_params": {"parameters": {"data.ds_id": 2}, "row_limit": 100000},
         "title": "",
         "legend": {
-            "legend_variable": {"variable": "gross_cap_ele", "min": 0, "max": 0}
+            "legend_variable": {"variable": "gross_cap_ele", "min": 0.0, "max": 235.0}
         },
     },
     "DS_3": {
@@ -32,6 +34,13 @@ DATASETS_DIC = {
         "params": """{"data.ds_id":3}""",
         "json_params": {"parameters": {"data.ds_id": 3}, "row_limit": 100000},
         "title": "",
+        "legend": {
+            "legend_variable": {
+                "variable": "installed_capacity_MW",
+                "min": 0.0,
+                "max": 1700.0,
+            }
+        },
     },
     "DS_4": {
         "id": 4,
@@ -39,6 +48,9 @@ DATASETS_DIC = {
         "params": """{"data.ds_id":4}""",
         "json_params": {"parameters": {"data.ds_id": 4}, "row_limit": 100000},
         "title": "",
+        "legend": {
+            "legend_variable": {"variable": "capacity_g", "min": 0.0, "max": 1350.0}
+        },
     },
     "DS_5": {
         "id": 5,
@@ -59,7 +71,10 @@ DATASETS_DIC = {
             "row_limit": 100000,
         },
         "title": "",
-        "legend": {"legend_variable": {"variable": "Total", "min": 0.0, "max": 0.6}},
+        "legend": {
+            "style": {"colors": COLORS["green"]},
+            "legend_variable": {"variable": "Total", "min": 0.0, "max": 0.6},
+        },
     },
     "DS_6": {
         "id": 6,
@@ -74,11 +89,12 @@ DATASETS_DIC = {
         },
         "title": "",
         "legend": {
+            "style": {"colors": COLORS["blue"]},
             "legend_variable": {
                 "variable": "Electricity : Final consumption - other sectors - households - energy use",
                 "min": 800,
                 "max": 162000,
-            }
+            },
         },
     },
     "DS_9": {
@@ -538,17 +554,7 @@ def get_legend_style(dataset_id):
         if style is None:
             # If there is no style defined, add a default style
             style = {
-                "nb_of_colors": 8,
-                "colors": [
-                    (255, 245, 245),
-                    (255, 210, 210),
-                    (255, 175, 175),
-                    (255, 140, 140),
-                    (255, 105, 105),
-                    (255, 70, 70),
-                    (255, 35, 35),
-                    (255, 0, 0),
-                ],
+                "colors": COLORS["red"],
             }
     return style
 

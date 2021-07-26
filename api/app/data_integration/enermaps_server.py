@@ -29,8 +29,6 @@ def get_datasets_ids():
     """
     List the ids of the different datasets to be displayed
     """
-    return [2, 5, 50]
-    return [2, 5, 6, 50]
     return [
         1,
         2,
