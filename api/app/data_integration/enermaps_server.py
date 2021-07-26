@@ -1,10 +1,11 @@
 #!/usr/bin/python
 import io
+import json
 
 import requests
 from werkzeug.datastructures import FileStorage
 
-from app.data_integration.data_config import DATASETS_DIC
+from app.data_integration.data_config import DATASETS_DIC, get_legend_variable
 
 DATASETS_SERVER_URL = "https://lab.idiap.ch/enermaps/api/"
 DATASETS_SERVER_API_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoiYXBpX3VzZXIifQ.gzl3uCe1OdCjf3feliREDJFfNkMTiDkVFcVDrCNlpBU"
@@ -28,6 +29,8 @@ def get_datasets_ids():
     """
     List the ids of the different datasets to be displayed
     """
+    return [2, 5, 50]
+    return [2, 5, 6, 50]
     return [
         1,
         2,
@@ -70,7 +73,8 @@ def get_nuts_and_lau_dataset(dataset_name):
         "parameters": {
             "data.ds_id": "0",
             "level": "{" + "{}".format(dataset_name) + "}",
-        }
+        },
+        "row_limit": 100000,
     }
     print(params)
     try:
@@ -105,6 +109,7 @@ def get_dataset(dataset_id, dataset_name):
                 params = value["json_params"]
                 layer_type = value["layer_type"]
         except KeyError:
+            print("key error")
             raise
 
     if (params is not None) and (layer_type == "vector"):
@@ -116,7 +121,19 @@ def get_dataset(dataset_id, dataset_name):
                 json=params,
             ) as resp:
                 # TODO check here that we have recieved a valid geojson?
-                resp_data = io.BytesIO(resp.content)
+                geojson = resp.json()
+                for i in range(len(geojson["features"])):
+                    # Modify the original geojson to put the legend key some levels higher
+                    # (needed by mapnik to make the color rules)
+                    legend_variable = get_legend_variable(dataset_id)
+                    if isinstance(legend_variable, dict):
+                        geojson["features"][i]["properties"]["legend"] = geojson[
+                            "features"
+                        ][i]["properties"]["variables"][legend_variable["variable"]]
+
+                resp_data = io.BytesIO(
+                    json.dumps(geojson, indent=4, sort_keys=True).encode("utf8")
+                )
 
             filename = "{:02d}_{}.geojson".format(dataset_id, dataset_name)
             content_type = "application/geo+json"
@@ -143,6 +160,7 @@ def get_dataset(dataset_id, dataset_name):
                 file_name = resp_data["features"][0]["id"]
 
             # Create the url to download the file
+            # TODO check extension
             raster_url = RASTER_SERVER_URL + str(dataset_id) + "/" + file_name
             try:
                 with requests.get(raster_url, stream=True) as resp:
