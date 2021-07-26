@@ -32,12 +32,15 @@
     switch (graphType) {
       case 'xy':
         insertXYChart(name, dataset);
+        console.log('Graph type : XY');
         break;
       case 'bar':
         insertBarChart(name, dataset);
+        console.log('Graph type : BAR');
         break;
       case 'line':
         insertLineChart(name, dataset);
+        console.log('Graph type : LINE');
         break;
       default:
     }

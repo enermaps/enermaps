@@ -6,3 +6,4 @@ varname==0.6.3
 requests==2.25.1
 shapely==1.7.1
 pyproj==3.0.0.post1
+rasterstats==0.15.0

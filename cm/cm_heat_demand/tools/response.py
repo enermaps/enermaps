@@ -34,15 +34,20 @@ def get_response(
 
         # Areas potential
         if areas_potential[1:].size > 0:
-            base_dictionary["graphs"]["Areas potential"] = dict()
-            base_dictionary["graphs"]["Areas potential"]["type"] = "bar"
+            print("areas_potential")
+            print(areas_potential[1:])
+            base_dictionary["graphs"]["Areas potentials (GWh)"] = dict()
+            base_dictionary["graphs"]["Areas potentials (GWh)"]["type"] = "bar"
 
             # labels start from 1, therefore the array size is 'num_labels_array + 1'
+            generator = [element for element in areas_potential[1:] if element > 0]
+
             values = [
-                ["Zone " + str(index + 1) + " (GWh)", value]
-                for index, value in enumerate(areas_potential[1:])
+                ("Zone " + str(index + 1), value)
+                for index, value in enumerate(generator)
             ]
-            base_dictionary["graphs"]["Areas potential"]["values"] = values
+
+            base_dictionary["graphs"]["Areas potentials (GWh)"]["values"] = values
 
         return base_dictionary
 
@@ -58,8 +63,11 @@ def get_response(
         """
 
         base_dictionary["values"] = {
-            "Total potential (GWh)": total_potential,
-            "Total heat demand (GWh)": total_heat_demand,
+            "Total district heating potential (GWh)": round(total_potential, 2),
+            "Total heat demand (GWh)": round(total_heat_demand, 2),
+            "Potential share of district heating from total demand in selected zone (%)": round(
+                total_potential / total_heat_demand * 100, 2
+            ),
         }
 
         return base_dictionary
