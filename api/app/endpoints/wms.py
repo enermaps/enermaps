@@ -255,8 +255,7 @@ class WMS(Resource):
         size = parse_size(normalized_args)
 
         mp = mapnik.Map(size.width, size.height, "+init=" + projection)
-        # TODO: how do we manage style ? just have hardcoded
-        # style list in a dir ?
+
         s = mapnik.Style()
         r = mapnik.Rule()
         r.symbols.append(mapnik.RasterSymbolizer())
@@ -267,44 +266,9 @@ class WMS(Resource):
 
         layer_name = normalized_args.get("layers", "")
 
+        # setup the "legends" rules
         if layer_name[0:2].isdigit():
             layer_id = int(layer_name[0:2])
-
-            # setup the "legends" rules ***********************************
-
-            # layer_legend = get_legend(layer_id)
-            # # Check if there is a legend description in the datasets config file
-            # if layer_legend is not None:
-            #     limits = layer_legend["limits"]
-            #     nb_limits = len(limits)
-
-            #     # create the wanted "styles"
-            #     colors = layer_legend["colors"]
-            #     polygons = []
-            #     for color in colors:
-            #         polygons.append(mapnik.PolygonSymbolizer())
-            #         polygons[-1].fill = mapnik.Color(*color)
-            #         polygons[-1].fill_opacity = 0.5
-
-            #     rules = []
-            #     for n in range(nb_limits + 1):
-            #         if n == 0:
-            #             expression = f"[legend] < {limits[0]}"
-            #         elif n == nb_limits:
-            #             expression = f"[legend] >= {limits[n-1]}"
-            #         else:
-            #             expression = (
-            #                 f"[legend] < {limits[n]} and [legend] > {limits[n-1]}"
-            #             )
-            #         rules.append(mapnik.Rule())
-            #         rules[-1].filter = mapnik.Expression(expression)
-            #         rules[-1].symbols.append(polygons[n])
-            #         s.rules.append(rules[-1])
-            # else:
-            #     polygon_symbolizer = mapnik.PolygonSymbolizer()
-            #     polygon_symbolizer.fill = mapnik.Color("black")
-            #     polygon_symbolizer.fill_opacity = 0.3
-            #     r.symbols.append(polygon_symbolizer)
 
             # Get the variable used to color the polygons and its min/max values
             layer_variable = get_legend_variable(layer_id)
@@ -314,8 +278,8 @@ class WMS(Resource):
                 # default style is returned
                 layer_style = get_legend_style(layer_id)
 
-                nb_of_colors = layer_style["nb_of_colors"]
                 colors = layer_style["colors"]
+                nb_of_colors = len(colors)
 
                 # Create one polygon symbolizer per color
                 polygons = []
@@ -333,7 +297,6 @@ class WMS(Resource):
                     limits.append(limit)
 
                 nb_limits = len(limits)
-
                 rules = []
                 for n in range(nb_limits + 1):
                     if n == 0:
