@@ -11,20 +11,6 @@ from tools.geofile import clip_raster, get_projection, write_raster
 from tools.response import get_response
 
 
-class IntervalError(Exception):
-    """
-    Exception thrown when value is not between a given interval.
-    """
-    pass
-
-
-def is_between(value: float, min_value: float, max_value: float):
-    if min_value <= value <= max_value:
-        return True
-    else:
-        raise IntervalError(f"{value} not between {min_value} and {max_value}")
-
-
 def processing(region: dict, raster: str, parameters: dict):
 
     with TemporaryDirectory(dir=settings.TESTDATA_DIR) as temp_dir:
