@@ -25,7 +25,7 @@ DATASETS_DIC = {
         "json_params": {"parameters": {"data.ds_id": 2}, "row_limit": 100000},
         "title": "",
         "legend": {
-            "legend_variable": {"variable": "gross_cap_ele", "min": 0.0, "max": 235.0}
+            "legend_variable": {"variable": "gross_cap_ele", "min": 0.0, "max": 275.0}
         },
     },
     "DS_3": {
@@ -38,7 +38,7 @@ DATASETS_DIC = {
             "legend_variable": {
                 "variable": "installed_capacity_MW",
                 "min": 0.0,
-                "max": 1700.0,
+                "max": 2070.0,
             }
         },
     },
@@ -49,7 +49,7 @@ DATASETS_DIC = {
         "json_params": {"parameters": {"data.ds_id": 4}, "row_limit": 100000},
         "title": "",
         "legend": {
-            "legend_variable": {"variable": "capacity_g", "min": 0.0, "max": 1350.0}
+            "legend_variable": {"variable": "capacity_g", "min": 0.0, "max": 4690.0}
         },
     },
     "DS_5": {
@@ -73,7 +73,7 @@ DATASETS_DIC = {
         "title": "",
         "legend": {
             "style": {"colors": COLORS["green"]},
-            "legend_variable": {"variable": "Total", "min": 0.0, "max": 0.6},
+            "legend_variable": {"variable": "Total", "min": 0.05, "max": 0.56},
         },
     },
     "DS_6": {
@@ -92,8 +92,8 @@ DATASETS_DIC = {
             "style": {"colors": COLORS["blue"]},
             "legend_variable": {
                 "variable": "Electricity : Final consumption - other sectors - households - energy use",
-                "min": 800,
-                "max": 162000,
+                "min": 815,
+                "max": 161520,
             },
         },
     },
@@ -114,6 +114,13 @@ DATASETS_DIC = {
             "row_limit": 100000,
         },
         "title": "",
+        "legend": {
+            "legend_variable": {
+                "variable": "Heating degree days",
+                "min": 124.0,
+                "max": 1022.0,
+            }
+        },
     },
     "DS_11": {
         "id": 11,
@@ -134,6 +141,9 @@ DATASETS_DIC = {
             "row_limit": 100000,
         },
         "title": "",
+        "legend": {
+            "legend_variable": {"variable": "inventions", "min": 0.0, "max": 844.0}
+        },
     },
     "DS_15": {
         "id": 15,
@@ -165,6 +175,14 @@ DATASETS_DIC = {
             "row_limit": 100000,
         },
         "title": "",
+        "legend": {
+            "style": {"colors": COLORS["green"]},
+            "legend_variable": {
+                "variable": "installed wind power capacity",
+                "min": 0.0,
+                "max": 1.0,
+            },
+        },
     },
     "DS_17": {
         "id": 17,
@@ -178,6 +196,14 @@ DATASETS_DIC = {
             "row_limit": 100000,
         },
         "title": "",
+        "legend": {
+            "style": {"colors": COLORS["pink"]},
+            "legend_variable": {
+                "variable": "installed PV power capacity",
+                "min": 0.0,
+                "max": 0.0,
+            },
+        },
     },
     "DS_18": {
         "id": 18,
@@ -191,6 +217,14 @@ DATASETS_DIC = {
             "row_limit": 100000,
         },
         "title": "",
+        "legend": {
+            "style": {"colors": COLORS["violet"]},
+            "legend_variable": {
+                "variable": "Energy intensity level of primary energy ",
+                "min": 0.39,
+                "max": 42.0,
+            },
+        },
     },
     "DS_19": {
         "id": 19,
@@ -211,6 +245,9 @@ DATASETS_DIC = {
             "row_limit": 100000,
         },
         "title": "",
+        "legend": {
+            "legend_variable": {"variable": "Emissions", "min": 0.0, "max": 4155}
+        },
     },
     "DS_20": {
         "id": 20,
@@ -254,6 +291,13 @@ DATASETS_DIC = {
             "row_limit": 100000,
         },
         "title": "",
+        "legend": {
+            "legend_variable": {
+                "variable": "Final energy consumption (Europe 2020-2030)",
+                "min": 0.65,
+                "max": 216.0,
+            }
+        },
     },
     "DS_24": {
         "id": 24,
@@ -293,6 +337,14 @@ DATASETS_DIC = {
             "row_limit": 100000,
         },
         "title": "",
+        "legend": {
+            "style": {"colors": COLORS["orange"]},
+            "legend_variable": {
+                "variable": "Base potential : Bark residues from pulp and paper industry",
+                "min": 0.0,
+                "max": 216.0,
+            },
+        },
     },
     "DS_28": {
         "id": 28,
@@ -321,6 +373,14 @@ DATASETS_DIC = {
             "row_limit": 100000,
         },
         "title": "",
+        "legend": {
+            "style": {"colors": COLORS["blue"]},
+            "legend_variable": {
+                "variable": "ROOF | construction material | None",
+                "min": 0.66,
+                "max": 1.0,
+            },
+        },
     },
     "DS_29": {
         "id": 29,
@@ -351,6 +411,14 @@ DATASETS_DIC = {
             "row_limit": 100000,
         },
         "title": "",
+        "legend": {
+            "style": {"colors": COLORS["green"]},
+            "legend_variable": {
+                "variable": "final energy demand",
+                "min": 0.0,
+                "max": 237713.0,
+            },
+        },
     },
     "DS_30": {
         "id": 30,
@@ -379,6 +447,14 @@ DATASETS_DIC = {
                 },
             },
             "row_limit": 100000,
+        },
+        "legend": {
+            "style": {"colors": COLORS["red"]},
+            "legend_variable": {
+                "variable": "Final Energy | Heating",
+                "min": 0.11,
+                "max": 504.0,
+            },
         },
     },
     "DS_31": {
@@ -438,6 +514,14 @@ DATASETS_DIC = {
             "row_limit": 100000,
         },
         "title": "",
+        "legend": {
+            "style": {"colors": COLORS["green"]},
+            "legend_variable": {
+                "variable": "Non-residential buildings : Conventional dwellings",
+                "min": 0.0,
+                "max": 440340.0,
+            },
+        },
     },
     "DS_43": {
         "id": 43,
@@ -475,6 +559,14 @@ DATASETS_DIC = {
             "row_limit": 100000,
         },
         "title": "",
+        "legend": {
+            "style": {"colors": COLORS["pink"]},
+            "legend_variable": {
+                "variable": "Total  emissions excluding LULUCF | Carbon dioxide",
+                "min": 3675.0,
+                "max": 5424882.0,
+            },
+        },
     },
     "DS_47": {
         "id": 47,
@@ -488,6 +580,14 @@ DATASETS_DIC = {
             "row_limit": 100000,
         },
         "title": "",
+        "legend": {
+            "style": {"colors": COLORS["orange"]},
+            "legend_variable": {
+                "variable": "Band DA : Consumption < 1 000 kWh : All taxes and levies included",
+                "min": -0.027,
+                "max": 0.6,
+            },
+        },
     },
     "DS_48": {
         "id": 48,
@@ -501,6 +601,14 @@ DATASETS_DIC = {
             "row_limit": 100000,
         },
         "title": "",
+        "legend": {
+            "style": {"colors": COLORS["green"]},
+            "legend_variable": {
+                "variable": "Electricity, gas and other fuels",
+                "min": 130.0,
+                "max": 66265.0,
+            },
+        },
     },
     "DS_49": {
         "id": 49,
@@ -514,6 +622,14 @@ DATASETS_DIC = {
             "row_limit": 100000,
         },
         "title": "",
+        "legend": {
+            "style": {"colors": COLORS["violet"]},
+            "legend_variable": {
+                "variable": "Natural gas",
+                "min": -1822.0,
+                "max": 110.0,
+            },
+        },
     },
     "DS_50": {
         "id": 50,
@@ -528,7 +644,8 @@ DATASETS_DIC = {
         },
         "title": "",
         "legend": {
-            "legend_variable": {"variable": "default", "min": 6000, "max": 250000}
+            "style": {"colors": COLORS["orange"]},
+            "legend_variable": {"variable": "default", "min": 1038.0, "max": 651258.0},
         },
     },
 }
