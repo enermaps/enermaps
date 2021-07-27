@@ -5,65 +5,16 @@ import json
 import requests
 from werkzeug.datastructures import FileStorage
 
-from app.data_integration.data_config import DATASETS_DIC, get_legend_variable
+from app.data_integration.data_config import (
+    DATASETS_DIC,
+    get_ds_title,
+    get_legend_variable,
+)
 
 DATASETS_SERVER_URL = "https://lab.idiap.ch/enermaps/api/"
 DATASETS_SERVER_API_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoiYXBpX3VzZXIifQ.gzl3uCe1OdCjf3feliREDJFfNkMTiDkVFcVDrCNlpBU"
 
 RASTER_SERVER_URL = "https://lab.idiap.ch/enermaps/raster/"
-
-
-def get_datasets_metadata():
-    url = DATASETS_SERVER_URL + "parameters"
-    try:
-        with requests.get(
-            url, headers={"Authorization": "Bearer {}".format(DATASETS_SERVER_API_KEY)}
-        ) as resp:
-            resp_data = resp.json()
-            return resp_data
-    except ConnectionError:
-        raise
-
-
-def get_datasets_ids():
-    """
-    List the ids of the different datasets to be displayed
-    """
-    return [30]
-    return [
-        1,
-        2,
-        3,
-        4,
-        5,
-        6,
-        9,
-        11,
-        15,
-        16,
-        17,
-        18,
-        19,
-        20,
-        21,
-        22,
-        24,
-        27,
-        28,
-        29,
-        30,
-        31,
-        33,
-        35,
-        42,
-        43,
-        45,
-        46,
-        47,
-        48,
-        49,
-        50,
-    ]
 
 
 def get_nuts_and_lau_dataset(dataset_name):
@@ -75,7 +26,6 @@ def get_nuts_and_lau_dataset(dataset_name):
         },
         "row_limit": 100000,
     }
-    print(params)
     try:
         with requests.post(
             url,
@@ -93,11 +43,12 @@ def get_nuts_and_lau_dataset(dataset_name):
         raise
 
 
-def get_dataset(dataset_id, dataset_name):
+def get_dataset(dataset_id):
     """
     Fetch a geojson dataset from the enermaps server with a given Id.
     """
     url = DATASETS_SERVER_URL + "rpc/enermaps_query_geojson"
+    dataset_title = get_ds_title(dataset_id)
 
     # Get the dataset parameters
     params = None
@@ -134,9 +85,7 @@ def get_dataset(dataset_id, dataset_name):
                     json.dumps(geojson, indent=4, sort_keys=True).encode("utf8")
                 )
 
-            # TODO have dataset names not containing characters like '/'....
-            # filename = "{:02d}_{}.geojson".format(dataset_id, dataset_name)
-            filename = "{:02d}.geojson".format(dataset_id)
+            filename = "{:02d}_{}.geojson".format(dataset_id, dataset_title)
             content_type = "application/geo+json"
             file_upload = FileStorage(resp_data, filename, content_type=content_type)
             return file_upload
@@ -161,7 +110,7 @@ def get_dataset(dataset_id, dataset_name):
                 file_name = resp_data["features"][0]["id"]
 
             # Create the url to download the file
-            # TODO check extension
+            # TODO check extension to be sure we have an image
             raster_url = RASTER_SERVER_URL + str(dataset_id) + "/" + file_name
             try:
                 with requests.get(raster_url, stream=True) as resp:
@@ -169,7 +118,7 @@ def get_dataset(dataset_id, dataset_name):
             except ConnectionError:
                 raise
 
-            storage_filename = "{:02d}_{}.tiff".format(dataset_id, dataset_name)
+            storage_filename = "{:02d}_{}.tiff".format(dataset_id, dataset_title)
             content_type = "image/tiff"
             file_upload = FileStorage(
                 resp_data, storage_filename, content_type=content_type
