@@ -29,6 +29,7 @@ def get_datasets_ids():
     """
     List the ids of the different datasets to be displayed
     """
+    return [30]
     return [
         1,
         2,
@@ -133,7 +134,9 @@ def get_dataset(dataset_id, dataset_name):
                     json.dumps(geojson, indent=4, sort_keys=True).encode("utf8")
                 )
 
-            filename = "{:02d}_{}.geojson".format(dataset_id, dataset_name)
+            # TODO have dataset names not containing characters like '/'....
+            # filename = "{:02d}_{}.geojson".format(dataset_id, dataset_name)
+            filename = "{:02d}.geojson".format(dataset_id)
             content_type = "application/geo+json"
             file_upload = FileStorage(resp_data, filename, content_type=content_type)
             return file_upload
