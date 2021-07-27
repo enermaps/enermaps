@@ -651,6 +651,23 @@ DATASETS_DIC = {
 }
 
 
+def get_ds_title(dataset_id):
+    dataset_params = get_ds(dataset_id)
+    title = dataset_params.get("title", None)
+    if title is None or not title:
+        return "undefined"
+    return title
+
+
+def get_ds_ids():
+    ids = []
+    for value in DATASETS_DIC.values():
+        id = value.get("id", None)
+        if id:
+            ids.append(id)
+    return ids
+
+
 def get_ds(dataset_id):
     """Return the dataset default parameters in a dict or an
     empty dict if there is no default parameters for this dataset"""
@@ -662,24 +679,25 @@ def get_ds(dataset_id):
 
 
 def get_legend_style(dataset_id):
-    """Get the style used to color the map or None if the legend
-    is undefined"""
+    """Get the style used to color the map or a default style if the
+    legend or the style are undefined"""
+    default_style = {
+        "colors": COLORS["red"],
+    }
     dataset_params = get_ds(dataset_id)
     legend = dataset_params.get("legend", None)
     if legend is not None:
         style = legend.get("style", None)
-        if style is None:
-            # If there is no style defined, add a default style
-            style = {
-                "colors": COLORS["red"],
-            }
-    return style
+        if style is not None:
+            return style
+    # If there is no legend or style defined, return default style
+    return default_style
 
 
 def get_legend_variable(dataset_id):
     """
-    Return the variable used to color the layer, and its min/max values, or
-    None if the legend or the variable used to color the map is not specified.
+    Return the variable used to color the layer and its min/max values, or
+    None if the legend or the variable used to color the map are not specified.
     """
     dataset_params = get_ds(dataset_id)
     legend = dataset_params.get("legend", None)
