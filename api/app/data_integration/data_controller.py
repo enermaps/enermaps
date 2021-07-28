@@ -19,6 +19,7 @@ def init_enermaps_datasets():
     # [21, 24, 33, 35] : These datasets are tiled raster datasets (needing input coordinates)
     #                    and returning multiple images
     datasets_to_exclude = [
+        1,
         2,
         3,
         4,
