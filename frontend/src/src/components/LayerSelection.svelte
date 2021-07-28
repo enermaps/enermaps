@@ -11,17 +11,17 @@
   // The order in which they appear is mirrored in the order the layers
   // are displayed.
   export const SELECTIONS_LIST= [
-    'nuts0.zip',
-    'nuts1.zip',
-    'nuts2.zip',
-    'nuts3.zip',
-    'lau.zip',
+    'country.geojson',
+    'NUTS1.geojson',
+    'NUTS2.geojson',
+    'NUTS3.geojson',
+    'LAU.geojson',
   ];
   export const SELECTIONS = new Set(SELECTIONS_LIST);
   let selectionLayers = [];
   let overlayLayers = [];
   let isLayerListReady = false;
-  
+
   const overlayLayersFilter = '';
   let filteredOverlayLayers = [];
 
