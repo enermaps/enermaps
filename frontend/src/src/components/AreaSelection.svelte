@@ -59,7 +59,7 @@
           leafletLayer.name = layer;
           overlayLayers.push(leafletLayer);
         }
-      } 
+      }
     }
 
     function compareSelectionLayer(layer0, layer1) {

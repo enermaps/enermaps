@@ -31,94 +31,94 @@ const baseLayersGroup = L.layerGroup();
 
 
 onMount(async () => {
-    console.log('init map');
-    // To add the draw toolbar set the option drawControl: true in the map options.
-    map = L.map('map', {zoomControl: false});
-    map.setView(INITIAL_MAP_CENTER, INITIAL_ZOOM);
-    map.addLayer(baseLayersGroup);
-    map.addLayer(selectionsGroup);
-    map.addLayer(overlaysGroup);
-    const baseLayer = L.tileLayer(BASE_LAYER_URL, BASE_LAYER_PARAMS);
-    baseLayersGroup.addLayer(baseLayer); // Add the openstreetmap layer
-    // Add the map controls
-    map.addControl(makeSearchControl()); // Search tools
-    map.addControl(makeCMToggleControl()); // Button to open calculation module pane
-    map.addControl(makeAreaSelectionControl());
-    map.addControl(makeOverlayLayersControl());
-  });
-  function resizeMap() {
-    if (map) {
-      map.invalidateSize();
+  console.log('init map');
+  // To add the draw toolbar set the option drawControl: true in the map options.
+  map = L.map('map', {zoomControl: false});
+  map.setView(INITIAL_MAP_CENTER, INITIAL_ZOOM);
+  map.addLayer(baseLayersGroup);
+  map.addLayer(selectionsGroup);
+  map.addLayer(overlaysGroup);
+  const baseLayer = L.tileLayer(BASE_LAYER_URL, BASE_LAYER_PARAMS);
+  baseLayersGroup.addLayer(baseLayer); // Add the openstreetmap layer
+  // Add the map controls
+  map.addControl(makeSearchControl()); // Search tools
+  map.addControl(makeCMToggleControl()); // Button to open calculation module pane
+  map.addControl(makeAreaSelectionControl());
+  map.addControl(makeOverlayLayersControl());
+});
+function resizeMap() {
+  if (map) {
+    map.invalidateSize();
+  }
+}
+$: {
+  console.log(`selected layer was changed: ${activeSelectionLayer}`);
+  console.log(`overlay layer was changed: ${activeOverlayLayers}`);
+  syncSelectionLayer();
+  syncOverlayLayers();
+}
+function syncOverlayLayers() {
+  const overlayToBePruned = new Set(overlaysGroup.getLayers());
+  for (const activeOverlayLayer of activeOverlayLayers) {
+    if (!overlaysGroup.hasLayer(activeOverlayLayer)) {
+      overlaysGroup.addLayer(activeOverlayLayer);
+    } else {
+      overlayToBePruned.delete(activeOverlayLayer);
     }
   }
-  $: {
-    console.log(`selected layer was changed: ${activeSelectionLayer}`);
-    console.log(`overlay layer was changed: ${activeOverlayLayers}`);
-    syncSelectionLayer();
-    syncOverlayLayers();
+  for (const overlay of overlayToBePruned) {
+    overlaysGroup.removeLayer(overlay);
   }
-  function syncOverlayLayers() {
-    const overlayToBePruned = new Set(overlaysGroup.getLayers());
-    for (const activeOverlayLayer of activeOverlayLayers) {
-      if (!overlaysGroup.hasLayer(activeOverlayLayer)) {
-        overlaysGroup.addLayer(activeOverlayLayer);
-      } else {
-        overlayToBePruned.delete(activeOverlayLayer);
-      }
-    }
-    for (const overlay of overlayToBePruned) {
-      overlaysGroup.removeLayer(overlay);
-    }
+}
+function syncSelectionLayer() {
+  if (!activeSelectionLayer) {
+    return;
   }
-  function syncSelectionLayer() {
-    if (!activeSelectionLayer) {
-      return;
-    }
-    if (!selectionsGroup.hasLayer(activeSelectionLayer)) {
-      // currently the activated layer is not the right one so remove it
-      selectionsGroup.clearLayers();
-    }
-    if (selectionsGroup.getLayers().length === 0) {
-      selectionsGroup.addLayer(activeSelectionLayer);
-    }
+  if (!selectionsGroup.hasLayer(activeSelectionLayer)) {
+    // currently the activated layer is not the right one so remove it
+    selectionsGroup.clearLayers();
   }
-  
-  /* Left control (area selection and overlay layers)*/
-  function makeAreaSelectionControl() {
-    const ctr = L.control({position: 'topleft'});
-    ctr.onAdd = (map) => {
-      const overlayDiv = L.DomUtil.create('div' );
-      L.DomUtil.addClass(overlayDiv, 'testComponent');
-      toolbar = new LayerSelection({target: overlayDiv});
-      return overlayDiv;
-    };
-    return ctr;
+  if (selectionsGroup.getLayers().length === 0) {
+    selectionsGroup.addLayer(activeSelectionLayer);
   }
+}
 
-  /* Left control (area selection and overlay layers)*/
-  function makeOverlayLayersControl() {
-    const ctr = L.control({position: 'topleft'});
-    ctr.onAdd = (map) => {
-      const areaDiv = L.DomUtil.create('div' );
-      L.DomUtil.addClass(areaDiv, 'testComponent');
-      toolbar = new AreaSelection({target: areaDiv});
-      // Enable the overlay layers to be dragged
-      // var draggable = new L.Draggable(area_div);
-      // draggable.enable();
-      return areaDiv;
-    };
-    return ctr;
-  }
-  function makeCMToggleControl() {
-    const CMToggleControl = L.control({position: 'topright'});
-    CMToggleControl.onAdd = (map) => {
-      const div = L.DomUtil.create('div');
-      L.DomUtil.addClass(div, 'test');
-      toolbar = new CMToggle({target: div});
-      return div;
-    };
-    return CMToggleControl;
-  }
+/* Left control (area selection and overlay layers)*/
+function makeAreaSelectionControl() {
+  const ctr = L.control({position: 'topleft'});
+  ctr.onAdd = (map) => {
+    const overlayDiv = L.DomUtil.create('div' );
+    L.DomUtil.addClass(overlayDiv, 'testComponent');
+    toolbar = new LayerSelection({target: overlayDiv});
+    return overlayDiv;
+  };
+  return ctr;
+}
+
+/* Left control (area selection and overlay layers)*/
+function makeOverlayLayersControl() {
+  const ctr = L.control({position: 'topleft'});
+  ctr.onAdd = (map) => {
+    const areaDiv = L.DomUtil.create('div' );
+    L.DomUtil.addClass(areaDiv, 'testComponent');
+    toolbar = new AreaSelection({target: areaDiv});
+    // Enable the overlay layers to be dragged
+    // var draggable = new L.Draggable(area_div);
+    // draggable.enable();
+    return areaDiv;
+  };
+  return ctr;
+}
+function makeCMToggleControl() {
+  const CMToggleControl = L.control({position: 'topright'});
+  CMToggleControl.onAdd = (map) => {
+    const div = L.DomUtil.create('div');
+    L.DomUtil.addClass(div, 'test');
+    toolbar = new CMToggle({target: div});
+    return div;
+  };
+  return CMToggleControl;
+}
 
 function makeSearchControl() {
   const searchControl = new L.Control.Search({

@@ -22,7 +22,7 @@
   let overlayLayers = [];
   let isLayerListReady = false;
   
-  let overlayLayersFilter = '';
+  const overlayLayersFilter = '';
   let filteredOverlayLayers = [];
 
 
@@ -49,7 +49,7 @@
         leafletLayer.setZIndex(1000);
         //
         selectionLayers.push(leafletLayer);
-      } 
+      }
     }
     function compareSelectionLayer(layer0, layer1) {
       const layer0Name = layer0.name;
