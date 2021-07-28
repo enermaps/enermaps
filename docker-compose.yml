@@ -28,6 +28,8 @@ services:
     ports:
       - "127.0.0.1:7000:80"
     restart: always
+    depends_on:
+      - "api"
     env_file:
       .env
 
@@ -64,13 +66,13 @@ services:
     env_file:
       .env
 
-  data-integration:
-    build:
-      context: ./data-integration
-    volumes:
-      - data:/data-integration/data
-    env_file:
-      .env
+  # data-integration:
+  #   build:
+  #     context: ./data-integration
+  #   volumes:
+  #     - data:/data-integration/data
+  #   env_file:
+  #     .env
 
   redis:
     image: redis:6-alpine

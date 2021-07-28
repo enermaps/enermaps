@@ -9,6 +9,7 @@ import sys
 from app import create_app
 
 workers = multiprocessing.cpu_count() + 1
+timeout = 2000
 
 
 def on_starting(_):

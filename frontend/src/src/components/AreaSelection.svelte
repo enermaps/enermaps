@@ -6,20 +6,21 @@
   import queryString from 'query-string';
   import {getGeofiles, WMS_URL} from '../client.js';
   import {activeOverlayLayersStore, activeSelectionLayerStore} from '../stores.js';
-  
+
   let selectionLayers = [];
   let overlayLayers = [];
   let isLayerListReady = false;
   let overlayLayersFilter = '';
   let filteredOverlayLayers = [];
   export const SELECTIONS_LIST= [
-    'nuts0.zip',
-    'nuts1.zip',
-    'nuts2.zip',
-    'nuts3.zip',
-    'lau.zip',
+    'country.geojson',
+    'NUTS1.geojson',
+    'NUTS2.geojson',
+    'NUTS3.geojson',
+    'LAU.geojson',
   ];
   export const SELECTIONS = new Set(SELECTIONS_LIST);
+
   function toQueryableLayer(layerName) {
     const layer = L.tileLayer.queryableLayer(
         WMS_URL,
@@ -43,7 +44,7 @@
     );
     return layer;
   }
-  
+
   onMount(async () => {
     const layers = await getGeofiles();
     for (const [layer, layerParameters] of Object.entries(layers)) {
@@ -113,9 +114,9 @@
       layer.name.indexOf(overlayLayersFilter) !== -1);
   }
 </script>
-  
+
   <style>
-    
+
   #map_selection {
     width: 140px;
     padding: 4px;
@@ -125,7 +126,7 @@
     box-sizing: border-box;
     width: 100%;
   }
-  
+
   #map_selection h3 {
     margin: 0px;
     height: 40%;
@@ -137,7 +138,7 @@
     text-overflow: ellipsis;
     overflow: hidden !important;
   }
-  
+
   h3 {
     flex-shrink: 0;
     border : none;
@@ -147,7 +148,7 @@
     overflow-y: auto;
     border : none;
   }
-  
+
   label {
   display: block;
   overflow-y: auto;
@@ -174,7 +175,6 @@
       </label>
     {/each}
     </div>
-  
+
     {/if}
   </div>
-  

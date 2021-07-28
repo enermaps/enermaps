@@ -2,75 +2,16 @@
 This contains the initial creation of dataset in dev
 mode and the initialisation of the applicaton.
 """
-import io
 import os
 
-import requests
 from flask import Blueprint, Flask
 from flask_restx import Api
-from werkzeug.datastructures import FileStorage
 
 from app.common import db
+from app.data_integration import data_controller
 from app.endpoints import calculation_module, geofile, wms
 from app.healthz import healthz
-from app.models.geofile import create, list_layers
 from app.redirect import redirect_to_api
-
-
-def fetch_dataset(base_url, get_parameters, filename, content_type):
-    """Get a single zip dataset and import it into enermaps."""
-    existing_layers_name = [layer.name for layer in list_layers()]
-    if filename in existing_layers_name:
-        print("Not fetching {}, we already have it locally".format(filename))
-        return
-    print("Fetching " + filename)
-    with requests.get(base_url, params=get_parameters, stream=True) as resp:
-        resp_data = io.BytesIO(resp.content)
-    file_upload = FileStorage(resp_data, filename, content_type=content_type)
-    create(file_upload)
-
-
-def init_datasets():
-    """If the dataset was found to be empty, initialize the datasets for
-    the selection of:
-    * NUTS(0|1|2|3)
-    * LAU
-
-    Currently, we fetch the dataset from hotmaps.eu
-    """
-    print("Ensure we have the initial set of dataset")
-    base_url = "https://geoserver.hotmaps.eu/geoserver/hotmaps/ows"
-    base_query_params = {
-        "service": "WFS",
-        "version": "1.0.0",
-        "request": "GetFeature",
-        "outputFormat": "SHAPE-ZIP",
-    }
-    nuts_query = {**base_query_params, **{"typeName": "hotmaps:nuts"}}
-    cql_filter = "stat_levl_='{!s}' AND year='2013-01-01'"
-    lau_query = {**base_query_params, **{"typeName": "hotmaps:tbl_lau1_2"}}
-    for i in range(4):
-        nuts_query["CQL_FILTER"] = cql_filter.format(i)
-        filename = "nuts{!s}.zip".format(i)
-        fetch_dataset(base_url, nuts_query, filename, "application/zip")
-
-    filename = "lau.zip"
-    fetch_dataset(base_url, lau_query, filename, "application/zip")
-
-    tif_query = {
-        "service": "WMS",
-        "version": "1.1.0",
-        "request": "GetMap",
-        "layers": "hotmaps:gfa_tot_curr_density",
-        "styles": "",
-        "bbox": "944000.0,938000.0,6528000.0,5414000.0",
-        "width": 768,
-        "height": 615,
-        "srs": "EPSG:3035",
-        "format": "image/geotiff",
-    }
-    filename = "gfa_tot_curr_density.tiff"
-    fetch_dataset(base_url, tif_query, filename, "image/tiff")
 
 
 def create_app(environment="production", testing=False):
@@ -93,6 +34,7 @@ def create_app(environment="production", testing=False):
     app.config["DB_DB"] = ""
     app.config["DB_USER"] = ""
     app.config["DB_PORT"] = 0
+
     for k, v in app.config.items():
         app.config[k] = os.environ.get(k, v)
     api_bp = Blueprint("api", "api", url_prefix="/api")
@@ -106,5 +48,5 @@ def create_app(environment="production", testing=False):
     app.teardown_appcontext(db.teardown_db)
     with app.app_context():
         if not app.testing:
-            init_datasets()
+            data_controller.init_enermaps_datasets()
     return app
