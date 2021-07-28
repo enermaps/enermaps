@@ -6,10 +6,12 @@
   import queryString from 'query-string';
   import {getGeofiles, WMS_URL} from '../client.js';
   import {activeOverlayLayersStore, activeSelectionLayerStore} from '../stores.js';
-
-  // List of queryable layers that are used as selection layers.
-  // The order in which they appear is mirrored in the order the layers
-  // are displayed.
+  
+  let selectionLayers = [];
+  let overlayLayers = [];
+  let isLayerListReady = false;
+  let overlayLayersFilter = '';
+  let filteredOverlayLayers = [];
   export const SELECTIONS_LIST= [
     'nuts0.zip',
     'nuts1.zip',
@@ -18,39 +20,48 @@
     'lau.zip',
   ];
   export const SELECTIONS = new Set(SELECTIONS_LIST);
-  let selectionLayers = [];
-  let overlayLayers = [];
-  let isLayerListReady = false;
-  
-  const overlayLayersFilter = '';
-  let filteredOverlayLayers = [];
-
-
-  function toNutsLayer(layerName) {
-    const layer = L.tileLayer.nutsLayer(
+  function toQueryableLayer(layerName) {
+    const layer = L.tileLayer.queryableLayer(
         WMS_URL,
         {
           transparent: 'true',
-          layers: layerName,
+          layers: encodeURIComponent(layerName),
           format: 'image/png',
         },
     );
     return layer;
   }
+
+  function toOverlayLayer(layerName) {
+    const layer = L.tileLayer.wms(
+        WMS_URL,
+        {
+          transparent: 'true',
+          layers: encodeURIComponent(layerName),
+          format: 'image/png',
+        },
+    );
+    return layer;
+  }
+  
   onMount(async () => {
     const layers = await getGeofiles();
     for (const [layer, layerParameters] of Object.entries(layers)) {
       let leafletLayer;
       console.log(layer, layerParameters);
-      if (SELECTIONS.has(layer)) {
-        leafletLayer = toNutsLayer(layer);
-        leafletLayer.name = layer;
-        // selection go on top
-        leafletLayer.setZIndex(1000);
-        //
-        selectionLayers.push(leafletLayer);
+      if (!SELECTIONS.has(layer)) {
+        if (layerParameters.isQueryable) {
+          leafletLayer = toQueryableLayer(layer);
+          leafletLayer.name = layer;
+          overlayLayers.push(leafletLayer);
+        } else {
+          leafletLayer = toOverlayLayer(layer);
+          leafletLayer.name = layer;
+          overlayLayers.push(leafletLayer);
+        }
       }
     }
+
     function compareSelectionLayer(layer0, layer1) {
       const layer0Name = layer0.name;
       const layer1Name = layer1.name;
@@ -102,56 +113,68 @@
       layer.name.indexOf(overlayLayersFilter) !== -1);
   }
 </script>
-<style>
-#map_selection {
-  width: 140px;
-  padding: 4px;
-  border: 1px solid #27275b;
-	border-radius: 0px;
-  background-color: #eff4fa;
-  width: 100%;
-  box-sizing: border-box;
-}
-#map_selection h3 {
-  margin: 0px;
-  height: 40%;
-  display: flex;
-  flex-direction: column;
-  white-space: nowrap;
-  text-overflow: ellipsis;
-  overflow: hidden !important;
-}
-h3 {
-  flex-shrink: 0;
-  border : none;
-}
-#selection_layers {
-  width: 140px;
-  overflow-y: auto;
-  border : none;
-}
-
-label {
+  
+  <style>
+    
+  #map_selection {
+    width: 140px;
+    padding: 4px;
+    border: 1px solid #27275b;
+    border-radius: 0px;
+    background-color: #eff4fa;
+    box-sizing: border-box;
+    width: 100%;
+  }
+  
+  #map_selection h3 {
+    margin: 0px;
+    height: 40%;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    max-width: 200px;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    overflow: hidden !important;
+  }
+  
+  h3 {
+    flex-shrink: 0;
+    border : none;
+  }
+  #overlay_layers {
+    width: 140px;
+    overflow-y: auto;
+    border : none;
+  }
+  
+  label {
   display: block;
   overflow-y: auto;
   white-space: nowrap;
   text-overflow: ellipsis;
   overflow-x: hidden;
-}
-</style>
+  }
+  .overlay_search {
+    width: 100%;
+  }
 
-<div id="map_selection" on:click|stopPropagation="">
-  {#if !isLayerListReady}
-  Loading layers...
-  {:else}
-  <h3>Selection</h3>
-  <div id="selection_layers">
-  {#each selectionLayers as selectionLayer}
-  <label title={selectionLayer.name}>
-    <input type=radio bind:group={$activeSelectionLayerStore} value={selectionLayer}>
-    {selectionLayer.name}
-  </label>
-  {/each}
+  </style>
+  <div id="map_selection" on:click|stopPropagation="">
+    {#if !isLayerListReady}
+    Loading layers...
+    {:else}
+    <h3>Overlays</h3>
+    <div id="overlay_layers">
+    Filter: <input bind:value={overlayLayersFilter} class="overlay_search">
+    {#each filteredOverlayLayers as overlayLayer (overlayLayer.name)}
+    <label title={overlayLayer.name}>
+      <input type=checkbox bind:group={$activeOverlayLayersStore} value={overlayLayer}>
+        {overlayLayer.name}
+      </label>
+    {/each}
+    </div>
+  
+    {/if}
   </div>
-  {/if}
-</div>
+  
