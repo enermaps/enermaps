@@ -76,10 +76,6 @@
   background: url('/images/menu-open-icon.png');
   background-size : 100%;
 }
-.cm_name {
-  display: inline-block;
-  margin: 0px;
-}
 .cm_params {
   margin-top: 10px;
   vertical-align: middle;
