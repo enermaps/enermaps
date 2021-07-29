@@ -1,4 +1,14 @@
-from app.data_integration.ds_colors import COLORS
+import seaborn as sns
+
+
+def get_sns_color(palette, nb_of_colors):
+    color_list = sns.color_palette(palette, nb_of_colors)
+    rgb_list = [
+        ((int(255 * color[0])), (int(255 * color[1])), (int(255 * color[2])))
+        for color in color_list
+    ]
+    return rgb_list
+
 
 DATASETS_DIC = {
     "DS_1": {
@@ -72,7 +82,7 @@ DATASETS_DIC = {
         },
         "title": "",
         "legend": {
-            "style": {"colors": COLORS["green"]},
+            "style": {"colors": get_sns_color("crest", 12)},
             "legend_variable": {"variable": "Total", "min": 0.05, "max": 0.56},
         },
     },
@@ -89,7 +99,7 @@ DATASETS_DIC = {
         },
         "title": "",
         "legend": {
-            "style": {"colors": COLORS["blue"]},
+            "style": {"colors": get_sns_color("magma", 12)},
             "legend_variable": {
                 "variable": "Electricity : Final consumption - other sectors - households - energy use",
                 "min": 815,
@@ -176,7 +186,7 @@ DATASETS_DIC = {
         },
         "title": "",
         "legend": {
-            "style": {"colors": COLORS["green"]},
+            "style": {"colors": get_sns_color("viridis", 12)},
             "legend_variable": {
                 "variable": "installed wind power capacity",
                 "min": 0.0,
@@ -197,7 +207,7 @@ DATASETS_DIC = {
         },
         "title": "",
         "legend": {
-            "style": {"colors": COLORS["pink"]},
+            "style": {"colors": get_sns_color("rocket_r", 12)},
             "legend_variable": {
                 "variable": "installed PV power capacity",
                 "min": 0.0,
@@ -218,7 +228,7 @@ DATASETS_DIC = {
         },
         "title": "",
         "legend": {
-            "style": {"colors": COLORS["violet"]},
+            "style": {"colors": get_sns_color("light:b", 12)},
             "legend_variable": {
                 "variable": "Energy intensity level of primary energy ",
                 "min": 0.39,
@@ -338,7 +348,7 @@ DATASETS_DIC = {
         },
         "title": "",
         "legend": {
-            "style": {"colors": COLORS["orange"]},
+            "style": {"colors": get_sns_color("dark:salmon_r", 12)},
             "legend_variable": {
                 "variable": "Base potential : Bark residues from pulp and paper industry",
                 "min": 0.0,
@@ -374,7 +384,7 @@ DATASETS_DIC = {
         },
         "title": "",
         "legend": {
-            "style": {"colors": COLORS["blue"]},
+            "style": {"colors": get_sns_color("vlag", 12)},
             "legend_variable": {
                 "variable": "ROOF | construction material | None",
                 "min": 0.66,
@@ -412,7 +422,7 @@ DATASETS_DIC = {
         },
         "title": "",
         "legend": {
-            "style": {"colors": COLORS["green"]},
+            "style": {"colors": get_sns_color("icefire", 12)},
             "legend_variable": {
                 "variable": "final energy demand",
                 "min": 0.0,
@@ -449,7 +459,7 @@ DATASETS_DIC = {
             "row_limit": 100000,
         },
         "legend": {
-            "style": {"colors": COLORS["red"]},
+            "style": {"colors": get_sns_color("flare", 12)},
             "legend_variable": {
                 "variable": "Final Energy | Heating",
                 "min": 0.11,
@@ -515,7 +525,7 @@ DATASETS_DIC = {
         },
         "title": "",
         "legend": {
-            "style": {"colors": COLORS["green"]},
+            "style": {"colors": get_sns_color("YlOrBr", 12)},
             "legend_variable": {
                 "variable": "Non-residential buildings : Conventional dwellings",
                 "min": 0.0,
@@ -560,7 +570,7 @@ DATASETS_DIC = {
         },
         "title": "",
         "legend": {
-            "style": {"colors": COLORS["pink"]},
+            "style": {"colors": get_sns_color("Spectral", 12)},
             "legend_variable": {
                 "variable": "Total  emissions excluding LULUCF | Carbon dioxide",
                 "min": 3675.0,
@@ -581,7 +591,7 @@ DATASETS_DIC = {
         },
         "title": "",
         "legend": {
-            "style": {"colors": COLORS["orange"]},
+            "style": {"colors": get_sns_color("coolwarm", 12)},
             "legend_variable": {
                 "variable": "Band DA : Consumption < 1 000 kWh : All taxes and levies included",
                 "min": -0.027,
@@ -602,7 +612,7 @@ DATASETS_DIC = {
         },
         "title": "",
         "legend": {
-            "style": {"colors": COLORS["green"]},
+            "style": {"colors": get_sns_color("crest", 12)},
             "legend_variable": {
                 "variable": "Electricity, gas and other fuels",
                 "min": 130.0,
@@ -623,7 +633,7 @@ DATASETS_DIC = {
         },
         "title": "",
         "legend": {
-            "style": {"colors": COLORS["violet"]},
+            "style": {"colors": get_sns_color("viridis", 12)},
             "legend_variable": {
                 "variable": "Natural gas",
                 "min": -1822.0,
@@ -644,7 +654,7 @@ DATASETS_DIC = {
         },
         "title": "",
         "legend": {
-            "style": {"colors": COLORS["orange"]},
+            "style": {"colors": get_sns_color("ch:s=-.2,r=.6", 12)},
             "legend_variable": {"variable": "default", "min": 1038.0, "max": 651258.0},
         },
     },
@@ -681,9 +691,9 @@ def get_ds(dataset_id):
 def get_legend_style(dataset_id):
     """Get the style used to color the map or a default style if the
     legend or the style are undefined"""
-    default_style = {
-        "colors": COLORS["red"],
-    }
+
+    default_style = {"colors": get_sns_color("flare", 12)}
+
     dataset_params = get_ds(dataset_id)
     legend = dataset_params.get("legend", None)
     if legend is not None:
