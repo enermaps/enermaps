@@ -2,6 +2,18 @@ import {BASE_URL} from './settings.js';
 
 export const WMS_URL = BASE_URL + 'api/wms?';
 
+
+export async function getLegend(layer_id) {
+  const response = await fetch(BASE_URL + 'api/geofile/' + layer_id + '/legend');
+  if (!response.ok) {
+    return {};
+  }
+  const legend = await response.json();
+  console.log(legend);
+  return legend;
+}
+
+
 export async function getCMs() {
   const response = await fetch(BASE_URL + 'api/cm/');
   if (!response.ok) {
