@@ -33,7 +33,6 @@ export async function getGeofiles() {
   return layersResponse;
 }
 
-
 export async function postCMTask(cm, parameters) {
   const response = await fetch(BASE_URL + 'api/cm/' + cm.name + '/task', {
     method: 'POST',

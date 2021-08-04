@@ -713,3 +713,9 @@ def get_legend_variable(dataset_id):
     legend = dataset_params.get("legend", None)
     if legend is not None:
         return legend.get("legend_variable", None)
+
+
+def get_legend(dataset_id):
+    variable = get_legend_variable(dataset_id)
+    style = get_legend_style(dataset_id)
+    return {"variable": variable, "style": style}
