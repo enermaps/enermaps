@@ -4,7 +4,7 @@
   import '../leaflet_components/L.DrawingLayer.js';
   import '../leaflet_components/L.TileLayer.QueryableLayer.js';
   import queryString from 'query-string';
-  import {getGeofiles, WMS_URL} from '../client.js';
+  import {getGeofiles, getLegend, getOpenairLink, WMS_URL} from '../client.js';
   import {activeOverlayLayersStore, activeSelectionLayerStore} from '../stores.js';
 
   let selectionLayers = [];
@@ -49,13 +49,23 @@
     const layers = await getGeofiles();
     for (const [layer, layerParameters] of Object.entries(layers)) {
       let leafletLayer;
+      let legend;
+      let openairLink;
       console.log(layer, layerParameters);
       if (!SELECTIONS.has(layer)) {
         if (layerParameters.isQueryable) {
+          legend = getLegend(layer);
+          console.log(legend);
+          openairLink = getOpenairLink(layer);
+          console.log(openairLink);
           leafletLayer = toQueryableLayer(layer);
           leafletLayer.name = layer;
           overlayLayers.push(leafletLayer);
         } else {
+          legend = getLegend(layer);
+          console.log(legend);
+          openairLink = getOpenairLink(layer);
+          console.log(openairLink);
           leafletLayer = toOverlayLayer(layer);
           leafletLayer.name = layer;
           overlayLayers.push(leafletLayer);

@@ -2,6 +2,28 @@ import {BASE_URL} from './settings.js';
 
 export const WMS_URL = BASE_URL + 'api/wms?';
 
+
+export async function getLegend(layerId) {
+  const response = await fetch(BASE_URL + 'api/geofile/' + layerId + '/legend');
+  if (!response.ok) {
+    return {};
+  }
+  const legend = await response.json();
+  console.log(legend);
+  return legend;
+}
+
+export async function getOpenairLink(layerId) {
+  const response = await fetch(BASE_URL + 'api/geofile/' + layerId + '/openair');
+  if (!response.ok) {
+    return {};
+  }
+  const legend = await response.json();
+  console.log(legend);
+  return legend;
+}
+
+
 export async function getCMs() {
   const response = await fetch(BASE_URL + 'api/cm/');
   if (!response.ok) {
@@ -20,7 +42,6 @@ export async function getGeofiles() {
   const layersResponse = await response.json();
   return layersResponse;
 }
-
 
 export async function postCMTask(cm, parameters) {
   const response = await fetch(BASE_URL + 'api/cm/' + cm.name + '/task', {

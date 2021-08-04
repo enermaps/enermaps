@@ -4,7 +4,8 @@ from flask import redirect, send_file, url_for
 from flask_restx import Namespace, Resource, abort
 from werkzeug.datastructures import FileStorage
 
-import app.models.geofile as geofile
+from app.data_integration.data_config import get_legend, get_openair_link
+from app.models import geofile as geofile
 
 api = Namespace("geofile", description="Data management related endpoints")
 
@@ -65,3 +66,27 @@ class GeoFileMetadata(Resource):
         and raster as geotiff is supported."""
         layer = geofile.load(layer_name)
         return layer.metadata
+
+
+@api.route("/<string:layer_name>/legend")
+class GeofileLegend(Resource):
+    def get(self, layer_name):
+        """Get the layer legend: variable used for coloring the map, min and max values,
+        list of rgb colors in order.
+        """
+        if layer_name[0:2].isdigit():
+            layer_id = int(layer_name[0:2])
+            return get_legend(layer_id)
+        return {}
+
+
+@api.route("/<string:layer_name>/openair")
+class GeofileOpenair(Resource):
+    def get(self, layer_name):
+        """Get the layer legend: variable used for coloring the map, min and max values,
+        list of rgb colors in order.
+        """
+        if layer_name[0:2].isdigit():
+            layer_id = int(layer_name[0:2])
+            return get_openair_link(layer_id)
+        return {}
