@@ -3,8 +3,8 @@ import {BASE_URL} from './settings.js';
 export const WMS_URL = BASE_URL + 'api/wms?';
 
 
-export async function getLegend(layer_id) {
-  const response = await fetch(BASE_URL + 'api/geofile/' + layer_id + '/legend');
+export async function getLegend(layerId) {
+  const response = await fetch(BASE_URL + 'api/geofile/' + layerId + '/legend');
   if (!response.ok) {
     return {};
   }
@@ -13,8 +13,8 @@ export async function getLegend(layer_id) {
   return legend;
 }
 
-export async function getOpenairLink(layer_id) {
-  const response = await fetch(BASE_URL + 'api/geofile/' + layer_id + '/openair');
+export async function getOpenairLink(layerId) {
+  const response = await fetch(BASE_URL + 'api/geofile/' + layerId + '/openair');
   if (!response.ok) {
     return {};
   }
