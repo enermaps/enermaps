@@ -13,6 +13,16 @@ export async function getLegend(layer_id) {
   return legend;
 }
 
+export async function getOpenairLink(layer_id) {
+  const response = await fetch(BASE_URL + 'api/geofile/' + layer_id + '/openair');
+  if (!response.ok) {
+    return {};
+  }
+  const legend = await response.json();
+  console.log(legend);
+  return legend;
+}
+
 
 export async function getCMs() {
   const response = await fetch(BASE_URL + 'api/cm/');

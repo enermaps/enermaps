@@ -27,6 +27,7 @@ DATASETS_DIC = {
             "row_limit": 100000,
         },
         "title": "",
+        "openair_link": "",
     },
     "DS_2": {
         "id": 2,
@@ -719,3 +720,14 @@ def get_legend(dataset_id):
     variable = get_legend_variable(dataset_id)
     style = get_legend_style(dataset_id)
     return {"variable": variable, "style": style}
+
+
+def get_openair_link(dataset_id):
+    default_link = (
+        "https://beta.enermaps.openaire.eu/search/publication?pid=10.3390%2Fen12244789"
+    )
+    dataset_params = get_ds(dataset_id)
+    link = dataset_params.get("openair_link", None)
+    if link is None or not link:
+        return default_link
+    return link
