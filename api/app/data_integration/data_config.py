@@ -717,6 +717,11 @@ def get_legend_variable(dataset_id):
 
 
 def get_legend(dataset_id):
+    dataset_params = get_ds(dataset_id)
+    if dataset_params.get("layer_type", None) != "vector":
+        # TODO how do we display legends for raster datasets?
+        return {}
+
     variable = get_legend_variable(dataset_id)
     style = get_legend_style(dataset_id)
     return {"variable": variable, "style": style}

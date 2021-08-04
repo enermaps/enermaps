@@ -71,7 +71,7 @@ class GeoFileMetadata(Resource):
 @api.route("/<string:layer_name>/legend")
 class GeofileLegend(Resource):
     def get(self, layer_name):
-        """ Get the layer legend: variable used for coloring the map, min and max values,
+        """Get the layer legend: variable used for coloring the map, min and max values,
         list of rgb colors in order.
         """
         if layer_name[0:2].isdigit():
@@ -83,7 +83,7 @@ class GeofileLegend(Resource):
 @api.route("/<string:layer_name>/openair")
 class GeofileOpenair(Resource):
     def get(self, layer_name):
-        """ Get the layer legend: variable used for coloring the map, min and max values,
+        """Get the layer legend: variable used for coloring the map, min and max values,
         list of rgb colors in order.
         """
         if layer_name[0:2].isdigit():
