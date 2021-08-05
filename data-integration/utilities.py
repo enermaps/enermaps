@@ -354,7 +354,7 @@ def get_ld_json(url: str) -> dict:
     )
 
 
-def getGitHub(user: str, repo: str, request="content"):
+def getGitHub(user: str, repo: str, request="content", path="", branch="master"):
     """
     Obtain metadata from GitHub.
 
@@ -364,16 +364,20 @@ def getGitHub(user: str, repo: str, request="content"):
     repo : str
     request : str, optional
         Choose from "content", "date", "version". Default is "content".
+    path : str, optional
+        Default is "".
+    branch : str, optional
+        Default is "master".
 
     Returns
     -------
     str
     """
-    raw_content = "https://raw.githubusercontent.com/{user}/{repo}".format(
-        user=user, repo=repo
+    raw_content = "https://raw.githubusercontent.com/{user}/{repo}/{branch}/{path}".format(
+        user=user, repo=repo, branch=branch, path=path
     )
-    api = "https://api.github.com/repos/{user}/{repo}/commits?sha=master".format(
-        user=user, repo=repo
+    api = "https://api.github.com/repos/{user}/{repo}/commits?sha=master&path={path}".format(
+        user=user, repo=repo, path=path
     )
     commits = requests.get(api).json()
     if request == "content":
