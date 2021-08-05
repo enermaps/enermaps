@@ -27,6 +27,9 @@ RUN git clone https://github.com/enermaps/pandas-datapackage-reader.git && \
 COPY *.py /data-integration/
 COPY *.csv /data-integration/
 
+# Make pipelines executable
+RUN chmod u+x *.py
+
 #add the pipeline command in the path
 ENV PATH="${PWD}:${PATH}"
 
