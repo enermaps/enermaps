@@ -79,7 +79,7 @@ def get(directory: str) -> pd.DataFrame:
 
     # Conversion
     enermaps_data = utilities.ENERMAPS_DF
-    enermaps_data["fid"] = data["Country"]
+    enermaps_data["fid"] = data["Country"].str.upper()
     enermaps_data["value"] = data["Value"]
     enermaps_data["fields"] = data["fields"]
     enermaps_data["variable"] = data[VARIABLE].astype(str).agg(" | ".join, axis=1)
