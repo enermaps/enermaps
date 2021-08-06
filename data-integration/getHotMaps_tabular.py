@@ -65,20 +65,7 @@ def prepare(dp: frictionless.package.Package):
 
     data["estimated"] = data["estimated"] == 1
 
-    enermaps_data = pd.DataFrame(
-        columns=[
-            "start_at",
-            "fields",
-            "variable",
-            "value",
-            "ds_id",
-            "fid",
-            "dt",
-            "z",
-            "israster",
-        ]
-    )
-
+    enermaps_data = utilities.ENERMAPS_DF
     data = data.where(data.notnull(), None)
 
     # Other fields to json
