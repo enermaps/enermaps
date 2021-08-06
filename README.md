@@ -13,7 +13,7 @@ This will start the frontend and the api.
 Run
 
 ```
-docker-compose up --file docker-compose-db.yml --build
+docker-compose --file docker-compose-db.yml up --build
 ```
 
 to start the database.
@@ -38,7 +38,7 @@ docker-compose up --build -d $service
 where service can be one of frontend or api. To update the db, run
 
 ```
-docker-compose up --file docker-compose-db.yml --build -d db
+docker-compose --file docker-compose-db.yml up --build -d db
 ```
 
 You can also rebuild the set of all services, and docker will only rebuilt the
@@ -51,7 +51,7 @@ docker-compose up --build -d
 or
 
 ```
-docker-compose up --file docker-compose-db.yml --build -d
+docker-compose --file docker-compose-db.yml up --build -d
 ```
 
 for the db.
