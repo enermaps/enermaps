@@ -65,8 +65,10 @@
         } else {
           leafletLayer = toOverlayLayer(layer);
         }
+
         leafletLayer.name = layer;
         leafletLayer.legend_promise = legend;
+        leafletLayer.openairLink_promise = openairLink;
 
         overlayLayers.push(leafletLayer);
       }
@@ -169,6 +171,23 @@
     width: 100%;
   }
 
+  .box {
+  /* float: left; */
+  height: 10px;
+  width: 10px;
+  /* margin-bottom: 15px; */
+  border: 1px solid black;
+  /* clear: both; */
+  display: inline-block;
+  }
+
+  #metadata_box {
+    border: 1px solid #27275b;
+    border-radius: 0px;
+    background-color: #fff;
+    padding: 5px;
+  }
+
   </style>
   <div id="map_selection" on:click|stopPropagation="">
     {#if !isLayerListReady}
@@ -183,16 +202,33 @@
         {overlayLayer.name}
     </label>
 
+    <div id="metadata_box">
+      {#await overlayLayer.legend_promise}
+        <div>...waiting for legend</div>
+      {:then legend}
+        <div>{legend.variable.variable}</div>
+        {#each legend.style.colors as color}
+          <!-- <div>{color}</div> -->
+          <div style="display: inline-block;">
+            <div class='box' style="background-color: rgb({color})"> </div>
+            <div style="display: inline-block;">bidon - bidon</div>
+          </div>
+        {/each}
 
-    {#await overlayLayer.legend_promise}
-      <p>...waiting</p>
-    {:then legend}
-      <p>{legend.variable.variable}</p>
-    {:catch error}
-      <p style="color: red">{error.message}</p>
-    {/await}
+        <!-- <div>min {legend.variable.min}</div> -->
+      {:catch error}
+        <div style="color: red">{error.message}</div>
+      {/await}
 
-    <!-- {openairLink}<br/> -->
+      {#await overlayLayer.openairLink_promise}
+      <div>...waiting for OpenAir link</div>
+      {:then openairLink}
+        <a href={openairLink} target="_blank">OpenAir link &#128279;</a>
+      {:catch error}
+        <div style="color: red">{error.message}</div>
+      {/await}
+    </div>
+
 
     {/each}
     </div>
