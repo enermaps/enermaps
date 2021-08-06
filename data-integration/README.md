@@ -60,6 +60,9 @@ You can manually execute the available pipelines witn the following commands:
   - 28: HotMaps Building stock analysis
     `docker-compose -f ../docker-compose-db.yml run data-integration getHotMaps_tabular.py`
 
+  - 29: SET-Nav
+    `docker-compose run data-integration getSET-Nav.py`
+
   - 30: Fuel consumption and technologies used in the heating/cooling sector
     `docker-compose -f ../docker-compose-db.yml run data-integration getENER.py`
 
