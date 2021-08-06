@@ -19,6 +19,9 @@ You can manually execute the available pipelines witn the following commands:
   - 19: EDGAR CO₂ emissions
     `docker-compose -f ../docker-compose-db.yml run data-integration getEdgar.py`
 
+  - 28: HotMaps Building stock analysis
+    `docker-compose run data-integration getHotMaps_tabular.py`
+
   - 30: Fuel consumption and technologies used in the heating/cooling sector
     `docker-compose -f ../docker-compose-db.yml run data-integration getENER.py`
 
