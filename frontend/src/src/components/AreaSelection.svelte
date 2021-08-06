@@ -9,6 +9,7 @@
 
   let selectionLayers = [];
   let overlayLayers = [];
+
   let isLayerListReady = false;
   let overlayLayersFilter = '';
   let filteredOverlayLayers = [];
@@ -49,27 +50,25 @@
     const layers = await getGeofiles();
     for (const [layer, layerParameters] of Object.entries(layers)) {
       let leafletLayer;
-      let legend;
-      let openairLink;
       console.log(layer, layerParameters);
       if (!SELECTIONS.has(layer)) {
+        let legend;
+        legend = getLegend(layer);
+        console.log(legend);
+
+        let openairLink;
+        openairLink = getOpenairLink(layer);
+        console.log(openairLink);
+
         if (layerParameters.isQueryable) {
-          legend = getLegend(layer);
-          console.log(legend);
-          openairLink = getOpenairLink(layer);
-          console.log(openairLink);
           leafletLayer = toQueryableLayer(layer);
-          leafletLayer.name = layer;
-          overlayLayers.push(leafletLayer);
         } else {
-          legend = getLegend(layer);
-          console.log(legend);
-          openairLink = getOpenairLink(layer);
-          console.log(openairLink);
           leafletLayer = toOverlayLayer(layer);
-          leafletLayer.name = layer;
-          overlayLayers.push(leafletLayer);
         }
+        leafletLayer.name = layer;
+        leafletLayer.legend_promise = legend;
+
+        overlayLayers.push(leafletLayer);
       }
     }
 
@@ -182,7 +181,19 @@
     <label title={overlayLayer.name}>
       <input type=checkbox bind:group={$activeOverlayLayersStore} value={overlayLayer}>
         {overlayLayer.name}
-      </label>
+    </label>
+
+
+    {#await overlayLayer.legend_promise}
+      <p>...waiting</p>
+    {:then legend}
+      <p>{legend.variable.variable}</p>
+    {:catch error}
+      <p style="color: red">{error.message}</p>
+    {/await}
+
+    <!-- {openairLink}<br/> -->
+
     {/each}
     </div>
 
