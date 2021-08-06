@@ -63,6 +63,9 @@ You can manually execute the available pipelines witn the following commands:
   - 24: Solar Atlas
     `docker-compose -f ../docker-compose-db.yml run data-integration getSolarAtlas.py`
 
+  - 27: S2BIOM
+    `docker-compose -f ../docker-compose-db.yml run data-integration getS2BIOM.py`
+
   - 28: HotMaps Building stock analysis
     `docker-compose -f ../docker-compose-db.yml run data-integration getHotMaps_tabular.py`
 
