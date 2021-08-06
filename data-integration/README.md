@@ -22,6 +22,9 @@ You can manually execute the available pipelines witn the following commands:
   - 8: GISCO Population
     `docker-compose -f ../docker-compose-db.yml run data-integration getPopulation.py`
 
+  - 15: ERA5 reanalysis-era5-single-levels
+    `docker-compose run data-integration getERA5.py --select_ds_ids 15`
+
   - 19: EDGAR CO₂ emissions
     `docker-compose -f ../docker-compose-db.yml run data-integration getEdgar.py`
 
@@ -35,6 +38,9 @@ You can manually execute the available pipelines witn the following commands:
 
   - 24: Solar Atlas
     `docker-compose -f ../docker-compose-db.yml run data-integration getSolarAtlas.py`
+
+  - 20: ERA5 reanalysis-era5-pressure-levels
+    `docker-compose run data-integration getERA5.py --select_ds_ids 20`
 
   - 30: Fuel consumption and technologies used in the heating/cooling sector
     `docker-compose -f ../docker-compose-db.yml run data-integration getENER.py`
