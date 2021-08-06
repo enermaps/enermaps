@@ -98,21 +98,9 @@ def get(directory):
         data.append(tiles)
     data = pd.concat(data, ignore_index=True)
 
-    enermaps_data = pd.DataFrame(
-        columns=[
-            "start_at",
-            "fields",
-            "variable",
-            "value",
-            "ds_id",
-            "fid",
-            "dt",
-            "z",
-            "israster",
-            "unit",
-        ]
-    )
+    enermaps_data = utilities.ENERMAPS_DF
     enermaps_data["fid"] = data["tilename"]
+    enermaps_data["variable"] = ""
     enermaps_data["israster"] = ISRASTER
 
     spatial = gpd.GeoDataFrame(geometry=data["extentBox"], crs="EPSG:3035",)
