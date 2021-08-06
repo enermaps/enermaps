@@ -39,8 +39,6 @@ services:
     ports:
       - "127.0.0.1:9000:80"
     restart: always
-    depends_on:
-      - "db"
     environment:
       UPLOAD_DIR: /upload-dir
       RASTER_DB_DIR: /raster-db-dir
@@ -50,29 +48,6 @@ services:
     env_file:
       .env
 
-  db:
-    build:
-      context: ./db
-    ports:
-      - "127.0.0.1:5433:5432"
-    restart: always
-    environment:
-      POSTGRES_PASSWORD: example
-    # Fast Shutdown mode
-    # see https://github.com/docker-library/postgres/issues/714
-    stop_signal: SIGINT
-    volumes:
-      - db-data:/var/lib/postgresql/data
-    env_file:
-      .env
-
-  data-integration:
-    build:
-      context: ./data-integration
-    volumes:
-      - data:/data-integration/data
-    env_file:
-      .env
 
   redis:
     image: redis:6-alpine
@@ -87,5 +62,4 @@ services:
 
 volumes:
   upload-data:
-  db-data:
   data:

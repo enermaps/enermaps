@@ -1,0 +1,30 @@
+version: "3.8"
+services:
+
+  db:
+    build:
+      context: ./db
+    ports:
+      - "127.0.0.1:5433:5432"
+    restart: always
+    environment:
+      POSTGRES_PASSWORD: example
+    # Fast Shutdown mode
+    # see https://github.com/docker-library/postgres/issues/714
+    stop_signal: SIGINT
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    env_file:
+      .env-db
+
+  data-integration:
+    build:
+      context: ./data-integration
+    volumes:
+      - data:/data-integration/data
+    env_file:
+      .env-db
+
+volumes:
+  db-data:
+  data:

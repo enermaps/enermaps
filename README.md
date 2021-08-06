@@ -8,7 +8,15 @@ Then run
 ```
 docker-compose up --build
 ```
-This will start the frontend, the api and the database
+This will start the frontend and the api.
+
+Run
+
+```
+docker-compose --file docker-compose-db.yml up --build
+```
+
+to start the database.
 
 You can then access:
 
@@ -27,7 +35,11 @@ For updating a service, you will need to run:
 docker-compose up --build -d $service
 ```
 
-where service can be one of frontend, api or db.
+where service can be one of frontend or api. To update the db, run
+
+```
+docker-compose --file docker-compose-db.yml up --build -d db
+```
 
 You can also rebuild the set of all services, and docker will only rebuilt the
 changed images with the following command:
@@ -35,6 +47,14 @@ changed images with the following command:
 ```
 docker-compose up --build -d
 ```
+
+or
+
+```
+docker-compose --file docker-compose-db.yml up --build -d
+```
+
+for the db.
 
 Some service will initialize and create their initial state:
 
@@ -56,7 +76,7 @@ docker-compose stop
 You can remove all data and images, if for example you wanna start from scratch with:
 
 ```
-docker-compose down -v
+docker-compose down --volumes --remove-orphans
 ```
 
 # Continuous Integration
