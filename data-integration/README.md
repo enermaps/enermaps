@@ -37,4 +37,4 @@ You can manually execute the available pipelines witn the following commands:
     `docker-compose -f ../docker-compose-db.yml run data-integration getHotMaps_raster.py --select_ds_ids 45`
 
 
-Remember to start the db service via `docker-compose up --file ../docker-compose-db.yml -d db` before running the pipelines.
+Remember to start the db service via `docker-compose --file ../docker-compose-db.yml up -d db` before running the pipelines.
