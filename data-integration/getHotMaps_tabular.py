@@ -79,7 +79,7 @@ def prepare(dp: frictionless.package.Package):
         lambda x: json.dumps(x, default=np_encoder)
     )
 
-    enermaps_data["fid"] = data[SPATIAL]
+    enermaps_data["fid"] = data[SPATIAL].iloc[:, 0].str.upper()
     enermaps_data["unit"] = data[UNIT]
     enermaps_data["variable"] = data[VARIABLE].astype(str).agg(" | ".join, axis=1)
     enermaps_data["israster"] = ISRASTER
