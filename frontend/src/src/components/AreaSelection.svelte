@@ -207,15 +207,13 @@
         <div>...waiting for legend</div>
       {:then legend}
         <div>{legend.variable.variable}</div>
-        {#each legend.style.colors as color}
-          <!-- <div>{color}</div> -->
+        {#each legend.style as color}
           <div style="display: inline-block;">
-            <div class='box' style="background-color: rgb({color})"> </div>
-            <div style="display: inline-block;">bidon - bidon</div>
+            <div class='box' style="background-color: rgb( {color[0][0]}, {color[0][1]}, {color[0][2]} )"> </div>
+            <div style="display: inline-block;">{color[1]} to {color[2]} {legend.variable.units}</div>
           </div>
         {/each}
 
-        <!-- <div>min {legend.variable.min}</div> -->
       {:catch error}
         <div style="color: red">{error.message}</div>
       {/await}
@@ -223,7 +221,9 @@
       {#await overlayLayer.openairLink_promise}
       <div>...waiting for OpenAir link</div>
       {:then openairLink}
-        <a href={openairLink} target="_blank">OpenAir link &#128279;</a>
+        <div>
+          <a href={openairLink} target="_blank">OpenAir link &#128279;</a>
+        </div>
       {:catch error}
         <div style="color: red">{error.message}</div>
       {/await}
