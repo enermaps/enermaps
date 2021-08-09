@@ -5,11 +5,7 @@ import json
 import requests
 from werkzeug.datastructures import FileStorage
 
-from app.data_integration.data_config import (
-    DATASETS_DIC,
-    get_ds_title,
-    get_legend_variable,
-)
+from app.data_integration import data_endpoints
 
 DATASETS_SERVER_URL = "https://lab.idiap.ch/enermaps/api/"
 DATASETS_SERVER_API_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoiYXBpX3VzZXIifQ.gzl3uCe1OdCjf3feliREDJFfNkMTiDkVFcVDrCNlpBU"
@@ -48,19 +44,10 @@ def get_dataset(dataset_id):
     Fetch a geojson dataset from the enermaps server with a given Id.
     """
     url = DATASETS_SERVER_URL + "rpc/enermaps_query_geojson"
-    dataset_title = get_ds_title(dataset_id)
 
-    # Get the dataset parameters
-    params = None
-    layer_type = None
-    for _, value in DATASETS_DIC.items():
-        try:
-            if value["id"] == dataset_id:
-                params = value["json_params"]
-                layer_type = value["layer_type"]
-        except KeyError:
-            print("key error")
-            raise
+    params = data_endpoints.get_json_params(dataset_id)
+    layer_type = data_endpoints.get_ds_type(dataset_id)
+    dataset_title = data_endpoints.get_ds_title(dataset_id)
 
     if (params is not None) and (layer_type == "vector"):
         print("Fetching json dataset " + str(dataset_id))
@@ -75,7 +62,7 @@ def get_dataset(dataset_id):
                 for i in range(len(geojson["features"])):
                     # Modify the original geojson to put the legend key some levels higher
                     # (needed by mapnik to make the color rules)
-                    legend_variable = get_legend_variable(dataset_id)
+                    legend_variable = data_endpoints.get_legend_variable(dataset_id)
                     if isinstance(legend_variable, dict):
                         geojson["features"][i]["properties"]["legend"] = geojson[
                             "features"

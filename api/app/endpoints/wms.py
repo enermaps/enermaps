@@ -22,7 +22,7 @@ from lxml import etree  # nosec
 
 from app.common import projection as projection
 from app.common import xml as xml
-from app.data_integration.data_config import get_legend_style, get_legend_variable
+from app.data_integration import data_endpoints
 from app.models import geofile as geofile
 
 MIME_TO_MAPNIK = {"image/png": "png", "image/jpg": "jpg"}
@@ -258,6 +258,7 @@ class WMS(Resource):
 
         s = mapnik.Style()
         r = mapnik.Rule()
+
         r.symbols.append(mapnik.RasterSymbolizer())
         s.rules.append(r)
 
@@ -271,46 +272,35 @@ class WMS(Resource):
             layer_id = int(layer_name[0:2])
 
             # Get the variable used to color the polygons and its min/max values
-            layer_variable = get_legend_variable(layer_id)
+            layer_variable = data_endpoints.get_legend_variable(layer_id)
             if layer_variable is not None:
 
                 # Layer style is never None, if there is no custom style defined a
                 # default style is returned
-                layer_style = get_legend_style(layer_id)
-
-                colors = layer_style["colors"]
-                nb_of_colors = len(colors)
+                layer_style = data_endpoints.get_legend_style(layer_id)
+                nb_of_colors = len(layer_style)
 
                 # Create one polygon symbolizer per color
                 polygons = []
-                for color in colors:
+                for color, min_threshold, max_threshold in layer_style:
                     polygons.append(mapnik.PolygonSymbolizer())
                     polygons[-1].fill = mapnik.Color(*color)
                     polygons[-1].fill_opacity = 0.5
 
-                # Create the limits between the min and max values of the variable
-                limits = []
-                min_value = layer_variable["min"]
-                max_value = layer_variable["max"]
-                for n in range(1, nb_of_colors):
-                    limit = min_value + n * ((max_value - min_value) / nb_of_colors)
-                    limits.append(limit)
-
-                nb_limits = len(limits)
                 rules = []
-                for n in range(nb_limits + 1):
+                for n in range(nb_of_colors):
                     if n == 0:
-                        expression = f"[legend] < {limits[0]}"
-                    elif n == nb_limits:
-                        expression = f"[legend] >= {limits[n-1]}"
+                        expression = f"[legend] < {layer_style[n][2]}"
+                    elif n == nb_of_colors:
+                        expression = f"[legend] >= {layer_style[n][1]}"
                     else:
-                        expression = (
-                            f"[legend] < {limits[n]} and [legend] > {limits[n-1]}"
-                        )
+                        expression = f"[legend] < {layer_style[n][2]} and [legend] > {layer_style[n][1]}"
+
                     rules.append(mapnik.Rule())
                     rules[-1].filter = mapnik.Expression(expression)
                     rules[-1].symbols.append(polygons[n])
                     s.rules.append(rules[-1])
+
             else:
                 # If there is no variable defined for coloring the polygons,
                 # put the same black on all polygons
