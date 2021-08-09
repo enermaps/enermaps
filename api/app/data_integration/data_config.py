@@ -708,87 +708,87 @@ DATASETS_DIC = {
 }
 
 
-def get_ds_title(dataset_id):
-    """
-    Return the "displayable" name of the dataset.
-    """
-    dataset_params = get_ds(dataset_id)
-    title = dataset_params.get("title", None)
-    if title is None or not title:
-        return "undefined"
-    return title
+# def get_ds_title(dataset_id):
+#     """
+#     Return the "displayable" name of the dataset.
+#     """
+#     dataset_params = get_ds(dataset_id)
+#     title = dataset_params.get("title", None)
+#     if title is None or not title:
+#         return "undefined"
+#     return title
 
 
-def get_ds_ids():
-    """
-    Return the ID of the dataset (same ID as in the DB).
-    """
-    ids = []
-    for value in DATASETS_DIC.values():
-        id = value.get("id", None)
-        if id:
-            ids.append(id)
-    return ids
+# def get_ds_ids():
+#     """
+#     Return the ID of the dataset (same ID as in the DB).
+#     """
+#     ids = []
+#     for value in DATASETS_DIC.values():
+#         id = value.get("id", None)
+#         if id:
+#             ids.append(id)
+#     return ids
 
 
-def get_ds(dataset_id):
-    """Return the dataset default parameters in a dict or an
-    empty dict if there is no default parameters for this dataset"""
-    for value in DATASETS_DIC.values():
-        if value.get("id", None) == dataset_id:
-            return value
-    else:
-        return {}
+# def get_ds(dataset_id):
+#     """Return the dataset default parameters in a dict or an
+#     empty dict if there is no default parameters for this dataset"""
+#     for value in DATASETS_DIC.values():
+#         if value.get("id", None) == dataset_id:
+#             return value
+#     else:
+#         return {}
 
 
-def get_legend_style(dataset_id):
-    """Get the style used to color the map or a default style if the
-    legend or the style are undefined"""
+# def get_legend_style(dataset_id):
+#     """Get the style used to color the map or a default style if the
+#     legend or the style are undefined"""
 
-    default_style = {"colors": get_sns_color("flare", 12)}
+#     default_style = {"colors": get_sns_color("flare", 12)}
 
-    dataset_params = get_ds(dataset_id)
-    legend = dataset_params.get("legend", None)
+#     dataset_params = get_ds(dataset_id)
+#     legend = dataset_params.get("legend", None)
 
-    if legend is not None:
-        style = legend.get("style", None)
-        if style is not None:
-            return style
-    # If there is no legend or style defined, return default style
-    return default_style
-
-
-def get_legend_variable(dataset_id):
-    """
-    Return the variable used to color the layer and its min/max values, or
-    None if the legend or the variable used to color the map are not specified.
-    """
-    dataset_params = get_ds(dataset_id)
-    legend = dataset_params.get("legend", None)
-    if legend is not None:
-        return legend.get("legend_variable", None)
+#     if legend is not None:
+#         style = legend.get("style", None)
+#         if style is not None:
+#             return style
+#     # If there is no legend or style defined, return default style
+#     return default_style
 
 
-def get_legend(dataset_id):
-    dataset_params = get_ds(dataset_id)
-    # Check if the dataset is a vector or a raster dataset
-    if dataset_params.get("layer_type", None) != "vector":
-        # TODO how do we display legends for raster datasets?
-        return {}
+# def get_legend_variable(dataset_id):
+#     """
+#     Return the variable used to color the layer and its min/max values, or
+#     None if the legend or the variable used to color the map are not specified.
+#     """
+#     dataset_params = get_ds(dataset_id)
+#     legend = dataset_params.get("legend", None)
+#     if legend is not None:
+#         return legend.get("legend_variable", None)
 
-    variable = get_legend_variable(dataset_id)
-    style = get_legend_style(dataset_id)
-    return {"variable": variable, "style": style}
+
+# def get_legend(dataset_id):
+#     dataset_params = get_ds(dataset_id)
+#     # Check if the dataset is a vector or a raster dataset
+#     if dataset_params.get("layer_type", None) != "vector":
+#         # TODO how do we display legends for raster datasets?
+#         return {}
+
+#     variable = get_legend_variable(dataset_id)
+#     style = get_legend_style(dataset_id)
+#     return {"variable": variable, "style": style}
 
 
-def get_openair_link(dataset_id):
-    """ Return the OpenAir link of the dataset, or a default link if it is not
-    specified"""
-    default_link = (
-        "https://beta.enermaps.openaire.eu/search/publication?pid=10.3390%2Fen12244789"
-    )
-    dataset_params = get_ds(dataset_id)
-    link = dataset_params.get("openair_link", None)
-    if link is None or not link:
-        return default_link
-    return link
+# def get_openair_link(dataset_id):
+#     """ Return the OpenAir link of the dataset, or a default link if it is not
+#     specified"""
+#     default_link = (
+#         "https://beta.enermaps.openaire.eu/search/publication?pid=10.3390%2Fen12244789"
+#     )
+#     dataset_params = get_ds(dataset_id)
+#     link = dataset_params.get("openair_link", None)
+#     if link is None or not link:
+#         return default_link
+#     return link
