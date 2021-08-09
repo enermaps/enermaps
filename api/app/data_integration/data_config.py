@@ -36,7 +36,12 @@ DATASETS_DIC = {
         "json_params": {"parameters": {"data.ds_id": 2}, "row_limit": 100000},
         "title": "",
         "legend": {
-            "legend_variable": {"variable": "gross_cap_ele", "min": 0.0, "max": 275.0}
+            "legend_variable": {
+                "variable": "gross_cap_ele",
+                "units": "bidon",
+                "min": 0.0,
+                "max": 275.0,
+            }
         },
     },
     "DS_3": {
@@ -48,6 +53,7 @@ DATASETS_DIC = {
         "legend": {
             "legend_variable": {
                 "variable": "installed_capacity_MW",
+                "units": "bidon",
                 "min": 0.0,
                 "max": 2070.0,
             }
@@ -60,7 +66,12 @@ DATASETS_DIC = {
         "json_params": {"parameters": {"data.ds_id": 4}, "row_limit": 100000},
         "title": "",
         "legend": {
-            "legend_variable": {"variable": "capacity_g", "min": 0.0, "max": 4690.0}
+            "legend_variable": {
+                "variable": "capacity_g",
+                "units": "bidon",
+                "min": 0.0,
+                "max": 4690.0,
+            }
         },
     },
     "DS_5": {
@@ -84,7 +95,12 @@ DATASETS_DIC = {
         "title": "",
         "legend": {
             "style": {"colors": get_sns_color("crest", 12)},
-            "legend_variable": {"variable": "Total", "min": 0.05, "max": 0.56},
+            "legend_variable": {
+                "variable": "Total",
+                "units": "bidon",
+                "min": 0.05,
+                "max": 0.56,
+            },
         },
     },
     "DS_6": {
@@ -103,6 +119,7 @@ DATASETS_DIC = {
             "style": {"colors": get_sns_color("magma", 12)},
             "legend_variable": {
                 "variable": "Electricity : Final consumption - other sectors - households - energy use",
+                "units": "bidon",
                 "min": 815,
                 "max": 161520,
             },
@@ -128,6 +145,7 @@ DATASETS_DIC = {
         "legend": {
             "legend_variable": {
                 "variable": "Heating degree days",
+                "units": "bidon",
                 "min": 124.0,
                 "max": 1022.0,
             }
@@ -153,7 +171,12 @@ DATASETS_DIC = {
         },
         "title": "",
         "legend": {
-            "legend_variable": {"variable": "inventions", "min": 0.0, "max": 844.0}
+            "legend_variable": {
+                "variable": "inventions",
+                "units": "bidon",
+                "min": 0.0,
+                "max": 844.0,
+            }
         },
     },
     "DS_15": {
@@ -190,6 +213,7 @@ DATASETS_DIC = {
             "style": {"colors": get_sns_color("viridis", 12)},
             "legend_variable": {
                 "variable": "installed wind power capacity",
+                "units": "bidon",
                 "min": 0.0,
                 "max": 1.0,
             },
@@ -211,6 +235,7 @@ DATASETS_DIC = {
             "style": {"colors": get_sns_color("rocket_r", 12)},
             "legend_variable": {
                 "variable": "installed PV power capacity",
+                "units": "bidon",
                 "min": 0.0,
                 "max": 0.0,
             },
@@ -232,6 +257,7 @@ DATASETS_DIC = {
             "style": {"colors": get_sns_color("light:b", 12)},
             "legend_variable": {
                 "variable": "Energy intensity level of primary energy ",
+                "units": "bidon",
                 "min": 0.39,
                 "max": 42.0,
             },
@@ -257,7 +283,12 @@ DATASETS_DIC = {
         },
         "title": "",
         "legend": {
-            "legend_variable": {"variable": "Emissions", "min": 0.0, "max": 4155}
+            "legend_variable": {
+                "variable": "Emissions",
+                "units": "bidon",
+                "min": 0.0,
+                "max": 4155,
+            }
         },
     },
     "DS_20": {
@@ -305,6 +336,7 @@ DATASETS_DIC = {
         "legend": {
             "legend_variable": {
                 "variable": "Final energy consumption (Europe 2020-2030)",
+                "units": "bidon",
                 "min": 0.65,
                 "max": 216.0,
             }
@@ -352,6 +384,7 @@ DATASETS_DIC = {
             "style": {"colors": get_sns_color("dark:salmon_r", 12)},
             "legend_variable": {
                 "variable": "Base potential : Bark residues from pulp and paper industry",
+                "units": "bidon",
                 "min": 0.0,
                 "max": 216.0,
             },
@@ -388,6 +421,7 @@ DATASETS_DIC = {
             "style": {"colors": get_sns_color("vlag", 12)},
             "legend_variable": {
                 "variable": "ROOF | construction material | None",
+                "units": "bidon",
                 "min": 0.66,
                 "max": 1.0,
             },
@@ -426,6 +460,7 @@ DATASETS_DIC = {
             "style": {"colors": get_sns_color("icefire", 12)},
             "legend_variable": {
                 "variable": "final energy demand",
+                "units": "bidon",
                 "min": 0.0,
                 "max": 237713.0,
             },
@@ -463,6 +498,7 @@ DATASETS_DIC = {
             "style": {"colors": get_sns_color("flare", 12)},
             "legend_variable": {
                 "variable": "Final Energy | Heating",
+                "units": "bidon",
                 "min": 0.11,
                 "max": 504.0,
             },
@@ -529,6 +565,7 @@ DATASETS_DIC = {
             "style": {"colors": get_sns_color("YlOrBr", 12)},
             "legend_variable": {
                 "variable": "Non-residential buildings : Conventional dwellings",
+                "units": "bidon",
                 "min": 0.0,
                 "max": 440340.0,
             },
@@ -574,6 +611,7 @@ DATASETS_DIC = {
             "style": {"colors": get_sns_color("Spectral", 12)},
             "legend_variable": {
                 "variable": "Total  emissions excluding LULUCF | Carbon dioxide",
+                "units": "bidon",
                 "min": 3675.0,
                 "max": 5424882.0,
             },
@@ -595,6 +633,7 @@ DATASETS_DIC = {
             "style": {"colors": get_sns_color("coolwarm", 12)},
             "legend_variable": {
                 "variable": "Band DA : Consumption < 1 000 kWh : All taxes and levies included",
+                "units": "bidon",
                 "min": -0.027,
                 "max": 0.6,
             },
@@ -616,6 +655,7 @@ DATASETS_DIC = {
             "style": {"colors": get_sns_color("crest", 12)},
             "legend_variable": {
                 "variable": "Electricity, gas and other fuels",
+                "units": "bidon",
                 "min": 130.0,
                 "max": 66265.0,
             },
@@ -637,6 +677,7 @@ DATASETS_DIC = {
             "style": {"colors": get_sns_color("viridis", 12)},
             "legend_variable": {
                 "variable": "Natural gas",
+                "units": "bidon",
                 "min": -1822.0,
                 "max": 110.0,
             },
@@ -656,13 +697,21 @@ DATASETS_DIC = {
         "title": "",
         "legend": {
             "style": {"colors": get_sns_color("ch:s=-.2,r=.6", 12)},
-            "legend_variable": {"variable": "default", "min": 1038.0, "max": 651258.0},
+            "legend_variable": {
+                "variable": "default",
+                "units": "bidon",
+                "min": 1038.0,
+                "max": 651258.0,
+            },
         },
     },
 }
 
 
 def get_ds_title(dataset_id):
+    """
+    Return the "displayable" name of the dataset.
+    """
     dataset_params = get_ds(dataset_id)
     title = dataset_params.get("title", None)
     if title is None or not title:
@@ -671,6 +720,9 @@ def get_ds_title(dataset_id):
 
 
 def get_ds_ids():
+    """
+    Return the ID of the dataset (same ID as in the DB).
+    """
     ids = []
     for value in DATASETS_DIC.values():
         id = value.get("id", None)
@@ -697,6 +749,7 @@ def get_legend_style(dataset_id):
 
     dataset_params = get_ds(dataset_id)
     legend = dataset_params.get("legend", None)
+
     if legend is not None:
         style = legend.get("style", None)
         if style is not None:
@@ -718,6 +771,7 @@ def get_legend_variable(dataset_id):
 
 def get_legend(dataset_id):
     dataset_params = get_ds(dataset_id)
+    # Check if the dataset is a vector or a raster dataset
     if dataset_params.get("layer_type", None) != "vector":
         # TODO how do we display legends for raster datasets?
         return {}
@@ -728,6 +782,8 @@ def get_legend(dataset_id):
 
 
 def get_openair_link(dataset_id):
+    """ Return the OpenAir link of the dataset, or a default link if it is not
+    specified"""
     default_link = (
         "https://beta.enermaps.openaire.eu/search/publication?pid=10.3390%2Fen12244789"
     )
