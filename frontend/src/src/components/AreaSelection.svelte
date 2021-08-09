@@ -5,8 +5,13 @@
   import '../leaflet_components/L.TileLayer.QueryableLayer.js';
   import queryString from 'query-string';
   import {getGeofiles, getLegend, getOpenairLink, WMS_URL} from '../client.js';
-  import {activeOverlayLayersStore, activeSelectionLayerStore} from '../stores.js';
+  import {activeOverlayLayersStore, activeSelectionLayerStore, isLayerActiveStore} from '../stores.js';
 
+  function toggleLegend() {
+      isLayerActiveStore.update((n) => !n);
+  }
+
+  let checked=true
   let selectionLayers = [];
   let overlayLayers = [];
 
@@ -198,11 +203,11 @@
     Filter: <input bind:value={overlayLayersFilter} class="overlay_search">
     {#each filteredOverlayLayers as overlayLayer (overlayLayer.name)}
     <label title={overlayLayer.name}>
-      <input type=checkbox bind:group={$activeOverlayLayersStore} value={overlayLayer}>
+      <input type=checkbox bind:group={$activeOverlayLayersStore} value={overlayLayer} bind:checked={overlayLayer.checked}>
         {overlayLayer.name}
     </label>
 
-    <div id="metadata_box">
+    <div id="metadata_box" hidden={!overlayLayer.checked}>
       {#await overlayLayer.legend_promise}
         <div>...waiting for legend</div>
       {:then legend}
