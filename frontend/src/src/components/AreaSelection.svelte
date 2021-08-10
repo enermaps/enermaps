@@ -5,13 +5,8 @@
   import '../leaflet_components/L.TileLayer.QueryableLayer.js';
   import queryString from 'query-string';
   import {getGeofiles, getLegend, getOpenairLink, WMS_URL} from '../client.js';
-  import {activeOverlayLayersStore, activeSelectionLayerStore, isLayerActiveStore} from '../stores.js';
+  import {activeOverlayLayersStore, activeSelectionLayerStore} from '../stores.js';
 
-  function toggleLegend() {
-      isLayerActiveStore.update((n) => !n);
-  }
-
-  let checked=true
   let selectionLayers = [];
   let overlayLayers = [];
 
