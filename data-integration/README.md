@@ -23,7 +23,7 @@ You can manually execute the available pipelines witn the following commands:
     `docker-compose -f ../docker-compose-db.yml run data-integration getEdgar.py`
 
   - 21: EU-DEM
-    `docker-compose run data-integration getESM-EUDEM.py --select_ds_ids 21`
+    `docker-compose -f ../docker-compose-db.yml run data-integration getESM-EUDEM.py --select_ds_ids 21`
 
   - 30: Fuel consumption and technologies used in the heating/cooling sector
     `docker-compose -f ../docker-compose-db.yml run data-integration getENER.py`
@@ -37,7 +37,7 @@ You can manually execute the available pipelines witn the following commands:
     `docker-compose -f ../docker-compose-db.yml run data-integration getBuildingHeight.py`
 
   - 35: ESM
-    `docker-compose run data-integration getESM-EUDEM.py --select_ds_ids 35`
+    `docker-compose -f ../docker-compose-db.yml run data-integration getESM-EUDEM.py --select_ds_ids 35`
 
   - 43: HotMaps Heat Density
     `docker-compose -f ../docker-compose-db.yml run data-integration getHotMaps_raster.py --select_ds_ids 43`
