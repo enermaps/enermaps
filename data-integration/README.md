@@ -17,7 +17,7 @@ You can manually execute the available pipelines witn the following commands:
     `docker-compose -f ../docker-compose-db.yml run data-integration getEEA.py`
 
   - 7: Electricity Map data
-    `docker-compose run data-integration getElectricity.py`
+    `docker-compose -f ../docker-compose-db.yml run data-integration getElectricity.py`
 
   - 19: EDGAR CO₂ emissions
     `docker-compose -f ../docker-compose-db.yml run data-integration getEdgar.py`
