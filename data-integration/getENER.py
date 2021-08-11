@@ -13,7 +13,6 @@ import json
 import logging
 import os
 import sys
-from typing import Tuple
 
 import pandas as pd
 import utilities
@@ -48,8 +47,12 @@ FILES = {
 
 DB_URL = utilities.DB_URL
 
+SELECTED_FIELDS = (
+    []
+)  # these are the fields that are used to construct a query; empty list means all.
 
-def get(directory: str) -> Tuple[pd.DataFrame, dict]:
+
+def get(directory: str) -> pd.DataFrame:
     """
     Parse original Excel file and returns df in EnerMaps schema.
 
@@ -101,17 +104,7 @@ def get(directory: str) -> Tuple[pd.DataFrame, dict]:
     enermaps_data["israster"] = ISRASTER
     enermaps_data["dt"] = DT
 
-    # Retrieve parameters from unique fields
-    parameters = {}
-    parameters = data[FIELDS].apply(lambda x: list(pd.unique(x)), axis=0).to_dict()
-    # Set default parameters
-    default_parameters = {}
-    default_parameters["fields"] = json.loads(enermaps_data["fields"].iloc[0])
-    default_parameters["start_at"] = (
-        enermaps_data["start_at"].iloc[0].strftime("%Y-%m-%d %H:%M")
-    )
-
-    return enermaps_data, parameters, default_parameters
+    return enermaps_data
 
 
 if __name__ == "__main__":
@@ -122,7 +115,7 @@ if __name__ == "__main__":
         files_dir = os.path.join("data", str(ds_id))
         if os.path.exists(files_dir) and len(os.listdir(files_dir)) == N_FILES:
 
-            data, parameters, default_parameters = get(files_dir)
+            data = get(files_dir)
 
             # Remove existing dataset
             if utilities.datasetExists(ds_id, DB_URL) and not isForced:
@@ -136,8 +129,10 @@ if __name__ == "__main__":
             # Create dataset table
             metadata = datasets.loc[ds_id].fillna("").to_dict()
             # Add parameters as metadata
-            metadata["parameters"] = parameters
-            metadata["default_parameters"] = default_parameters
+            (
+                metadata["parameters"],
+                metadata["default_parameters"],
+            ) = utilities.get_query_metadata(data, SELECTED_FIELDS)
             metadata = json.dumps(metadata)
             dataset = pd.DataFrame([{"ds_id": ds_id, "metadata": metadata}])
             utilities.toPostgreSQL(

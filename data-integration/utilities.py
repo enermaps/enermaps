@@ -504,3 +504,53 @@ def parser(script_name: str, datasets=pd.DataFrame):
         if len(args.select_ds_ids) > 0:
             ds_ids = args.select_ds_ids
     return ds_ids, isForced
+
+
+def get_query_metadata(data: pd.DataFrame, selected_fields: list = []):
+    """
+    Prepare metadata needed for construct a db query.
+    The metadata contain possible parameter values and the default values.
+
+    Parameters
+    ----------
+    data : pd.DataFrame
+        Data using the EnerMaps schema.
+    selected_fields : list, optional.
+        The keys in the "fields" column that are actually used in the query.
+    Returns
+    -------
+    parameters : dict
+        Possible parameter values to be used in the query.
+    default_parameters : dict
+        Default parameter values to be used in the query.
+    """
+
+    logging.info("Creating query metadata")
+
+    # Set parameter values (unique values)
+    parameters = {}
+    fields = data["fields"].apply(lambda x: json.loads(x))
+    fields_df = pd.json_normalize(fields)
+    # Restrict parameters to only some fields
+    if selected_fields:
+        fields_df = fields_df[selected_fields]
+    parameters["fields"] = {
+        column: fields_df[column].unique().tolist() for column in fields_df.columns
+    }
+    parameters["variables"] = list(data["variable"].unique())
+    parameters["start_at"] = data["start_at"].max().strftime("%Y-%m-%d %H:%M")
+    parameters["end_at"] = data["start_at"].min().strftime("%Y-%m-%d %H:%M")
+
+    # Set default parameters (corresponding to the first record)
+    default_parameters = {}
+    default_fields = json.loads(data["fields"].iloc[0])
+    if selected_fields:
+        default_parameters["fields"] = {
+            key: default_fields[key] for key in selected_fields
+        }
+    else:
+        default_parameters["fields"] = default_fields
+    default_parameters["start_at"] = data["start_at"].iloc[0].strftime("%Y-%m-%d %H:%M")
+    default_parameters["variables"] = data["variable"].iloc[0]
+
+    return parameters, default_parameters
