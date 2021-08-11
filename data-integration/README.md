@@ -16,6 +16,9 @@ You can manually execute the available pipelines witn the following commands:
   - 5: EEA: Share of gross final consumption of renewable energy sources
     `docker-compose -f ../docker-compose-db.yml run data-integration getEEA.py`
 
+  - 7: Electricity Map data
+    `docker-compose -f ../docker-compose-db.yml run data-integration getElectricity.py`
+
   - 19: EDGAR CO₂ emissions
     `docker-compose -f ../docker-compose-db.yml run data-integration getEdgar.py`
 
