@@ -27,6 +27,9 @@ You can manually execute the available pipelines witn the following commands:
     Instructions are in the header of the Python file.
     `docker-compose -f ../docker-compose-db.yml run data-integration getESM-EUDEM.py --select_ds_ids 21`
 
+  - 28: HotMaps Building stock analysis
+    `docker-compose -f ../docker-compose-db.yml run data-integration getHotMaps_tabular.py`
+
   - 30: Fuel consumption and technologies used in the heating/cooling sector
     `docker-compose -f ../docker-compose-db.yml run data-integration getENER.py`
 
