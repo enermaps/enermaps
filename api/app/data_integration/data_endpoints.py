@@ -2,6 +2,17 @@ import seaborn as sns
 
 from app.data_integration.data_config import DATASETS_DIC
 
+# from data_config import DATASETS_DIC
+
+
+def get_sns_color(palette, nb_of_colors):
+    color_list = sns.color_palette(palette, nb_of_colors)
+    rgb_list = [
+        ((int(255 * color[0])), (int(255 * color[1])), (int(255 * color[2])))
+        for color in color_list
+    ]
+    return rgb_list
+
 
 def get_ds(dataset_id):
     """Return the dataset default parameters as a dict or an
@@ -60,8 +71,15 @@ def get_legend_variable(dataset_id):
     an empty dict if the legend or the variable used to color the map are not specified.
     """
     dataset_params = get_ds(dataset_id)
+    empty_legend_variable = {
+        "variable": "No legend defined",
+        "units": None,
+        "min": None,
+        "max": None,
+    }
     legend = dataset_params.get("legend", {})
-    return legend.get("legend_variable", {})
+    legend_variable = legend.get("legend_variable", empty_legend_variable)
+    return legend_variable
 
 
 # api/datasets/{ds_id}/openair
@@ -94,20 +112,25 @@ def get_legend_style(dataset_id):
         return rgb_list
 
     dataset_params = get_ds(dataset_id)
-    legend = dataset_params.get("legend", None)
+    legend = dataset_params.get("legend", {})
     style = legend.get("style", {})
+
     colors = style.get("colors", None)
     if colors is None:
-        default_colors = get_sns_color("flare", 12)
-        colors = default_colors
+        color_palet = "flare"
+        nb_of_colors = 12
+    else:
+        color_palet = colors["color_palet"]
+        nb_of_colors = colors["nb_of_colors"]
+
+    color_list = get_sns_color(color_palet, nb_of_colors)
 
     layer_style = []
     variable = get_legend_variable(dataset_id)
     min_value = variable.get("min", None)
     max_value = variable.get("max", None)
     if min_value is not None and max_value is not None:
-        nb_of_colors = len(colors)
-        for n, color in enumerate(colors, start=1):
+        for n, color in enumerate(color_list, start=1):
             min_threshold = min_value + (n - 1) * (
                 (max_value - min_value) / nb_of_colors
             )
@@ -117,18 +140,13 @@ def get_legend_style(dataset_id):
             layer_style.append((color, min_threshold, max_threshold))
     else:
         # give all the polygons the same color (first color of the color list)
-        color = colors[0]
+        color = color_list[0]
         layer_style.append((color, min_value, max_value))
 
     return layer_style
 
 
 def get_legend(dataset_id):
-    ds_type = get_ds_type(dataset_id)
-    if ds_type != "vector":
-        # TODO how do we display legends for raster datasets?
-        return {}
-
     variable = get_legend_variable(dataset_id)
     style = get_legend_style(dataset_id)
     return {"variable": variable, "style": style}
