@@ -23,6 +23,8 @@ You can manually execute the available pipelines witn the following commands:
     `docker-compose -f ../docker-compose-db.yml run data-integration getEdgar.py`
 
   - 21: EU-DEM
+    Note that the files must be manually downloaded by Copernicus website (requires log-in).
+    Instructions are in the header of the Python file.
     `docker-compose -f ../docker-compose-db.yml run data-integration getESM-EUDEM.py --select_ds_ids 21`
 
   - 28: HotMaps Building stock analysis
@@ -40,6 +42,8 @@ You can manually execute the available pipelines witn the following commands:
     `docker-compose -f ../docker-compose-db.yml run data-integration getBuildingHeight.py`
 
   - 35: ESM
+    Note that the files must be manually downloaded by Copernicus website (requires log-in).
+    Instructions are in the header of the Python file.
     `docker-compose -f ../docker-compose-db.yml run data-integration getESM-EUDEM.py --select_ds_ids 35`
 
   - 43: HotMaps Heat Density
