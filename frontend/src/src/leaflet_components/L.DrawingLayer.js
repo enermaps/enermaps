@@ -8,12 +8,12 @@ L.DrawingLayer = L.FeatureGroup.extend({
   },
   onAdd: function(map) {
     const drawPluginOptions = {
-      position: 'topright',
+      position: 'topleft',
       draw: {
         polygon: {
           allowIntersection: true,
           shapeOptions: {
-            color: '#bada55',
+            color: '#4d88c7',
           },
         },
         polyline: false,

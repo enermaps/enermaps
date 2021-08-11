@@ -87,6 +87,7 @@
   margin-bottom: 8px;
   padding : 8px;
   border-radius: 4px;
+  width: inherit;
 }
 h3 {
   margin: 0;
@@ -106,7 +107,7 @@ h3 {
       </div>
     </div>
   </div>
- 
+
   <div hidden="{isCollapsed}">
     <div>
       <form class="cm_params" bind:this={formElement} />

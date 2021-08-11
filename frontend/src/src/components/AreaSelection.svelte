@@ -129,22 +129,22 @@
   <style>
 
   #map_selection {
-    width: 140px;
+    width: 200px;
     padding: 4px;
     border: 1px solid #27275b;
     border-radius: 0px;
     background-color: #eff4fa;
     box-sizing: border-box;
-    width: 100%;
   }
 
   #map_selection h3 {
     margin: 0px;
-    height: 40%;
-    width: 100%;
+    /* height: 40%; */
+    height: 25px;
+    /* width: 140px; */
     display: flex;
     flex-direction: column;
-    max-width: 200px;
+    /* max-width: 200px; */
     white-space: nowrap;
     text-overflow: ellipsis;
     overflow: hidden !important;
@@ -153,11 +153,18 @@
   h3 {
     flex-shrink: 0;
     border : none;
+    /* width: 100%; */
   }
+
   #overlay_layers {
-    width: 140px;
+    /* width: 100%; */
+    max-height: 300px;
     overflow-y: auto;
     border : none;
+    /* overflow: hidden;*/
+    overflow-y: scroll;
+    scrollbar-color: #27275b;
+    scrollbar-width: thin;
   }
 
   label {
@@ -166,19 +173,20 @@
   white-space: nowrap;
   text-overflow: ellipsis;
   overflow-x: hidden;
+  margin-top: 2px;
   }
   .overlay_search {
     width: 100%;
   }
 
   .box {
-  /* float: left; */
-  height: 10px;
-  width: 10px;
-  /* margin-bottom: 15px; */
-  border: 1px solid black;
-  /* clear: both; */
-  display: inline-block;
+    /* float: left; */
+    height: 10px;
+    width: 10px;
+    /* margin-bottom: 15px; */
+    border: 1px solid black;
+    /* clear: both; */
+    display: inline-block;
   }
 
   #metadata_box {
@@ -186,6 +194,10 @@
     border-radius: 0px;
     background-color: #fff;
     padding: 5px;
+    width: inherit;
+    margin-right: 10px;
+    margin-left: 10px;
+    /* overflow: hidden; */
   }
 
   </style>
@@ -194,8 +206,9 @@
     Loading layers...
     {:else}
     <h3>Overlays</h3>
-    <div id="overlay_layers">
     Filter: <input bind:value={overlayLayersFilter} class="overlay_search">
+    <div id="overlay_layers">
+
     {#each filteredOverlayLayers as overlayLayer (overlayLayer.name)}
     <label title={overlayLayer.name}>
       <input type=checkbox bind:group={$activeOverlayLayersStore} value={overlayLayer} bind:checked={overlayLayer.checked}>
@@ -206,7 +219,7 @@
       {#await overlayLayer.legend_promise}
         <div>...waiting for legend</div>
       {:then legend}
-        <div>{legend.variable.variable}</div>
+        <div><b>{legend.variable.variable}</b></div>
         {#each legend.style as color}
           <div style="display: inline-block;">
             <div class='box' style="background-color: rgb( {color[0][0]}, {color[0][1]}, {color[0][2]} )"> </div>

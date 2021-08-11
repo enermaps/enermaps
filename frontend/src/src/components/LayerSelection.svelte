@@ -104,17 +104,16 @@
 </script>
 <style>
 #map_selection {
-  width: 140px;
+  width: 200px;
   padding: 4px;
   border: 1px solid #27275b;
 	border-radius: 0px;
   background-color: #eff4fa;
-  width: 100%;
   box-sizing: border-box;
 }
 #map_selection h3 {
   margin: 0px;
-  height: 40%;
+  height: 25px;
   display: flex;
   flex-direction: column;
   white-space: nowrap;
@@ -126,7 +125,7 @@ h3 {
   border : none;
 }
 #selection_layers {
-  width: 140px;
+  /* width: 140px; */
   overflow-y: auto;
   border : none;
 }
@@ -137,6 +136,7 @@ label {
   white-space: nowrap;
   text-overflow: ellipsis;
   overflow-x: hidden;
+  margin-top: 2px;
 }
 </style>
 

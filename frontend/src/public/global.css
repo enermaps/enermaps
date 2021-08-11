@@ -33,9 +33,9 @@ label {
 input, select, textarea {
 	font-family: inherit;
 	font-size: inherit;
-	-webkit-padding: 0.4em 0;
+	/* -webkit-padding: 0.4em 0; */
 	padding: 0.4em;
-	margin: 0 0 0.5em 0;
+	/* margin: 0 0 0 0; */
 	box-sizing: border-box;
 	border: 1px solid #27275b;
 	border-radius: 0px;
@@ -54,11 +54,11 @@ button {
 	outline: none;
 	font-family: inherit;
 	font-size: inherit;
-	-webkit-padding: 0 0 0;
-	padding: 0;
+	/* -webkit-padding: 0 0 0; */
+	padding: 2px;
 	margin: 0 0 0 0;
 	box-sizing: border-box;
-	border: 1px solid #757575;
+	border: 1px solid #27275b;
 	border-radius: 4px;
 	cursor: pointer;
 }

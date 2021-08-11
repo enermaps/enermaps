@@ -17,7 +17,7 @@
   $: {
     console.log(task);
   }
-  
+
   onMount(async () => {
     updateTaskResult();
   });
@@ -54,13 +54,14 @@
 </script>
 <style>
 .cmresult {
-  border: 2px solid rgba(0,0,0,0.5);
-  border-radius: 4px;
+  border: 1px solid #27275b;
+  border-radius: 0px;
   padding: 5px;
+  background-color: #fff;
 }
 </style>
 <div class="cmresult">
-  <div class="close_button" on:click="{removeTask}"></div>
+  <div class="close_button" on:click="{removeTask}"><img src='/images/clear-icon.png' alt='close'></div>
   <dl>
   <dt>task_id</dt><dd>{formatTaskID(task)}</dd>
   <dt>status</dt><dd>{taskResult.status}</dd>
