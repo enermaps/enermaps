@@ -2,8 +2,8 @@ import json
 from os import remove, system
 from os.path import exists, isfile
 
-import numpy as np
 import gdal
+import numpy as np
 import rasterio
 from osgeo import gdal, osr
 
