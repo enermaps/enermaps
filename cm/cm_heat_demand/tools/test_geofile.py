@@ -5,13 +5,7 @@ from os.path import abspath, dirname, exists, isdir, isfile, join
 
 import numpy as np
 
-from .geofile import (
-    RasterNotOverlappedError,
-    clip_raster,
-    get_projection,
-    read_raster,
-    write_raster,
-)
+from . import geofile
 from .settings import TESTDATA_DIR
 
 
@@ -68,7 +62,7 @@ class TestGeofileTools(unittest.TestCase):
         self.assertFalse(exists(self.dst), msg=f"File already exist: {self.dst}")
 
     def test_projection_getting(self):
-        projection = get_projection(self.raster)
+        projection = geofile.get_projection(self.raster)
         is_valid = projection.is_valid
         self.assertTrue(is_valid)
         file_epsg_code = 4326
@@ -76,36 +70,36 @@ class TestGeofileTools(unittest.TestCase):
 
     def test_clipping_raster(self):
         shapes = self.get_shapes(self.region)
-        clip_raster(src=self.raster, shapes=shapes, dst=self.dst)
+        geofile.clip_raster(src=self.raster, shapes=shapes, dst=self.dst)
         self.assertTrue(isfile(self.dst), msg=f"File not created: {self.dst}")
 
     def test_clipping_disjointed_raster(self):
         shapes = self.get_shapes(self.disjointed_region)
-        with self.assertRaises(RasterNotOverlappedError):
-            clip_raster(src=self.raster, shapes=shapes, dst=self.dst)
+        with self.assertRaises(geofile.RasterNotOverlappedError):
+            geofile.clip_raster(src=self.raster, shapes=shapes, dst=self.dst)
 
     def test_clipping_intercepted_raster(self):
         shapes = self.get_shapes(self.intercepted_region)
-        clip_raster(src=self.raster, shapes=shapes, dst=self.dst)
-        raster_map = read_raster(self.raster, return_geo_transform=False)
-        dst_map = read_raster(self.dst, return_geo_transform=False)
+        geofile.clip_raster(src=self.raster, shapes=shapes, dst=self.dst)
+        raster_map = geofile.read_raster(self.raster, return_geo_transform=False)
+        dst_map = geofile.read_raster(self.dst, return_geo_transform=False)
         self.assertGreaterEqual(np.mean(raster_map), np.mean(dst_map))
 
     def test_read_raster(self):
-        map_array, geotransform = read_raster(raster=self.raster)
+        map_array, geotransform = geofile.read_raster(raster=self.raster)
         self.assertIsInstance(map_array, np.ndarray)
         self.assertIsInstance(geotransform, tuple)
 
     def test_write_raster(self):
-        map_array, geotransform = read_raster(raster=self.raster)
-        projection = get_projection(geofile=self.raster)
-        write_raster(
+        map_array, geotransform = geofile.read_raster(raster=self.raster)
+        projection = geofile.get_projection(geofile=self.raster)
+        geofile.write_raster(
             map_array=map_array,
             projection=projection,
             geotransform=geotransform,
             dst=self.dst,
         )
-        dst_map_array, dst_geotransform = read_raster(raster=self.raster)
+        dst_map_array, dst_geotransform = geofile.read_raster(raster=self.raster)
         self.comparator(map_array, dst_map_array, comparison=self.array_comparison)
         self.comparator(
             geotransform, dst_geotransform, comparison=self.tuple_comparison
