@@ -20,8 +20,8 @@ def get_browsing_indexes(
     This function :
         * find the row, the column, the label, the value of each non-null pixel in list,
         * sort this list based on the label and save it as numpy array,
-        * and then calculate the indexes of the first and the last element of the sorted list
-          that belongs to the same label.
+        * and then calculate the indexes of the first and the last element 
+          of the sorted list that belongs to the same label.
 
     Afterwards, the sorted list will be browsed piece by piece
     (i.e. label by label) thanks to the indexes.
@@ -55,7 +55,7 @@ def get_browsing_indexes(
     start = np.concatenate(
         (
             np.zeros((1)),
-            end[0 : n_label - 1],
+            end[0: n_label - 1],
         )
     )
 
@@ -85,11 +85,11 @@ def define_areas(
         * areas_potential :
             - list of the potential of each zone.
 
-            The pixels that do not pass the thresholds (and therefore defined with a potential equal to zero)
-            belong to the first zone.
+            The pixels that do not pass the thresholds (and therefore defined
+            with a potential equal to zero) belong to the first zone.
             For example : [0, "1st area potential", ..., "nth area potential"]
-            - NB: this zone is not interesting, therefore only the potential of the other zones
-                is returned in practice
+            - NB: this zone is not interesting, therefore only the potential
+                of the other zones is returned in practice
     """
     structure = np.ones((3, 3)).astype(int)
     expanded_map = binary_dilation(input=pixel_filtered_map, structure=structure)
@@ -128,14 +128,19 @@ def get_areas(
     district_heating_zone_threshold: float,
 ):
     """
-    This function applies a filter on each individual pixel as well as on all the pixels belonging to the same area.
+    This function applies a filter on each individual pixel
+    as well as on all the pixels belonging to the same area.
 
-    These areas are defined by the set of adjacent pixels that have passed the first filter.
+    These areas are defined by the set of adjacent pixels
+    that have passed the first filter.
 
     Inputs :
-        * heat_density_map : path to the clipped raster (MWh) - a value between 0 and 1.000.
-        * pixel_threshold : threshold that each pixel must reach (MWh) - a value between 0 and 500.
-        * district_heating_zone_threshold : threshold that each zone must reach (GWh/a).
+        * heat_density_map :
+            path to the clipped raster (MWh) - a value between 0 and 1.000.
+        * pixel_threshold :
+            threshold that each pixel must reach (MWh) - a value between 0 and 500.
+        * district_heating_zone_threshold :
+            threshold that each zone must reach (GWh/a).
 
     Outputs :
         * areas :
@@ -151,11 +156,11 @@ def get_areas(
         * areas_potential :
             - list of the potential of each zone.
 
-            The pixels that do not pass the thresholds (and therefore defined with a potential equal to zero)
-            belong to the first zone.
+            The pixels that do not pass the thresholds (and therefore defined
+            with a potential equal to zero) belong to the first zone.
             For example : [0, "1st area potential", ..., "nth area potential"]
-            - NB: this zone is not interesting, therefore only the potential of the other zones
-                is returned in practice
+            - NB: this zone is not interesting, therefore only the potential of
+                the other zones is returned in practice
     """
     array_map, geo_transform = read_raster(raster=heat_density_map)
     # array_map units : MWh

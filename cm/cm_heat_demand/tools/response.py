@@ -65,7 +65,8 @@ def get_response(
         base_dictionary["values"] = {
             "Total district heating potential (GWh)": round(total_potential, 2),
             "Total heat demand (GWh)": round(total_heat_demand, 2),
-            "Potential share of district heating from total demand in selected zone (%)": round(
+            "Potential share of district heating from total "
+            "demand in selected zone (%)": round(
                 total_potential / total_heat_demand * 100, 2
             ),
         }

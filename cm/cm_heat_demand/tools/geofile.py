@@ -2,7 +2,6 @@ import json
 from os import remove, system
 from os.path import exists, isfile
 
-import gdal
 import numpy as np
 import rasterio
 from osgeo import gdal, osr
@@ -111,7 +110,8 @@ def write_raster(
     driver = gdal.GetDriverByName("GTiff")
     dst_ds = driver.Create(dst, width, height, 1, gdal.GDT_UInt16)
 
-    # Upper Left x, Eeast-West px resolution, rotation, Upper Left y, rotation, North-South px resolution
+    # Upper Left x, Eeast-West px resolution, rotation,
+    # Upper Left y, rotation, North-South px resolution
     dst_ds.SetGeoTransform(geotransform)
 
     # Set CRS
