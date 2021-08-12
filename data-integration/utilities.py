@@ -53,6 +53,8 @@ ENERMAPS_DF = pd.DataFrame(
     ]
 )
 
+DT_FORMAT = "%Y-%m-%d %H:%M"
+
 
 def prepareRaster(
     df: pd.DataFrame,
@@ -542,12 +544,12 @@ def get_query_metadata(
         column: fields_df[column].unique().tolist() for column in fields_df.columns
     }
     parameters["variables"] = list(data["variable"].unique())
-    parameters["start_at"] = data["start_at"].max().strftime("%Y-%m-%d %H:%M")
-    parameters["end_at"] = data["start_at"].min().strftime("%Y-%m-%d %H:%M")
+    parameters["start_at"] = data["start_at"].max().strftime(DT_FORMAT)
+    parameters["end_at"] = data["start_at"].min().strftime(DT_FORMAT)
     # Add custom time periods
     if parameters.get("temporal_granularity") == "custom":
         parameters["time_periods"] = list(
-            pd.Series(data["start_at"].unique()).dt.strftime("%Y-%m-%d %H:%M")
+            pd.Series(data["start_at"].unique()).dt.strftime(DT_FORMAT)
         )
 
     # Set default parameters (corresponding to the first record)
@@ -559,7 +561,7 @@ def get_query_metadata(
         }
     else:
         default_parameters["fields"] = default_fields
-    default_parameters["start_at"] = data["start_at"].iloc[0].strftime("%Y-%m-%d %H:%M")
+    default_parameters["start_at"] = data["start_at"].iloc[0].strftime(DT_FORMAT)
     default_parameters["variables"] = data["variable"].iloc[0]
 
     return parameters, default_parameters
