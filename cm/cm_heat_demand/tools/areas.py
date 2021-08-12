@@ -20,7 +20,7 @@ def get_browsing_indexes(
     This function :
         * find the row, the column, the label, the value of each non-null pixel in list,
         * sort this list based on the label and save it as numpy array,
-        * and then calculate the indexes of the first and the last element 
+        * and then calculate the indexes of the first and the last element
           of the sorted list that belongs to the same label.
 
     Afterwards, the sorted list will be browsed piece by piece
@@ -55,7 +55,7 @@ def get_browsing_indexes(
     start = np.concatenate(
         (
             np.zeros((1)),
-            end[0: n_label - 1],
+            end[0 : n_label - 1],
         )
     )
 
