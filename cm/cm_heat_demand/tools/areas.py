@@ -52,10 +52,12 @@ def get_browsing_indexes(
 
     unique_items, counts = np.unique(labels, return_counts=True)
     end = np.cumsum(counts)
+    a = 0
+    b = n_label - 1
     start = np.concatenate(
         (
             np.zeros((1)),
-            end[0: n_label - 1],
+            end[a:b],
         )
     )
 
