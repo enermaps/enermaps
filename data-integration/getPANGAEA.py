@@ -77,6 +77,23 @@ def prepareNETCDF(
             if isinstance(object, np.generic):
                 return object.item()
 
+        def prepareFile(tmp_filename, dest_filename, my_dict, filename_orig):
+            """Export raster."""
+            if not os.path.exists(tmp_filename):
+                reprojected.rio.to_raster(tmp_filename)
+            dicts.append(my_dict)
+
+            # Compress
+            os.system(  # nosec
+                "gdal_translate {filename} {dest_filename} -of GTIFF --config GDAL_PAM_ENABLED NO -co COMPRESS=DEFLATE -co BIGTIFF=YES".format(
+                    filename=tmp_filename, dest_filename=dest_filename
+                )
+            )
+
+            os.remove(tmp_filename)
+
+            return dicts
+
         if len(dims) == 2:
             for d0 in range(xds[variable][dims[0]].shape[0]):
                 for d1 in range(xds[variable][dims[1]].shape[0]):
@@ -120,6 +137,10 @@ def prepareNETCDF(
                     # reproj
                     reprojected = xds[variable][d0][d1].rio.reproject(crs.to_string())
 
+                    dicts = prepareFile(
+                        tmp_filename, dest_filename, my_dict, filename_orig
+                    )
+
         elif len(dims) == 1:
             for d0 in range(xds[variable][dims[0]].shape[0]):
                 my_dict = {}
@@ -155,26 +176,29 @@ def prepareNETCDF(
                     )
                 else:
                     reprojected = xds[variable][d0].rio.reproject(crs.to_string())
+
+                dicts = prepareFile(tmp_filename, dest_filename, my_dict, filename_orig)
         else:
             raise ValueError("Too many dimensions")
 
-        # export raster
-        if not os.path.exists(tmp_filename):
-            reprojected.rio.to_raster(tmp_filename)
-        dicts.append(my_dict)
+    if delete_orig:
+        os.remove(filename_orig)
 
-        # Compress
-        os.system(  # nosec
-            "gdal_translate {filename} {dest_filename} -of GTIFF --config GDAL_PAM_ENABLED NO -co COMPRESS=DEFLATE -co BIGTIFF=YES".format(
-                filename=tmp_filename, dest_filename=dest_filename
-            )
-        )
-
-        if delete_orig:
-            os.remove(tmp_filename)
-            os.remove(filename_orig)
-
-    data = pd.DataFrame(dicts, columns=utilities.ENERMAPS_DF.columns)
+    data = pd.DataFrame(
+        dicts,
+        columns=[
+            "start_at",
+            "fields",
+            "variable",
+            "value",
+            "ds_id",
+            "fid",
+            "dt",
+            "z",
+            "unit",
+            "israster",
+        ],
+    )
 
     return data
 
