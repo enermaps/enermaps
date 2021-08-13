@@ -40,3 +40,12 @@ SELECT * FROM spatial WHERE "levl_code" = 'NUTS1';
 - Raster dataset, e.g. `ds_id = 43`
 The same query as for a vector dataset can be used. The name of the raster file to be loaded is set in the `FID` field. The complete path of each raster file can be constructed as follows:
 `di/data/{ds_id}/{FID}`
+
+
+## Backup
+
+To create a dump file, you can run this command:
+```
+docker-compose -f docker-compose-db.yml exec db sh -c "pg_dump -U test -h localhost -p 5432 dataset -FC > /db-backup/enermaps.dump"
+```
+The dump file will be created in the main folder in your host.
