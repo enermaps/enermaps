@@ -79,6 +79,9 @@ def prepareNETCDF(
 
         def prepareFile(tmp_filename, dest_filename, my_dict, filename_orig):
             """Export raster."""
+            # Change day to 1st of the month, to be consistent across datasets
+            my_dict["start_at"] = my_dict["start_at"].replace(day=1)
+
             if not os.path.exists(tmp_filename):
                 reprojected.rio.to_raster(tmp_filename)
             dicts.append(my_dict)
