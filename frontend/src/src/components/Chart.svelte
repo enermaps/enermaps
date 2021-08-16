@@ -3,7 +3,7 @@
   import Chart from 'chart.js';
   export let datasets;
 
-  let lineDatasets = {};
+  const lineDatasets = {};
   let xyDatasets = [];
   const barDatasets = {};
 
