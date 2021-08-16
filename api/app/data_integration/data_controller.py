@@ -19,7 +19,7 @@ def init_enermaps_datasets():
     datasets_ids = data_endpoints.get_ds_ids()
     # To download only a subset of the datasets (!datasets ids must be in the config file!)
     # datasets_ids = [1,2,3,4,5,6]
-    datasets_ids = [1, 2]
+    datasets_ids = [1, 2, 14]
     # Check that the datasets that we want to load are in the enermaps DB
     for dataset_id in datasets_ids:
         try:

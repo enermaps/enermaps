@@ -28,8 +28,8 @@ services:
     ports:
       - "127.0.0.1:7000:80"
     restart: always
-    depends_on:
-      - "api"
+    # depends_on:
+    #   - "api"
     env_file:
       .env
 

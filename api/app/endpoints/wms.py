@@ -259,7 +259,11 @@ class WMS(Resource):
         s = mapnik.Style()
         r = mapnik.Rule()
 
-        r.symbols.append(mapnik.RasterSymbolizer())
+        rs = mapnik.RasterSymbolizer()
+        rs.colorizer = mapnik.RasterColorizer(
+            mapnik.COLORIZER_LINEAR, mapnik.Color("green")
+        )
+        r.symbols.append(rs)
         s.rules.append(r)
 
         r.symbols.append(mapnik.PointSymbolizer())

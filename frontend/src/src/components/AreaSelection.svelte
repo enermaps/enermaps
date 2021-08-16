@@ -197,7 +197,7 @@
     width: inherit;
     margin-right: 10px;
     margin-left: 10px;
-    /* overflow: hidden; */
+    overflow: hidden;
   }
 
   </style>
@@ -220,12 +220,14 @@
         <div>...waiting for legend</div>
       {:then legend}
         <div><b>{legend.variable.variable}</b></div>
+        <div>
         {#each legend.style as color}
           <div style="display: inline-block;">
             <div class='box' style="background-color: rgb( {color[0][0]}, {color[0][1]}, {color[0][2]} )"> </div>
-            <div style="display: inline-block;">{color[1]} to {color[2]} {legend.variable.units}</div>
+            <div style="display: inline-block;">{color[1]} to {color[2]} {legend.variable.units}</div><br>
           </div>
         {/each}
+        </div>
 
       {:catch error}
         <div style="color: red">{error.message}</div>
