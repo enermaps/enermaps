@@ -13,6 +13,22 @@ from tools.response import get_response
 
 
 def processing(region: dict, raster: str, parameters: dict):
+    """
+    Cuts the raster according to given region and applies some filters
+    in order to find the district heating potentials and
+    related indicators.
+
+
+    Inputs :
+        * region : selected zone where the district heating potential is studied.
+        * raster : raster of the heat demand.
+        * parameters : the pixel and area thresholds.
+
+    Output :
+        * Indicators :
+        * Graphics : Potential of areas that pass the filters.
+        * Layer : Areas that pass the filters.
+    """
 
     with TemporaryDirectory(dir=settings.TESTDATA_DIR) as temp_dir:
 

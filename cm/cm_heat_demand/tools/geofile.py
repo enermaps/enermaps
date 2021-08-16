@@ -8,6 +8,8 @@ from osgeo import gdal, osr
 
 
 def get_projection(geofile: str):
+    """Get the projection of a geofile."""
+
     with rasterio.open(geofile) as src_file:
         projection = src_file.crs
     return projection
@@ -32,6 +34,7 @@ def clip_raster(src: str, shapes: dict, dst: str, quiet: bool = True):
     Output :
         * projection : projection of the clipped raster.
     """
+
     cutline = "cutline.json"
     with open(cutline, "w") as file:
         json.dump(shapes, file)

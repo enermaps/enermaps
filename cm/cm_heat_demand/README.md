@@ -1,5 +1,15 @@
+# References 
+This calculation module (CM) was originally written as part of the 
+[HotMaps](https://www.hotmaps-project.eu/) project.
+
+The documentation that was done for this first version can be found on
+(this section)[https://wiki.hotmaps.eu/en/CM-District-heating-potential-areas-user-defined-thresholds] 
+of the project HotMaps wiki.
+
 # Goal of the calculation module
-> work is in progress
+This CM calculates district heating potential within the selected region using 2 threshold values: 
+* Minimum heat demand in each hectare, 
+* Minimum heat demand in a DH area. 
 
 # Processing step
 > work is in progress

@@ -75,7 +75,7 @@ def get_response(
 
     def get_geofiles(
         base_dictionary: dict,
-        areas_path: str = "fake path to the geofile",
+        areas_path: str = "/this/is/a/fake/path",
     ) -> dict:
         """
         Add path towards the geofiles to the based dictionary.
