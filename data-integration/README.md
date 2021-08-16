@@ -60,3 +60,9 @@ You can manually execute the available pipelines witn the following commands:
 
 
 Remember to start the db service via `docker-compose --file ../docker-compose-db.yml up -d db` before running the pipelines.
+
+
+## Metadata table for OpenAIRE gateway
+
+A table named `datasets_full` is used to provide metadata to the OpenAIRE Gateway, while waiting for the `datasets` table to be filled in with all pipelines.
+Follow instructions on `addDatasets.py`.
