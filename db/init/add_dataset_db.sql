@@ -78,21 +78,3 @@ GRANT USAGE ON schema public TO api_user;
 GRANT SELECT ON public.spatial TO api_user;
 GRANT SELECT ON public.data TO api_user;
 GRANT SELECT ON public.datasets TO api_user;
-
-
-CREATE FUNCTION enermaps_query(ds_id integer)
-    RETURNS TABLE(fid char, json_object_agg json, fields jsonb, start_at timestamp without time zone, dt float, z float, ds_id int, geometry text)
-    AS 'SELECT data.fid,
-            json_object_agg(variable, value),
-            fields,
-            start_at, dt, z, data.ds_id, st_astext(geometry)
-           FROM data
-    INNER JOIN spatial ON data.fid = spatial.fid
-    WHERE data.ds_id = 2
-    GROUP BY data.fid, start_at, dt, z, data.ds_id, fields, geometry
-    ORDER BY data.fid;'
-    LANGUAGE SQL
-    IMMUTABLE
-    RETURNS NULL ON NULL INPUT;
-
-GRANT EXECUTE ON FUNCTION enermaps_query(ds_id integer) to api_user;
