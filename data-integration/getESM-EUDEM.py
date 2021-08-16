@@ -30,6 +30,36 @@ logging.basicConfig(level=logging.INFO)
 
 DB_URL = utilities.DB_URL
 
+RECORD_METADATA = {
+    "variable": {21: "Elevation", 35: "Land use"},
+    "unit": {21: "m", 35: ""},
+    "layer": {
+        21: {},
+        35: {
+            "classes": {
+                1: "Water",  # water
+                2: "Railways",  # railways
+                10: "Non-built area - Open Space",  # NBU Area - Open Space
+                20: "Non-built area - Green ndvix",  # NBU Area - Green ndvix
+                30: "Builu area - Open space",  # BU Area - Open Space
+                40: "Built area - Green NDVIx",  # BU Area - Green ndvix
+                41: "Built area - Green Urban Atlas",  # BU Area - Green Urban Atlas
+                50: "Built area - Built-up",  # BU Area - Built-up
+            },
+            "colors": {
+                1: "#70a2ff",  # water
+                2: "#666666",  # railways
+                10: "#f2f2f2",  # NBU Area - Open Space
+                20: "#dde6cf",  # NBU Area - Green ndvix
+                30: "#e1e1e1",  # BU Area - Open Space
+                40: "#b5cc8e",  # BU Area - Green ndvix
+                41: "#c8e6a1",  # BU Area - Green Urban Atlas
+                50: "#807d79",  # BU Area - Built-up
+            },
+        },
+    },
+}
+
 
 def convertZip(directory: str):
     """Convert files downloaded from Copernicus."""
@@ -100,13 +130,27 @@ def get(directory):
 
     enermaps_data = utilities.ENERMAPS_DF
     enermaps_data["fid"] = data["tilename"]
-    enermaps_data["variable"] = ""
     enermaps_data["israster"] = ISRASTER
 
     spatial = gpd.GeoDataFrame(geometry=data["extentBox"], crs="EPSG:3035",)
     spatial["fid"] = data["tilename"]
 
     return enermaps_data, spatial
+
+
+def addRecordMetadata(data: pd.DataFrame, metadata: dict):
+    """Add custom metadata to each record in the data table."""
+    for ds_id in data["ds_id"].unique():
+        for column in metadata.keys():
+            if column not in data.columns:
+                data[column] = "{}"
+            if isinstance(metadata[column][ds_id], dict):
+                data.loc[data["ds_id"] == ds_id, column] = json.dumps(
+                    metadata[column][ds_id]
+                )
+            else:
+                data.loc[data["ds_id"] == ds_id, column] = metadata[column][ds_id]
+    return data
 
 
 if __name__ == "__main__":
@@ -150,6 +194,7 @@ if __name__ == "__main__":
 
             # Create data table
             data["ds_id"] = ds_id
+            data = addRecordMetadata(data, RECORD_METADATA)
             utilities.toPostgreSQL(
                 data, DB_URL, schema="data",
             )
