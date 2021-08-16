@@ -138,10 +138,6 @@ def get_legend_style(dataset_id):
             max_threshold = min_value + n * ((max_value - min_value) / nb_of_colors)
             max_threshold = round(max_threshold, 2)
             layer_style.append((color, min_threshold, max_threshold))
-    else:
-        # give all the polygons the same color (first color of the color list)
-        color = color_list[0]
-        layer_style.append((color, min_value, max_value))
 
     return layer_style
 
