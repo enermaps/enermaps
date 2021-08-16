@@ -176,6 +176,28 @@ DATASETS_DIC = {
             }
         },
     },
+    "DS_14": {
+        "id": 14,
+        "layer_type": "raster",
+        "json_params": {
+            "parameters": {
+                "data.ds_id": 14,
+                "start_at": "'01/01/1970 00:00:00'",
+                "variable": "'Max 1-day PR'",
+            },
+            "row_limit": 100000,
+        },
+        "legend": {
+            "style": {"colors": {"color_palet": "Greys", "nb_of_colors": 12}},
+            "legend_variable": {
+                "variable": "Max 1-day PR",
+                "units": "mm",
+                "min": 0,
+                "max": 875.871,
+            },
+        },
+        "title": "Climate Extreme Indices",
+    },
     "DS_15": {
         "id": 15,
         "layer_type": "raster",
