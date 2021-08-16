@@ -7,3 +7,5 @@ This service exposes:
 It also acts as reverse-proxy by redirecting calls to `0.0.0.0/api` to the PostgREST API.
 
 The address scheme is tested to work on the enermaps server.
+
+Dummy thumbnails can be created by running the 'createThubnails.py' file.
