@@ -2,7 +2,7 @@
 
 This services provides a Postgrest API access to the DB.
 
-The service needs the following `.postgrest` envinronment file to be placed in the root directory (the same as the `docker-compose.yml`):
+The service needs the following `.postgrest` envinronment file to be placed in the root directory (the same as the `docker-compose_db.yml`):
 
 ```
 PGRST_DB_URI=postgres://test:example@db:5432/dataset
@@ -24,7 +24,7 @@ The API users and custom functions are initialized in the db service.
 If you don't want to rebuild the db, you can just execute postgrest custom sql:
 
 ```
-docker-compose up --build -d db
+docker-compose -f docker-compose_db.yml up --build -d db
 docker-compose exec db psql postgres://test:example@db:5432/dataset -f /docker-entrypoint-initdb.d/postgrest.sql
 ```
 
@@ -123,7 +123,7 @@ WARNING: Unlike the other tables, it is public.
 We can populate it using:
 
 ```
-docker-compose up --build -d data-integration && docker-compose exec data-integration python3 addDatasets.py
+docker-compose -f docker-compose_db.yml up --build -d data-integration && docker-compose -f docker-compose_db.yml exec data-integration python3 addDatasets.py
 ```
 
 ### Available endpoints
