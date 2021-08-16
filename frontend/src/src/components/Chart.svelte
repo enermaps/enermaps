@@ -47,27 +47,27 @@
   }
   function insertBarChart(name, dataset) {
     const values = dataset.values;
-    const x_labels = [];
+    const xLabels = [];
     const data = [];
     for (const value of values) {
-      x_labels.push(value[0]);
+      xLabels.push(value[0]);
       data.push(value[1]);
     }
-    barDatasets["labels"] = x_labels;
-    barDatasets["datasets"] = [];
-    barDatasets["datasets"].push({label : name, data : data, tension : 0.1});
+    barDatasets['labels'] = xLabels;
+    barDatasets['datasets'] = [];
+    barDatasets['datasets'].push({label: name, data: data, tension: 0.1});
   }
   function insertLineChart(name, dataset) {
     const values = dataset.values;
-    const x_labels = [];
+    const xLabels = [];
     const data = [];
     for (const value of values) {
-      x_labels.push(value[0]);
+      xLabels.push(value[0]);
       data.push(value[1]);
     }
-    lineDatasets["labels"] = x_labels;
-    lineDatasets["datasets"] = [];
-    lineDatasets["datasets"].push({label : name, data : data});
+    lineDatasets['labels'] = xLabels;
+    lineDatasets['datasets'] = [];
+    lineDatasets['datasets'].push({label: name, data: data});
   }
 
   function insertXYChart(name, dataset) {
