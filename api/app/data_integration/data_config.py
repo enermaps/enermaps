@@ -14,6 +14,15 @@ DATASETS_DIC = {
             },
             "row_limit": 100000,
         },
+        "legend": {
+            "style": {"colors": {"color_palet": "Greys", "nb_of_colors": 12}},
+            "legend_variable": {
+                "variable": "Monthly average global irradiance on a horizontal surface (W/m2), period 2005-2015: W/m2",
+                "units": "W/m2",
+                "min": 13.9,
+                "max": 284.6,
+            },
+        },
         "title": "PVGIS: Solar Radiation Data",
         "openair_link": "",
     },
@@ -183,6 +192,15 @@ DATASETS_DIC = {
             },
             "row_limit": 100000,
         },
+        "legend": {
+            "style": {"colors": {"color_palet": "Greys", "nb_of_colors": 12}},
+            "legend_variable": {
+                "variable": "10m_u_component_of_wind",
+                "units": "m s**-1",
+                "min": -15424,
+                "max": 26125,
+            },
+        },
         "title": "Copernicus: hourly global climate and weather data",
     },
     "DS_16": {
@@ -224,8 +242,8 @@ DATASETS_DIC = {
             "legend_variable": {
                 "variable": "installed PV power capacity",
                 "units": "MW",
-                "min": 0.0,
-                "max": 0.0,
+                "min": None,
+                "max": None,
             },
         },
     },
@@ -290,6 +308,15 @@ DATASETS_DIC = {
             "parameters": {"data.ds_id": 20, "start_at": "'01/01/2019  00:00:00'"},
             "row_limit": 100000,
         },
+        "legend": {
+            "style": {"colors": {"color_palet": "Greys", "nb_of_colors": 12}},
+            "legend_variable": {
+                "variable": "relative_humidity",
+                "units": "%",
+                "min": -27093,
+                "max": 5119,
+            },
+        },
         "title": "Copernicus: hourly data on pressure levels",
     },
     "DS_21": {
@@ -306,6 +333,15 @@ DATASETS_DIC = {
                 "intersecting": "POLYGON((2.276722801998659 48.889240956946985,2.2747270124557986 48.835409141414466,2.390482805942611 48.847230841511724,2.3445796464564523 48.91023278929048,2.276722801998659 48.889240956946985))",
             },
             "row_limit": 100000,
+        },
+        "legend": {
+            "style": {"colors": {"color_palet": "Greys", "nb_of_colors": 12}},
+            "legend_variable": {
+                "variable": "undefined",
+                "units": "undefined",
+                "min": 21.7069,
+                "max": 165.7,
+            },
         },
         "title": "European Digital Elevation Model (EU-DEM)",
     },
@@ -346,6 +382,15 @@ DATASETS_DIC = {
             },
             "row_limit": 100000,
         },
+        "legend": {
+            "style": {"colors": {"color_palet": "Greys", "nb_of_colors": 12}},
+            "legend_variable": {
+                "variable": "Longterm monthly average of potential photovoltaic electricity production",
+                "units": "kWh/kWp",
+                "min": 34.224,
+                "max": 62.403,
+            },
+        },
         "title": "Photovoltaic power potential",
     },
     "DS_27": {
@@ -371,10 +416,10 @@ DATASETS_DIC = {
         "legend": {
             "style": {"colors": {"color_palet": "dark:salmon_r", "nb_of_colors": 12}},
             "legend_variable": {
-                "variable": "Base potential : Bark residues from pulp and paper industry",
+                "variable": "Base potential : Sawdust from sawmills from conifers",
                 "units": "kton dry mass",
-                "min": 0.0,
-                "max": 216.0,
+                "min": 4.94441691195059,
+                "max": 47.5166700166629,
             },
         },
     },
@@ -443,7 +488,7 @@ DATASETS_DIC = {
             },
             "row_limit": 100000,
         },
-        "title": "H2020 SET-Nav: Detailed scenario results for energy demand by the INVERT/EE-Lab model ",
+        "title": "H2020 SET-Nav: Detailed scenario results for energy demand by the INVERT-EE-Lab model ",
         "legend": {
             "style": {"colors": {"color_palet": "icefire", "nb_of_colors": 12}},
             "legend_variable": {
@@ -482,7 +527,7 @@ DATASETS_DIC = {
             },
             "row_limit": 100000,
         },
-        "title": "Fuel consumption and technologies used in the heating/cooling sector",
+        "title": "Fuel consumption and technologies used in the heating - cooling sector",
         "legend": {
             "style": {"colors": {"color_palet": "flare", "nb_of_colors": 12}},
             "legend_variable": {
@@ -504,6 +549,15 @@ DATASETS_DIC = {
             "parameters": {"data.ds_id": 31, "variable": "'Climate zones'"},
             "row_limit": 100000,
         },
+        "legend": {
+            "style": {"colors": {"color_palet": "Greys", "nb_of_colors": 12}},
+            "legend_variable": {
+                "variable": "Climate zones",
+                "units": "-",
+                "min": None,
+                "max": None,
+            },
+        },
         "title": "INTERREG GRETA",
     },
     "DS_33": {
@@ -520,6 +574,15 @@ DATASETS_DIC = {
             },
             "row_limit": 100000,
         },
+        "legend": {
+            "style": {"colors": {"color_palet": "Greys", "nb_of_colors": 12}},
+            "legend_variable": {
+                "variable": "undefined",
+                "units": "undefined",
+                "min": 0,
+                "max": 324,
+            },
+        },
         "title": "Building Height",
     },
     "DS_35": {
@@ -535,6 +598,15 @@ DATASETS_DIC = {
                 "intersecting": "POLYGON((2.29 48.88,2.29 48.87,2.3 48.87,2.3 48.88,2.29 48.88))",
             },
             "row_limit": 100000,
+        },
+        "legend": {
+            "style": {"colors": {"color_palet": "Greys", "nb_of_colors": 12}},
+            "legend_variable": {
+                "variable": "undefined",
+                "units": "undefined",
+                "min": 30,
+                "max": 50,
+            },
         },
         "title": "European Settlement Map",
     },
@@ -567,6 +639,15 @@ DATASETS_DIC = {
                         "data.ds_id":43
                     }""",
         "json_params": {"parameters": {"data.ds_id": 43}, "row_limit": 100000},
+        "legend": {
+            "style": {"colors": {"color_palet": "Greys", "nb_of_colors": 12}},
+            "legend_variable": {
+                "variable": "Heat density map (final energy demand for heating and DHW) of buildings in EU28 + Switzerland, Norway and Iceland for the year 2015",
+                "units": "MWh/ha (MWh/10.000 m2)",
+                "min": 0.00142908,
+                "max": 3766.61,
+            },
+        },
         "title": "HotMaps: Heat demand density",
     },
     "DS_45": {
@@ -574,6 +655,15 @@ DATASETS_DIC = {
         "layer_type": "raster",
         "params": """{"data.ds_id":45}""",
         "json_params": {"parameters": {"data.ds_id": 45}, "row_limit": 100000},
+        "legend": {
+            "style": {"colors": {"color_palet": "Greys", "nb_of_colors": 12}},
+            "legend_variable": {
+                "variable": "Heated gross floor area density map of buildings in EU28 + Switzerland, Norway and Iceland for the year 2015",
+                "units": "m2/ha (m2/10.000 m2)",
+                "min": 0.0111452,
+                "max": 33658.4,
+            },
+        },
         "title": "HotMaps: Heated gross floor area density",
     },
     "DS_46": {
