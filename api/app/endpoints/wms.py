@@ -284,26 +284,22 @@ class WMS(Resource):
                 layer_style = data_endpoints.get_legend_style(layer_id)
                 nb_of_colors = len(layer_style)
 
-                # Create one polygon symbolizer per color
-                polygons = []
-                for color, min_threshold, max_threshold in layer_style:
-                    polygons.append(mapnik.PolygonSymbolizer())
-                    polygons[-1].fill = mapnik.Color(*color)
-                    polygons[-1].fill_opacity = 0.5
-
-                rules = []
-                for n in range(nb_of_colors):
+                for n, (color, min_threshold, max_threshold) in enumerate(layer_style):
                     if n == 0:
-                        expression = f"[legend] < {layer_style[n][2]}"
-                    elif n == nb_of_colors:
-                        expression = f"[legend] >= {layer_style[n][1]}"
+                        expression = f"[legend] < {max_threshold}"
+                    elif n == nb_of_colors - 1:
+                        expression = f"[legend] >= {min_threshold}"
                     else:
-                        expression = f"[legend] < {layer_style[n][2]} and [legend] > {layer_style[n][1]}"
+                        expression = f"[legend] < {max_threshold} and [legend] >= {min_threshold}"
 
-                    rules.append(mapnik.Rule())
-                    rules[-1].filter = mapnik.Expression(expression)
-                    rules[-1].symbols.append(polygons[n])
-                    s.rules.append(rules[-1])
+                    polygon_symb = mapnik.PolygonSymbolizer()
+                    polygon_symb.fill = mapnik.Color(*color)
+                    polygon_symb.fill_opacity = 0.5
+
+                    rule = mapnik.Rule()
+                    rule.filter = mapnik.Expression(expression)
+                    rule.symbols.append(polygon_symb)
+                    s.rules.append(rule)
 
             else:
                 # If there is no variable defined for coloring the polygons,
