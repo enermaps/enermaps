@@ -36,6 +36,7 @@ SOURCES = [
 ]
 OTHER_FIELDS = ["contributors", "delays", "comment"]
 UNITS = "MW"
+VARIABLE = "Electricity production capacity"
 ISRASTER = False
 
 logging.basicConfig(level=logging.INFO)
@@ -81,10 +82,14 @@ def prepare(dp: dict) -> pd.DataFrame:
     data = pd.DataFrame(sources, columns=SOURCES)
     data["fid"] = locations
     data["fields"] = other_fields
-    data["fields"] = data["fields"].apply(lambda x: json.dumps(x))
 
     # Unpivot
     data = data.melt(id_vars=["fields", "fid"])
+
+    # Add unpivoted energy source as field
+    data["fields"] = data.apply(
+        lambda x: json.dumps({**x["fields"], "Energy source": x["variable"]}), axis=1
+    )
 
     # Remove nan
     data = data.dropna()
@@ -106,7 +111,7 @@ def prepare(dp: dict) -> pd.DataFrame:
     )
     enermaps_data["fid"] = data["fid"]
     enermaps_data["value"] = data["value"]
-    enermaps_data["variable"] = data["value"]
+    enermaps_data["variable"] = VARIABLE
     enermaps_data["fields"] = data["fields"]
     enermaps_data["unit"] = UNITS
     enermaps_data["israster"] = ISRASTER
