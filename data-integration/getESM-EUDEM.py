@@ -34,8 +34,9 @@ RECORD_METADATA = {
     "variable": {21: "Elevation", 35: "Land use"},
     "unit": {21: "m", 35: ""},
     "layer": {
-        21: {},
+        21: {"type": "numerical"},
         35: {
+            "type": "categorical",
             "classes": {
                 1: "Water",  # water
                 2: "Railways",  # railways
@@ -143,7 +144,10 @@ def addRecordMetadata(data: pd.DataFrame, metadata: dict):
     for ds_id in data["ds_id"].unique():
         for column in metadata.keys():
             if column not in data.columns:
-                data[column] = "{}"
+                if column == "layer":
+                    data.loc[data["ds_id"] == ds_id, column] = ""
+                else:
+                    data.loc[data["ds_id"] == ds_id, column] = '{"type": "numerical"}'
             if isinstance(metadata[column][ds_id], dict):
                 data.loc[data["ds_id"] == ds_id, column] = json.dumps(
                     metadata[column][ds_id]

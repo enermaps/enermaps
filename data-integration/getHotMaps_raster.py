@@ -27,7 +27,8 @@ DB_URL = utilities.DB_URL
 
 LAYER_METADATA = {
     "Climate zones": {
-        "classes": {0: "warmer climate", 1: "average climate", 2: "colder climate"}
+        "type": "numerical",
+        "classes": {0: "warmer climate", 1: "average climate", 2: "colder climate"},
     }
 }
 
@@ -124,7 +125,7 @@ def get(repository: str, dp: frictionless.package.Package, isForced: bool = Fals
 def addLayerMetadata(data: pd.DataFrame, layer_metadata: dict):
     """Add categorical raster layer metadata."""
     if "layer" not in data.columns:
-        data["layer"] = "{}"
+        data["layer"] = '{"type": "numerical"}'
     for variable in layer_metadata.keys():
         data.loc[data["variable"] == variable, "layer"] = json.dumps(
             layer_metadata[variable]
