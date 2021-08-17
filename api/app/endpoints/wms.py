@@ -255,25 +255,27 @@ class WMS(Resource):
         size = parse_size(normalized_args)
 
         mp = mapnik.Map(size.width, size.height, "+init=" + projection)
+        mapnik_style = mapnik.Style()
 
-        s = mapnik.Style()
+        # Raster..................................
         r = mapnik.Rule()
 
-        rs = mapnik.RasterSymbolizer()
-        rs.colorizer = mapnik.RasterColorizer(
-            mapnik.COLORIZER_LINEAR, mapnik.Color("green")
+        raster_symb = mapnik.RasterSymbolizer()
+        raster_colorizer = mapnik.RasterColorizer(
+            mapnik.COLORIZER_LINEAR, mapnik.Color("transparent")
         )
-        r.symbols.append(rs)
-        s.rules.append(r)
 
+        # Point .................................................
         r.symbols.append(mapnik.PointSymbolizer())
-        s.rules.append(r)
+        mapnik_style.rules.append(r)
 
         layer_name = normalized_args.get("layers", "")
 
         # setup the "legends" rules
         if layer_name[0:2].isdigit():
             layer_id = int(layer_name[0:2])
+
+            # Check the layer type:
 
             # Get the variable used to color the polygons and its min/max values
             layer_variable = data_endpoints.get_legend_variable(layer_id)
@@ -286,8 +288,16 @@ class WMS(Resource):
 
                 for n, (color, min_threshold, max_threshold) in enumerate(layer_style):
                     if n == 0:
+                        raster_colorizer.add_stop(
+                            min_threshold,
+                            mapnik.COLORIZER_LINEAR,
+                            mapnik.Color("black"),
+                        )
                         expression = f"[legend] < {max_threshold}"
                     elif n == nb_of_colors - 1:
+                        raster_colorizer.add_stop(
+                            max_threshold, mapnik.COLORIZER_LINEAR, mapnik.Color("red")
+                        )
                         expression = f"[legend] >= {min_threshold}"
                     else:
                         expression = f"[legend] < {max_threshold} and [legend] >= {min_threshold}"
@@ -299,7 +309,11 @@ class WMS(Resource):
                     rule = mapnik.Rule()
                     rule.filter = mapnik.Expression(expression)
                     rule.symbols.append(polygon_symb)
-                    s.rules.append(rule)
+                    mapnik_style.rules.append(rule)
+
+                    raster_symb.colorizer = raster_colorizer
+                    r.symbols.append(raster_symb)
+                    mapnik_style.rules.append(r)
 
             else:
                 # If there is no variable defined for coloring the polygons,
@@ -314,10 +328,10 @@ class WMS(Resource):
         line_symbolizer.stroke = mapnik.Color("black")
         line_symbolizer.stroke_width = 1.0
         r.symbols.append(line_symbolizer)
-        s.rules.append(r)
+        mapnik_style.rules.append(r)
 
         style_name = "My Style"
-        mp.append_style(style_name, s)
+        mp.append_style(style_name, mapnik_style)
 
         layer_names = parse_layers(normalized_args)
         for layer_name in layer_names:

@@ -246,7 +246,7 @@ class RasterLayer(Layer):
         layer_path = self._get_raster_path()
         layer.srs = self.projection
         # TODO: get this from the upload folder, check layer at that point ?
-        gdal_source = mapnik.Gdal(file=layer_path)
+        gdal_source = mapnik.Gdal(file=layer_path, band=1)
         layer.datasource = gdal_source
         layer.queryable = False
         # layer.minimum_scale_denominator
