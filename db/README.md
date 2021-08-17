@@ -48,4 +48,8 @@ To create a dump file, you can run this command:
 ```
 docker-compose -f docker-compose-db.yml exec db sh -c "pg_dump -U test -h localhost -p 5432 dataset -FC > /db-backup/enermaps.dump"
 ```
-The dump file will be created in the main folder in your host.
+The dump file will be created in the main folder in your host machine.
+
+This is useful to have a dump file created with a version of `pg_dump` that corresponds to the one running in the docker container.
+
+Note that the backup is useful to be obtained on the EnerMaps server, with the `db` container running and containing the integrated datasets. Use `ssh`to connect to the server and then `cd` to `/local/data/enermaps`.
