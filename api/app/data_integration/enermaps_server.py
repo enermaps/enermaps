@@ -46,7 +46,7 @@ def get_dataset(dataset_id):
     url = DATASETS_SERVER_URL + "rpc/enermaps_query_geojson"
 
     params = data_endpoints.get_json_params(dataset_id)
-    layer_type = data_endpoints.get_ds_type(dataset_id)
+    layer_type, _ = data_endpoints.get_ds_type(dataset_id)
     dataset_title = data_endpoints.get_ds_title(dataset_id)
 
     if (params is not None) and (layer_type == "vector"):

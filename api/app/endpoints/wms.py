@@ -84,8 +84,20 @@ def make_numerical_raster_style(layer_style):
 
 def make_categorical_raster_style(layer_style):
     mapnik_style = mapnik.Style()
-    # for n, (color, min_threshold, max_threshold) in enumerate(layer_style):
-    return mapnik_style
+    rule = mapnik.Rule()
+
+    raster_symb = mapnik.RasterSymbolizer()
+    raster_symb.colorizer = mapnik.RasterColorizer(
+        mapnik.COLORIZER_LINEAR, mapnik.Color("transparent")
+    )
+
+    for n, (color_id, color) in enumerate(layer_style):
+        raster_symb.colorizer.add_stop(color_id, mapnik.Color(*(color[0])))
+
+    rule.symbols.append(raster_symb)
+    mapnik_style.rules.append(rule)
+    style_name = "categorical_raster_style"
+    return mapnik_style, style_name
 
 
 def make_polygon_vector_style(layer_style):
@@ -365,14 +377,32 @@ class WMS(Resource):
 
                 # Get the layer style and type
                 layer_style = data_endpoints.get_legend_style(layer_id)
-                layer_type = data_endpoints.get_ds_type(layer_id)
+                layer_type, data_type = data_endpoints.get_ds_type(layer_id)
+                print(layer_type, flush=True)
+                print(data_type, flush=True)
+
                 if layer_type == "vector":
                     mapnik_style, style_name = make_polygon_vector_style(layer_style)
+                    mapnik_layer.styles.append(style_name)
+                    mp.append_style(style_name, mapnik_style)
+
                 if layer_type == "raster":
-                    mapnik_style, style_name = make_numerical_raster_style(layer_style)
-                mapnik_layer.styles.append(style_name)
-                mp.append_style(style_name, mapnik_style)
-                mp.layers.append(mapnik_layer)
+                    if data_type == "numerical":
+                        mapnik_style, style_name = make_numerical_raster_style(
+                            layer_style
+                        )
+                        mapnik_layer.styles.append(style_name)
+                        mp.append_style(style_name, mapnik_style)
+                    elif data_type == "categorical":
+                        mapnik_style, style_name = make_categorical_raster_style(
+                            layer_style
+                        )
+                        mapnik_layer.styles.append(style_name)
+                        mp.append_style(style_name, mapnik_style)
+                    else:
+                        print("Unknown data type", flush=True)
+
+            mp.layers.append(mapnik_layer)
         return mp
 
     def get_map(self, normalized_args):

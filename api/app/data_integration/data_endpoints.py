@@ -57,11 +57,13 @@ def get_ds_title(dataset_id):
 
 # api/datasets/{ds_id}/type
 def get_ds_type(dataset_id):
+    """ Vector or raster"""
     dataset_params = get_ds(dataset_id)
     layer_type = dataset_params.get("layer_type", None)
+    data_type = dataset_params.get("data_type", None)
     if layer_type is not None:
-        return layer_type
-    return "undefined"
+        return layer_type, data_type
+    return "undefined", "undefined"
 
 
 # api/datasets/{ds_id}/layers/{l_id}/legend_variables/{variable}
@@ -103,6 +105,21 @@ def get_legend_style(dataset_id):
     Return a list of colors used for coloring the layer and their threshold values.
     (color, min_threshold, max_threshold)"""
 
+    dataset_params = get_ds(dataset_id)
+    legend = dataset_params.get("legend", {})
+    style = legend.get("style", {})
+
+    _, data_type = get_ds_type(dataset_id)
+    if data_type == "categorical":
+        classes = style.get("classes", None)
+        classes_list = []
+        if classes is not None:
+            # key: color nb
+            # value : (color_rgb_code, category_name)
+            for key, value in classes.items():
+                classes_list.append((key, value))
+        return classes_list
+
     def get_sns_color(palette, nb_of_colors):
         color_list = sns.color_palette(palette, nb_of_colors)
         rgb_list = [
@@ -110,10 +127,6 @@ def get_legend_style(dataset_id):
             for color in color_list
         ]
         return rgb_list
-
-    dataset_params = get_ds(dataset_id)
-    legend = dataset_params.get("legend", {})
-    style = legend.get("style", {})
 
     colors = style.get("colors", None)
     if colors is None:

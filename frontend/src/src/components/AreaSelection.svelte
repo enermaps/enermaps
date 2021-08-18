@@ -4,7 +4,7 @@
   import '../leaflet_components/L.DrawingLayer.js';
   import '../leaflet_components/L.TileLayer.QueryableLayer.js';
   import queryString from 'query-string';
-  import {getGeofiles, getLegend, getOpenairLink, WMS_URL} from '../client.js';
+  import {getGeofiles, getLegend, getLayerType, getOpenairLink, WMS_URL} from '../client.js';
   import {activeOverlayLayersStore, activeSelectionLayerStore} from '../stores.js';
 
   let selectionLayers = [];
@@ -55,6 +55,9 @@
         let legend;
         legend = getLegend(layer);
         console.log(legend);
+        let layer_type;
+        layer_type = getLayerType(layer);
+        console.log(layer_type)
 
         let openairLink;
         openairLink = getOpenairLink(layer);
@@ -69,7 +72,7 @@
         leafletLayer.name = layer;
         leafletLayer.legend_promise = legend;
         leafletLayer.openairLink_promise = openairLink;
-
+        leafletLayer.layer_type_promise = layer_type;
         overlayLayers.push(leafletLayer);
       }
     }
@@ -223,8 +226,18 @@
         <div>
         {#each legend.style as color}
           <div style="display: inline-block;">
-            <div class='box' style="background-color: rgb( {color[0][0]}, {color[0][1]}, {color[0][2]} )"> </div>
-            <div style="display: inline-block;">{color[1]} to {color[2]} {legend.variable.units}</div><br>
+            {#await overlayLayer.layer_type_promise}
+              <div>...waiting for data_type</div>
+            {:then layer_type}
+              {#if layer_type.data_type == "categorical"}
+                <div class='box' style="background-color: rgb( {color[1][0][0]}, {color[1][0][1]}, {color[1][0][2]} )"> </div>
+                <div style="display: inline-block;">{color[1][1]}</div><br>
+              {:else}
+                <div class='box' style="background-color: rgb( {color[0][0]}, {color[0][1]}, {color[0][2]} )"> </div>
+                <div style="display: inline-block;">{color[1]} to {color[2]} {legend.variable.units}</div><br>
+              {/if}
+            {/await}
+
           </div>
         {/each}
         </div>
