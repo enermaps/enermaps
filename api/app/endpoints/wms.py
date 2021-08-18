@@ -40,7 +40,8 @@ def make_line_vector_style():
     line_symbolizer.stroke_width = 1.0
     rule.symbols.append(line_symbolizer)
     mapnik_style.rules.append(rule)
-    return mapnik_style
+    style_name = "line_style"
+    return mapnik_style, style_name
 
 
 def make_pt_vector_style():
@@ -49,7 +50,8 @@ def make_pt_vector_style():
     pt_symbolizer = mapnik.PointSymbolizer()
     rule.symbols.append(pt_symbolizer)
     mapnik_style.rules.append(rule)
-    return mapnik_style
+    style_name = "point_style"
+    return mapnik_style, style_name
 
 
 def make_numerical_raster_style(layer_style):
@@ -76,7 +78,8 @@ def make_numerical_raster_style(layer_style):
     raster_symb.colorizer = raster_colorizer
     rule.symbols.append(raster_symb)
     mapnik_style.rules.append(rule)
-    return mapnik_style
+    style_name = "num_raster_style"
+    return mapnik_style, style_name
 
 
 def make_categorical_raster_style(layer_style):
@@ -105,7 +108,8 @@ def make_polygon_vector_style(layer_style):
         rule.symbols.append(polygon_symb)
         mapnik_style.rules.append(rule)
 
-    return mapnik_style
+    style_name = "vector_polygon_style"
+    return mapnik_style, style_name
 
 
 def make_point_vector_style(layer_style):
@@ -338,55 +342,37 @@ class WMS(Resource):
 
         layers = parse_layers(normalized_args)
         for layer_name in layers:
-            if layer_name[0:2].isdigit():
+            # Try to download the layer
+            try:
+                layer = geofile.load(layer_name)
+            except FileNotFoundError as e:
+                abort(404, e.strerror)
+            mapnik_layer = layer.as_mapnik_layer()
 
+            # Style for polygons contours
+            line_style, style_name = make_line_vector_style()
+            mapnik_layer.styles.append(style_name)
+            mp.append_style(style_name, line_style)
+
+            # Style for points
+            pt_style, style_name = make_pt_vector_style()
+            mapnik_layer.styles.append(style_name)
+            mp.append_style(style_name, pt_style)
+
+            # Custom styles for layers that must be "colorized"
+            if layer_name[0:2].isdigit():
                 layer_id = int(layer_name[0:2])
+
+                # Get the layer style and type
                 layer_style = data_endpoints.get_legend_style(layer_id)
                 layer_type = data_endpoints.get_ds_type(layer_id)
-
-                # Custom styles for layers that must be "colorized"
-                style_name = None
                 if layer_type == "vector":
-                    style_name = "v_style"
-                    mapnik_style = make_polygon_vector_style(layer_style)
+                    mapnik_style, style_name = make_polygon_vector_style(layer_style)
                 if layer_type == "raster":
-                    style_name = "r_style"
-                    mapnik_style = make_numerical_raster_style(layer_style)
-
-                try:
-                    layer = geofile.load(layer_name)
-                except FileNotFoundError as e:
-                    abort(404, e.strerror)
-                mapnik_layer = layer.as_mapnik_layer()
+                    mapnik_style, style_name = make_numerical_raster_style(layer_style)
                 mapnik_layer.styles.append(style_name)
                 mp.append_style(style_name, mapnik_style)
-
-                # Style for polygons contours
-                line_style = make_line_vector_style()
-                mapnik_layer.styles.append("line_style")
-                mp.append_style("line_style", line_style)
-
-                # Style for polygons contours
-                pt_style = make_pt_vector_style()
-                mapnik_layer.styles.append("pt_style")
-                mp.append_style("pt_style", pt_style)
-
                 mp.layers.append(mapnik_layer)
-
-            else:
-                # try to download the layer
-                try:
-                    layer = geofile.load(layer_name)
-                except FileNotFoundError as e:
-                    abort(404, e.strerror)
-                mapnik_layer = layer.as_mapnik_layer()
-
-                # Style for polygons contours
-                line_style = make_line_vector_style()
-                mapnik_layer.styles.append("line_style")
-                mp.append_style("line_style", line_style)
-                mp.layers.append(mapnik_layer)
-
         return mp
 
     def get_map(self, normalized_args):
