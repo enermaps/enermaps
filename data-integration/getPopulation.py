@@ -19,8 +19,8 @@ from pandas_datapackage_reader import read_datapackage
 from utilities import download_url
 
 # Constants
-OTHER_VARS = ["CNTR_CODE", "LAU_LABEL"]
-SPATIAL_VARS = ["CNTR_LAU_CODE"]
+OTHER_VARS = ["CNTR_CODE", "LAU_LABEL", "CNTR_LAU_CODE"]
+SPATIAL_VARS = []  # manually set in prepare()
 TIME_FORMAT = "POP_%Y_%m_%d"
 VARIABLE = "Inhabitants"
 UNITS = "[-]"
@@ -65,9 +65,12 @@ def prepare(dp: frictionless.package.Package, name: str):
     # Remove nan
     data = data.dropna()
 
+    # Add underscore to LAU code
+    data["LAU_CODE"] = data["CNTR_CODE"] + "_" + data["CNTR_LAU_CODE"].str[2:]
+
     # Conversion
     enermaps_data = utilities.ENERMAPS_DF
-    enermaps_data["fid"] = data[SPATIAL_VARS].iloc[:, 0]
+    enermaps_data["fid"] = data["LAU_CODE"]
     enermaps_data["start_at"] = data["variable"]
     enermaps_data["value"] = data["value"]
     enermaps_data["variable"] = VARIABLE
