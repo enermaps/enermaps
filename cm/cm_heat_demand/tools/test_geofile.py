@@ -10,7 +10,6 @@ from .settings import TESTDATA_DIR
 
 
 class TestGeofileTools(unittest.TestCase):
-
     def setUp(self):
         def is_file(*files: str):
             for file in files:
@@ -149,6 +148,7 @@ class TestGeofileTools(unittest.TestCase):
         map_array, geotransform = geofile.read_raster(raster=self.raster)
         self.assertIsInstance(map_array, np.ndarray)
         self.assertIsInstance(geotransform, tuple)
+
 
 if __name__ == "__main__":
     unittest.main()
