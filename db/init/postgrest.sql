@@ -45,7 +45,11 @@ DECLARE
 BEGIN
     FOR _subkey, _subvalue IN SELECT * FROM json_each_text(_value)
         LOOP
+        IF _subvalue is null THEN
+        where_string := where_string || _key || ' ->> ''' || _subkey ||  ''' IS NULL ';
+        ELSE
         where_string := where_string || _key || ' ->> ''' || _subkey ||  ''' = ''' || _subvalue || '''';
+        END IF;
         counter := counter + 1;
         IF counter < count(*) FROM json_object_keys(_value) THEN
             where_string := where_string || ' AND ';
