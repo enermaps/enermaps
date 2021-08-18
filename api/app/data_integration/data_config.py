@@ -595,7 +595,14 @@ DATASETS_DIC = {
             "row_limit": 100000,
         },
         "legend": {
-            "style": {"colors": {"color_palet": "Greys_r", "nb_of_colors": 12}},
+            "style": {
+                "colors": {"color_palet": "Greys_r", "nb_of_colors": 12},
+                "classes": {
+                    0: [(255, 0, 0), "colder climate"],
+                    1: [(0, 255, 0), "average climate"],
+                    2: [(0, 0, 255), "warmer climate"],
+                },
+            },
             "legend_variable": {
                 "variable": "Climate zones",
                 "units": "-",
