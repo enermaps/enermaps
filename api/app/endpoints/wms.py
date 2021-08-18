@@ -31,6 +31,89 @@ api = Namespace("wms", "WMS compatible endpoint")
 current_file_dir = os.path.dirname(os.path.abspath(__file__))
 
 
+def make_line_vector_style():
+    # add the black polygons contours
+    mapnik_style = mapnik.Style()
+    rule = mapnik.Rule()
+    line_symbolizer = mapnik.LineSymbolizer()
+    line_symbolizer.stroke = mapnik.Color("black")
+    line_symbolizer.stroke_width = 1.0
+    rule.symbols.append(line_symbolizer)
+    mapnik_style.rules.append(rule)
+    return mapnik_style
+
+
+def make_pt_vector_style():
+    mapnik_style = mapnik.Style()
+    rule = mapnik.Rule()
+    pt_symbolizer = mapnik.PointSymbolizer()
+    rule.symbols.append(pt_symbolizer)
+    mapnik_style.rules.append(rule)
+    return mapnik_style
+
+
+def make_numerical_raster_style(layer_style):
+    mapnik_style = mapnik.Style()
+    rule = mapnik.Rule()
+    raster_symb = mapnik.RasterSymbolizer()
+    raster_colorizer = mapnik.RasterColorizer(
+        mapnik.COLORIZER_LINEAR, mapnik.Color("transparent")
+    )
+
+    nb_of_colors = len(layer_style)
+    for n, (color, min_threshold, max_threshold) in enumerate(layer_style):
+        if n == 0:
+            raster_colorizer.add_stop(
+                min_threshold, mapnik.COLORIZER_LINEAR, mapnik.Color("black"),
+            )
+        elif n == nb_of_colors - 1:
+            raster_colorizer.add_stop(
+                max_threshold, mapnik.COLORIZER_LINEAR, mapnik.Color("red")
+            )
+        else:
+            continue
+
+    raster_symb.colorizer = raster_colorizer
+    rule.symbols.append(raster_symb)
+    mapnik_style.rules.append(rule)
+    return mapnik_style
+
+
+def make_categorical_raster_style(layer_style):
+    mapnik_style = mapnik.Style()
+    # for n, (color, min_threshold, max_threshold) in enumerate(layer_style):
+    return mapnik_style
+
+
+def make_polygon_vector_style(layer_style):
+    mapnik_style = mapnik.Style()
+    nb_of_colors = len(layer_style)
+    for n, (color, min_threshold, max_threshold) in enumerate(layer_style):
+        if n == 0:
+            expression = f"[legend] < {max_threshold}"
+        elif n == nb_of_colors - 1:
+            expression = f"[legend] >= {min_threshold}"
+        else:
+            expression = f"[legend] < {max_threshold} and [legend] >= {min_threshold}"
+
+        polygon_symb = mapnik.PolygonSymbolizer()
+        polygon_symb.fill = mapnik.Color(*color)
+        polygon_symb.fill_opacity = 0.5
+
+        rule = mapnik.Rule()
+        rule.filter = mapnik.Expression(expression)
+        rule.symbols.append(polygon_symb)
+        mapnik_style.rules.append(rule)
+
+    return mapnik_style
+
+
+def make_point_vector_style(layer_style):
+    mapnik_style = mapnik.Style()
+    # for n, (color, min_threshold, max_threshold) in enumerate(layer_style):
+    return mapnik_style
+
+
 def parse_envelope(params):
     """Parse the map and return the bounding box."""
     raw_extremas = params["bbox"].split(",")
@@ -247,101 +330,63 @@ class WMS(Resource):
 
     def _get_map(self, normalized_args):
         """Return the Mapnik object (with hardcoded symbology/rule)."""
-        # miss:
-        # bgcolor
-        # exceptions
+
         projection = parse_projection(normalized_args)
         # validate projection
         size = parse_size(normalized_args)
-
         mp = mapnik.Map(size.width, size.height, "+init=" + projection)
-        mapnik_style = mapnik.Style()
 
-        # Raster..................................
-        r = mapnik.Rule()
+        layers = parse_layers(normalized_args)
+        for layer_name in layers:
+            if layer_name[0:2].isdigit():
 
-        raster_symb = mapnik.RasterSymbolizer()
-        raster_colorizer = mapnik.RasterColorizer(
-            mapnik.COLORIZER_LINEAR, mapnik.Color("transparent")
-        )
-
-        # Point .................................................
-        r.symbols.append(mapnik.PointSymbolizer())
-        mapnik_style.rules.append(r)
-
-        layer_name = normalized_args.get("layers", "")
-
-        # setup the "legends" rules
-        if layer_name[0:2].isdigit():
-            layer_id = int(layer_name[0:2])
-
-            # Check the layer type:
-
-            # Get the variable used to color the polygons and its min/max values
-            layer_variable = data_endpoints.get_legend_variable(layer_id)
-            if layer_variable is not None:
-
-                # Layer style is never None, if there is no custom style defined a
-                # default style is returned
+                layer_id = int(layer_name[0:2])
                 layer_style = data_endpoints.get_legend_style(layer_id)
-                nb_of_colors = len(layer_style)
+                layer_type = data_endpoints.get_ds_type(layer_id)
 
-                for n, (color, min_threshold, max_threshold) in enumerate(layer_style):
-                    if n == 0:
-                        raster_colorizer.add_stop(
-                            min_threshold,
-                            mapnik.COLORIZER_LINEAR,
-                            mapnik.Color("black"),
-                        )
-                        expression = f"[legend] < {max_threshold}"
-                    elif n == nb_of_colors - 1:
-                        raster_colorizer.add_stop(
-                            max_threshold, mapnik.COLORIZER_LINEAR, mapnik.Color("red")
-                        )
-                        expression = f"[legend] >= {min_threshold}"
-                    else:
-                        expression = f"[legend] < {max_threshold} and [legend] >= {min_threshold}"
+                # Custom styles for layers that must be "colorized"
+                style_name = None
+                if layer_type == "vector":
+                    style_name = "v_style"
+                    mapnik_style = make_polygon_vector_style(layer_style)
+                if layer_type == "raster":
+                    style_name = "r_style"
+                    mapnik_style = make_numerical_raster_style(layer_style)
 
-                    polygon_symb = mapnik.PolygonSymbolizer()
-                    polygon_symb.fill = mapnik.Color(*color)
-                    polygon_symb.fill_opacity = 0.5
+                try:
+                    layer = geofile.load(layer_name)
+                except FileNotFoundError as e:
+                    abort(404, e.strerror)
+                mapnik_layer = layer.as_mapnik_layer()
+                mapnik_layer.styles.append(style_name)
+                mp.append_style(style_name, mapnik_style)
 
-                    rule = mapnik.Rule()
-                    rule.filter = mapnik.Expression(expression)
-                    rule.symbols.append(polygon_symb)
-                    mapnik_style.rules.append(rule)
+                # Style for polygons contours
+                line_style = make_line_vector_style()
+                mapnik_layer.styles.append("line_style")
+                mp.append_style("line_style", line_style)
 
-                    raster_symb.colorizer = raster_colorizer
-                    r.symbols.append(raster_symb)
-                    mapnik_style.rules.append(r)
+                # Style for polygons contours
+                pt_style = make_pt_vector_style()
+                mapnik_layer.styles.append("pt_style")
+                mp.append_style("pt_style", pt_style)
+
+                mp.layers.append(mapnik_layer)
 
             else:
-                # If there is no variable defined for coloring the polygons,
-                # put the same black on all polygons
-                polygon_symbolizer = mapnik.PolygonSymbolizer()
-                polygon_symbolizer.fill = mapnik.Color("black")
-                polygon_symbolizer.fill_opacity = 0.3
-                r.symbols.append(polygon_symbolizer)
+                # try to download the layer
+                try:
+                    layer = geofile.load(layer_name)
+                except FileNotFoundError as e:
+                    abort(404, e.strerror)
+                mapnik_layer = layer.as_mapnik_layer()
 
-        # add the black polygons contours
-        line_symbolizer = mapnik.LineSymbolizer()
-        line_symbolizer.stroke = mapnik.Color("black")
-        line_symbolizer.stroke_width = 1.0
-        r.symbols.append(line_symbolizer)
-        mapnik_style.rules.append(r)
+                # Style for polygons contours
+                line_style = make_line_vector_style()
+                mapnik_layer.styles.append("line_style")
+                mp.append_style("line_style", line_style)
+                mp.layers.append(mapnik_layer)
 
-        style_name = "My Style"
-        mp.append_style(style_name, mapnik_style)
-
-        layer_names = parse_layers(normalized_args)
-        for layer_name in layer_names:
-            try:
-                layer = geofile.load(layer_name)
-            except FileNotFoundError as e:
-                abort(404, e.strerror)
-            mapnik_layer = layer.as_mapnik_layer()
-            mapnik_layer.styles.append(style_name)
-            mp.layers.append(mapnik_layer)
         return mp
 
     def get_map(self, normalized_args):
