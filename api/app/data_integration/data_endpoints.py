@@ -109,17 +109,6 @@ def get_legend_style(dataset_id):
     legend = dataset_params.get("legend", {})
     style = legend.get("style", {})
 
-    _, data_type = get_ds_type(dataset_id)
-    if data_type == "categorical":
-        classes = style.get("classes", None)
-        classes_list = []
-        if classes is not None:
-            # key: color nb
-            # value : (color_rgb_code, category_name)
-            for key, value in classes.items():
-                classes_list.append((key, value))
-        return classes_list
-
     def get_sns_color(palette, nb_of_colors):
         color_list = sns.color_palette(palette, nb_of_colors)
         rgb_list = [
@@ -128,15 +117,42 @@ def get_legend_style(dataset_id):
         ]
         return rgb_list
 
-    colors = style.get("colors", None)
-    if colors is None:
-        color_palet = "flare"
-        nb_of_colors = 12
-    else:
-        color_palet = colors["color_palet"]
-        nb_of_colors = colors["nb_of_colors"]
+    layer_type, data_type = get_ds_type(dataset_id)
+    if data_type == "categorical":
+        classes = style.get("classes", None)
+        classes_list = []
+        if classes is not None:
+            # key: raster color code
+            # value : (color_rgb_code, category_name)
+            for key, value in classes.items():
+                classes_list.append((key, value))
+        return classes_list
 
-    color_list = get_sns_color(color_palet, nb_of_colors)
+    colors = style.get("colors", None)
+    if layer_type == "vector":
+        if colors is None:
+            color_palet = "flare"
+            nb_of_colors = 8
+        else:
+            color_palet = colors.get("color_palet", "flare")
+            nb_of_colors = colors.get("nb_of_colors", 8)
+        color_list = sns.color_palette(color_palet, nb_of_colors)
+        color_list = [
+            ((int(255 * color[0])), (int(255 * color[1])), (int(255 * color[2])))
+            for color in color_list
+        ]
+    elif layer_type == "raster":
+        if colors is None:
+            color = (1, 0, 0)  # Default red
+            nb_of_colors = 8
+        else:
+            color = colors.get("color", (1, 0, 0))
+            nb_of_colors = colors.get("nb_of_colors", 8)
+        color_list = sns.dark_palette(color, n_colors=nb_of_colors, input="rgb")
+        color_list = [
+            ((int(255 * color[0])), (int(255 * color[1])), (int(255 * color[2])))
+            for color in color_list
+        ]
 
     layer_style = []
     variable = get_legend_variable(dataset_id)

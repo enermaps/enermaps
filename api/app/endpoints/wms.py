@@ -62,18 +62,10 @@ def make_numerical_raster_style(layer_style):
         mapnik.COLORIZER_LINEAR, mapnik.Color("transparent")
     )
 
-    nb_of_colors = len(layer_style)
     for n, (color, min_threshold, max_threshold) in enumerate(layer_style):
-        if n == 0:
-            raster_colorizer.add_stop(
-                min_threshold, mapnik.COLORIZER_LINEAR, mapnik.Color("black"),
-            )
-        elif n == nb_of_colors - 1:
-            raster_colorizer.add_stop(
-                max_threshold, mapnik.COLORIZER_LINEAR, mapnik.Color("red")
-            )
-        else:
-            continue
+        raster_colorizer.add_stop(
+            max_threshold, mapnik.COLORIZER_LINEAR, mapnik.Color(*color)
+        )
 
     raster_symb.colorizer = raster_colorizer
     rule.symbols.append(raster_symb)
