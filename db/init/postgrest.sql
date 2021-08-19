@@ -209,7 +209,7 @@ GRANT SELECT ON public.parameters to api_user;
 -- Code to support OPENAIRE gateway
 -- Create a new datasets table to be filled in
 -- as the original datasets table only contains integrated datasets
-CREATE TABLE public.datasets_full
+CREATE TABLE IF NOT EXISTS public.datasets_full
 (
     ds_id int PRIMARY KEY,
     shared_id varchar(200),
@@ -219,20 +219,6 @@ GRANT SELECT ON public.datasets_full TO api_user;
 -- Make it public to anynomous users
 GRANT SELECT ON public.datasets_full TO api_anon;
 
--- Example of custom function (to be used with POST request and authentication)
-DROP FUNCTION IF EXISTS enermaps_get_metadata(shared_id text);
-CREATE FUNCTION enermaps_get_metadata(shared_id text)
-    RETURNS TABLE(title text, url text, description text)
-    AS $$SELECT
-        metadata ->> 'Title' as title,
-        metadata ->> 'URLs' AS url,
-        metadata ->> 'Description (in brief)' as description
-        FROM datasets_full
-        WHERE metadata ->> 'shared_id' = shared_id;$$
-    LANGUAGE SQL
-    IMMUTABLE
-    RETURNS NULL ON NULL INPUT;
-GRANT EXECUTE ON FUNCTION enermaps_get_metadata(shared_id text) to api_user;
 
 -- Utility function for making a JSON array out of CSV values (used for authors list)
 DROP VIEW IF EXISTS datacite;
@@ -260,6 +246,8 @@ $$ LANGUAGE plpgsql;
 GRANT EXECUTE ON FUNCTION array_to_json_with_key(text[], text) to api_user;
 GRANT EXECUTE ON FUNCTION array_to_json_with_key(text[], text) to api_anon;
 
+-- Bibliographical metadata in Datacite format
+DROP VIEW IF EXISTS datacite;
 CREATE VIEW datacite AS
 SELECT json_agg(t) as data from (
 SELECT shared_id AS id, row_to_json((
@@ -298,3 +286,47 @@ SELECT shared_id AS id, row_to_json((
     bool(true) as "isActive")
     AS x )) AS "attributes" FROM datasets_full)t;
 GRANT SELECT ON public.datacite to api_anon;
+
+-- EnerMaps-specific metadata
+DROP VIEW IF EXISTS metadata;
+CREATE VIEW metadata AS
+SELECT ds_id, shared_id,
+json_build_object(
+                  'Title', metadata ->> 'Title',
+                  'Link', metadata ->> 'Link',
+                  'Description', metadata ->> 'Description (in brief)',
+                  'Metadata of source dataset (URL)', metadata ->> 'Metadata URLs',
+                  'Methodology (brief description)', metadata ->> 'Methodology (brief description)',
+                  'Methodology (URL)', metadata ->> 'Methodology (URL to methodology descriptions)',
+                  'Accuracy', metadata ->> 'Accuracy',
+                  'Completeness', metadata ->> 'Completeness',
+                  'Level', metadata ->> 'Level',
+                  'Spatial Granularity', metadata ->> 'Spatial Granularity',
+                  'DOI', metadata ->> 'DOI',
+                  'Identifier', metadata ->> 'Identifier',
+                  'Identifier type', metadata ->> 'Identifier type',
+                  'Object', metadata ->> 'Object',
+                  'Publisher', metadata ->> 'Publisher',
+                  'Publication Date', metadata ->> 'Publication Date',
+                  'Publication Year', metadata ->> 'Publication Year',
+                  'Temporal Granularity', metadata ->> 'Temporal Granularity',
+                  'Time references', metadata ->> 'Time references (time data refers)',
+                  'URLs', metadata ->> 'URLs',
+                  'Content (keywords)', metadata ->> 'Content (keywords)',
+                  'Origin', metadata ->> 'Origin' ,
+                  'Geographical extension', metadata ->>'Geographical extension',
+                  'Projection system', metadata ->> 'Projection system',
+                  'Access conditions', metadata ->> 'Access conditions',
+                  'License', metadata ->> 'License',
+                  'License URL', metadata ->> 'License URL',
+                  'Terms of use', metadata ->> 'Terms of use',
+                  'Availability', metadata ->> 'Availability',
+                  'Resource type', metadata ->> 'Resource type',
+                  'Data format', metadata ->> 'Data format',
+                  'Size of file (raw, compressed in parentheses)', metadata ->> 'Size of file (raw, compressed in parentheses)',
+                  'Other relevant information', metadata ->> 'Other relevant information'
+                 ) as metadata
+    from datasets_full
+GROUP BY ds_id
+ORDER BY ds_id;
+GRANT SELECT ON public.metadata to api_anon;

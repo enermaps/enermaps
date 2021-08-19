@@ -153,4 +153,8 @@ r = requests.get('http://localhost:3000/datacite',
 	headers={'Accept': 'application/vnd.pgrst.object+json'})
 response = r.json()
 print(json.dumps(response,indent=4, sort_keys=True))
-``
+```
+
+#### Metadata view using GET
+A custom view has been created to provide an endpoint for OpenAIRE and list all Enermaps-specific metadata.
+This is available on: http://localhost:3000/metadata
