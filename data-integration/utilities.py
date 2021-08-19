@@ -14,6 +14,7 @@ import zipfile
 from pathlib import Path
 
 import frictionless
+import geopandas as gpd
 import pandas as pd
 import psycopg2 as ps
 import requests
@@ -198,42 +199,25 @@ def prepareRaster(
     return data
 
 
-def toPostgreSQL(data, dbURL=DB_URL, schema="data"):
-    """
-    Load admin_units to pgsql.
-
-    Parameters
-    ----------
-    rasterdf : GeoDataFrame
-        Table with all rasters to be loaded
-    dbURL : string, optional
-
-    Returns
-    -------
-    None.
-
-    """
+def toPostgreSQL(
+    df: pd.DataFrame,
+    dbURL: str = "postgresql://postgres:postgres@localhost:5432/dataset",
+    schema: str = "data",
+    chunksize: int = 10000,
+):
+    """Load non-spatial data to pgsql."""
     db_engine = sqla.create_engine(dbURL)
     logging.info("Loading to PostgreSQL...")
-    data.to_sql(schema, db_engine, if_exists="append", index=False)
+    df.to_sql(schema, db_engine, if_exists="append", index=False, chunksize=chunksize)
     logging.info("Done.")
 
 
-def toPostGIS(gdf, dbURL=DB_URL, schema="spatial"):
-    """
-    Load admin_units to pgsql.
-
-    Parameters
-    ----------
-    admin_units : GeoDataFrame
-        Table with all administrative units..
-    dbURL : string, optional
-
-    Returns
-    -------
-    None.
-
-    """
+def toPostGIS(
+    gdf: gpd.GeoDataFrame,
+    dbURL: str = "postgresql://postgres:postgres@localhost:5432/dataset",
+    schema: str = "spatial",
+):
+    """Load spatial data to pgsql."""
     db_engine = sqla.create_engine(dbURL)
     logging.info("Loading to PostGIS...")
     gdf.to_postgis(schema, db_engine, if_exists="append", index=False)
