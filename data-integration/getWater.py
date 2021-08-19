@@ -79,11 +79,13 @@ def get(url: str) -> pd.DataFrame:
             withdrawal["nuts"] = nuts
 
             consumption = consumption.melt(id_vars=["Unit", "nuts"], var_name="Date")
-            consumption["Variable"] = sheetname + " - Water consumption"
+            consumption["variable"] = sheetname
+            consumption["fields"] = '{"Water use": "consumption"}'
             consumption["Date"] = pd.to_datetime(consumption["Date"], format="%Y")
             withdrawal = withdrawal.melt(id_vars=["Unit", "nuts"], var_name="Date")
             withdrawal["Date"] = pd.to_datetime(withdrawal["Date"], format="%Y")
-            withdrawal["Variable"] = sheetname + " - Water withdrawal"
+            withdrawal["variable"] = sheetname
+            withdrawal["fields"] = '{"Water use": "withdrawal"}'
             dfs.append(consumption)
             dfs.append(withdrawal)
 
@@ -95,7 +97,8 @@ def get(url: str) -> pd.DataFrame:
         enermaps_data = utilities.ENERMAPS_DF
         enermaps_data["fid"] = data["nuts"]
         enermaps_data["value"] = data["value"]
-        enermaps_data["variable"] = data["Variable"]
+        enermaps_data["variable"] = data["variable"]
+        enermaps_data["fields"] = data["fields"]
         enermaps_data["unit"] = data["Unit"]
         enermaps_data["start_at"] = data["Date"]
         enermaps_data["israster"] = ISRASTER
