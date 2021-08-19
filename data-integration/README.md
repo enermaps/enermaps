@@ -31,7 +31,7 @@ You can manually execute the available pipelines witn the following commands:
     `docker-compose -f ../docker-compose-db.yml run data-integration getHotMaps_tabular.py`
 
   - 24: Solar Atlas
-    `docker-compose run data-integration getSolarAtlas.py`
+    `docker-compose -f ../docker-compose-db.yml run data-integration getSolarAtlas.py`
 
   - 30: Fuel consumption and technologies used in the heating/cooling sector
     `docker-compose -f ../docker-compose-db.yml run data-integration getENER.py`
