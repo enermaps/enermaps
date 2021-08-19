@@ -43,20 +43,21 @@ CREATE TABLE public.data
     fid varchar(200),
     dt double precision,
     z double precision,
-    isRaster boolean
+    isRaster boolean,
+    layer jsonb default'{"type": "numerical"}'::jsonb
 );
 
 
 ALTER TABLE spatial
     ADD CONSTRAINT fk_ds_id
-    FOREIGN KEY(ds_id) 
+    FOREIGN KEY(ds_id)
     REFERENCES datasets(ds_id)
     ON DELETE CASCADE
 ;
 
 ALTER TABLE data
     ADD CONSTRAINT fk_ds_id
-    FOREIGN KEY(ds_id) 
+    FOREIGN KEY(ds_id)
     REFERENCES datasets(ds_id)
     ON DELETE CASCADE
 ;

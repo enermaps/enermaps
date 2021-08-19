@@ -7,7 +7,6 @@ This script allows for data updates.
 @author: giuseppeperonato
 """
 
-
 import json
 import logging
 import os
@@ -24,6 +23,14 @@ Z = None
 DT = 8760
 
 DB_URL = utilities.DB_URL
+
+
+LAYER_METADATA = {
+    "Climate zones": {
+        "type": "numerical",
+        "classes": {0: "warmer climate", 1: "average climate", 2: "colder climate"},
+    }
+}
 
 
 def get(repository: str, dp: frictionless.package.Package, isForced: bool = False):
@@ -115,6 +122,17 @@ def get(repository: str, dp: frictionless.package.Package, isForced: bool = Fals
     return data_enermaps, new_dp
 
 
+def addLayerMetadata(data: pd.DataFrame, layer_metadata: dict):
+    """Add categorical raster layer metadata."""
+    if "layer" not in data.columns:
+        data["layer"] = '{"type": "numerical"}'
+    for variable in layer_metadata.keys():
+        data.loc[data["variable"] == variable, "layer"] = json.dumps(
+            layer_metadata[variable]
+        )
+    return data
+
+
 if __name__ == "__main__":
     datasets = pd.read_csv("datasets.csv", index_col=[0])
     script_name = os.path.basename(sys.argv[0])
@@ -142,6 +160,7 @@ if __name__ == "__main__":
 
             # Create data table
             data["ds_id"] = ds_id
+            data = addLayerMetadata(data, LAYER_METADATA)
             utilities.toPostgreSQL(
                 data, DB_URL, schema="data",
             )
