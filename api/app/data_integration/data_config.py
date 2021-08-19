@@ -16,7 +16,13 @@ DATASETS_DIC = {
             "row_limit": 100000,
         },
         "legend": {
-            "style": {"colors": {"color_palet": "Greys_r", "nb_of_colors": 12}},
+            "style": {
+                "colors": {
+                    "color": (1, 0, 0),
+                    "color_palet": "Greys_r",
+                    "nb_of_colors": 12,
+                }
+            },
             "legend_variable": {
                 "variable": "Monthly average global irradiance on a horizontal surface (W/m2), period 2005-2015: W/m2",
                 "units": "W/m2",
@@ -30,7 +36,7 @@ DATASETS_DIC = {
     "DS_2": {
         "id": 2,
         "layer_type": "vector",
-        "data_type": "point",
+        "data_type": "numerical",
         "params": """{"data.ds_id":2}""",
         "json_params": {"parameters": {"data.ds_id": 2}, "row_limit": 100000},
         "title": "JRC: Geothermal Power Plant Dataset",
@@ -46,7 +52,7 @@ DATASETS_DIC = {
     "DS_3": {
         "id": 3,
         "layer_type": "vector",
-        "data_type": "point",
+        "data_type": "numerical",
         "params": """{"data.ds_id":3}""",
         "json_params": {"parameters": {"data.ds_id": 3}, "row_limit": 100000},
         "title": "JRC: Hydro-power plants database",
@@ -62,7 +68,7 @@ DATASETS_DIC = {
     "DS_4": {
         "id": 4,
         "layer_type": "vector",
-        "data_type": "point",
+        "data_type": "numerical",
         "params": """{"data.ds_id":4}""",
         "json_params": {"parameters": {"data.ds_id": 4}, "row_limit": 100000},
         "title": "JRC: Open Power Plants Database",
@@ -78,7 +84,7 @@ DATASETS_DIC = {
     "DS_5": {
         "id": 5,
         "layer_type": "vector",
-        "data_type": "polygon",
+        "data_type": "numerical",
         "params": """{
                         "data.ds_id":5,
                         "start_at":"''01/01/2019  00:00:00''",
@@ -108,7 +114,7 @@ DATASETS_DIC = {
     "DS_6": {
         "id": 6,
         "layer_type": "vector",
-        "data_type": "polygon",
+        "data_type": "numerical",
         "params": """{
                         "data.ds_id":6,
                         "start_at":"''01/01/2010  00:00:00''"
@@ -131,7 +137,7 @@ DATASETS_DIC = {
     "DS_9": {
         "id": 9,
         "layer_type": "vector",
-        "data_type": "polygon",
+        "data_type": "numerical",
         "params": """{
                         "data.ds_id":9,
                         "start_at":"''01/01/2010  00:00:00''",
@@ -158,7 +164,7 @@ DATASETS_DIC = {
     "DS_11": {
         "id": 11,
         "layer_type": "vector",
-        "data_type": "polygon",
+        "data_type": "numerical",
         "params": """{
                         "data.ds_id":11,
                         "start_at":"''01/01/2010  00:00:00''",
@@ -197,7 +203,13 @@ DATASETS_DIC = {
             "row_limit": 100000,
         },
         "legend": {
-            "style": {"colors": {"color_palet": "Greys_r", "nb_of_colors": 12}},
+            "style": {
+                "colors": {
+                    "color": (1, 0, 0),
+                    "color_palet": "Greys_r",
+                    "nb_of_colors": 12,
+                }
+            },
             "legend_variable": {
                 "variable": "Max 1-day PR",
                 "units": "mm",
@@ -225,7 +237,13 @@ DATASETS_DIC = {
             "row_limit": 100000,
         },
         "legend": {
-            "style": {"colors": {"color_palet": "Greys_r", "nb_of_colors": 12}},
+            "style": {
+                "colors": {
+                    "color": (1, 0, 0),
+                    "color_palet": "Greys_r",
+                    "nb_of_colors": 12,
+                }
+            },
             "legend_variable": {
                 "variable": "10m_u_component_of_wind",
                 "units": "m s**-1",
@@ -238,7 +256,7 @@ DATASETS_DIC = {
     "DS_16": {
         "id": 16,
         "layer_type": "vector",
-        "data_type": "polygon",
+        "data_type": "numerical",
         "params": """{
                         "data.ds_id":16,
                         "start_at":"''01/01/2014  00:00:00''"
@@ -261,7 +279,7 @@ DATASETS_DIC = {
     "DS_17": {
         "id": 17,
         "layer_type": "vector",
-        "data_type": "polygon",
+        "data_type": "numerical",
         "params": """{
                         "data.ds_id":17,
                         "start_at":"''01/01/2014  00:00:00''"
@@ -284,7 +302,7 @@ DATASETS_DIC = {
     "DS_18": {
         "id": 18,
         "layer_type": "vector",
-        "data_type": "polygon",
+        "data_type": "numerical",
         "params": """{
                         "data.ds_id":18,
                         "start_at":"''01/01/2012  00:00:00''"
@@ -307,7 +325,7 @@ DATASETS_DIC = {
     "DS_19": {
         "id": 19,
         "layer_type": "vector",
-        "data_type": "polygon",
+        "data_type": "numerical",
         "params": """{
                     "data.ds_id":19,
                     "start_at":"''01/01/2012  00:00:00''",
@@ -346,7 +364,13 @@ DATASETS_DIC = {
             "row_limit": 100000,
         },
         "legend": {
-            "style": {"colors": {"color_palet": "Greys_r", "nb_of_colors": 12}},
+            "style": {
+                "colors": {
+                    "color": (1, 0, 0),
+                    "color_palet": "Greys_r",
+                    "nb_of_colors": 12,
+                }
+            },
             "legend_variable": {
                 "variable": "relative_humidity",
                 "units": "%",
@@ -373,7 +397,13 @@ DATASETS_DIC = {
             "row_limit": 100000,
         },
         "legend": {
-            "style": {"colors": {"color_palet": "Greys_r", "nb_of_colors": 12}},
+            "style": {
+                "colors": {
+                    "color": (1, 0, 0),
+                    "color_palet": "Greys_r",
+                    "nb_of_colors": 12,
+                }
+            },
             "legend_variable": {
                 "variable": "undefined",
                 "units": "undefined",
@@ -386,7 +416,7 @@ DATASETS_DIC = {
     "DS_22": {
         "id": 22,
         "layer_type": "vector",
-        "data_type": "polygon",
+        "data_type": "numerical",
         "params": """{
                         "data.ds_id":22,
                         "start_at":"''01/01/2018  00:00:00''"
@@ -423,7 +453,13 @@ DATASETS_DIC = {
             "row_limit": 100000,
         },
         "legend": {
-            "style": {"colors": {"color_palet": "Greys_r", "nb_of_colors": 12}},
+            "style": {
+                "colors": {
+                    "color": (1, 0, 0),
+                    "color_palet": "Greys_r",
+                    "nb_of_colors": 12,
+                }
+            },
             "legend_variable": {
                 "variable": "Longterm monthly average of potential photovoltaic electricity production",
                 "units": "kWh/kWp",
@@ -436,7 +472,7 @@ DATASETS_DIC = {
     "DS_27": {
         "id": 27,
         "layer_type": "vector",
-        "data_type": "polygon",
+        "data_type": "numerical",
         "params": """{
                     "data.ds_id":27,
                     "start_at":"''01/01/2012  00:00:00''",
@@ -467,7 +503,7 @@ DATASETS_DIC = {
     "DS_28": {
         "id": 28,
         "layer_type": "vector",
-        "data_type": "polygon",
+        "data_type": "numerical",
         "params": """{
                         "data.ds_id":28,
                         "start_at":"''01/01/1945  00:00:00''",
@@ -505,7 +541,7 @@ DATASETS_DIC = {
     "DS_29": {
         "id": 29,
         "layer_type": "vector",
-        "data_type": "polygon",
+        "data_type": "numerical",
         "params": """{
                         "data.ds_id":29,
                         "start_at":"''2012-01-01''",
@@ -545,7 +581,7 @@ DATASETS_DIC = {
     "DS_30": {
         "id": 30,
         "layer_type": "vector",
-        "data_type": "polygon",
+        "data_type": "numerical",
         "params": """{
                     "data.ds_id":30,
                     "start_at":"''2012-01-01''",
@@ -596,7 +632,11 @@ DATASETS_DIC = {
         },
         "legend": {
             "style": {
-                "colors": {"color_palet": "Greys_r", "nb_of_colors": 12},
+                "colors": {
+                    "color": (1, 0, 0),
+                    "color_palet": "Greys_r",
+                    "nb_of_colors": 12,
+                },
                 "classes": {
                     0: [(255, 0, 0), "colder climate"],
                     1: [(0, 255, 0), "average climate"],
@@ -628,7 +668,13 @@ DATASETS_DIC = {
             "row_limit": 100000,
         },
         "legend": {
-            "style": {"colors": {"color_palet": "Greys_r", "nb_of_colors": 12}},
+            "style": {
+                "colors": {
+                    "color": (1, 0, 0),
+                    "color_palet": "Greys_r",
+                    "nb_of_colors": 12,
+                }
+            },
             "legend_variable": {
                 "variable": "undefined",
                 "units": "undefined",
@@ -654,7 +700,13 @@ DATASETS_DIC = {
             "row_limit": 100000,
         },
         "legend": {
-            "style": {"colors": {"color_palet": "Greys_r", "nb_of_colors": 12}},
+            "style": {
+                "colors": {
+                    "color": (1, 0, 0),
+                    "color_palet": "Greys_r",
+                    "nb_of_colors": 12,
+                }
+            },
             "legend_variable": {
                 "variable": "undefined",
                 "units": "undefined",
@@ -667,7 +719,7 @@ DATASETS_DIC = {
     "DS_42": {
         "id": 42,
         "layer_type": "vector",
-        "data_type": "polygon",
+        "data_type": "numerical",
         "params": """{
                         "data.ds_id":42,
                         "level":" { country } "
@@ -696,7 +748,13 @@ DATASETS_DIC = {
                     }""",
         "json_params": {"parameters": {"data.ds_id": 43}, "row_limit": 100000},
         "legend": {
-            "style": {"colors": {"color_palet": "Greys_r", "nb_of_colors": 12}},
+            "style": {
+                "colors": {
+                    "color": (1, 0, 0),
+                    "color_palet": "Greys_r",
+                    "nb_of_colors": 12,
+                }
+            },
             "legend_variable": {
                 "variable": "Heat density map (final energy demand for heating and DHW) of buildings in EU28 + Switzerland, Norway and Iceland for the year 2015",
                 "units": "MWh/ha (MWh/10.000 m2)",
@@ -713,7 +771,13 @@ DATASETS_DIC = {
         "params": """{"data.ds_id":45}""",
         "json_params": {"parameters": {"data.ds_id": 45}, "row_limit": 100000},
         "legend": {
-            "style": {"colors": {"color_palet": "Greys_r", "nb_of_colors": 12}},
+            "style": {
+                "colors": {
+                    "color": (1, 0, 0),
+                    "color_palet": "Greys_r",
+                    "nb_of_colors": 12,
+                }
+            },
             "legend_variable": {
                 "variable": "Heated gross floor area density map of buildings in EU28 + Switzerland, Norway and Iceland for the year 2015",
                 "units": "m2/ha (m2/10.000 m2)",
@@ -726,7 +790,7 @@ DATASETS_DIC = {
     "DS_46": {
         "id": 46,
         "layer_type": "vector",
-        "data_type": "polygon",
+        "data_type": "numerical",
         "params": """{
                         "data.ds_id":46,
                         "start_at":"''2018-01-01''",
@@ -757,7 +821,7 @@ DATASETS_DIC = {
     "DS_47": {
         "id": 47,
         "layer_type": "vector",
-        "data_type": "polygon",
+        "data_type": "numerical",
         "params": """{
                         "data.ds_id":47,
                         "start_at":"''2018-01-01''"
@@ -780,7 +844,7 @@ DATASETS_DIC = {
     "DS_48": {
         "id": 48,
         "layer_type": "vector",
-        "data_type": "polygon",
+        "data_type": "numerical",
         "params": """{
                         "data.ds_id":48,
                         "start_at":"''2018-01-01''"
@@ -803,7 +867,7 @@ DATASETS_DIC = {
     "DS_49": {
         "id": 49,
         "layer_type": "vector",
-        "data_type": "polygon",
+        "data_type": "numerical",
         "params": """{
                         "data.ds_id":49,
                         "start_at":"''2018-01-01''"
@@ -826,7 +890,7 @@ DATASETS_DIC = {
     "DS_50": {
         "id": 50,
         "layer_type": "vector",
-        "data_type": "polygon",
+        "data_type": "numerical",
         "params": """{
                     "data.ds_id":50,
                     "start_at":"''2018-01-01''"
