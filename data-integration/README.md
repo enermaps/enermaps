@@ -23,24 +23,24 @@ You can manually execute the available pipelines witn the following commands:
     `docker-compose -f ../docker-compose-db.yml run data-integration getPopulation.py`
 
   - 15: ERA5 reanalysis-era5-single-levels
-    `docker-compose run data-integration getERA5.py --select_ds_ids 15`
+    `docker-compose  -f ../docker-compose-db.yml run data-integration getERA5.py --select_ds_ids 15`
 
   - 19: EDGAR CO₂ emissions
     `docker-compose -f ../docker-compose-db.yml run data-integration getEdgar.py`
+
+  - 20: ERA5 reanalysis-era5-pressure-levels
+    `docker-compose run data-integration  -f ../docker-compose-db.yml getERA5.py --select_ds_ids 20`
 
   - 21: EU-DEM
     Note that the files must be manually downloaded by Copernicus website (requires log-in).
     Instructions are in the header of the Python file.
     `docker-compose -f ../docker-compose-db.yml run data-integration getESM-EUDEM.py --select_ds_ids 21`
 
-  - 28: HotMaps Building stock analysis
-    `docker-compose -f ../docker-compose-db.yml run data-integration getHotMaps_tabular.py`
-
   - 24: Solar Atlas
     `docker-compose -f ../docker-compose-db.yml run data-integration getSolarAtlas.py`
 
-  - 20: ERA5 reanalysis-era5-pressure-levels
-    `docker-compose run data-integration getERA5.py --select_ds_ids 20`
+  - 28: HotMaps Building stock analysis
+    `docker-compose -f ../docker-compose-db.yml run data-integration getHotMaps_tabular.py`
 
   - 30: Fuel consumption and technologies used in the heating/cooling sector
     `docker-compose -f ../docker-compose-db.yml run data-integration getENER.py`
