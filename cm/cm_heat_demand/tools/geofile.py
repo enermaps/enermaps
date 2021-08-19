@@ -133,7 +133,6 @@ def write_raster(
     )
 
     band.SetRasterColorTable(color_table)
-    # band.SetRasterColorInterpretation(gdal.GCI_PaletteIndex)
 
     driver = None
     band = None

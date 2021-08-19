@@ -164,17 +164,17 @@ def get_areas(
             - NB: this zone is not interesting, therefore only the potential of
                 the other zones is returned in practice
     """
-    array_map, geo_transform = read_raster(raster=heat_density_map)
     # array_map units : MWh
+    array_map, geo_transform = read_raster(raster=heat_density_map)
 
-    total_heat_demand = np.around(np.sum(array_map) / 1000, 2)
     # total_heat_demand units : GWh
+    total_heat_demand = np.around(np.sum(array_map) / 1000, 2)
 
-    pixel_filtered_map = array_map * (array_map > pixel_threshold)
     # pixel_filtered_map units : MWh
+    pixel_filtered_map = array_map * (array_map > pixel_threshold)
 
-    district_heating_zone_threshold = district_heating_zone_threshold * 1000
     # district_heating_zone_threshold units : MWh (after the conversion)
+    district_heating_zone_threshold = district_heating_zone_threshold * 1000
 
     # district_heating_zone_threshold filter
     areas, filtered_map, total_potential, areas_potential = define_areas(
