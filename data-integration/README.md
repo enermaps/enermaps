@@ -20,7 +20,7 @@ You can manually execute the available pipelines witn the following commands:
     `docker-compose -f ../docker-compose-db.yml run data-integration getElectricity.py`
 
   - 8: GISCO Population
-    `docker-compose run data-integration getPopulation.py`
+    `docker-compose -f ../docker-compose-db.yml run data-integration getPopulation.py`
 
   - 19: EDGAR CO₂ emissions
     `docker-compose -f ../docker-compose-db.yml run data-integration getEdgar.py`
