@@ -26,9 +26,9 @@ services:
     env_file:
       .env-db
 
-  nginx:
+  db-nginx:
     build:
-      context: ./nginx
+      context: ./db-nginx
     ports:
       - "0.0.0.0:80:80"
     volumes:

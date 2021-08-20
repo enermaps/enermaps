@@ -1,4 +1,4 @@
-# nginx
+# db-nginx
 
 This service exposes:
  - thumbnail pictures representing each dataset `0.0.0.0/images/{shared_id}`
