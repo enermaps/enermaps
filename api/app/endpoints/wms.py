@@ -31,7 +31,7 @@ api = Namespace("wms", "WMS compatible endpoint")
 current_file_dir = os.path.dirname(os.path.abspath(__file__))
 
 
-def make_line_vector_style():
+def make_line_style():
     # add the black polygons contours
     mapnik_style = mapnik.Style()
     rule = mapnik.Rule()
@@ -44,7 +44,7 @@ def make_line_vector_style():
     return mapnik_style, style_name
 
 
-def make_pt_vector_style():
+def make_point_style():
     mapnik_style = mapnik.Style()
     rule = mapnik.Rule()
     pt_symbolizer = mapnik.PointSymbolizer()
@@ -92,7 +92,7 @@ def make_categorical_raster_style(layer_style):
     return mapnik_style, style_name
 
 
-def make_polygon_vector_style(layer_style):
+def make_numerical_polygon_style(layer_style):
     mapnik_style = mapnik.Style()
     nb_of_colors = len(layer_style)
     for n, (color, min_threshold, max_threshold) in enumerate(layer_style):
@@ -116,10 +116,10 @@ def make_polygon_vector_style(layer_style):
     return mapnik_style, style_name
 
 
-def make_point_vector_style(layer_style):
-    mapnik_style = mapnik.Style()
-    # for n, (color, min_threshold, max_threshold) in enumerate(layer_style):
-    return mapnik_style
+# def make_point_vector_style(layer_style):
+#     mapnik_style = mapnik.Style()
+#     # for n, (color, min_threshold, max_threshold) in enumerate(layer_style):
+#     return mapnik_style
 
 
 def parse_envelope(params):
@@ -344,22 +344,22 @@ class WMS(Resource):
         size = parse_size(normalized_args)
         mp = mapnik.Map(size.width, size.height, "+init=" + projection)
 
+        # Get the list of the layers to display
         layers = parse_layers(normalized_args)
         for layer_name in layers:
-            # Try to download the layer
+            # Try to load the layer from the local file
             try:
                 layer = geofile.load(layer_name)
             except FileNotFoundError as e:
                 abort(404, e.strerror)
             mapnik_layer = layer.as_mapnik_layer()
 
-            # Style for polygons contours
-            line_style, style_name = make_line_vector_style()
+            # For each layer, add a line style and a point style
+            line_style, style_name = make_line_style()
             mapnik_layer.styles.append(style_name)
             mp.append_style(style_name, line_style)
-
             # Style for points
-            pt_style, style_name = make_pt_vector_style()
+            pt_style, style_name = make_point_style()
             mapnik_layer.styles.append(style_name)
             mp.append_style(style_name, pt_style)
 
@@ -370,13 +370,14 @@ class WMS(Resource):
                 # Get the layer style and type
                 layer_style = data_endpoints.get_legend_style(layer_id)
                 layer_type, data_type = data_endpoints.get_ds_type(layer_id)
-                print(layer_type, flush=True)
-                print(data_type, flush=True)
 
                 if layer_type == "vector":
-                    mapnik_style, style_name = make_polygon_vector_style(layer_style)
-                    mapnik_layer.styles.append(style_name)
-                    mp.append_style(style_name, mapnik_style)
+                    if data_type == "numerical":
+                        mapnik_style, style_name = make_numerical_polygon_style(
+                            layer_style
+                        )
+                        mapnik_layer.styles.append(style_name)
+                        mp.append_style(style_name, mapnik_style)
 
                 if layer_type == "raster":
                     if data_type == "numerical":
