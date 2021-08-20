@@ -27,7 +27,7 @@ DB_URL = utilities.DB_URL
 
 LAYER_METADATA = {
     "Climate zones": {
-        "type": "numerical",
+        "type": "categorical",
         "classes": {0: "warmer climate", 1: "average climate", 2: "colder climate"},
     }
 }
