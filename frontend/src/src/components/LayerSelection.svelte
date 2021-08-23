@@ -144,7 +144,7 @@ label {
   {#if !isLayerListReady}
   Loading layers...
   {:else}
-  <h3>Selection</h3>
+  <h3>Area selection</h3>
   <div id="selection_layers">
   {#each selectionLayers as selectionLayer}
   <label title={selectionLayer.name}>

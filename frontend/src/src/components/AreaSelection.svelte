@@ -208,7 +208,7 @@
     {#if !isLayerListReady}
     Loading layers...
     {:else}
-    <h3>Overlays</h3>
+    <h3>Overlays layers</h3>
       <input bind:value={overlayLayersFilter} class="overlay_search" placeholder="Search layer...">
     <div id="overlay_layers" style="margin-top: 10px;">
 
@@ -250,7 +250,7 @@
       <div>...waiting for OpenAir link</div>
       {:then openairLink}
         <div>
-          <a href={openairLink} target="_blank">OpenAir link &#128279;</a>
+          <a href={openairLink} target="_blank">Link to OpenAir metadata &#128279;</a>
         </div>
       {:catch error}
         <div style="color: red">{error.message}</div>
