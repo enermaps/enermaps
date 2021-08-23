@@ -31,7 +31,7 @@ DATASETS_DIC = {
             },
         },
         "title": "PVGIS: Solar Radiation Data",
-        "openair_link": "",
+        "shared_id": "PVGIS",
     },
     "DS_2": {
         "id": 2,
@@ -40,6 +40,7 @@ DATASETS_DIC = {
         "params": """{"data.ds_id":2}""",
         "json_params": {"parameters": {"data.ds_id": 2}, "row_limit": 100000},
         "title": "JRC: Geothermal Power Plant Dataset",
+        "shared_id": "jrc-10128-10001",
         "legend": {
             "legend_variable": {
                 "variable": "gross_cap_ele",
@@ -56,6 +57,7 @@ DATASETS_DIC = {
         "params": """{"data.ds_id":3}""",
         "json_params": {"parameters": {"data.ds_id": 3}, "row_limit": 100000},
         "title": "JRC: Hydro-power plants database",
+        "shared_id": "hydro-power-database",
         "legend": {
             "legend_variable": {
                 "variable": "installed_capacity_MW",
@@ -72,6 +74,7 @@ DATASETS_DIC = {
         "params": """{"data.ds_id":4}""",
         "json_params": {"parameters": {"data.ds_id": 4}, "row_limit": 100000},
         "title": "JRC: Open Power Plants Database",
+        "shared_id": "JRC-PPDB-OPEN",
         "legend": {
             "legend_variable": {
                 "variable": "capacity_g",
@@ -101,6 +104,7 @@ DATASETS_DIC = {
             "row_limit": 100000,
         },
         "title": "EEA: Share of gross final consumption of renewable energy sources",
+        "shared_id": "RES_proxies_EEA",
         "legend": {
             "style": {"colors": {"color_palet": "crest", "nb_of_colors": 12}},
             "legend_variable": {
@@ -124,6 +128,7 @@ DATASETS_DIC = {
             "row_limit": 100000,
         },
         "title": "Energy consumption in households",
+        "shared_id": "nrg_d_hhq",
         "legend": {
             "style": {"colors": {"color_palet": "magma", "nb_of_colors": 12}},
             "legend_variable": {
@@ -152,6 +157,7 @@ DATASETS_DIC = {
             "row_limit": 100000,
         },
         "title": "Eurostat: Degree days",
+        "shared_id": "nrg_chddr2_m",
         "legend": {
             "legend_variable": {
                 "variable": "Heating degree days",
@@ -181,6 +187,7 @@ DATASETS_DIC = {
             "row_limit": 100000,
         },
         "title": "SETIS: Private R&I investment in energy technologies",
+        "shared_id": "jrc-10115-10001",
         "legend": {
             "legend_variable": {
                 "variable": "inventions",
@@ -218,6 +225,7 @@ DATASETS_DIC = {
             },
         },
         "title": "Climate Extreme Indices",
+        "shared_id": "PANGAEA.898014",
     },
     "DS_15": {
         "id": 15,
@@ -252,6 +260,7 @@ DATASETS_DIC = {
             },
         },
         "title": "Copernicus: hourly global climate and weather data",
+        "shared_id": "cds.adbb2d47",
     },
     "DS_16": {
         "id": 16,
@@ -266,6 +275,7 @@ DATASETS_DIC = {
             "row_limit": 100000,
         },
         "title": "EMHIRES: Wind power generation",
+        "shared_id": "jrc-emhires-wind-generation-time-series",
         "legend": {
             "style": {"colors": {"color_palet": "viridis", "nb_of_colors": 12}},
             "legend_variable": {
@@ -289,6 +299,7 @@ DATASETS_DIC = {
             "row_limit": 100000,
         },
         "title": "EMHIRES: Solar power generation",
+        "shared_id": "jrc-emhires-solar-generation-time-series",
         "legend": {
             "style": {"colors": {"color_palet": "rocket_r", "nb_of_colors": 12}},
             "legend_variable": {
@@ -312,6 +323,7 @@ DATASETS_DIC = {
             "row_limit": 100000,
         },
         "title": "Energy Efficiency Indicator",
+        "shared_id": "GTF-energy-efficiency",
         "legend": {
             "style": {"colors": {"color_palet": "light:b", "nb_of_colors": 12}},
             "legend_variable": {
@@ -342,6 +354,7 @@ DATASETS_DIC = {
             "row_limit": 100000,
         },
         "title": "EDGAR CO_ emissions",
+        "shared_id": "JRC-EDGAR-FT",
         "legend": {
             "legend_variable": {
                 "variable": "Emissions",
@@ -379,6 +392,7 @@ DATASETS_DIC = {
             },
         },
         "title": "Copernicus: hourly data on pressure levels",
+        "shared_id": "cds.bd0915c6",
     },
     "DS_21": {
         "id": 21,
@@ -412,6 +426,7 @@ DATASETS_DIC = {
             },
         },
         "title": "European Digital Elevation Model (EU-DEM)",
+        "shared_id": "EU-DEM",
     },
     "DS_22": {
         "id": 22,
@@ -426,6 +441,7 @@ DATASETS_DIC = {
             "row_limit": 100000,
         },
         "title": "Eurostat: Energy efficiency indicator",
+        "shared_id": "nrg_ind_eff",
         "legend": {
             "legend_variable": {
                 "variable": "Final energy consumption (Europe 2020-2030)",
@@ -468,6 +484,7 @@ DATASETS_DIC = {
             },
         },
         "title": "Photovoltaic power potential",
+        "shared_id": "world-solar-irradiation-and-pv-power-potential-map",
     },
     "DS_27": {
         "id": 27,
@@ -490,6 +507,7 @@ DATASETS_DIC = {
             "row_limit": 100000,
         },
         "title": "S2BIOM: Biomass supply",
+        "shared_id": "S2BIOM",
         "legend": {
             "style": {"colors": {"color_palet": "dark:salmon_r", "nb_of_colors": 12}},
             "legend_variable": {
@@ -528,6 +546,7 @@ DATASETS_DIC = {
             "row_limit": 100000,
         },
         "title": "HotMaps: Building stock analysis",
+        "shared_id": "hotmaps-building-stock",
         "legend": {
             "style": {"colors": {"color_palet": "vlag", "nb_of_colors": 12}},
             "legend_variable": {
@@ -568,6 +587,7 @@ DATASETS_DIC = {
             "row_limit": 100000,
         },
         "title": "H2020 SET-Nav: Detailed scenario results for energy demand by the INVERT-EE-Lab model ",
+        "shared_id": "SET-Nav",
         "legend": {
             "style": {"colors": {"color_palet": "icefire", "nb_of_colors": 12}},
             "legend_variable": {
@@ -608,6 +628,7 @@ DATASETS_DIC = {
             "row_limit": 100000,
         },
         "title": "Fuel consumption and technologies used in the heating - cooling sector",
+        "shared_id": "GISCO-GEOSTAT",
         "legend": {
             "style": {"colors": {"color_palet": "flare", "nb_of_colors": 12}},
             "legend_variable": {
@@ -651,6 +672,7 @@ DATASETS_DIC = {
             },
         },
         "title": "INTERREG GRETA",
+        "shared_id": "potential_geothermal_raster",
     },
     "DS_33": {
         "id": 33,
@@ -683,6 +705,7 @@ DATASETS_DIC = {
             },
         },
         "title": "Building Height",
+        "shared_id": "copernicus-building-height",
     },
     "DS_35": {
         "id": 35,
@@ -715,6 +738,7 @@ DATASETS_DIC = {
             },
         },
         "title": "European Settlement Map",
+        "shared_id": "copernicus-european-settlement-map",
     },
     "DS_42": {
         "id": 42,
@@ -729,6 +753,7 @@ DATASETS_DIC = {
             "row_limit": 100000,
         },
         "title": "National Housing Census: type of living quarter by country",
+        "shared_id": "cens_11r",
         "legend": {
             "style": {"colors": {"color_palet": "YlOrBr", "nb_of_colors": 12}},
             "legend_variable": {
@@ -763,6 +788,7 @@ DATASETS_DIC = {
             },
         },
         "title": "HotMaps: Heat demand density",
+        "shared_id": "hotmaps_heat_tot_curr_density",
     },
     "DS_45": {
         "id": 45,
@@ -786,6 +812,7 @@ DATASETS_DIC = {
             },
         },
         "title": "HotMaps: Heated gross floor area density",
+        "shared_id": "hotmaps_gfa_tot_curr_density",
     },
     "DS_46": {
         "id": 46,
@@ -808,6 +835,7 @@ DATASETS_DIC = {
             "row_limit": 100000,
         },
         "title": "OECD: Greenhouse gas emissions",
+        "shared_id": "OECD.AIR_GHG",
         "legend": {
             "style": {"colors": {"color_palet": "Spectral", "nb_of_colors": 12}},
             "legend_variable": {
@@ -831,6 +859,7 @@ DATASETS_DIC = {
             "row_limit": 100000,
         },
         "title": "Electricity prices for household consumers",
+        "shared_id": "nrg_pc_204_c",
         "legend": {
             "style": {"colors": {"color_palet": "coolwarm", "nb_of_colors": 12}},
             "legend_variable": {
@@ -854,6 +883,7 @@ DATASETS_DIC = {
             "row_limit": 100000,
         },
         "title": "Expenditure per household on energy",
+        "shared_id": "nama_10_co3_p3",
         "legend": {
             "style": {"colors": {"color_palet": "crest", "nb_of_colors": 12}},
             "legend_variable": {
@@ -877,6 +907,7 @@ DATASETS_DIC = {
             "row_limit": 100000,
         },
         "title": "Energy dependence",
+        "shared_id": "t2020_rd320",
         "legend": {
             "style": {"colors": {"color_palet": "viridis", "nb_of_colors": 12}},
             "legend_variable": {
@@ -900,6 +931,7 @@ DATASETS_DIC = {
             "row_limit": 100000,
         },
         "title": "Regional GDP",
+        "shared_id": "tgs00004",
         "legend": {
             "style": {"colors": {"color_palet": "ch:s=-.2,r=.6", "nb_of_colors": 12}},
             "legend_variable": {
