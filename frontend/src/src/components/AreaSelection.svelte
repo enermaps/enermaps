@@ -209,8 +209,8 @@
     Loading layers...
     {:else}
     <h3>Overlays</h3>
-    Filter: <input bind:value={overlayLayersFilter} class="overlay_search">
-    <div id="overlay_layers">
+      <input bind:value={overlayLayersFilter} class="overlay_search" placeholder="Search layer...">
+    <div id="overlay_layers" style="margin-top: 10px;">
 
     {#each filteredOverlayLayers as overlayLayer (overlayLayer.name)}
     <label title={overlayLayer.name}>
