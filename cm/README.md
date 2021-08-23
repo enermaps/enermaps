@@ -112,7 +112,7 @@ are in the variable ```selection``` and ```rasters``` respectively.
 See [test data](./multiply/testdata) for geojson file and geotiff file example.
 
 The variable ```params``` refers to the data provided by the form on the frontend.
-The method ```validate_params``` verify if the values enter by the user match with the schema 
+The method ```validate_params``` verifies if the values entered by the user match with the schema 
 of the ```schema.json``` file, see "schema.json" section below.
 
 All CM provide an output dictionary. The 3 keys required are as follows:
