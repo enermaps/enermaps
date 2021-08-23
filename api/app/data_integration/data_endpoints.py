@@ -1,3 +1,5 @@
+import hashlib
+
 import seaborn as sns
 
 from app.data_integration.data_config import DATASETS_DIC
@@ -91,10 +93,16 @@ def get_openair_link(dataset_id):
     default_link = (
         "https://beta.enermaps.openaire.eu/search/publication?pid=10.3390%2Fen12244789"
     )
+
     dataset_params = get_ds(dataset_id)
-    link = dataset_params.get("openair_link", None)
+    link = dataset_params.get("shared_id", None)
     if link is None or not link:
         return default_link
+
+    shared_id_hash = hashlib.md5(link.encode())  # nosec
+    link = "https://beta.enermaps.openaire.eu/search/dataset?datasetId=enermaps____::{}".format(
+        shared_id_hash.hexdigest()
+    )
     return link
 
 
