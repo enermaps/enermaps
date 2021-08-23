@@ -112,19 +112,19 @@ are in the variable ```selection``` and ```rasters``` respectively.
 See [test data](./multiply/testdata) for geojson file and geotiff file example.
 
 The variable ```params``` refers to the data provided by the form on the frontend.
-The method ```validate_params``` verify if the value enter by the user match with the schema 
-of the ```schema.json``` file, see "Schema.json" section below.
+The method ```validate_params``` verify if the values enter by the user match with the schema 
+of the ```schema.json``` file, see "schema.json" section below.
 
-All CM provide a output dictionary. The 3 keys required are as follows:
+All CM provide an output dictionary. The 3 keys required are as follows:
 
 * graphs 
 * geofiles
 * values
 
-The schema of this dictionary have to be validated before it is sent to the frontend.
+The schema of this dictionary has to be validated before it is sent to the frontend.
 See [cm_output.py](./base/BaseCM/cm_output.py) for more information about the output json schema.
 
-Warning: the name of the function in the file `worker.py` corresponds to the name of the CM as it will appear in the front-end. Make sure that this name is unique, otherwise it will generate conflicts with other CMs. 
+Warning: the name of the function in the `worker.py` file corresponds to the name of the CM as it will appear in the front-end. Make sure that this name is unique, otherwise it will generate conflicts with other CMs. 
 
 ## Test.py
 

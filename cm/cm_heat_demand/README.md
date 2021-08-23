@@ -4,7 +4,7 @@ This calculation module (CM) was originally written as part of the
 
 The documentation that was done for this first version can be found on
 (this section)[https://wiki.hotmaps.eu/en/CM-District-heating-potential-areas-user-defined-thresholds] 
-of the project HotMaps wiki.
+of the HotMaps wiki project.
 
 # Goal of the calculation module
 This CM calculates district heating potential within the selected region using 2 threshold values: 
@@ -61,4 +61,4 @@ This CM calculates district heating potential within the selected region using 2
 
 > Remark : 
 > GDAL is not in the requirements.txt file 
-> because install directly through command line in the Dockerfile
+> because it is installed directly through command line in the Dockerfile
