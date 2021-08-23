@@ -5,7 +5,7 @@
   import '../leaflet_components/L.TileLayer.QueryableLayer.js';
   import queryString from 'query-string';
   import {getGeofiles, WMS_URL} from '../client.js';
-  import {activeOverlayLayersStore, activeSelectionLayerStore} from '../stores.js';
+  import {activeSelectionLayerStore} from '../stores.js';
 
   // List of queryable layers that are used as selection layers.
   // The order in which they appear is mirrored in the order the layers
@@ -19,12 +19,7 @@
   ];
   export const SELECTIONS = new Set(SELECTIONS_LIST);
   let selectionLayers = [];
-  let overlayLayers = [];
   let isLayerListReady = false;
-
-  const overlayLayersFilter = '';
-  let filteredOverlayLayers = [];
-
 
   function toNutsLayer(layerName) {
     const layer = L.tileLayer.nutsLayer(
@@ -57,12 +52,11 @@
       return SELECTIONS_LIST.indexOf(layer0Name) > SELECTIONS_LIST.indexOf(layer1Name);
     }
     selectionLayers.sort(compareSelectionLayer);
+
     const drawingLayer = getDrawingLayer();
     drawingLayer.name = 'selection';
     selectionLayers.push(drawingLayer);
     selectionLayers = selectionLayers;
-    overlayLayers = overlayLayers;
-    filteredOverlayLayers = overlayLayers;
     setSelectionFromGetParameter();
     isLayerListReady = true;
   });
@@ -79,27 +73,12 @@
       }
       $activeSelectionLayerStore = activeSelectionLayer;
     }
-    if ('overlayLayers' in parsed) {
-      const activeOverlayLayers = [];
-      console.log('parsing overlay layer from get parameters');
-      const queryOverlayLayers = new Set(parsed.overlayLayers.split(','));
-      for (const overlayLayer of overlayLayers) {
-        if (queryOverlayLayers.has(overlayLayer.name)) {
-          console.log('adding overlay layer from get parameters');
-          activeOverlayLayers.push(overlayLayer);
-        }
-      }
-      $activeOverlayLayersStore = activeOverlayLayers;
-    }
   }
   function getDrawingLayer() {
     return new L.DrawingLayer();
   }
   $: {
     console.log('layer changed in selector to ' + $activeSelectionLayerStore);
-    console.log('layer changed in selector to ' + $activeOverlayLayersStore);
-    filteredOverlayLayers = overlayLayers.filter((layer) =>
-      layer.name.indexOf(overlayLayersFilter) !== -1);
   }
 </script>
 <style>
@@ -125,7 +104,6 @@ h3 {
   border : none;
 }
 #selection_layers {
-  /* width: 140px; */
   overflow-y: auto;
   border : none;
 }

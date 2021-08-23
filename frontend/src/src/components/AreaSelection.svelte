@@ -1,15 +1,11 @@
 <script>
   import {onMount} from 'svelte';
-  import '../leaflet_components/L.TileLayer.NutsLayer.js';
-  import '../leaflet_components/L.DrawingLayer.js';
   import '../leaflet_components/L.TileLayer.QueryableLayer.js';
   import queryString from 'query-string';
   import {getGeofiles, getLegend, getLayerType, getOpenairLink, WMS_URL} from '../client.js';
-  import {activeOverlayLayersStore, activeSelectionLayerStore} from '../stores.js';
+  import {activeOverlayLayersStore} from '../stores.js';
 
-  let selectionLayers = [];
   let overlayLayers = [];
-
   let isLayerListReady = false;
   let overlayLayersFilter = '';
   let filteredOverlayLayers = [];
@@ -77,16 +73,6 @@
       }
     }
 
-    function compareSelectionLayer(layer0, layer1) {
-      const layer0Name = layer0.name;
-      const layer1Name = layer1.name;
-      return SELECTIONS_LIST.indexOf(layer0Name) > SELECTIONS_LIST.indexOf(layer1Name);
-    }
-    selectionLayers.sort(compareSelectionLayer);
-    const drawingLayer = getDrawingLayer();
-    drawingLayer.name = 'selection';
-    selectionLayers.push(drawingLayer);
-    selectionLayers = selectionLayers;
     overlayLayers = overlayLayers;
     filteredOverlayLayers = overlayLayers;
     setSelectionFromGetParameter();
@@ -94,17 +80,6 @@
   });
   function setSelectionFromGetParameter() {
     const parsed = queryString.parse(window.location.search);
-    if ('selectionLayer' in parsed) {
-      let activeSelectionLayer = undefined;
-      console.log('parsing selection layer from get parameters');
-      for (const selectionLayer of selectionLayers) {
-        if (selectionLayer.name == parsed.selectionLayer) {
-          console.log('adding selection layer from get parameters');
-          activeSelectionLayer = selectionLayer;
-        }
-      }
-      $activeSelectionLayerStore = activeSelectionLayer;
-    }
     if ('overlayLayers' in parsed) {
       const activeOverlayLayers = [];
       console.log('parsing overlay layer from get parameters');
@@ -118,11 +93,7 @@
       $activeOverlayLayersStore = activeOverlayLayers;
     }
   }
-  function getDrawingLayer() {
-    return new L.DrawingLayer();
-  }
   $: {
-    console.log('layer changed in selector to ' + $activeSelectionLayerStore);
     console.log('layer changed in selector to ' + $activeOverlayLayersStore);
     filteredOverlayLayers = overlayLayers.filter((layer) =>
       layer.name.indexOf(overlayLayersFilter) !== -1);
@@ -142,12 +113,9 @@
 
   #map_selection h3 {
     margin: 0px;
-    /* height: 40%; */
     height: 25px;
-    /* width: 140px; */
     display: flex;
     flex-direction: column;
-    /* max-width: 200px; */
     white-space: nowrap;
     text-overflow: ellipsis;
     overflow: hidden !important;
@@ -156,15 +124,12 @@
   h3 {
     flex-shrink: 0;
     border : none;
-    /* width: 100%; */
   }
 
   #overlay_layers {
-    /* width: 100%; */
     max-height: 300px;
     overflow-y: auto;
     border : none;
-    /* overflow: hidden;*/
     overflow-y: scroll;
     scrollbar-color: #27275b;
     scrollbar-width: thin;
@@ -183,12 +148,9 @@
   }
 
   .box {
-    /* float: left; */
     height: 10px;
     width: 10px;
-    /* margin-bottom: 15px; */
     border: 1px solid black;
-    /* clear: both; */
     display: inline-block;
   }
 
