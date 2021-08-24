@@ -13,5 +13,5 @@ $ : {
 }
 </script>
 
-<dt>{name}</dt>
+<dt><strong>{name}</strong></dt>
 <dd>{formattedValue}</dd>

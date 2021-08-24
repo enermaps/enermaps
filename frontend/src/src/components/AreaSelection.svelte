@@ -10,13 +10,18 @@
   let overlayLayersFilter = '';
   let filteredOverlayLayers = [];
   export const SELECTIONS_LIST= [
-    'country.geojson',
+    'Country.geojson',
     'NUTS1.geojson',
     'NUTS2.geojson',
     'NUTS3.geojson',
     'LAU.geojson',
   ];
   export const SELECTIONS = new Set(SELECTIONS_LIST);
+
+  function splitName(name) {
+    return name.substring(3).replace(/\.[^/.]+$/, "")
+  };
+
 
   function toQueryableLayer(layerName) {
     const layer = L.tileLayer.queryableLayer(
@@ -72,7 +77,13 @@
         overlayLayers.push(leafletLayer);
       }
     }
-
+    overlayLayers.sort(function(layer_0, layer_1){
+      let name_0 = splitName(layer_0.name)
+      let name_1 = splitName(layer_1.name)
+      if(name_0 < name_1) { return -1; }
+      if(name_0 > name_1) { return 1; }
+      return 0;
+    })
     overlayLayers = overlayLayers;
     filteredOverlayLayers = overlayLayers;
     setSelectionFromGetParameter();
@@ -177,7 +188,7 @@
     {#each filteredOverlayLayers as overlayLayer (overlayLayer.name)}
     <label title={overlayLayer.name}>
       <input type=checkbox bind:group={$activeOverlayLayersStore} value={overlayLayer} bind:checked={overlayLayer.checked}>
-        {overlayLayer.name}
+        {splitName(overlayLayer.name)}
     </label>
 
     <div id="metadata_box" hidden={!overlayLayer.checked}>

@@ -12,6 +12,42 @@ body {
 	font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
 }
 
+.leaflet-touch .leaflet-bar {
+	border: 1px solid #27275b !important;
+	border-radius: 0px !important;
+	background-color: #eff4fa !important;
+}
+
+.leaflet-retina .leaflet-draw-toolbar a {
+	background-color: #eff4fa !important;
+}
+
+.leaflet-control-search .search-input {
+	border: 0px !important;
+	padding: 2px !important;
+	border-radius: 0px !important;
+}
+
+.leaflet-control-search .search-button {
+	background-color: transparent !important;
+	border-radius: 0px !important;
+}
+
+.leaflet-control-search.search-exp {
+	border: 0px !important;
+	border-radius: 0px !important;
+}
+
+.leaflet-control-search .search-tip {
+	color: inherit !important;
+	background-color: #eff4fa !important;
+	white-space: normal !important;
+}
+
+.leaflet-control-search .search-tooltip {
+	scrollbar-color: #27275b !important;
+    scrollbar-width: thin !important;
+}
 
 a {
 	color: rgb(0,100,200);
@@ -33,9 +69,7 @@ label {
 input, select, textarea {
 	font-family: inherit;
 	font-size: inherit;
-	/* -webkit-padding: 0.4em 0; */
 	padding: 0.4em;
-	/* margin: 0 0 0 0; */
 	box-sizing: border-box;
 	border: 1px solid #27275b;
 	border-radius: 0px;
@@ -62,6 +96,7 @@ button {
 	border-radius: 4px;
 	cursor: pointer;
 }
+
 
 
 button:disabled {

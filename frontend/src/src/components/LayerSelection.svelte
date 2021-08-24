@@ -11,7 +11,7 @@
   // The order in which they appear is mirrored in the order the layers
   // are displayed.
   export const SELECTIONS_LIST= [
-    'country.geojson',
+    'Country.geojson',
     'NUTS1.geojson',
     'NUTS2.geojson',
     'NUTS3.geojson',
@@ -20,6 +20,11 @@
   export const SELECTIONS = new Set(SELECTIONS_LIST);
   let selectionLayers = [];
   let isLayerListReady = false;
+
+
+  function splitName(name) {
+    return name.replace(/\.[^/.]+$/, "")
+  };
 
   function toNutsLayer(layerName) {
     const layer = L.tileLayer.nutsLayer(
@@ -54,7 +59,7 @@
     selectionLayers.sort(compareSelectionLayer);
 
     const drawingLayer = getDrawingLayer();
-    drawingLayer.name = 'selection';
+    drawingLayer.name = 'Selection';
     selectionLayers.push(drawingLayer);
     selectionLayers = selectionLayers;
     setSelectionFromGetParameter();
@@ -127,7 +132,7 @@ label {
   {#each selectionLayers as selectionLayer}
   <label title={selectionLayer.name}>
     <input type=radio bind:group={$activeSelectionLayerStore} value={selectionLayer}>
-    {selectionLayer.name}
+    {splitName(selectionLayer.name)}
   </label>
   {/each}
   </div>

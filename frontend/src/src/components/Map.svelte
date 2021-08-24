@@ -154,6 +154,7 @@ function makeSearchControl() {
     overflow: visible;
     vertical-align: middle;
     margin-left: 35px;
+    border: 0px;
   }
 </style>
 

@@ -57,18 +57,19 @@
 }
 
 #close_button_cm_list {
-  /* right: 0; */
-  /* position: absolute; */
-  padding: 3px;
-  /* display: block; */
   display: inline-block;
-  height: 25px;
-  width: 25px;
+  height: 30px;
+  width: 30px;
   background-repeat: no-repeat;
   background-size: cover;
-  /* background: url('/images/clear-icon.png'); */
   box-sizing: border-box;
   vertical-align: middle;
+}
+
+img {
+  max-width:100%;
+  height:auto;
+  cursor: pointer;
 }
 
 </style>
