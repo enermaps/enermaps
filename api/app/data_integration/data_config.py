@@ -659,9 +659,9 @@ DATASETS_DIC = {
                     "nb_of_colors": 12,
                 },
                 "classes": {
-                    0: [(255, 0, 0), "colder climate"],
+                    0: [(0, 0, 255), "colder climate"],
                     1: [(0, 255, 0), "average climate"],
-                    2: [(0, 0, 255), "warmer climate"],
+                    2: [(255, 0, 0), "warmer climate"],
                 },
             },
             "legend_variable": {
