@@ -10,7 +10,7 @@
   let overlayLayersFilter = '';
   let filteredOverlayLayers = [];
   export const SELECTIONS_LIST= [
-    'Country.geojson',
+    'country.geojson',
     'NUTS1.geojson',
     'NUTS2.geojson',
     'NUTS3.geojson',
