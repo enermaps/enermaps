@@ -41,7 +41,6 @@ class TestGeofileTools(unittest.TestCase):
             if reference is None:
                 reference = element
             is_equal = comparison(reference, element)
-            self.assertTrue(False)
             self.assertTrue(is_equal)
 
     def array_comparison(
