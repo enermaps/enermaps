@@ -38,7 +38,7 @@ def clip_raster(src: str, shapes: dict, dst: str, quiet: bool = True):
     cutline = "cutline.json"
     with open(cutline, "w") as file:
         json.dump(shapes, file)
-    command = f"gdalwarp -cutline {cutline} -crop_to_cutline -dstnodata 0 {src} {dst}"
+    command = f'gdalwarp -cutline {cutline} -crop_to_cutline -dstnodata 0 "{src}" "{dst}"'
     if quiet:
         command += " -q"
     system(command=command)
