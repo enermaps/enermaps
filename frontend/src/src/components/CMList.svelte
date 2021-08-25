@@ -6,6 +6,7 @@
   import CM from './CM.svelte';
 
   let cms = [];
+  let innerHeight = window.innerHeight;
 
   onMount(async () => {
     cms = await getCMs();
