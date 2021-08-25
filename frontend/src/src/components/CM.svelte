@@ -78,8 +78,11 @@
 }
 .cm_params {
   margin-top: 10px;
-  vertical-align: middle;
-  display: inline-block;
+  /* vertical-align: middle;
+  display: inline-block; */
+  overflow-x: scroll;
+  scrollbar-color: #27275b;
+  scrollbar-width: thin;
 }
 .cm_container {
   background-color : #4d88c7;

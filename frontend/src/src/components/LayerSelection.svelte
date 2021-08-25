@@ -11,7 +11,7 @@
   // The order in which they appear is mirrored in the order the layers
   // are displayed.
   export const SELECTIONS_LIST= [
-    'Country.geojson',
+    'country.geojson',
     'NUTS1.geojson',
     'NUTS2.geojson',
     'NUTS3.geojson',
