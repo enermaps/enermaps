@@ -59,7 +59,7 @@ def get_ds_title(dataset_id):
 
 # api/datasets/{ds_id}/type
 def get_ds_type(dataset_id):
-    """ Vector or raster"""
+    """Vector or raster"""
     dataset_params = get_ds(dataset_id)
     layer_type = dataset_params.get("layer_type", None)
     data_type = dataset_params.get("data_type", None)
@@ -88,7 +88,7 @@ def get_legend_variable(dataset_id):
 
 # api/datasets/{ds_id}/openair
 def get_openair_link(dataset_id):
-    """ Return the address of the dataset on the OpenAir website, or a default link if it is not
+    """Return the address of the dataset on the OpenAir website, or a default link if it is not
     specified"""
     default_link = (
         "https://beta.enermaps.openaire.eu/search/publication?pid=10.3390%2Fen12244789"
