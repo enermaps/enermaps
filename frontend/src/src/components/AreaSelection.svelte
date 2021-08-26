@@ -1,7 +1,6 @@
 <script>
   import {onMount} from 'svelte';
   import '../leaflet_components/L.TileLayer.QueryableLayer.js';
-  import queryString from 'query-string';
   import {getGeofiles, getLegend, getLayerType, getOpenairLink, WMS_URL} from '../client.js';
   import {activeOverlayLayersStore} from '../stores.js';
 

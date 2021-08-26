@@ -3,7 +3,6 @@
   import '../leaflet_components/L.TileLayer.NutsLayer.js';
   import '../leaflet_components/L.DrawingLayer.js';
   import '../leaflet_components/L.TileLayer.QueryableLayer.js';
-  import queryString from 'query-string';
   import {getGeofiles, WMS_URL} from '../client.js';
   import {activeSelectionLayerStore} from '../stores.js';
 
