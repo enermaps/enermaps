@@ -50,7 +50,7 @@ for more information) and erosion operation
 (see [scipy page](https://docs.scipy.org/doc/scipy-0.15.1/reference/generated/scipy.ndimage.morphology.binary_erosion.html) 
 for more information) to obtain the final layer.
 
-Then, the CM sum up  zone by zone the value of the remaining pixels .
+Then, the CM sum values of the remaining pixels zone by zone the value.
 If the sum of a zone is less than a given threshold, 
 the pixel values defining this zone are being  to zero. 
 
