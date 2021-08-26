@@ -4,7 +4,7 @@
   import {getGeofiles, getLegend, getLayerType, getOpenairLink, WMS_URL} from '../client.js';
   import {activeOverlayLayersStore} from '../stores.js';
 
-  let activeOverlayLayers = [];
+  const activeOverlayLayers = [];
   let overlayLayers = [];
   let isLayerListReady = false;
   let overlayLayersFilter = '';
@@ -83,7 +83,6 @@
             activeOverlayLayers.push(leafletLayer);
           }
         }
-
       }
     }
 
