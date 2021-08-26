@@ -188,7 +188,7 @@
     <div id="overlay_layers" style="margin-top: 10px;">
 
     {#each filteredOverlayLayers as overlayLayer (overlayLayer.name)}
-    <label title={overlayLayer.name}>
+    <label title={splitName(overlayLayer.name)}>
       <input type=checkbox bind:group={$activeOverlayLayersStore} value={overlayLayer} bind:checked={overlayLayer.checked}>
         {splitName(overlayLayer.name)}
     </label>
