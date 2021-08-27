@@ -13,19 +13,30 @@ Note that the parsing will not be run on the last modified file, as this might s
 
 Source log files after parsing will be removed (except the latest one, which might not be completed).
 
+## Usage
+
+To parse all the existing logs, run:
+
+```bash
+docker-compose -f docker-compose-db.yml run stats python3 parseLog.py all
+```
+
+This command is meant to be run by `cron` like hourly routine.
+
 ## Manual parsing
 
 It is also possible to parse a log file manually (the source file in this case will not be removed) using the following command:
 
 ```bash
-docker-compose exec stats python3 parseLog.py pglog_1600.csv
+docker-compose -f docker-compose-db.yml run python3 parseLog.py pglog_1600.csv
 ```
 
 where `pglog_1600.csv` is the name of the log to be parsed.
 
 The log files produced by the db can be listed with this command:
+
 ```bash
-docker-compose exec db ls -lh var/lib/postgresql/data/pg_log
+docker-compose -f docker-compose-db.yml run stats ls -lh /db-data/pg_log
 ```
 
 An optional command `-o`can be set to change the name of the default output file `tmp.csv`.
