@@ -85,6 +85,7 @@ def parseLog(log_file: str, parsed_log_file: str):
             ["log_time", "message", "detail", "session_id", "session_line_num"],
         ]
         if queries.shape[0] > 0:
+            print("PostgREST queries")
             queries["detail"] = queries["detail"].str.replace("\n", "")
             # Get the query
             queries["json_query"] = queries["detail"].str.extract(
@@ -100,7 +101,6 @@ def parseLog(log_file: str, parsed_log_file: str):
             ]
             # Drop duplicate rows
             queries = queries.groupby("session_id").first()
-
             # Find geolocalization info based on session_id
             geolocal = log.loc[log["session_id"].isin(queries.index), :]
             # Get the IP address
@@ -110,10 +110,13 @@ def parseLog(log_file: str, parsed_log_file: str):
             geolocal["ip"] = geolocal["message"].str.extract(
                 r'(?<=request.header.x-forwarded-for" = \')(.*)(?=\';SET LOCAL "request.header.x-forwarded-host" )'
             )
-
             # Merge geolocalization info with query info
-            queries = pd.merge(geolocal[["ip", "session_id"]], queries, on="session_id")
-
+            if geolocal.shape[0] > 0:
+                queries = pd.merge(
+                    geolocal[["ip", "session_id"]], queries, on="session_id"
+                )
+            else:
+                queries["ip"] = None
             parsed_log.append(queries)
 
         # Concatenate the two types of query
@@ -124,12 +127,18 @@ def parseLog(log_file: str, parsed_log_file: str):
 
             # Append to file parsed log of queries
             print("Saving log file to {}".format(parsed_log_file))
-            parsed_log[["log_time", "ds_id", "ip", "json_query"]].to_csv(
+            sel_cols = ["log_time", "ds_id", "ip", "json_query"]
+            if not os.path.exists(parsed_log_file):
+                parsed_log[sel_cols].iloc[0:0].to_csv(
+                    parsed_log_file, header=True, index=False
+                )
+            parsed_log[sel_cols].to_csv(
                 parsed_log_file, mode="a", header=None, index=False
             )
 
 
 if __name__ == "__main__":
+    print("calling parsing")
     parser = argparse.ArgumentParser(description="Create log")
     parser.add_argument("source_log_file", default="all")
     parser.add_argument("--parsed_log_file", "-o", default="tmp.csv", required=False)
@@ -141,7 +150,8 @@ if __name__ == "__main__":
         for log_file in sorted(
             glob.glob("/db-data/pg_log/*.csv"), key=os.path.getmtime
         )[:-1]:
-            parseLog(log_file, os.path.join("stats", "parsed_log.csv"))
+            print("Reading {}".format(log_file))
+            parseLog(log_file, os.path.abspath(os.path.join("stats", "parsed_log.csv")))
             # Remove source log files
             os.remove(log_file)
             log_file2 = log_file.replace(".csv", "")
@@ -150,6 +160,6 @@ if __name__ == "__main__":
     else:
         print("Manually loading log file")
         parseLog(
-            os.path.join("db-data", "pg_log", args.source_log_file),
-            os.path.join("stats", args.parsed_log_file),
+            os.path.abspath(os.path.join("db-data", "pg_log", args.source_log_file)),
+            os.path.abspath(os.path.join("stats", args.parsed_log_file)),
         )
