@@ -19,7 +19,7 @@
   export const SELECTIONS = new Set(SELECTIONS_LIST);
 
   function splitName(name) {
-    return name.substring(3).replace(/\.[^/.]+$/, "")
+    return name.substring(3).replace(/\.[^/.]+$/, '');
   };
 
 
@@ -53,15 +53,12 @@
       let leafletLayer;
       console.log(layer, layerParameters);
       if (!SELECTIONS.has(layer)) {
-        let legend;
-        legend = getLegend(layer);
+        const legend = getLegend(layer);
         console.log(legend);
-        let layer_type;
-        layer_type = getLayerType(layer);
-        console.log(layer_type)
+        const layerType = getLayerType(layer);
+        console.log(layerType);
 
-        let openairLink;
-        openairLink = getOpenairLink(layer);
+        const openairLink = getOpenairLink(layer);
         console.log(openairLink);
 
         if (layerParameters.isQueryable) {
@@ -73,17 +70,21 @@
         leafletLayer.name = layer;
         leafletLayer.legend_promise = legend;
         leafletLayer.openairLink_promise = openairLink;
-        leafletLayer.layer_type_promise = layer_type;
+        leafletLayer.layer_type_promise = layerType;
         overlayLayers.push(leafletLayer);
       }
     }
-    overlayLayers.sort(function(layer_0, layer_1){
-      let name_0 = splitName(layer_0.name)
-      let name_1 = splitName(layer_1.name)
-      if(name_0 < name_1) { return -1; }
-      if(name_0 > name_1) { return 1; }
+    overlayLayers.sort(function(layer0, layer1) {
+      const name0 = splitName(layer0.name);
+      const name1 = splitName(layer1.name);
+      if (name0 < name1) {
+        return -1;
+      }
+      if (name0 > name1) {
+        return 1;
+      }
       return 0;
-    })
+    });
     overlayLayers = overlayLayers;
     filteredOverlayLayers = overlayLayers;
     setSelectionFromGetParameter();
@@ -201,8 +202,8 @@
           <div style="display: inline-block;">
             {#await overlayLayer.layer_type_promise}
               <div>...waiting for data_type</div>
-            {:then layer_type}
-              {#if layer_type.data_type == "categorical"}
+            {:then layerType}
+              {#if layerType.data_type == 'categorical'}
                 <div class='box' style="background-color: rgb( {color[1][0][0]}, {color[1][0][1]}, {color[1][0][2]} )"> </div>
                 <div style="display: inline-block;">{color[1][1]}</div><br>
               {:else}

@@ -23,7 +23,7 @@
 
 
   function splitName(name) {
-    return name.replace(/\.[^/.]+$/, "")
+    return name.replace(/\.[^/.]+$/, '');
   };
 
   function toNutsLayer(layerName) {
