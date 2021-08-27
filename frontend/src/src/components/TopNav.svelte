@@ -28,8 +28,8 @@
       };
     });
 </script>
-  
-  
+
+
   <style>
   #topnav {
     background-color: #27275b;
@@ -59,13 +59,12 @@
   #logo {
     box-sizing: border-box;
     height: 100%;
+    display: inline-block;
+    vertical-align: middle;
   }
   #title {
     color: #eff4fa;
-    display: inline-block;
-    vertical-align: middle;
-    box-sizing: border-box;
-    font-size: 32px;
+    font-size: 22px;
   }
   img {
     vertical-align: middle;
@@ -102,28 +101,37 @@
     width: 80%;
     box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2),0 6px 20px 0 rgba(0,0,0,0.19);
   }
+
   /* The Close Button */
   .close {
     color: #27275b;
-    font-size: 55px;
+    font-size: 40px;
     position:absolute;
-    top: 0px;
-    right: 0px;
+    height: 50px;
+    width: 50px;
+    line-height: 50px;
+
+    display: flex !important;
+    align-items: center; /* Vertical center alignment */
+    justify-content: center; /* Horizontal center alignment */
   }
+
+
+
   .close:hover,
   .close:focus {
     text-decoration: none;
     cursor: pointer;
   }
   .modal-header {
-    padding: 10px 45px;
+    padding: 0px 45px;
     background-color: #eff4fa;
     color: #27275b;
     width: 100%;
     cursor: default;
   }
   .modal-body {
-    padding: 0px 45px;
+    padding: 0px 60px;
     background-color: #eff4fa;
     color: #27275b;
     width: 100%;
@@ -131,13 +139,6 @@
     text-justify: inter-word;
     cursor: default;
     }
-  .modal-footer {
-    padding: 10px 45px;
-    background-color: #eff4fa;
-    color: #27275b;
-    width: 100%;
-    cursor: default;
-  }
   button, button:hover {
     font-family: inherit;
     border: 0;
@@ -145,23 +146,25 @@
     background-color: inherit;
   }
   </style>
-  
+
   <div id="topnav">
-    <div id='logo'> <img src='images/logo.png' alt='EnerMaps'> </div>
-    <div id='title'>EnerMaps</div>
-    <slot id='slot'></slot>
+    <div>
+      <div id='logo'> <img src='images/logo.png' alt='EnerMaps'> </div>
+      <div id='title'>EnerMaps</div>
+    </div>
     <a href="https://enermaps.eu/" target="_blank" class="link">Wiki</a>
     <a href="https://beta.enermaps.openaire.eu/" target="_blank" class="link">OpenAIRE</a>
     <a href="https://www.kialo.com/" target="_blank" class="link">Kialo</a>
     <!-- Trigger/Open The Modal -->
     <button id="myBtn" class="link">About</button>
-  
+    <slot id='slot'></slot>
+
     <!-- The Modal -->
   <div id="myModal" class="modal">
     <!-- Modal content -->
     <div class="modal-content">
+      <div class="close">&times;</div>
       <div class="modal-header">
-        <span class="close">&times;</span>
         <h2 >About EnerMaps</h2>
       </div>
       <div class="modal-body">
@@ -193,10 +196,7 @@
           diutius commorati sumus.
         </p>
       </div>
-      <div class="modal-footer">
-        <h3>Footer</h3>
-      </div>
     </div>
   </div>
-  
+
   </div>

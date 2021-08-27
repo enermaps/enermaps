@@ -11,7 +11,10 @@
     'sourceType': 'module',
   },
   'rules': {
-    'max-len': ["error", { "code": 88 }],
+  	'max-len': [1, 88, 2, {
+  	  "ignorePattern": "^import\\s.+\\sfrom\\s.+;$",
+  	  "ignoreUrls": true
+  	}],
     'require-jsdoc': "off"
   },
   plugins: [

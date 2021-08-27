@@ -17,7 +17,7 @@
   $: {
     console.log(task);
   }
-  
+
   onMount(async () => {
     updateTaskResult();
   });
@@ -54,16 +54,28 @@
 </script>
 <style>
 .cmresult {
-  border: 2px solid rgba(0,0,0,0.5);
-  border-radius: 4px;
+  border: 1px solid #27275b;
+  border-radius: 0px;
   padding: 5px;
+  background-color: #fff;
 }
+img {
+  max-width:100%;
+  height:auto;
+  cursor: pointer;
+}
+
+dl {
+  margin: 0px;
+}
+
 </style>
 <div class="cmresult">
-  <div class="close_button" on:click="{removeTask}"></div>
+  <div class="close_button" on:click="{removeTask}"><img src='/images/clear-icon.png' alt='close'></div>
   <dl>
-  <dt>task_id</dt><dd>{formatTaskID(task)}</dd>
-  <dt>status</dt><dd>{taskResult.status}</dd>
+  <dt><strong>task_id</strong></dt><dd>{formatTaskID(task)}</dd>
+  <dt><strong>status</strong></dt><dd>{taskResult.status}</dd>
+
   {#if !isTaskPending}
           {#each values as value}
             <Value value={value}/>
@@ -73,5 +85,5 @@
     taskRunning...
   {/if}
 </dl>
-<button on:click|once={cancel} disabled={!isTaskPending}>Cancel task</button>
+  <button on:click|once={cancel} hidden={!isTaskPending}>Cancel task</button>
 </div>

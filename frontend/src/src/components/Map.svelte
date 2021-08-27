@@ -102,9 +102,6 @@ function makeOverlayLayersControl() {
     const areaDiv = L.DomUtil.create('div' );
     L.DomUtil.addClass(areaDiv, 'testComponent');
     toolbar = new AreaSelection({target: areaDiv});
-    // Enable the overlay layers to be dragged
-    // var draggable = new L.Draggable(area_div);
-    // draggable.enable();
     return areaDiv;
   };
   return ctr;
@@ -126,12 +123,14 @@ function makeSearchControl() {
     url: 'https://nominatim.openstreetmap.org/search?format=json&q={s}',
     jsonpParam: 'json_callback',
     propertyName: 'display_name',
+    textPlaceholder: 'Search place...',
     propertyLoc: ['lat', 'lon'],
     marker: false, // L.circleMarker([0, 0], { radius: 30 }),
     autoCollapse: false,
     autoType: false,
     minLength: 2,
     collapsed: false,
+    autoResize: false,
   });
   return searchControl;
 }
@@ -155,6 +154,7 @@ function makeSearchControl() {
     overflow: visible;
     vertical-align: middle;
     margin-left: 35px;
+    border: 0px;
   }
 </style>
 

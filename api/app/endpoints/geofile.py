@@ -4,7 +4,8 @@ from flask import redirect, send_file, url_for
 from flask_restx import Namespace, Resource, abort
 from werkzeug.datastructures import FileStorage
 
-from app.data_integration.data_config import get_legend, get_openair_link
+# from app.data_integration.data_config import get_legend, get_openair_link
+from app.data_integration import data_endpoints
 from app.models import geofile as geofile
 
 api = Namespace("geofile", description="Data management related endpoints")
@@ -76,7 +77,7 @@ class GeofileLegend(Resource):
         """
         if layer_name[0:2].isdigit():
             layer_id = int(layer_name[0:2])
-            return get_legend(layer_id)
+            return data_endpoints.get_legend(layer_id)
         return {}
 
 
@@ -88,5 +89,18 @@ class GeofileOpenair(Resource):
         """
         if layer_name[0:2].isdigit():
             layer_id = int(layer_name[0:2])
-            return get_openair_link(layer_id)
+            return data_endpoints.get_openair_link(layer_id)
         return {}
+
+
+@api.route("/<string:layer_name>/type")
+class GeofileType(Resource):
+    def get(self, layer_name):
+        """Get the layer legend: variable used for coloring the map, min and max values,
+        list of rgb colors in order.
+        """
+        if layer_name[0:2].isdigit():
+            layer_id = int(layer_name[0:2])
+            layer_type, data_type = data_endpoints.get_ds_type(layer_id)
+            return {"layer_type": layer_type, "data_type": data_type}
+        return {"layer_type": "", "data_type": ""}

@@ -78,8 +78,11 @@
 }
 .cm_params {
   margin-top: 10px;
-  vertical-align: middle;
-  display: inline-block;
+  /* vertical-align: middle;
+  display: inline-block; */
+  overflow-x: scroll;
+  scrollbar-color: #27275b;
+  scrollbar-width: thin;
 }
 .cm_container {
   background-color : #4d88c7;
@@ -87,6 +90,7 @@
   margin-bottom: 8px;
   padding : 8px;
   border-radius: 4px;
+  width: inherit;
 }
 h3 {
   margin: 0;
@@ -106,7 +110,7 @@ h3 {
       </div>
     </div>
   </div>
- 
+
   <div hidden="{isCollapsed}">
     <div>
       <form class="cm_params" bind:this={formElement} />

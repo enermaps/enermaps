@@ -1,13 +1,10 @@
 <script>
   import {onMount} from 'svelte';
-  import '../leaflet_components/L.TileLayer.NutsLayer.js';
-  import '../leaflet_components/L.DrawingLayer.js';
   import '../leaflet_components/L.TileLayer.QueryableLayer.js';
   import queryString from 'query-string';
-  import {getGeofiles, getLegend, getOpenairLink, WMS_URL} from '../client.js';
-  import {activeOverlayLayersStore, activeSelectionLayerStore} from '../stores.js';
+  import {getGeofiles, getLegend, getLayerType, getOpenairLink, WMS_URL} from '../client.js';
+  import {activeOverlayLayersStore} from '../stores.js';
 
-  let selectionLayers = [];
   let overlayLayers = [];
   let isLayerListReady = false;
   let overlayLayersFilter = '';
@@ -20,6 +17,11 @@
     'LAU.geojson',
   ];
   export const SELECTIONS = new Set(SELECTIONS_LIST);
+
+  function splitName(name) {
+    return name.substring(3).replace(/\.[^/.]+$/, '');
+  };
+
 
   function toQueryableLayer(layerName) {
     const layer = L.tileLayer.queryableLayer(
@@ -49,40 +51,40 @@
     const layers = await getGeofiles();
     for (const [layer, layerParameters] of Object.entries(layers)) {
       let leafletLayer;
-      let legend;
-      let openairLink;
       console.log(layer, layerParameters);
       if (!SELECTIONS.has(layer)) {
+        const legend = getLegend(layer);
+        console.log(legend);
+        const layerType = getLayerType(layer);
+        console.log(layerType);
+
+        const openairLink = getOpenairLink(layer);
+        console.log(openairLink);
+
         if (layerParameters.isQueryable) {
-          legend = getLegend(layer);
-          console.log(legend);
-          openairLink = getOpenairLink(layer);
-          console.log(openairLink);
           leafletLayer = toQueryableLayer(layer);
-          leafletLayer.name = layer;
-          overlayLayers.push(leafletLayer);
         } else {
-          legend = getLegend(layer);
-          console.log(legend);
-          openairLink = getOpenairLink(layer);
-          console.log(openairLink);
           leafletLayer = toOverlayLayer(layer);
-          leafletLayer.name = layer;
-          overlayLayers.push(leafletLayer);
         }
+
+        leafletLayer.name = layer;
+        leafletLayer.legend_promise = legend;
+        leafletLayer.openairLink_promise = openairLink;
+        leafletLayer.layer_type_promise = layerType;
+        overlayLayers.push(leafletLayer);
       }
     }
-
-    function compareSelectionLayer(layer0, layer1) {
-      const layer0Name = layer0.name;
-      const layer1Name = layer1.name;
-      return SELECTIONS_LIST.indexOf(layer0Name) > SELECTIONS_LIST.indexOf(layer1Name);
-    }
-    selectionLayers.sort(compareSelectionLayer);
-    const drawingLayer = getDrawingLayer();
-    drawingLayer.name = 'selection';
-    selectionLayers.push(drawingLayer);
-    selectionLayers = selectionLayers;
+    overlayLayers.sort(function(layer0, layer1) {
+      const name0 = splitName(layer0.name);
+      const name1 = splitName(layer1.name);
+      if (name0 < name1) {
+        return -1;
+      }
+      if (name0 > name1) {
+        return 1;
+      }
+      return 0;
+    });
     overlayLayers = overlayLayers;
     filteredOverlayLayers = overlayLayers;
     setSelectionFromGetParameter();
@@ -90,17 +92,6 @@
   });
   function setSelectionFromGetParameter() {
     const parsed = queryString.parse(window.location.search);
-    if ('selectionLayer' in parsed) {
-      let activeSelectionLayer = undefined;
-      console.log('parsing selection layer from get parameters');
-      for (const selectionLayer of selectionLayers) {
-        if (selectionLayer.name == parsed.selectionLayer) {
-          console.log('adding selection layer from get parameters');
-          activeSelectionLayer = selectionLayer;
-        }
-      }
-      $activeSelectionLayerStore = activeSelectionLayer;
-    }
     if ('overlayLayers' in parsed) {
       const activeOverlayLayers = [];
       console.log('parsing overlay layer from get parameters');
@@ -114,11 +105,7 @@
       $activeOverlayLayersStore = activeOverlayLayers;
     }
   }
-  function getDrawingLayer() {
-    return new L.DrawingLayer();
-  }
   $: {
-    console.log('layer changed in selector to ' + $activeSelectionLayerStore);
     console.log('layer changed in selector to ' + $activeOverlayLayersStore);
     filteredOverlayLayers = overlayLayers.filter((layer) =>
       layer.name.indexOf(overlayLayersFilter) !== -1);
@@ -128,22 +115,19 @@
   <style>
 
   #map_selection {
-    width: 140px;
+    width: 200px;
     padding: 4px;
     border: 1px solid #27275b;
     border-radius: 0px;
     background-color: #eff4fa;
     box-sizing: border-box;
-    width: 100%;
   }
 
   #map_selection h3 {
     margin: 0px;
-    height: 40%;
-    width: 100%;
+    height: 25px;
     display: flex;
     flex-direction: column;
-    max-width: 200px;
     white-space: nowrap;
     text-overflow: ellipsis;
     overflow: hidden !important;
@@ -153,10 +137,14 @@
     flex-shrink: 0;
     border : none;
   }
+
   #overlay_layers {
-    width: 140px;
+    max-height: 300px;
     overflow-y: auto;
     border : none;
+    overflow-y: scroll;
+    scrollbar-color: #27275b;
+    scrollbar-width: thin;
   }
 
   label {
@@ -165,9 +153,28 @@
   white-space: nowrap;
   text-overflow: ellipsis;
   overflow-x: hidden;
+  margin-top: 2px;
   }
   .overlay_search {
     width: 100%;
+  }
+
+  .box {
+    height: 10px;
+    width: 10px;
+    border: 1px solid black;
+    display: inline-block;
+  }
+
+  #metadata_box {
+    border: 1px solid #27275b;
+    border-radius: 0px;
+    background-color: #fff;
+    padding: 5px;
+    width: inherit;
+    margin-right: 10px;
+    margin-left: 10px;
+    overflow: hidden;
   }
 
   </style>
@@ -175,14 +182,56 @@
     {#if !isLayerListReady}
     Loading layers...
     {:else}
-    <h3>Overlays</h3>
-    <div id="overlay_layers">
-    Filter: <input bind:value={overlayLayersFilter} class="overlay_search">
+    <h3>Overlays layers</h3>
+      <input bind:value={overlayLayersFilter} class="overlay_search" placeholder="Search layer...">
+    <div id="overlay_layers" style="margin-top: 10px;">
+
     {#each filteredOverlayLayers as overlayLayer (overlayLayer.name)}
     <label title={overlayLayer.name}>
-      <input type=checkbox bind:group={$activeOverlayLayersStore} value={overlayLayer}>
-        {overlayLayer.name}
-      </label>
+      <input type=checkbox bind:group={$activeOverlayLayersStore} value={overlayLayer} bind:checked={overlayLayer.checked}>
+        {splitName(overlayLayer.name)}
+    </label>
+
+    <div id="metadata_box" hidden={!overlayLayer.checked}>
+      {#await overlayLayer.legend_promise}
+        <div>...waiting for legend</div>
+      {:then legend}
+        <div><b>{legend.variable.variable}</b></div>
+        <div>
+        {#each legend.style as color}
+          <div style="display: inline-block;">
+            {#await overlayLayer.layer_type_promise}
+              <div>...waiting for data_type</div>
+            {:then layerType}
+              {#if layerType.data_type == 'categorical'}
+                <div class='box' style="background-color: rgb( {color[1][0][0]}, {color[1][0][1]}, {color[1][0][2]} )"> </div>
+                <div style="display: inline-block;">{color[1][1]}</div><br>
+              {:else}
+                <div class='box' style="background-color: rgb( {color[0][0]}, {color[0][1]}, {color[0][2]} )"> </div>
+                <div style="display: inline-block;">{color[1]} to {color[2]} {legend.variable.units}</div><br>
+              {/if}
+            {/await}
+
+          </div>
+        {/each}
+        </div>
+
+      {:catch error}
+        <div style="color: red">{error.message}</div>
+      {/await}
+
+      {#await overlayLayer.openairLink_promise}
+      <div>...waiting for OpenAir link</div>
+      {:then openairLink}
+        <div>
+          <a href={openairLink} target="_blank">Link to OpenAir metadata &#128279;</a>
+        </div>
+      {:catch error}
+        <div style="color: red">{error.message}</div>
+      {/await}
+    </div>
+
+
     {/each}
     </div>
 

@@ -1,19 +1,8 @@
-import seaborn as sns
-
-
-def get_sns_color(palette, nb_of_colors):
-    color_list = sns.color_palette(palette, nb_of_colors)
-    rgb_list = [
-        ((int(255 * color[0])), (int(255 * color[1])), (int(255 * color[2])))
-        for color in color_list
-    ]
-    return rgb_list
-
-
 DATASETS_DIC = {
     "DS_1": {
         "id": 1,
         "layer_type": "raster",
+        "data_type": "numerical",
         "params": """{
             "data.ds_id":1,
             "variable":"''Monthly average global irradiance on a horizontal surface (W/m2), period 2005-2015''",
@@ -26,28 +15,53 @@ DATASETS_DIC = {
             },
             "row_limit": 100000,
         },
-        "title": "",
-        "openair_link": "",
+        "legend": {
+            "style": {
+                "colors": {
+                    "color": (1, 0, 0),
+                    "color_palet": "Greys_r",
+                    "nb_of_colors": 12,
+                }
+            },
+            "legend_variable": {
+                "variable": "Monthly average global irradiance on a horizontal surface (W/m2), period 2005-2015: W/m2",
+                "units": "W/m2",
+                "min": 13.9,
+                "max": 284.6,
+            },
+        },
+        "title": "PVGIS: Solar Radiation Data",
+        "shared_id": "PVGIS",
     },
     "DS_2": {
         "id": 2,
         "layer_type": "vector",
+        "data_type": "numerical",
         "params": """{"data.ds_id":2}""",
         "json_params": {"parameters": {"data.ds_id": 2}, "row_limit": 100000},
-        "title": "",
+        "title": "JRC: Geothermal Power Plant Dataset",
+        "shared_id": "jrc-10128-10001",
         "legend": {
-            "legend_variable": {"variable": "gross_cap_ele", "min": 0.0, "max": 275.0}
+            "legend_variable": {
+                "variable": "gross_cap_ele",
+                "units": "MW",
+                "min": 0.0,
+                "max": 275.0,
+            }
         },
     },
     "DS_3": {
         "id": 3,
         "layer_type": "vector",
+        "data_type": "numerical",
         "params": """{"data.ds_id":3}""",
         "json_params": {"parameters": {"data.ds_id": 3}, "row_limit": 100000},
-        "title": "",
+        "title": "JRC: Hydro-power plants database",
+        "shared_id": "hydro-power-database",
         "legend": {
             "legend_variable": {
                 "variable": "installed_capacity_MW",
+                "units": "MW",
                 "min": 0.0,
                 "max": 2070.0,
             }
@@ -56,16 +70,24 @@ DATASETS_DIC = {
     "DS_4": {
         "id": 4,
         "layer_type": "vector",
+        "data_type": "numerical",
         "params": """{"data.ds_id":4}""",
         "json_params": {"parameters": {"data.ds_id": 4}, "row_limit": 100000},
-        "title": "",
+        "title": "JRC: Open Power Plants Database",
+        "shared_id": "JRC-PPDB-OPEN",
         "legend": {
-            "legend_variable": {"variable": "capacity_g", "min": 0.0, "max": 4690.0}
+            "legend_variable": {
+                "variable": "capacity_g",
+                "units": "MW",
+                "min": 0.0,
+                "max": 4690.0,
+            }
         },
     },
     "DS_5": {
         "id": 5,
         "layer_type": "vector",
+        "data_type": "numerical",
         "params": """{
                         "data.ds_id":5,
                         "start_at":"''01/01/2019  00:00:00''",
@@ -81,15 +103,22 @@ DATASETS_DIC = {
             },
             "row_limit": 100000,
         },
-        "title": "",
+        "title": "EEA: Share of gross final consumption of renewable energy sources",
+        "shared_id": "RES_proxies_EEA",
         "legend": {
-            "style": {"colors": get_sns_color("crest", 12)},
-            "legend_variable": {"variable": "Total", "min": 0.05, "max": 0.56},
+            "style": {"colors": {"color_palet": "crest", "nb_of_colors": 12}},
+            "legend_variable": {
+                "variable": "Total",
+                "units": "%",
+                "min": 0.05,
+                "max": 0.56,
+            },
         },
     },
     "DS_6": {
         "id": 6,
         "layer_type": "vector",
+        "data_type": "numerical",
         "params": """{
                         "data.ds_id":6,
                         "start_at":"''01/01/2010  00:00:00''"
@@ -98,11 +127,13 @@ DATASETS_DIC = {
             "parameters": {"data.ds_id": 6, "start_at": "'01/01/2010  00:00:00'"},
             "row_limit": 100000,
         },
-        "title": "",
+        "title": "Energy consumption in households",
+        "shared_id": "nrg_d_hhq",
         "legend": {
-            "style": {"colors": get_sns_color("magma", 12)},
+            "style": {"colors": {"color_palet": "magma", "nb_of_colors": 12}},
             "legend_variable": {
                 "variable": "Electricity : Final consumption - other sectors - households - energy use",
+                "units": "Gigawatt-hour",
                 "min": 815,
                 "max": 161520,
             },
@@ -111,6 +142,7 @@ DATASETS_DIC = {
     "DS_9": {
         "id": 9,
         "layer_type": "vector",
+        "data_type": "numerical",
         "params": """{
                         "data.ds_id":9,
                         "start_at":"''01/01/2010  00:00:00''",
@@ -124,10 +156,12 @@ DATASETS_DIC = {
             },
             "row_limit": 100000,
         },
-        "title": "",
+        "title": "Eurostat: Degree days",
+        "shared_id": "nrg_chddr2_m",
         "legend": {
             "legend_variable": {
                 "variable": "Heating degree days",
+                "units": "Number",
                 "min": 124.0,
                 "max": 1022.0,
             }
@@ -136,6 +170,7 @@ DATASETS_DIC = {
     "DS_11": {
         "id": 11,
         "layer_type": "vector",
+        "data_type": "numerical",
         "params": """{
                         "data.ds_id":11,
                         "start_at":"''01/01/2010  00:00:00''",
@@ -151,14 +186,51 @@ DATASETS_DIC = {
             },
             "row_limit": 100000,
         },
-        "title": "",
+        "title": "SETIS: Private R&I investment in energy technologies",
+        "shared_id": "jrc-10115-10001",
         "legend": {
-            "legend_variable": {"variable": "inventions", "min": 0.0, "max": 844.0}
+            "legend_variable": {
+                "variable": "inventions",
+                "units": "-",
+                "min": 0.0,
+                "max": 844.0,
+            }
         },
+    },
+    "DS_14": {
+        "id": 14,
+        "layer_type": "raster",
+        "data_type": "numerical",
+        "json_params": {
+            "parameters": {
+                "data.ds_id": 14,
+                "start_at": "'01/01/1970 00:00:00'",
+                "variable": "'Max 1-day PR'",
+            },
+            "row_limit": 100000,
+        },
+        "legend": {
+            "style": {
+                "colors": {
+                    "color": (1, 0, 0),
+                    "color_palet": "Greys_r",
+                    "nb_of_colors": 12,
+                }
+            },
+            "legend_variable": {
+                "variable": "Max 1-day PR",
+                "units": "mm",
+                "min": 0,
+                "max": 875.871,
+            },
+        },
+        "title": "Climate Extreme Indices",
+        "shared_id": "PANGAEA.898014",
     },
     "DS_15": {
         "id": 15,
         "layer_type": "raster",
+        "data_type": "numerical",
         "params": """{
                         "data.ds_id":15,
                         "start_at":"''01/01/2018  00:00:00''",
@@ -172,11 +244,28 @@ DATASETS_DIC = {
             },
             "row_limit": 100000,
         },
-        "title": "",
+        "legend": {
+            "style": {
+                "colors": {
+                    "color": (1, 0, 0),
+                    "color_palet": "Greys_r",
+                    "nb_of_colors": 12,
+                }
+            },
+            "legend_variable": {
+                "variable": "10m_u_component_of_wind",
+                "units": "m s**-1",
+                "min": -15424,
+                "max": 26125,
+            },
+        },
+        "title": "Copernicus: hourly global climate and weather data",
+        "shared_id": "cds.adbb2d47",
     },
     "DS_16": {
         "id": 16,
         "layer_type": "vector",
+        "data_type": "numerical",
         "params": """{
                         "data.ds_id":16,
                         "start_at":"''01/01/2014  00:00:00''"
@@ -185,11 +274,13 @@ DATASETS_DIC = {
             "parameters": {"data.ds_id": 16, "start_at": "'01/01/2014  00:00:00'"},
             "row_limit": 100000,
         },
-        "title": "",
+        "title": "EMHIRES: Wind power generation",
+        "shared_id": "jrc-emhires-wind-generation-time-series",
         "legend": {
-            "style": {"colors": get_sns_color("viridis", 12)},
+            "style": {"colors": {"color_palet": "viridis", "nb_of_colors": 12}},
             "legend_variable": {
                 "variable": "installed wind power capacity",
+                "units": "MW",
                 "min": 0.0,
                 "max": 1.0,
             },
@@ -198,6 +289,7 @@ DATASETS_DIC = {
     "DS_17": {
         "id": 17,
         "layer_type": "vector",
+        "data_type": "numerical",
         "params": """{
                         "data.ds_id":17,
                         "start_at":"''01/01/2014  00:00:00''"
@@ -206,19 +298,22 @@ DATASETS_DIC = {
             "parameters": {"data.ds_id": 17, "start_at": "'01/01/2014  00:00:00'"},
             "row_limit": 100000,
         },
-        "title": "",
+        "title": "EMHIRES: Solar power generation",
+        "shared_id": "jrc-emhires-solar-generation-time-series",
         "legend": {
-            "style": {"colors": get_sns_color("rocket_r", 12)},
+            "style": {"colors": {"color_palet": "rocket_r", "nb_of_colors": 12}},
             "legend_variable": {
                 "variable": "installed PV power capacity",
-                "min": 0.0,
-                "max": 0.0,
+                "units": "MW",
+                "min": None,
+                "max": None,
             },
         },
     },
     "DS_18": {
         "id": 18,
         "layer_type": "vector",
+        "data_type": "numerical",
         "params": """{
                         "data.ds_id":18,
                         "start_at":"''01/01/2012  00:00:00''"
@@ -227,11 +322,13 @@ DATASETS_DIC = {
             "parameters": {"data.ds_id": 18, "start_at": "'01/01/2012  00:00:00'"},
             "row_limit": 100000,
         },
-        "title": "",
+        "title": "Energy Efficiency Indicator",
+        "shared_id": "GTF-energy-efficiency",
         "legend": {
-            "style": {"colors": get_sns_color("light:b", 12)},
+            "style": {"colors": {"color_palet": "light:b", "nb_of_colors": 12}},
             "legend_variable": {
                 "variable": "Energy intensity level of primary energy ",
+                "units": "MJ/2011 USD PPP",
                 "min": 0.39,
                 "max": 42.0,
             },
@@ -240,6 +337,7 @@ DATASETS_DIC = {
     "DS_19": {
         "id": 19,
         "layer_type": "vector",
+        "data_type": "numerical",
         "params": """{
                     "data.ds_id":19,
                     "start_at":"''01/01/2012  00:00:00''",
@@ -255,14 +353,21 @@ DATASETS_DIC = {
             },
             "row_limit": 100000,
         },
-        "title": "",
+        "title": "EDGAR CO_ emissions",
+        "shared_id": "JRC-EDGAR-FT",
         "legend": {
-            "legend_variable": {"variable": "Emissions", "min": 0.0, "max": 4155}
+            "legend_variable": {
+                "variable": "Emissions",
+                "units": "Mt CO2/year",
+                "min": 0.0,
+                "max": 4155,
+            }
         },
     },
     "DS_20": {
         "id": 20,
         "layer_type": "raster",
+        "data_type": "numerical",
         "params": """{
                         "data.ds_id":20,
                         "start_at":"''01/01/2019  00:00:00''"
@@ -271,11 +376,28 @@ DATASETS_DIC = {
             "parameters": {"data.ds_id": 20, "start_at": "'01/01/2019  00:00:00'"},
             "row_limit": 100000,
         },
-        "title": "",
+        "legend": {
+            "style": {
+                "colors": {
+                    "color": (1, 0, 0),
+                    "color_palet": "Greys_r",
+                    "nb_of_colors": 12,
+                }
+            },
+            "legend_variable": {
+                "variable": "relative_humidity",
+                "units": "%",
+                "min": -27093,
+                "max": 5119,
+            },
+        },
+        "title": "Copernicus: hourly data on pressure levels",
+        "shared_id": "cds.bd0915c6",
     },
     "DS_21": {
         "id": 21,
         "layer_type": "raster",
+        "data_type": "numerical",
         "params": """{
                             "data.ds_id":21,
                             "intersecting":"POLYGON((2.276722801998659 48.889240956946985,2.2747270124557986 48.835409141414466,2.390482805942611 48.847230841511724,2.3445796464564523 48.91023278929048,2.276722801998659 48.889240956946985))"
@@ -288,11 +410,28 @@ DATASETS_DIC = {
             },
             "row_limit": 100000,
         },
-        "title": "",
+        "legend": {
+            "style": {
+                "colors": {
+                    "color": (1, 0, 0),
+                    "color_palet": "Greys_r",
+                    "nb_of_colors": 12,
+                }
+            },
+            "legend_variable": {
+                "variable": "undefined",
+                "units": "undefined",
+                "min": 21.7069,
+                "max": 165.7,
+            },
+        },
+        "title": "European Digital Elevation Model (EU-DEM)",
+        "shared_id": "EU-DEM",
     },
     "DS_22": {
         "id": 22,
         "layer_type": "vector",
+        "data_type": "numerical",
         "params": """{
                         "data.ds_id":22,
                         "start_at":"''01/01/2018  00:00:00''"
@@ -301,10 +440,12 @@ DATASETS_DIC = {
             "parameters": {"data.ds_id": 22, "start_at": "'01/01/2018  00:00:00'"},
             "row_limit": 100000,
         },
-        "title": "",
+        "title": "Eurostat: Energy efficiency indicator",
+        "shared_id": "nrg_ind_eff",
         "legend": {
             "legend_variable": {
                 "variable": "Final energy consumption (Europe 2020-2030)",
+                "units": "Million tonnes of oil equivalent",
                 "min": 0.65,
                 "max": 216.0,
             }
@@ -313,6 +454,7 @@ DATASETS_DIC = {
     "DS_24": {
         "id": 24,
         "layer_type": "raster",
+        "data_type": "numerical",
         "params": """{
                         "data.ds_id":24,
                         "start_at":"''01/01/2099  00:00:00''",
@@ -326,11 +468,28 @@ DATASETS_DIC = {
             },
             "row_limit": 100000,
         },
-        "title": "",
+        "legend": {
+            "style": {
+                "colors": {
+                    "color": (1, 0, 0),
+                    "color_palet": "Greys_r",
+                    "nb_of_colors": 12,
+                }
+            },
+            "legend_variable": {
+                "variable": "Longterm monthly average of potential photovoltaic electricity production",
+                "units": "kWh/kWp",
+                "min": 34.224,
+                "max": 62.403,
+            },
+        },
+        "title": "Photovoltaic power potential",
+        "shared_id": "world-solar-irradiation-and-pv-power-potential-map",
     },
     "DS_27": {
         "id": 27,
         "layer_type": "vector",
+        "data_type": "numerical",
         "params": """{
                     "data.ds_id":27,
                     "start_at":"''01/01/2012  00:00:00''",
@@ -347,19 +506,22 @@ DATASETS_DIC = {
             },
             "row_limit": 100000,
         },
-        "title": "",
+        "title": "S2BIOM: Biomass supply",
+        "shared_id": "S2BIOM",
         "legend": {
-            "style": {"colors": get_sns_color("dark:salmon_r", 12)},
+            "style": {"colors": {"color_palet": "dark:salmon_r", "nb_of_colors": 12}},
             "legend_variable": {
-                "variable": "Base potential : Bark residues from pulp and paper industry",
-                "min": 0.0,
-                "max": 216.0,
+                "variable": "Base potential : Sawdust from sawmills from conifers",
+                "units": "kton dry mass",
+                "min": 4.94441691195059,
+                "max": 47.5166700166629,
             },
         },
     },
     "DS_28": {
         "id": 28,
         "layer_type": "vector",
+        "data_type": "numerical",
         "params": """{
                         "data.ds_id":28,
                         "start_at":"''01/01/1945  00:00:00''",
@@ -383,11 +545,13 @@ DATASETS_DIC = {
             },
             "row_limit": 100000,
         },
-        "title": "",
+        "title": "HotMaps: Building stock analysis",
+        "shared_id": "hotmaps-building-stock",
         "legend": {
-            "style": {"colors": get_sns_color("vlag", 12)},
+            "style": {"colors": {"color_palet": "vlag", "nb_of_colors": 12}},
             "legend_variable": {
                 "variable": "ROOF | construction material | None",
+                "units": "dimensionless",
                 "min": 0.66,
                 "max": 1.0,
             },
@@ -396,6 +560,7 @@ DATASETS_DIC = {
     "DS_29": {
         "id": 29,
         "layer_type": "vector",
+        "data_type": "numerical",
         "params": """{
                         "data.ds_id":29,
                         "start_at":"''2012-01-01''",
@@ -421,11 +586,13 @@ DATASETS_DIC = {
             },
             "row_limit": 100000,
         },
-        "title": "",
+        "title": "H2020 SET-Nav: Detailed scenario results for energy demand by the INVERT-EE-Lab model ",
+        "shared_id": "SET-Nav",
         "legend": {
-            "style": {"colors": get_sns_color("icefire", 12)},
+            "style": {"colors": {"color_palet": "icefire", "nb_of_colors": 12}},
             "legend_variable": {
                 "variable": "final energy demand",
+                "units": "GWh",
                 "min": 0.0,
                 "max": 237713.0,
             },
@@ -434,6 +601,7 @@ DATASETS_DIC = {
     "DS_30": {
         "id": 30,
         "layer_type": "vector",
+        "data_type": "numerical",
         "params": """{
                     "data.ds_id":30,
                     "start_at":"''2012-01-01''",
@@ -459,10 +627,13 @@ DATASETS_DIC = {
             },
             "row_limit": 100000,
         },
+        "title": "Fuel consumption and technologies used in the heating - cooling sector",
+        "shared_id": "GISCO-GEOSTAT",
         "legend": {
-            "style": {"colors": get_sns_color("flare", 12)},
+            "style": {"colors": {"color_palet": "flare", "nb_of_colors": 12}},
             "legend_variable": {
                 "variable": "Final Energy | Heating",
+                "units": "TWh",
                 "min": 0.11,
                 "max": 504.0,
             },
@@ -471,6 +642,7 @@ DATASETS_DIC = {
     "DS_31": {
         "id": 31,
         "layer_type": "raster",
+        "data_type": "categorical",
         "params": """{
                         "data.ds_id":31,
                         "variable":"''Climate zones''"
@@ -479,11 +651,33 @@ DATASETS_DIC = {
             "parameters": {"data.ds_id": 31, "variable": "'Climate zones'"},
             "row_limit": 100000,
         },
-        "title": "",
+        "legend": {
+            "style": {
+                "colors": {
+                    "color": (1, 0, 0),
+                    "color_palet": "Greys_r",
+                    "nb_of_colors": 12,
+                },
+                "classes": {
+                    0: [(0, 0, 255), "colder climate"],
+                    1: [(0, 255, 0), "average climate"],
+                    2: [(255, 0, 0), "warmer climate"],
+                },
+            },
+            "legend_variable": {
+                "variable": "Climate zones",
+                "units": "-",
+                "min": None,
+                "max": None,
+            },
+        },
+        "title": "INTERREG GRETA",
+        "shared_id": "potential_geothermal_raster",
     },
     "DS_33": {
         "id": 33,
         "layer_type": "raster",
+        "data_type": "numerical",
         "params": """{
                         "data.ds_id":33,
                         "intersecting":"POLYGON((2.276722801998659 48.889240956946985,2.2747270124557986 48.835409141414466,2.390482805942611 48.847230841511724,2.3445796464564523 48.91023278929048,2.276722801998659 48.889240956946985))"
@@ -495,11 +689,28 @@ DATASETS_DIC = {
             },
             "row_limit": 100000,
         },
-        "title": "",
+        "legend": {
+            "style": {
+                "colors": {
+                    "color": (1, 0, 0),
+                    "color_palet": "Greys_r",
+                    "nb_of_colors": 12,
+                }
+            },
+            "legend_variable": {
+                "variable": "undefined",
+                "units": "undefined",
+                "min": 0,
+                "max": 324,
+            },
+        },
+        "title": "Building Height",
+        "shared_id": "copernicus-building-height",
     },
     "DS_35": {
         "id": 35,
         "layer_type": "raster",
+        "data_type": "numerical",
         "params": """{
                         "data.ds_id":35,
                         "intersecting":"POLYGON((2.29 48.88,2.29 48.87,2.3 48.87,2.3 48.88,2.29 48.88))"
@@ -511,11 +722,28 @@ DATASETS_DIC = {
             },
             "row_limit": 100000,
         },
-        "title": "",
+        "legend": {
+            "style": {
+                "colors": {
+                    "color": (1, 0, 0),
+                    "color_palet": "Greys_r",
+                    "nb_of_colors": 12,
+                }
+            },
+            "legend_variable": {
+                "variable": "undefined",
+                "units": "undefined",
+                "min": 30,
+                "max": 50,
+            },
+        },
+        "title": "European Settlement Map",
+        "shared_id": "copernicus-european-settlement-map",
     },
     "DS_42": {
         "id": 42,
         "layer_type": "vector",
+        "data_type": "numerical",
         "params": """{
                         "data.ds_id":42,
                         "level":" { country } "
@@ -524,11 +752,13 @@ DATASETS_DIC = {
             "parameters": {"data.ds_id": 42, "level": " { country } "},
             "row_limit": 100000,
         },
-        "title": "",
+        "title": "National Housing Census: type of living quarter by country",
+        "shared_id": "cens_11r",
         "legend": {
-            "style": {"colors": get_sns_color("YlOrBr", 12)},
+            "style": {"colors": {"color_palet": "YlOrBr", "nb_of_colors": 12}},
             "legend_variable": {
                 "variable": "Non-residential buildings : Conventional dwellings",
+                "units": "Number",
                 "min": 0.0,
                 "max": 440340.0,
             },
@@ -537,22 +767,57 @@ DATASETS_DIC = {
     "DS_43": {
         "id": 43,
         "layer_type": "raster",
+        "data_type": "numerical",
         "params": """{
                         "data.ds_id":43
                     }""",
         "json_params": {"parameters": {"data.ds_id": 43}, "row_limit": 100000},
-        "title": "",
+        "legend": {
+            "style": {
+                "colors": {
+                    "color": (1, 0, 0),
+                    "color_palet": "Greys_r",
+                    "nb_of_colors": 12,
+                }
+            },
+            "legend_variable": {
+                "variable": "Heat density map (final energy demand for heating and DHW) of buildings in EU28 + Switzerland, Norway and Iceland for the year 2015",
+                "units": "MWh/ha (MWh/10.000 m2)",
+                "min": 0.00142908,
+                "max": 3766.61,
+            },
+        },
+        "title": "HotMaps: Heat demand density",
+        "shared_id": "hotmaps_heat_tot_curr_density",
     },
     "DS_45": {
         "id": 45,
         "layer_type": "raster",
+        "data_type": "numerical",
         "params": """{"data.ds_id":45}""",
         "json_params": {"parameters": {"data.ds_id": 45}, "row_limit": 100000},
-        "title": "",
+        "legend": {
+            "style": {
+                "colors": {
+                    "color": (1, 0, 0),
+                    "color_palet": "Greys_r",
+                    "nb_of_colors": 12,
+                }
+            },
+            "legend_variable": {
+                "variable": "Heated gross floor area density map of buildings in EU28 + Switzerland, Norway and Iceland for the year 2015",
+                "units": "m2/ha (m2/10.000 m2)",
+                "min": 0.0111452,
+                "max": 33658.4,
+            },
+        },
+        "title": "HotMaps: Heated gross floor area density",
+        "shared_id": "hotmaps_gfa_tot_curr_density",
     },
     "DS_46": {
         "id": 46,
         "layer_type": "vector",
+        "data_type": "numerical",
         "params": """{
                         "data.ds_id":46,
                         "start_at":"''2018-01-01''",
@@ -569,11 +834,13 @@ DATASETS_DIC = {
             },
             "row_limit": 100000,
         },
-        "title": "",
+        "title": "OECD: Greenhouse gas emissions",
+        "shared_id": "OECD.AIR_GHG",
         "legend": {
-            "style": {"colors": get_sns_color("Spectral", 12)},
+            "style": {"colors": {"color_palet": "Spectral", "nb_of_colors": 12}},
             "legend_variable": {
                 "variable": "Total  emissions excluding LULUCF | Carbon dioxide",
+                "units": "Tonnes of CO2 equivalent | Thousands",
                 "min": 3675.0,
                 "max": 5424882.0,
             },
@@ -582,6 +849,7 @@ DATASETS_DIC = {
     "DS_47": {
         "id": 47,
         "layer_type": "vector",
+        "data_type": "numerical",
         "params": """{
                         "data.ds_id":47,
                         "start_at":"''2018-01-01''"
@@ -590,11 +858,13 @@ DATASETS_DIC = {
             "parameters": {"data.ds_id": 47, "start_at": "'2018-01-01'"},
             "row_limit": 100000,
         },
-        "title": "",
+        "title": "Electricity prices for household consumers",
+        "shared_id": "nrg_pc_204_c",
         "legend": {
-            "style": {"colors": get_sns_color("coolwarm", 12)},
+            "style": {"colors": {"color_palet": "coolwarm", "nb_of_colors": 12}},
             "legend_variable": {
                 "variable": "Band DA : Consumption < 1 000 kWh : All taxes and levies included",
+                "units": "Kilowatt-hour",
                 "min": -0.027,
                 "max": 0.6,
             },
@@ -603,6 +873,7 @@ DATASETS_DIC = {
     "DS_48": {
         "id": 48,
         "layer_type": "vector",
+        "data_type": "numerical",
         "params": """{
                         "data.ds_id":48,
                         "start_at":"''2018-01-01''"
@@ -611,11 +882,13 @@ DATASETS_DIC = {
             "parameters": {"data.ds_id": 48, "start_at": "'2018-01-01'"},
             "row_limit": 100000,
         },
-        "title": "",
+        "title": "Expenditure per household on energy",
+        "shared_id": "nama_10_co3_p3",
         "legend": {
-            "style": {"colors": get_sns_color("crest", 12)},
+            "style": {"colors": {"color_palet": "crest", "nb_of_colors": 12}},
             "legend_variable": {
                 "variable": "Electricity, gas and other fuels",
+                "units": "Current prices, million euro",
                 "min": 130.0,
                 "max": 66265.0,
             },
@@ -624,6 +897,7 @@ DATASETS_DIC = {
     "DS_49": {
         "id": 49,
         "layer_type": "vector",
+        "data_type": "numerical",
         "params": """{
                         "data.ds_id":49,
                         "start_at":"''2018-01-01''"
@@ -632,11 +906,13 @@ DATASETS_DIC = {
             "parameters": {"data.ds_id": 49, "start_at": "'2018-01-01'"},
             "row_limit": 100000,
         },
-        "title": "",
+        "title": "Energy dependence",
+        "shared_id": "t2020_rd320",
         "legend": {
-            "style": {"colors": get_sns_color("viridis", 12)},
+            "style": {"colors": {"color_palet": "viridis", "nb_of_colors": 12}},
             "legend_variable": {
                 "variable": "Natural gas",
+                "units": "Percentage",
                 "min": -1822.0,
                 "max": 110.0,
             },
@@ -645,6 +921,7 @@ DATASETS_DIC = {
     "DS_50": {
         "id": 50,
         "layer_type": "vector",
+        "data_type": "numerical",
         "params": """{
                     "data.ds_id":50,
                     "start_at":"''2018-01-01''"
@@ -653,86 +930,16 @@ DATASETS_DIC = {
             "parameters": {"data.ds_id": 50, "start_at": "'2018-01-01'"},
             "row_limit": 100000,
         },
-        "title": "",
+        "title": "Regional GDP",
+        "shared_id": "tgs00004",
         "legend": {
-            "style": {"colors": get_sns_color("ch:s=-.2,r=.6", 12)},
-            "legend_variable": {"variable": "default", "min": 1038.0, "max": 651258.0},
+            "style": {"colors": {"color_palet": "ch:s=-.2,r=.6", "nb_of_colors": 12}},
+            "legend_variable": {
+                "variable": "default",
+                "units": "Million purchasing power standards (PPS, EU27 from 2020)",
+                "min": 1038.0,
+                "max": 651258.0,
+            },
         },
     },
 }
-
-
-def get_ds_title(dataset_id):
-    dataset_params = get_ds(dataset_id)
-    title = dataset_params.get("title", None)
-    if title is None or not title:
-        return "undefined"
-    return title
-
-
-def get_ds_ids():
-    ids = []
-    for value in DATASETS_DIC.values():
-        id = value.get("id", None)
-        if id:
-            ids.append(id)
-    return ids
-
-
-def get_ds(dataset_id):
-    """Return the dataset default parameters in a dict or an
-    empty dict if there is no default parameters for this dataset"""
-    for value in DATASETS_DIC.values():
-        if value.get("id", None) == dataset_id:
-            return value
-    else:
-        return {}
-
-
-def get_legend_style(dataset_id):
-    """Get the style used to color the map or a default style if the
-    legend or the style are undefined"""
-
-    default_style = {"colors": get_sns_color("flare", 12)}
-
-    dataset_params = get_ds(dataset_id)
-    legend = dataset_params.get("legend", None)
-    if legend is not None:
-        style = legend.get("style", None)
-        if style is not None:
-            return style
-    # If there is no legend or style defined, return default style
-    return default_style
-
-
-def get_legend_variable(dataset_id):
-    """
-    Return the variable used to color the layer and its min/max values, or
-    None if the legend or the variable used to color the map are not specified.
-    """
-    dataset_params = get_ds(dataset_id)
-    legend = dataset_params.get("legend", None)
-    if legend is not None:
-        return legend.get("legend_variable", None)
-
-
-def get_legend(dataset_id):
-    dataset_params = get_ds(dataset_id)
-    if dataset_params.get("layer_type", None) != "vector":
-        # TODO how do we display legends for raster datasets?
-        return {}
-
-    variable = get_legend_variable(dataset_id)
-    style = get_legend_style(dataset_id)
-    return {"variable": variable, "style": style}
-
-
-def get_openair_link(dataset_id):
-    default_link = (
-        "https://beta.enermaps.openaire.eu/search/publication?pid=10.3390%2Fen12244789"
-    )
-    dataset_params = get_ds(dataset_id)
-    link = dataset_params.get("openair_link", None)
-    if link is None or not link:
-        return default_link
-    return link

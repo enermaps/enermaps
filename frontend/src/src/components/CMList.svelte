@@ -31,26 +31,55 @@
   border-radius: 0px;
   border: 1px solid #27275b;
   background-color: #eff4fa;
-  width: 30%
+  width: 30%;
+  max-height: 90%;
+  overflow-y: scroll;
+
 }
 [hidden]{
   display: none !important;
 }
-#header {
+#header h2 {
   padding-top: 0px;
   padding-bottom: 0px;
   margin: 0px;
   flex-shrink: 0;
   text-align: center;
+  font-size: 22px;
+  display: inline-block;
+  vertical-align: middle;
 }
 #list {
-  overflow-y: auto;
+  max-height: inherit;
 }
+#cm_list_header div {
+  display: inline-block;
+}
+
+#close_button_cm_list {
+  display: inline-block;
+  height: 30px;
+  width: 30px;
+  background-repeat: no-repeat;
+  background-size: cover;
+  box-sizing: border-box;
+  vertical-align: middle;
+}
+
+img {
+  max-width:100%;
+  height:auto;
+  cursor: pointer;
+}
+
 </style>
 <div id="calculation_modules_pane" hidden={!$isCMPaneActiveStore}>
-  <div class="close_button" on:click={closeCMPanel}></div>
+
   <div id="calculation_modules_content">
-    <h2 id="header">Calculation Modules</h2>
+    <div id="cm_list_header">
+      <div id="close_button_cm_list" on:click={closeCMPanel} ><img src='/images/clear-icon.png' alt='close'></div>
+      <div id="header"><h2>Calculation Modules</h2></div>
+    </div>
     <div id="list">
       {#each cms as cm}
         <CM bind:cm/>

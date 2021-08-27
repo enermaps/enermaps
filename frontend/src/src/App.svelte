@@ -8,32 +8,22 @@
 	width: 100%;
 	height: 100%;
 }
-:global(.close_button) {
-  float: right;
-  padding: 3px;
-  display: block;
-  height: 30px;
-  width: 30px;
-  background-repeat: no-repeat;
-  background-size: cover;
-  background: url('/images/clear-icon.png');
-}
 #main {
 	width: 100%;
 	height: 100%;
 	display: flex;
 }
+
 :global(.close_button) {
-  right: 0;
-  position: absolute;
   padding: 3px;
-  display: block;
-  height: 30px;
-  width: 30px;
+  height: 25px;
+  width: 25px;
   background-repeat: no-repeat;
   background-size: cover;
-  background: url('/images/clear-icon.png');
+  box-sizing: border-box;
 }
+
+
 </style>
 <div id="main">
 <Map/>

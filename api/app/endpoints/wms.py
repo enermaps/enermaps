@@ -22,13 +22,98 @@ from lxml import etree  # nosec
 
 from app.common import projection as projection
 from app.common import xml as xml
-from app.data_integration.data_config import get_legend_style, get_legend_variable
+from app.data_integration import data_endpoints
 from app.models import geofile as geofile
 
 MIME_TO_MAPNIK = {"image/png": "png", "image/jpg": "jpg"}
 
 api = Namespace("wms", "WMS compatible endpoint")
 current_file_dir = os.path.dirname(os.path.abspath(__file__))
+
+
+def make_line_style():
+    # add the black polygons contours
+    mapnik_style = mapnik.Style()
+    rule = mapnik.Rule()
+    line_symbolizer = mapnik.LineSymbolizer()
+    line_symbolizer.stroke = mapnik.Color("black")
+    line_symbolizer.stroke_width = 1.0
+    rule.symbols.append(line_symbolizer)
+    mapnik_style.rules.append(rule)
+    style_name = "line_style"
+    return mapnik_style, style_name
+
+
+def make_point_style():
+    mapnik_style = mapnik.Style()
+    rule = mapnik.Rule()
+    pt_symbolizer = mapnik.PointSymbolizer()
+    rule.symbols.append(pt_symbolizer)
+    mapnik_style.rules.append(rule)
+    style_name = "point_style"
+    return mapnik_style, style_name
+
+
+def make_numerical_raster_style(layer_style):
+    mapnik_style = mapnik.Style()
+    rule = mapnik.Rule()
+    raster_symb = mapnik.RasterSymbolizer()
+    raster_colorizer = mapnik.RasterColorizer(
+        mapnik.COLORIZER_LINEAR, mapnik.Color("transparent")
+    )
+
+    for n, (color, min_threshold, max_threshold) in enumerate(layer_style):
+        raster_colorizer.add_stop(
+            max_threshold, mapnik.COLORIZER_LINEAR, mapnik.Color(*color)
+        )
+
+    raster_symb.colorizer = raster_colorizer
+    rule.symbols.append(raster_symb)
+    mapnik_style.rules.append(rule)
+    style_name = "num_raster_style"
+    return mapnik_style, style_name
+
+
+def make_categorical_raster_style(layer_style):
+    mapnik_style = mapnik.Style()
+    rule = mapnik.Rule()
+
+    raster_symb = mapnik.RasterSymbolizer()
+    raster_symb.colorizer = mapnik.RasterColorizer(
+        mapnik.COLORIZER_LINEAR, mapnik.Color("transparent")
+    )
+
+    for n, (color_id, color) in enumerate(layer_style):
+        raster_symb.colorizer.add_stop(color_id, mapnik.Color(*(color[0])))
+
+    rule.symbols.append(raster_symb)
+    mapnik_style.rules.append(rule)
+    style_name = "categorical_raster_style"
+    return mapnik_style, style_name
+
+
+def make_numerical_polygon_style(layer_style):
+    mapnik_style = mapnik.Style()
+    nb_of_colors = len(layer_style)
+    for n, (color, min_threshold, max_threshold) in enumerate(layer_style):
+        if n == 0:
+            expression = f"[legend] < {max_threshold}"
+        elif n == nb_of_colors - 1:
+            expression = f"[legend] >= {min_threshold}"
+        else:
+            expression = f"[legend] < {max_threshold} and [legend] >= {min_threshold}"
+
+        polygon_symb = mapnik.PolygonSymbolizer()
+        polygon_symb.fill = mapnik.Color(*color)
+        polygon_symb.fill_opacity = 0.5
+
+        rule = mapnik.Rule()
+        rule.filter = mapnik.Expression(expression)
+        rule.symbols.append(polygon_symb)
+        mapnik_style.rules.append(rule)
+
+    style_name = "vector_polygon_style"
+    return mapnik_style, style_name
 
 
 def parse_envelope(params):
@@ -247,96 +332,65 @@ class WMS(Resource):
 
     def _get_map(self, normalized_args):
         """Return the Mapnik object (with hardcoded symbology/rule)."""
-        # miss:
-        # bgcolor
-        # exceptions
+
         projection = parse_projection(normalized_args)
         # validate projection
         size = parse_size(normalized_args)
-
         mp = mapnik.Map(size.width, size.height, "+init=" + projection)
 
-        s = mapnik.Style()
-        r = mapnik.Rule()
-        r.symbols.append(mapnik.RasterSymbolizer())
-        s.rules.append(r)
-
-        r.symbols.append(mapnik.PointSymbolizer())
-        s.rules.append(r)
-
-        layer_name = normalized_args.get("layers", "")
-
-        # setup the "legends" rules
-        if layer_name[0:2].isdigit():
-            layer_id = int(layer_name[0:2])
-
-            # Get the variable used to color the polygons and its min/max values
-            layer_variable = get_legend_variable(layer_id)
-            if layer_variable is not None:
-
-                # Layer style is never None, if there is no custom style defined a
-                # default style is returned
-                layer_style = get_legend_style(layer_id)
-
-                colors = layer_style["colors"]
-                nb_of_colors = len(colors)
-
-                # Create one polygon symbolizer per color
-                polygons = []
-                for color in colors:
-                    polygons.append(mapnik.PolygonSymbolizer())
-                    polygons[-1].fill = mapnik.Color(*color)
-                    polygons[-1].fill_opacity = 0.5
-
-                # Create the limits between the min and max values of the variable
-                limits = []
-                min_value = layer_variable["min"]
-                max_value = layer_variable["max"]
-                for n in range(1, nb_of_colors):
-                    limit = min_value + n * ((max_value - min_value) / nb_of_colors)
-                    limits.append(limit)
-
-                nb_limits = len(limits)
-                rules = []
-                for n in range(nb_limits + 1):
-                    if n == 0:
-                        expression = f"[legend] < {limits[0]}"
-                    elif n == nb_limits:
-                        expression = f"[legend] >= {limits[n-1]}"
-                    else:
-                        expression = (
-                            f"[legend] < {limits[n]} and [legend] > {limits[n-1]}"
-                        )
-                    rules.append(mapnik.Rule())
-                    rules[-1].filter = mapnik.Expression(expression)
-                    rules[-1].symbols.append(polygons[n])
-                    s.rules.append(rules[-1])
-            else:
-                # If there is no variable defined for coloring the polygons,
-                # put the same black on all polygons
-                polygon_symbolizer = mapnik.PolygonSymbolizer()
-                polygon_symbolizer.fill = mapnik.Color("black")
-                polygon_symbolizer.fill_opacity = 0.3
-                r.symbols.append(polygon_symbolizer)
-
-        # add the black polygons contours
-        line_symbolizer = mapnik.LineSymbolizer()
-        line_symbolizer.stroke = mapnik.Color("black")
-        line_symbolizer.stroke_width = 1.0
-        r.symbols.append(line_symbolizer)
-        s.rules.append(r)
-
-        style_name = "My Style"
-        mp.append_style(style_name, s)
-
-        layer_names = parse_layers(normalized_args)
-        for layer_name in layer_names:
+        # Get the list of the layers to display
+        layers = parse_layers(normalized_args)
+        for layer_name in layers:
+            # Try to load the layer from the local file
             try:
                 layer = geofile.load(layer_name)
             except FileNotFoundError as e:
                 abort(404, e.strerror)
             mapnik_layer = layer.as_mapnik_layer()
+
+            # For each layer, add a line style and a point style
+            line_style, style_name = make_line_style()
             mapnik_layer.styles.append(style_name)
+            mp.append_style(style_name, line_style)
+            # Style for points
+            pt_style, style_name = make_point_style()
+            mapnik_layer.styles.append(style_name)
+            mp.append_style(style_name, pt_style)
+
+            # Custom styles for layers that are in the DB and must be "colorized"
+            if layer_name[0:2].isdigit():
+                layer_id = int(layer_name[0:2])
+
+                # Get the layer style and type
+                legend_style = data_endpoints.get_legend_style(layer_id)
+                layer_type, data_type = data_endpoints.get_ds_type(layer_id)
+
+                if layer_type == "vector":
+                    # we are not dealing with the case of categorical layers at the moment
+                    # and we colorize only polygons, not points
+                    if data_type == "numerical":
+                        mapnik_style, style_name = make_numerical_polygon_style(
+                            legend_style
+                        )
+                        mapnik_layer.styles.append(style_name)
+                        mp.append_style(style_name, mapnik_style)
+
+                if layer_type == "raster":
+                    if data_type == "numerical":
+                        mapnik_style, style_name = make_numerical_raster_style(
+                            legend_style
+                        )
+                        mapnik_layer.styles.append(style_name)
+                        mp.append_style(style_name, mapnik_style)
+                    elif data_type == "categorical":
+                        mapnik_style, style_name = make_categorical_raster_style(
+                            legend_style
+                        )
+                        mapnik_layer.styles.append(style_name)
+                        mp.append_style(style_name, mapnik_style)
+                    else:
+                        print("Unknown data type", flush=True)
+
             mp.layers.append(mapnik_layer)
         return mp
 
