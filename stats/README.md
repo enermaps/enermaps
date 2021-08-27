@@ -2,7 +2,6 @@
 
 This service parses the database log to collect usage stats.
 
-By running the service, a cron job will be initiated parsing the original log files every hour (at minute 5).
 A CSV file named `parsed_log.csv` will be produced containing for each query.
 
 - timestamp
@@ -12,7 +11,7 @@ A CSV file named `parsed_log.csv` will be produced containing for each query.
 
 Note that the parsing will not be run on the last modified file, as this might still be written by PostGRES.
 
-Source log files after parsing will be removed.
+Source log files after parsing will be removed (except the latest one, which might not be completed).
 
 ## Manual parsing
 
