@@ -1,0 +1,6 @@
+SHELL=/bin/bash
+
+# Biannual pipelines at 02:00 on day-of-month 1 in March and September
+0 2 1 MAR,SEP * source ~/.enermaps; cd $ENERMAPS_ROOT/cron && ./data-integration.sh  >> enermaps_di.log 2>&1
+
+# An empty line is required at the end of this file for a valid cron file.
