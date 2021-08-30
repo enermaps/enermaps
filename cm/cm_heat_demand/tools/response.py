@@ -1,8 +1,10 @@
+import os
+
 import numpy as np
 
 
 def get_response(
-    total_potential: float, total_heat_demand: float, areas_potential: np.ndarray
+    total_potential: float, total_heat_demand: float, areas_potential: np.ndarray, raster_name: str,
 ) -> dict:
     """
     Generate the the dictionary return by the CM.
@@ -75,7 +77,7 @@ def get_response(
 
     def get_geofiles(
         base_dictionary: dict,
-        areas_path: str = "/this/is/a/fake/path",
+        layer_name: str,
     ) -> dict:
         """
         Add path towards the geofiles to the based dictionary.
@@ -89,13 +91,13 @@ def get_response(
         """
 
         base_dictionary["geofiles"] = dict()
-        base_dictionary["geofiles"]["areas"] = areas_path
+        base_dictionary["geofiles"]["areas"] = os.environ.get("API_URL") + "/api/geofile/" + layer_name
 
         return base_dictionary
 
     response = dict()
     response = get_graphs(base_dictionary=response, areas_potential=areas_potential)
     response = get_indicators(base_dictionary=response)
-    response = get_geofiles(base_dictionary=response)
+    response = get_geofiles(base_dictionary=response, layer_name=raster_name)
 
     return response
