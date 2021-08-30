@@ -26,7 +26,7 @@ CREATE TABLE public.spatial
     name varchar(200),
     name_engl varchar(200),
     cntr_code char(2),
-    levl_code levl,
+    levl_code levl DEFAULT 'geometry',
     ds_id int,
     geometry geometry(Geometry,3035)
 );
@@ -62,5 +62,19 @@ ALTER TABLE data
     ON DELETE CASCADE
 ;
 
+
 GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA public TO :db_user;
 GRANT ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA public TO :db_user;
+
+-- POSTGREST
+CREATE ROLE api_anon nologin;
+GRANT usage ON schema public TO api_anon;
+GRANT api_anon TO test;
+
+CREATE ROLE api_user nologin;
+GRANT api_user TO test;
+
+GRANT USAGE ON schema public TO api_user;
+GRANT SELECT ON public.spatial TO api_user;
+GRANT SELECT ON public.data TO api_user;
+GRANT SELECT ON public.datasets TO api_user;

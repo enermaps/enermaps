@@ -61,9 +61,25 @@ Some service will initialize and create their initial state:
 * the api will fetch an initial dataset
 * the db will create its initial schema
 
-## Dataset importation
+## Data-integration
 
 To import datasets, check the data-integration directory readme.
+
+## External API
+
+A PostGRES API is available to give access to the DB to external users, as well as to the OpenAIRE gateway.
+
+Check the the postgrest directory readme.
+
+### Nginx server
+
+The Nginx service manages different endpoints to provide access to the:
+
+- the PostGREST API
+- the raster files
+- custom thumbnail pictures for OpenAIRE gateway.
+
+Check the the nginx directory readme.
 
 ## Cleanup
 

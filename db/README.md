@@ -53,3 +53,4 @@ The dump file will be created in the main folder in your host machine.
 This is useful to have a dump file created with a version of `pg_dump` that corresponds to the one running in the docker container.
 
 Note that the backup is useful to be obtained on the EnerMaps server, with the `db` container running and containing the integrated datasets. Use `ssh`to connect to the server and then `cd` to `/local/data/enermaps`.
+

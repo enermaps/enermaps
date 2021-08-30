@@ -26,6 +26,24 @@ services:
     env_file:
       .env-db
 
+  db-nginx:
+    build:
+      context: ./db-nginx
+    ports:
+      - "0.0.0.0:80:80"
+    volumes:
+      - data:/usr/share/nginx/html/raster
+
+  postgrest:
+    build:
+      context: ./postgrest
+    ports:
+      - "127.0.0.1:3000:3000"
+    env_file:
+      - .env
+      - .postgrest
+
+
 volumes:
   db-data:
   data:
