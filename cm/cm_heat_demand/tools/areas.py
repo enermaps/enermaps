@@ -110,8 +110,8 @@ def define_areas(
             n_label=n_label,
         )
 
-        for i, (start_, end_) in enumerate(zip(start, end)):
-            area = sorted_array[start_:end_, 3]
+        for i, (start_index, end_index) in enumerate(zip(start, end)):
+            area = sorted_array[start_index:end_index, 3]
             area_potential = np.sum(area)
             if area_potential >= district_heating_zone_threshold:
                 # i+1 because labeling starts from 1 and not from 0
