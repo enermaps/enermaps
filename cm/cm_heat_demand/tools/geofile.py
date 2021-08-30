@@ -1,6 +1,6 @@
 import json
 from os import remove, system
-from os.path import exists, isfile
+from os.path import exists, isfile, splitext
 
 import numpy as np
 import rasterio
@@ -9,8 +9,8 @@ from osgeo import gdal, osr
 
 def get_projection(geofile: str):
     """Get the projection of a geofile."""
-    name, extension = os.path.splitext(geofile)
-    if not isfile(geofile) or extension.lower() not in ["tif", "tiff"]:
+    name, extension = splitext(geofile)
+    if not isfile(geofile) or extension.lower() not in [".tif", ".tiff"]:
         raise TypeError(f"The file path is not correct: {geofile}")
     with rasterio.open(geofile) as src_file:
         projection = src_file.crs
