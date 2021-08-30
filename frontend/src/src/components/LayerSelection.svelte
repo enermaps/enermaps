@@ -3,7 +3,6 @@
   import '../leaflet_components/L.TileLayer.NutsLayer.js';
   import '../leaflet_components/L.DrawingLayer.js';
   import '../leaflet_components/L.TileLayer.QueryableLayer.js';
-  import queryString from 'query-string';
   import {getGeofiles, WMS_URL} from '../client.js';
   import {activeSelectionLayerStore} from '../stores.js';
 
@@ -62,23 +61,8 @@
     drawingLayer.name = 'Selection';
     selectionLayers.push(drawingLayer);
     selectionLayers = selectionLayers;
-    setSelectionFromGetParameter();
     isLayerListReady = true;
   });
-  function setSelectionFromGetParameter() {
-    const parsed = queryString.parse(window.location.search);
-    if ('selectionLayer' in parsed) {
-      let activeSelectionLayer = undefined;
-      console.log('parsing selection layer from get parameters');
-      for (const selectionLayer of selectionLayers) {
-        if (selectionLayer.name == parsed.selectionLayer) {
-          console.log('adding selection layer from get parameters');
-          activeSelectionLayer = selectionLayer;
-        }
-      }
-      $activeSelectionLayerStore = activeSelectionLayer;
-    }
-  }
   function getDrawingLayer() {
     return new L.DrawingLayer();
   }

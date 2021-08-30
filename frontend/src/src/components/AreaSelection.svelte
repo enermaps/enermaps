@@ -1,10 +1,10 @@
 <script>
   import {onMount} from 'svelte';
   import '../leaflet_components/L.TileLayer.QueryableLayer.js';
-  import queryString from 'query-string';
   import {getGeofiles, getLegend, getLayerType, getOpenairLink, WMS_URL} from '../client.js';
   import {activeOverlayLayersStore} from '../stores.js';
 
+  const activeOverlayLayers = [];
   let overlayLayers = [];
   let isLayerListReady = false;
   let overlayLayersFilter = '';
@@ -68,12 +68,27 @@
         }
 
         leafletLayer.name = layer;
+        leafletLayer.datasetId = parseInt(layer.substring(0, 2));
         leafletLayer.legend_promise = legend;
         leafletLayer.openairLink_promise = openairLink;
         leafletLayer.layer_type_promise = layerType;
         overlayLayers.push(leafletLayer);
+
+        // select if dataset to show is set in the URL
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.has('datasetId')) {
+          const datasetSelected = parseInt(urlParams.get('datasetId'));
+          if (leafletLayer.datasetId == datasetSelected) {
+            leafletLayer.checked = true;
+            activeOverlayLayers.push(leafletLayer);
+          }
+        }
       }
     }
+
+    // we can now push the potential selected dataset
+    $activeOverlayLayersStore = activeOverlayLayers;
+
     overlayLayers.sort(function(layer0, layer1) {
       const name0 = splitName(layer0.name);
       const name1 = splitName(layer1.name);
@@ -87,24 +102,8 @@
     });
     overlayLayers = overlayLayers;
     filteredOverlayLayers = overlayLayers;
-    setSelectionFromGetParameter();
     isLayerListReady = true;
   });
-  function setSelectionFromGetParameter() {
-    const parsed = queryString.parse(window.location.search);
-    if ('overlayLayers' in parsed) {
-      const activeOverlayLayers = [];
-      console.log('parsing overlay layer from get parameters');
-      const queryOverlayLayers = new Set(parsed.overlayLayers.split(','));
-      for (const overlayLayer of overlayLayers) {
-        if (queryOverlayLayers.has(overlayLayer.name)) {
-          console.log('adding overlay layer from get parameters');
-          activeOverlayLayers.push(overlayLayer);
-        }
-      }
-      $activeOverlayLayersStore = activeOverlayLayers;
-    }
-  }
   $: {
     console.log('layer changed in selector to ' + $activeOverlayLayersStore);
     filteredOverlayLayers = overlayLayers.filter((layer) =>
@@ -187,7 +186,7 @@
     <div id="overlay_layers" style="margin-top: 10px;">
 
     {#each filteredOverlayLayers as overlayLayer (overlayLayer.name)}
-    <label title={overlayLayer.name}>
+    <label title={splitName(overlayLayer.name)}>
       <input type=checkbox bind:group={$activeOverlayLayersStore} value={overlayLayer} bind:checked={overlayLayer.checked}>
         {splitName(overlayLayer.name)}
     </label>
