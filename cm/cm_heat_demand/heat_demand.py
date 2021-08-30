@@ -65,13 +65,14 @@ def processing(region: dict, raster: str, parameters: dict):
 
         with open(output_raster, mode="rb") as raster_fd:
 
-            raster_name = "heat_demand_" + str(uuid1())
+            raster_name = "heat_demand_" + str(uuid1()) + ".tiff"
             post_raster(raster_name=raster_name, raster_fd=raster_fd)
 
         response = get_response(
             total_potential=total_potential,
             total_heat_demand=total_heat_demand,
             areas_potential=areas_potential,
+            raster_name=raster_name,
         )
 
     validate(response)
