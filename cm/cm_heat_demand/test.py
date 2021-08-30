@@ -17,9 +17,8 @@ def get_testsuite(*testcases: unittest.TestCase):
     return test_suite
 
 
-testsuite = get_testsuite(TestSettings, TestGeofileTools, TestAreasTools)
-
 if __name__ == "__main__":
+    testsuite = get_testsuite(TestSettings, TestGeofileTools, TestAreasTools)
     runner = unittest.TextTestRunner(verbosity=2)
     test_results = runner.run(testsuite)
     if not test_results.wasSuccessful():
