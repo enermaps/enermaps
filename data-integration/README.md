@@ -17,7 +17,7 @@ You can manually execute the available pipelines witn the following commands:
     `docker-compose -f ../docker-compose-db.yml run data-integration getEEA.py`
 
   - 6: EUROSTAT Energy consumption in households
-    `docker-compose run data-integration getEurostat.py --select_ds_ids 6`
+    `docker-compose -f ../docker-compose-db.yml run data-integration getEurostat.py --select_ds_ids 6`
 
   - 7: Electricity Map data
     `docker-compose -f ../docker-compose-db.yml run data-integration getElectricity.py`
@@ -40,7 +40,7 @@ You can manually execute the available pipelines witn the following commands:
     `docker-compose -f ../docker-compose-db.yml run data-integration getESM-EUDEM.py --select_ds_ids 21`
 
   - 22: EUROSTAT Energy efficiency indicator
-    `docker-compose run data-integration getEurostat.py --select_ds_ids 22`
+    `docker-compose -f ../docker-compose-db.yml run data-integration getEurostat.py --select_ds_ids 22`
 
   - 24: Solar Atlas
     `docker-compose -f ../docker-compose-db.yml run data-integration getSolarAtlas.py`
@@ -65,7 +65,7 @@ You can manually execute the available pipelines witn the following commands:
     `docker-compose -f ../docker-compose-db.yml run data-integration getESM-EUDEM.py --select_ds_ids 35`
 
   - 42: EUROSTAT National Housing Census: type of living quarter by country
-    `docker-compose run data-integration getEurostat.py --select_ds_ids 42`
+    `docker-compose -f ../docker-compose-db.yml run data-integration getEurostat.py --select_ds_ids 42`
 
   - 43: HotMaps Heat Density
     `docker-compose -f ../docker-compose-db.yml run data-integration getHotMaps_raster.py --select_ds_ids 43`
@@ -74,14 +74,13 @@ You can manually execute the available pipelines witn the following commands:
     `docker-compose -f ../docker-compose-db.yml run data-integration getHotMaps_raster.py --select_ds_ids 45`
 
   - 47: EUROSTAT Electricity prices for household consumers
-    `docker-compose run data-integration getEurostat.py --select_ds_ids 47`
+    `docker-compose -f ../docker-compose-db.yml run data-integration getEurostat.py --select_ds_ids 47`
 
   - 49: EUROSTAT Energy dependence
-    `docker-compose run data-integration getEurostat.py --select_ds_ids 49`
+    `docker-compose -f ../docker-compose-db.yml run data-integration getEurostat.py --select_ds_ids 49`
 
   - 50: EUROSTAT Regional GDP
-    `docker-compose run data-integration getEurostat.py --select_ds_ids 50`
-
+    `docker-compose -f ../docker-compose-db.yml run data-integration getEurostat.py --select_ds_ids 50`
 
 Remember to start the db service via `docker-compose --file ../docker-compose-db.yml up -d db` before running the pipelines.
 
