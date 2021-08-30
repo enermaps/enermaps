@@ -9,7 +9,9 @@ from osgeo import gdal, osr
 
 def get_projection(geofile: str):
     """Get the projection of a geofile."""
-
+    name, extension = os.path.splitext(geofile)
+    if not isfile(geofile) or extension.lower() not in ["tif", "tiff"]:
+        raise TypeError(f"The file path is not correct: {geofile}")
     with rasterio.open(geofile) as src_file:
         projection = src_file.crs
     return projection
