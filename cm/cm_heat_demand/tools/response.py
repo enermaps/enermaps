@@ -4,7 +4,10 @@ import numpy as np
 
 
 def get_response(
-    total_potential: float, total_heat_demand: float, areas_potential: np.ndarray, raster_name: str,
+    total_potential: float,
+    total_heat_demand: float,
+    areas_potential: np.ndarray,
+    raster_name: str,
 ) -> dict:
     """
     Generate the the dictionary return by the CM.
@@ -91,7 +94,9 @@ def get_response(
         """
 
         base_dictionary["geofiles"] = dict()
-        base_dictionary["geofiles"]["areas"] = os.environ.get("API_URL") + "/api/geofile/" + layer_name
+        base_dictionary["geofiles"]["areas"] = (
+            os.environ.get("API_URL") + "/api/geofile/" + layer_name
+        )
 
         return base_dictionary
 
