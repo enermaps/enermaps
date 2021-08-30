@@ -107,7 +107,7 @@
   $: {
     console.log('layer changed in selector to ' + $activeOverlayLayersStore);
     filteredOverlayLayers = overlayLayers.filter((layer) =>
-      layer.name.indexOf(overlayLayersFilter) !== -1);
+      layer.name.toLowerCase().indexOf(overlayLayersFilter.toLowerCase()) !== -1);
   }
 </script>
 
