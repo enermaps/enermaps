@@ -58,6 +58,7 @@
   border-radius: 0px;
   padding: 5px;
   background-color: #fff;
+  background-color: white;
 }
 img {
   max-width:100%;
