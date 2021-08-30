@@ -1,4 +1,6 @@
 #!/usr/bin/env python3
+from os.path import isfile, splitext
+
 import BaseCM.cm_base as cm_base
 import BaseCM.cm_input as cm_input
 
@@ -19,6 +21,9 @@ def heat_demand(self, selection: dict, rasters: list, params: dict):
     self.validate_params(params)
 
     raster = cm_input.get_raster_path(rasters[0])
+    name, extension = splitext(raster)
+    if not isfile(raster) or extension.lower() not in [".tif", ".tiff"]:
+        raise TypeError(f"The file path is not correct: {raster}")
     region = selection["features"][0]["geometry"]
 
     result = processing(raster=raster, region=region, parameters=params)
