@@ -7,6 +7,8 @@ Here are the jobs currently implemented:
 
 - `data-integration.sh`contains the data-integration pipelines that have to be run twice per year. Biannual jobs are run *at 02:00 on day-of-month 1 in March and September*.
 
+- `db-stats.sh` runs hourly (*at minute 5*) the `stats` services to parse the db logs.
+
 
 ## Usage
 
