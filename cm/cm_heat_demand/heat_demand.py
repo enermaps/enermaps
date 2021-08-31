@@ -1,4 +1,3 @@
-import subprocess  # nosec
 from os.path import join
 from tempfile import TemporaryDirectory
 from uuid import uuid1
@@ -58,13 +57,7 @@ def processing(region: dict, raster: str, parameters: dict):
             dst=dst_raster,
         )
 
-        color_file = join(settings.SETTINGS_DIR, "colors.txt")
-        output_raster = join(temp_dir, "out.tif")
-        cmd = f"gdaldem color-relief -alpha {dst_raster} {color_file} {output_raster}"
-        subprocess.run(cmd.split())  # nosec
-
-        with open(output_raster, mode="rb") as raster_fd:
-
+        with open(dst_raster, mode="rb") as raster_fd:
             raster_name = "heat_demand_" + str(uuid1()) + ".tiff"
             post_raster(raster_name=raster_name, raster_fd=raster_fd)
 
