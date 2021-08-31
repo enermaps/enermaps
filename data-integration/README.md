@@ -28,6 +28,12 @@ You can manually execute the available pipelines witn the following commands:
   - 15: ERA5 reanalysis-era5-single-levels
     `docker-compose  -f ../docker-compose-db.yml run data-integration getERA5.py --select_ds_ids 15`
 
+  - 16: EMHIRES: Wind power generation
+    `docker-compose -f ../docker-compose-db.yml run data-integration getEMHIRES.py --select_ds_ids 16`
+
+  - 17: EMHIRES: Solar power generation
+    `docker-compose  -f ../docker-compose-db.yml run data-integration getEMHIRES.py --select_ds_ids 17`
+
   - 19: EDGAR CO₂ emissions
     `docker-compose -f ../docker-compose-db.yml run data-integration getEdgar.py`
 
@@ -55,8 +61,8 @@ You can manually execute the available pipelines witn the following commands:
     `docker-compose -f ../docker-compose-db.yml run data-integration getHotMaps_raster.py --select_ds_ids 31`
 
   - 33: Building Height
-  	Note that the files must be manually downloaded by Copernicus website (requires log-in).
-  	Instructions are in the header of the Python file.
+    Note that the files must be manually downloaded by Copernicus website (requires log-in).
+    Instructions are in the header of the Python file.
     `docker-compose -f ../docker-compose-db.yml run data-integration getBuildingHeight.py`
 
   - 35: ESM
