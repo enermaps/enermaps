@@ -7,6 +7,7 @@ services:
     ports:
       - "127.0.0.1:5433:5432"
     restart: always
+    command: ["-c", "config_file=postgresql.conf"]
     environment:
       POSTGRES_PASSWORD: example
     # Fast Shutdown mode
@@ -43,6 +44,12 @@ services:
       - .env
       - .postgrest
 
+  stats:
+    build:
+      context: ./stats
+    volumes:
+      - ./stats:/stats
+      - db-data:/db-data
 
 volumes:
   db-data:
