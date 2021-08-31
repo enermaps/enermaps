@@ -3,9 +3,9 @@
   import Chart from 'chart.js';
   export let datasets;
 
-  let lineDatasets = [];
+  const lineDatasets = {};
   let xyDatasets = [];
-  const barDatasets = [];
+  const barDatasets = {};
 
   let xyCanvas;
   let lineCanvas;
@@ -32,27 +32,42 @@
     switch (graphType) {
       case 'xy':
         insertXYChart(name, dataset);
+        console.log('Graph type : XY');
         break;
       case 'bar':
         insertBarChart(name, dataset);
+        console.log('Graph type : BAR');
         break;
       case 'line':
         insertLineChart(name, dataset);
+        console.log('Graph type : LINE');
         break;
       default:
     }
   }
   function insertBarChart(name, dataset) {
-    // not implemented yet
+    const values = dataset.values;
+    const xLabels = [];
+    const data = [];
+    for (const value of values) {
+      xLabels.push(value[0]);
+      data.push(value[1]);
+    }
+    barDatasets['labels'] = xLabels;
+    barDatasets['datasets'] = [];
+    barDatasets['datasets'].push({label: name, data: data, tension: 0.1});
   }
   function insertLineChart(name, dataset) {
-    const chartPoints = [];
     const values = dataset.values;
-    for (let x = 0; x < values.length; x++) {
-      chartPoints.push({x: x, y: values[x]});
+    const xLabels = [];
+    const data = [];
+    for (const value of values) {
+      xLabels.push(value[0]);
+      data.push(value[1]);
     }
-    lineDatasets.push({label: name, data: chartPoints});
-    lineDatasets = lineDatasets;
+    lineDatasets['labels'] = xLabels;
+    lineDatasets['datasets'] = [];
+    lineDatasets['datasets'].push({label: name, data: data});
   }
 
   function insertXYChart(name, dataset) {
@@ -77,22 +92,18 @@
     } else {
       xyCanvas.hidden = true;
     }
-    if (lineDatasets.length) {
+    if (Object.keys(lineDatasets).length) {
       lineChart = new Chart(lineCanvas, {
-        type: 'scatter',
-        data: {
-          datasets: lineDatasets,
-        },
+        type: 'line',
+        data: lineDatasets,
       });
     } else {
       lineCanvas.hidden = true;
     }
-    if (barDatasets.length) {
+    if (Object.keys(barDatasets).length) {
       lineChart = new Chart(barCanvas, {
         type: 'bar',
-        data: {
-          datasets: barDatasets,
-        },
+        data: barDatasets,
       });
     } else {
       barCanvas.hidden = true;

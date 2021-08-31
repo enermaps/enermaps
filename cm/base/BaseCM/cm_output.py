@@ -86,6 +86,7 @@ def output_raster(raster_name, raster_fd):
     files = {"file": (raster_name, raster_fd, "image/tiff")}
     try:
         resp = requests.post(API_URL + "/api/geofile/", files=files)
-    except ConnectionError:
+        return resp.status_code
+    except ConnectionError as error:
         logging.error("Error during the post of the file.")
-    return resp.status_code
+        raise ConnectionError(error)

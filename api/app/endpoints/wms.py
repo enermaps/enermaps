@@ -390,8 +390,39 @@ class WMS(Resource):
                         mp.append_style(style_name, mapnik_style)
                     else:
                         print("Unknown data type", flush=True)
+            else:
+                legend_style = []
+                min_value = 0
+                max_value = 255
+                color = (1, 0, 0)  # Default red
+                nb_of_colors = 8
+                import seaborn as sns
+
+                color_list = sns.dark_palette(color, n_colors=nb_of_colors, input="rgb")
+                color_list = [
+                    (
+                        (int(255 * color[0])),
+                        (int(255 * color[1])),
+                        (int(255 * color[2])),
+                    )
+                    for color in color_list
+                ]
+                for n, color in enumerate(color_list, start=1):
+                    min_threshold = min_value + (n - 1) * (
+                        (max_value - min_value) / nb_of_colors
+                    )
+                    min_threshold = round(min_threshold, 2)
+                    max_threshold = min_value + n * (
+                        (max_value - min_value) / nb_of_colors
+                    )
+                    max_threshold = round(max_threshold, 2)
+                    legend_style.append((color, min_threshold, max_threshold))
+                mapnik_style, style_name = make_numerical_raster_style(legend_style)
+                mapnik_layer.styles.append(style_name)
+                mp.append_style(style_name, mapnik_style)
 
             mp.layers.append(mapnik_layer)
+
         return mp
 
     def get_map(self, normalized_args):
