@@ -20,13 +20,6 @@
   let selectionLayers = [];
   let isLayerListReady = false;
 
-
-  // function splitName(name) {
-  //   return name.replace(/\.[^/.]+$/, '');
-  // };
-
-
-
   function toNutsLayer(layerName) {
     const layer = L.tileLayer.nutsLayer(
         WMS_URL,
@@ -38,7 +31,6 @@
     );
     return layer;
   }
-
 
   onMount(async () => {
     const layers = await getGeofiles();
