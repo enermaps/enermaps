@@ -64,11 +64,11 @@
 
     selectionLayers.sort( function(layer0, layer1) {
       const areaList = [
-         'Country',
-         'Region NUTS1',
-         'Region NUTS2',
-         'Region NUTS3',
-         'Cities'
+        'Country',
+        'Region NUTS1',
+        'Region NUTS2',
+        'Region NUTS3',
+        'Cities',
       ];
       return areaList.indexOf(layer0.name) > areaList.indexOf(layer1.name);
     });
