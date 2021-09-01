@@ -20,11 +20,6 @@
   let selectionLayers = [];
   let isLayerListReady = false;
 
-
-  function splitName(name) {
-    return name.replace(/\.[^/.]+$/, '');
-  };
-
   function toNutsLayer(layerName) {
     const layer = L.tileLayer.nutsLayer(
         WMS_URL,
@@ -36,26 +31,47 @@
     );
     return layer;
   }
+
   onMount(async () => {
     const layers = await getGeofiles();
     for (const [layer, layerParameters] of Object.entries(layers)) {
       let leafletLayer;
       console.log(layer, layerParameters);
       if (SELECTIONS.has(layer)) {
+        // We can put something else than the full name of the file
+        function convertName(layer) {
+          if (layer == 'country.geojson') {
+            return 'Country';
+          } else if (layer == 'NUTS1.geojson') {
+            return 'Region NUTS1';
+          } else if (layer == 'NUTS2.geojson') {
+            return 'Region NUTS2';
+          } else if (layer == 'NUTS3.geojson') {
+            return 'Region NUTS3';
+          } else if (layer == 'LAU.geojson') {
+            return 'Cities';
+          } else {
+            return layer;
+          }
+        };
         leafletLayer = toNutsLayer(layer);
-        leafletLayer.name = layer;
+        leafletLayer.name = convertName(layer);
         // selection go on top
         leafletLayer.setZIndex(1000);
-        //
         selectionLayers.push(leafletLayer);
       }
     }
-    function compareSelectionLayer(layer0, layer1) {
-      const layer0Name = layer0.name;
-      const layer1Name = layer1.name;
-      return SELECTIONS_LIST.indexOf(layer0Name) > SELECTIONS_LIST.indexOf(layer1Name);
-    }
-    selectionLayers.sort(compareSelectionLayer);
+
+    selectionLayers.sort( function(layer0, layer1) {
+      const areaList = [
+        'Country',
+        'Region NUTS1',
+        'Region NUTS2',
+        'Region NUTS3',
+        'Cities',
+      ];
+      return areaList.indexOf(layer0.name) > areaList.indexOf(layer1.name);
+    });
 
     const drawingLayer = getDrawingLayer();
     drawingLayer.name = 'Selection';
@@ -72,11 +88,11 @@
 </script>
 <style>
 #map_selection {
-  width: 200px;
+  width: 240px;
   padding: 4px;
   border: 1px solid #27275b;
 	border-radius: 0px;
-  background-color: #eff4fa;
+  background-color: #eff4fa !important;
   box-sizing: border-box;
 }
 #map_selection h3 {
@@ -116,7 +132,7 @@ label {
   {#each selectionLayers as selectionLayer}
   <label title={selectionLayer.name}>
     <input type=radio bind:group={$activeSelectionLayerStore} value={selectionLayer}>
-    {splitName(selectionLayer.name)}
+    {selectionLayer.name}
   </label>
   {/each}
   </div>

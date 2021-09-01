@@ -114,7 +114,7 @@
   <style>
 
   #map_selection {
-    width: 200px;
+    width: 240px;
     padding: 4px;
     border: 1px solid #27275b;
     border-radius: 0px;
@@ -207,7 +207,7 @@
                 <div style="display: inline-block;">{color[1][1]}</div><br>
               {:else}
                 <div class='box' style="background-color: rgb( {color[0][0]}, {color[0][1]}, {color[0][2]} )"> </div>
-                <div style="display: inline-block;">{color[1]} to {color[2]} {legend.variable.units}</div><br>
+                <div style="display: inline-block;">{color[1].toFixed(2)} to {color[2].toFixed(2)} {legend.variable.units}</div><br>
               {/if}
             {/await}
 
@@ -220,10 +220,10 @@
       {/await}
 
       {#await overlayLayer.openairLink_promise}
-      <div>...waiting for OpenAir link</div>
+      <div>...waiting for OpenAIRE link</div>
       {:then openairLink}
         <div>
-          <a href={openairLink} target="_blank">Link to OpenAir metadata &#128279;</a>
+          <a href={openairLink} target="_blank">Link to OpenAIRE metadata &#128279;</a>
         </div>
       {:catch error}
         <div style="color: red">{error.message}</div>
