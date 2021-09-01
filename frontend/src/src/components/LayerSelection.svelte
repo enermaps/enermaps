@@ -132,7 +132,6 @@ label {
   {#each selectionLayers as selectionLayer}
   <label title={selectionLayer.name}>
     <input type=radio bind:group={$activeSelectionLayerStore} value={selectionLayer}>
-    <!-- {splitName(selectionLayer.name)} -->
     {selectionLayer.name}
   </label>
   {/each}
