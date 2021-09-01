@@ -2,7 +2,7 @@ FROM ubuntu:20.04
 # SET TZ for GDAL
 ENV TZ=Europe/Zurich
 RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
-
+RUN chmod 1777 /tmp # needed since July 2021 to be run on an Ubuntu 20.04.3 LTS server
 RUN apt-get update &&\
     apt-get --yes install python3 python3-pip git \
     postgresql-client \
