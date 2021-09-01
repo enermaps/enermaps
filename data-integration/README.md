@@ -34,6 +34,9 @@ You can manually execute the available pipelines witn the following commands:
   - 17: EMHIRES: Solar power generation
     `docker-compose  -f ../docker-compose-db.yml run data-integration getEMHIRES.py --select_ds_ids 17`
 
+  - 18: get Energy Efficiency indicator from energydata repository
+    `docker-compose -f ../docker-compose-db.yml run data-integration getEnergydata.py`
+
   - 19: EDGAR CO₂ emissions
     `docker-compose -f ../docker-compose-db.yml run data-integration getEdgar.py`
 
