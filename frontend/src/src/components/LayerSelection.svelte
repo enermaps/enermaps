@@ -62,14 +62,15 @@
       }
     }
 
-    selectionLayers.sort(function(layer0, layer1) {
-      if (layer0.name < layer1.name) {
-        return -1;
-      }
-      if (layer0.name > layer1.name) {
-        return 1;
-      }
-      return 0;
+    selectionLayers.sort( function(layer0, layer1) {
+      const areaList = [
+         'Country',
+         'Region NUTS1',
+         'Region NUTS2',
+         'Region NUTS3',
+         'Cities'
+      ];
+      return areaList.indexOf(layer0.name) > areaList.indexOf(layer1.name);
     });
 
     const drawingLayer = getDrawingLayer();
