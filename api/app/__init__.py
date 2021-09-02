@@ -2,8 +2,8 @@
 This contains the initial creation of dataset in dev
 mode and the initialisation of the applicaton.
 """
-import os
 import logging
+import os
 
 from flask import Blueprint, Flask
 from flask_restx import Api
