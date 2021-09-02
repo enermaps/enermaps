@@ -22,7 +22,8 @@ def create_app(environment="production", testing=False, on_startup=False):
     # start by configuring the logger
     logging.basicConfig(
         level=logging.INFO,
-        format='%(asctime)s %(levelname)s %(name)s %(threadName)s : %(message)s')
+        format="%(asctime)s %(levelname)s %(name)s %(threadName)s : %(message)s",
+    )
 
     # ok, we can now create our app
     app = Flask(__name__)

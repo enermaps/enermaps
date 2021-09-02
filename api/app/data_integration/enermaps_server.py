@@ -48,7 +48,7 @@ def get_dataset(dataset_id):
 
     if (params is not None) and (layer_type == "vector"):
         try:
-            headers={"Authorization": "Bearer {}".format(DATASETS_SERVER_API_KEY)}
+            headers = {"Authorization": "Bearer {}".format(DATASETS_SERVER_API_KEY)}
             with requests.post(url, headers=headers, json=params) as resp:
                 # TODO check here that we have recieved a valid geojson?
                 geojson = resp.json()
@@ -77,7 +77,7 @@ def get_dataset(dataset_id):
         # on another server
         file_name = None
         try:
-            headers={"Authorization": "Bearer {}".format(DATASETS_SERVER_API_KEY)}
+            headers = {"Authorization": "Bearer {}".format(DATASETS_SERVER_API_KEY)}
             with requests.post(url, headers=headers, json=params) as resp:
                 resp_data = resp.json()
 

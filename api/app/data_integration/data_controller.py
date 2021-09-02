@@ -13,14 +13,18 @@ def init_enermaps_datasets():
     for dataset_name in nuts_and_lau_datasets:
         try:
             time_started = time.time()
-            current_app.logger.info(f'Get/update nuts/lau <{dataset_name}>...')
+            current_app.logger.info(f"Get/update nuts/lau <{dataset_name}>...")
             file_upload = enermaps_server.get_nuts_and_lau_dataset(dataset_name)
             time_fetched = time.time()
-            current_app.logger.info(f'... fetch done in {int(time_fetched - time_started)} seconds')
+            current_app.logger.info(
+                f"... fetch done in {int(time_fetched - time_started)} seconds"
+            )
             if file_upload is not None:
                 create(file_upload)
                 time_saved = time.time()
-                current_app.logger.info(f'... save done in {int(time_saved - time_fetched)} seconds.')
+                current_app.logger.info(
+                    f"... save done in {int(time_saved - time_fetched)} seconds."
+                )
         except Exception as e:
             current_app.logger.error("Error creating dataset {}".format(dataset_name))
             current_app.logger.error(e)
@@ -33,14 +37,18 @@ def init_enermaps_datasets():
     for dataset_id in datasets_ids:
         try:
             time_started = time.time()
-            current_app.logger.info(f'Get/update dataset <{dataset_id}>...')
+            current_app.logger.info(f"Get/update dataset <{dataset_id}>...")
             file_upload = enermaps_server.get_dataset(dataset_id)
             time_fetched = time.time()
-            current_app.logger.info(f'... fetch done in {int(time_fetched - time_started)} seconds')
+            current_app.logger.info(
+                f"... fetch done in {int(time_fetched - time_started)} seconds"
+            )
             if file_upload is not None:
                 create(file_upload)
                 time_saved = time.time()
-                current_app.logger.info(f'... save done in {int(time_saved - time_fetched)} seconds.')
+                current_app.logger.info(
+                    f"... save done in {int(time_saved - time_fetched)} seconds."
+                )
         except Exception as e:
             current_app.logger.error("Error creating dataset {}".format(dataset_id))
             current_app.logger.error(e)
