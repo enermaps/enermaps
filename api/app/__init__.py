@@ -3,6 +3,7 @@ This contains the initial creation of dataset in dev
 mode and the initialisation of the applicaton.
 """
 import os
+import logging
 
 from flask import Blueprint, Flask
 from flask_restx import Api
@@ -14,9 +15,16 @@ from app.healthz import healthz
 from app.redirect import redirect_to_api
 
 
-def create_app(environment="production", testing=False):
+def create_app(environment="production", testing=False, on_startup=False):
     """Create the application and set the configuration.
     By default, testing mode is set to False."""
+
+    # start by configuring the logger
+    logging.basicConfig(
+        level=logging.INFO,
+        format='%(asctime)s %(levelname)s %(name)s %(threadName)s : %(message)s')
+
+    # ok, we can now create our app
     app = Flask(__name__)
     app.config["TESTING"] = testing
     app.config["MAX_CONTENT_LENGTH"] = 16 * 1024 * 1024
@@ -47,6 +55,7 @@ def create_app(environment="production", testing=False):
     app.register_blueprint(healthz)
     app.teardown_appcontext(db.teardown_db)
     with app.app_context():
-        if not app.testing:
+        if on_startup:
+            # we want to initalize enermaps datasets only at startup
             data_controller.init_enermaps_datasets()
     return app

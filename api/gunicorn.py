@@ -5,6 +5,8 @@ for an example.
 """
 import multiprocessing
 import sys
+import logging
+import datetime
 
 from app import create_app
 
@@ -18,8 +20,14 @@ def on_starting(_):
     run upon app creation, so we just create a dummy application to trigger
     those hooks
     """
-    print("Running the startup hook ", flush=True)
-    create_app()
-    print("startup hook finished")
+
+    # the logging system will be confirgured at app creation,
+    # so, don't use it before
+    print(f"{datetime.datetime.now()}: Running the startup hook ", flush=True)
+
+    # initialize the local cache of the datasets
+    create_app(on_startup=True)
+
+    logging.info("startup hook finished")
     #  Explicitely flush so that we have the init logs
     sys.stdout.flush()
