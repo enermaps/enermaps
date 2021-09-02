@@ -23,11 +23,8 @@ def get_nuts_and_lau_dataset(dataset_name):
         "row_limit": 100000,
     }
     try:
-        with requests.post(
-            url,
-            headers={"Authorization": "Bearer {}".format(DATASETS_SERVER_API_KEY)},
-            json=params,
-        ) as resp:
+        headers = {"Authorization": "Bearer {}".format(DATASETS_SERVER_API_KEY)}
+        with requests.post(url, headers=headers, json=params) as resp:
             # TODO check here that we have recieved a valid geojson?
             resp_data = io.BytesIO(resp.content)
 
@@ -50,13 +47,9 @@ def get_dataset(dataset_id):
     dataset_title = data_endpoints.get_ds_title(dataset_id)
 
     if (params is not None) and (layer_type == "vector"):
-        print("Fetching json dataset " + str(dataset_id))
         try:
-            with requests.post(
-                url,
-                headers={"Authorization": "Bearer {}".format(DATASETS_SERVER_API_KEY)},
-                json=params,
-            ) as resp:
+            headers = {"Authorization": "Bearer {}".format(DATASETS_SERVER_API_KEY)}
+            with requests.post(url, headers=headers, json=params) as resp:
                 # TODO check here that we have recieved a valid geojson?
                 geojson = resp.json()
                 for i in range(len(geojson["features"])):
@@ -80,16 +73,12 @@ def get_dataset(dataset_id):
             raise
 
     if (params is not None) and (layer_type == "raster"):
-        print("Fetching raster dataset " + str(dataset_id))
         # We need to get the dataset info from the db before downloading the files
         # on another server
         file_name = None
         try:
-            with requests.post(
-                url,
-                headers={"Authorization": "Bearer {}".format(DATASETS_SERVER_API_KEY)},
-                json=params,
-            ) as resp:
+            headers = {"Authorization": "Bearer {}".format(DATASETS_SERVER_API_KEY)}
+            with requests.post(url, headers=headers, json=params) as resp:
                 resp_data = resp.json()
 
                 # If there is multiple images to download, download only the 1st one
