@@ -37,6 +37,8 @@ UNIT = None
 ISRASTER = False
 DT = 8760
 
+TRANSL = {"Czech Republic": "Czechia"}
+
 DB_URL = utilities.DB_URL
 
 
@@ -87,6 +89,7 @@ def prepare(dp: frictionless.package.Package, name: str):
     data = read_datapackage(dp)
 
     # Encoding FID as country code
+    data[SPATIAL_VARS] = data[SPATIAL_VARS].replace(TRANSL)
     data["fid"] = utilities.full_country_to_code(data[SPATIAL_VARS], DB_URL)
 
     # Other fields to json
