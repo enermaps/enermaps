@@ -255,8 +255,8 @@ DATASETS_DIC = {
             "legend_variable": {
                 "variable": "10m_u_component_of_wind",
                 "units": "m s**-1",
-                "min": -15424,
-                "max": 26125,
+                "min": -14.06,
+                "max": 22.31,
             },
         },
         "title": "Copernicus: hourly global climate and weather data",
@@ -387,8 +387,8 @@ DATASETS_DIC = {
             "legend_variable": {
                 "variable": "relative_humidity",
                 "units": "%",
-                "min": -27093,
-                "max": 5119,
+                "min": 11,
+                "max": 113,
             },
         },
         "title": "Copernicus: hourly data on pressure levels",
