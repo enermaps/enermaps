@@ -139,17 +139,38 @@ def prepareRaster(
                             source_crs.to_epsg(), crs.to_epsg()
                         )
                     )
-                    intermediate_filename = dest_filename + ".tif"  # from previous step
+                    translated = dest_filename + ".tif"  # from previous step
+                    warped = dest_filename + "_warped.tif"
                     dest_filename += "_{}".format(crs.to_epsg())
                     os.system(  # nosec
-                        "gdalwarp {intermediate_filename} {dest_filename}.tif -of GTIFF -s_srs {sourceSRS} -t_srs {outputSRS} --config GDAL_PAM_ENABLED NO -co COMPRESS=DEFLATE -co BIGTIFF=YES".format(
-                            intermediate_filename=intermediate_filename,
-                            dest_filename=dest_filename,
+                        "gdalwarp {source} {dest} -of GTIFF -s_srs {sourceSRS} -t_srs {outputSRS} --config GDAL_PAM_ENABLED NO -co COMPRESS=DEFLATE -co BIGTIFF=YES".format(
+                            source=translated,
+                            dest=warped,
                             outputSRS=crs.to_string(),
                             sourceSRS=source_crs.to_string(),
                         )
                     )
-                    os.remove(intermediate_filename)
+                    # Get metadata for checking offset and scale parameters
+                    metadata = json.loads(
+                        os.popen("gdalinfo {} -json".format(filename)).read()  # nosec
+                    )
+                    metadata = metadata["bands"][b]
+                    if all(k in metadata for k in ("offset", "scale")):
+                        # Offset and scale are not handled by gdalwarp https://gis.stackexchange.com/a/229954
+                        offset, scale = metadata["offset"], metadata["scale"]
+                        os.system(  # nosec
+                            "{python_dir}/gdal_calc.py -A {source} --outfile={dest}.tif --type='Float32' --calc=\"A*{scale}+{offset}\"".format(
+                                python_dir=os.path.dirname(sys.executable),
+                                source=warped,
+                                dest=dest_filename,
+                                offset=offset,
+                                scale=scale,
+                            )
+                        )
+                        os.remove(translated)
+                        os.remove(warped)
+                    else:
+                        os.rename(warped, dest_filename + ".tif")
 
                 dest_filename += ".tif"
                 logging.info(dest_filename)
