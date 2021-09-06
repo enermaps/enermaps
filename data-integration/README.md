@@ -25,6 +25,9 @@ You can manually execute the available pipelines witn the following commands:
   - 8: GISCO Population
     `docker-compose -f ../docker-compose-db.yml run data-integration getPopulation.py`
 
+  - 11: SETIS
+    `docker-compose -f ../docker-compose-db.yml run data-integration getSETIS.py`
+
   - 15: ERA5 reanalysis-era5-single-levels
     `docker-compose  -f ../docker-compose-db.yml run data-integration getERA5.py --select_ds_ids 15`
 
