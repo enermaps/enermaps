@@ -43,9 +43,9 @@ def processing(region: dict, raster: str, parameters: dict):
             areas_potential,
         ) = get_areas(
             heat_density_map=clipped_raster,
-            pixel_threshold=parameters["pixel_threshold"],
+            pixel_threshold=parameters["Heat demand in hectare (MWh/ha)"],
             district_heating_zone_threshold=parameters[
-                "district_heating_zone_threshold"
+                "Heat demand in a DH zone (GWh/year)"
             ],
         )
 

@@ -2,14 +2,14 @@
   "$schema": "http://json-schema.org/draft-03/schema#",
   "type": "object",
   "properties": {
-    "pixel_threshold": {
+    "Heat demand in hectare (MWh/ha)": {
       "type": "number",
       "default": 333,
       "minimum": 0,
       "maximum": 500,
-      "description": "Minimum heat demand in each hectare(MWh/ha)."
+      "description": "Minimum heat demand in each hectare (MWh/ha)."
     },
-    "district_heating_zone_threshold": {
+    "Heat demand in a DH zone (GWh/year)": {
       "type": "number",
       "default": 30,
       "minimum": 0,
