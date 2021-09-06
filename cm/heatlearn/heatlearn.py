@@ -156,7 +156,7 @@ def getHDD(polygon, year=2020):
             raise ValueError("In this area Heating Degree Days are not available.")
 
 
-def heatlearn(geojson, raster_paths, tile_size=500, year=2020):
+def heatlearn(geojson, raster_paths, tile_size=500, year=2020, to_colorize=False):
     """Get heating demand from HeatLearn Model."""
     if tile_size not in MODELS.keys():
         raise ValueError(
@@ -257,8 +257,15 @@ def heatlearn(geojson, raster_paths, tile_size=500, year=2020):
                 # Make sure that the Rasterio clipping is successful
                 if 256 in np.unique(out_img):  # no 256-encoded pixels at borders
                     raise ValueError("Clipping was not succesful.")
-                if matrix.shape != (tile_size / 2.5, tile_size / 2.5):  # exact size
-                    raise ValueError("Clipping was not succesful.")
+
+                # Make sure each tile has the correct number of pixels
+                if matrix.shape != (tile_size // 2.5, tile_size // 2.5):  # exact size
+                    padded_array = np.zeros(
+                        (int(tile_size // 2.5), int(tile_size // 2.5))
+                    )
+                    padded_array[: matrix.shape[0], : matrix.shape[1]] = matrix
+                    matrix = padded_array
+                    tiles.loc[t, "suitable"] = False
                 X[t, :, :, 0] = matrix
 
     # Filter tiles
@@ -289,19 +296,22 @@ def heatlearn(geojson, raster_paths, tile_size=500, year=2020):
     )
     cube["preds"].rio.to_raster("tmp/tmp.tif")
 
-    # Colorize
-    subprocess.run(  # nosec
-        [
-            "gdaldem",
-            "color-relief",
-            "-alpha",
-            "tmp/tmp.tif",
-            "colors.txt",
-            "tmp/tmp_rgb.tif",
-        ],
-    )
+    if to_colorize:
+        subprocess.run(  # nosec
+            [
+                "gdaldem",
+                "color-relief",
+                "-alpha",
+                "tmp/tmp.tif",
+                "colors.txt",
+                "tmp/tmp_rgb.tif",
+            ],
+        )
+        out_file = "tmp/tmp_rgb.tif"
+    else:
+        out_file = "tmp/tmp.tif"
 
-    with open("tmp/tmp_rgb.tif", "rb") as f:
+    with open(out_file, "rb") as f:
         files = {"file": ("out.tif", f, "image/tiff")}
         session = requests.Session()
         if not wait_for_reachability(session, "http://api"):
