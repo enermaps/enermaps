@@ -7,7 +7,10 @@ from app.models.geofile import create
 
 
 def init_enermaps_datasets():
-
+    """
+    Downloads NUTS/LAU datasets and a default layer for each datasets
+    whose parameters are stored in the configuration file.
+    """
     # Get NUTS and LAU datasets
     nuts_and_lau_datasets = ["country", "NUTS1", "NUTS2", "NUTS3", "LAU"]
     for dataset_name in nuts_and_lau_datasets:
@@ -29,11 +32,10 @@ def init_enermaps_datasets():
             current_app.logger.error("Error creating dataset {}".format(dataset_name))
             current_app.logger.error(e)
 
-    # Get the ids of the datasets that we want to load
+    # Get the ids of the datasets that we want to load from the configuration file
     datasets_ids = data_endpoints.get_ds_ids()
     # To download only a subset of the datasets (!datasets ids must be in the config file!)
     # datasets_ids = [1,2,3,4,5,6]
-    # Check that the datasets that we want to load are in the enermaps DB
     for dataset_id in datasets_ids:
         try:
             time_started = time.time()

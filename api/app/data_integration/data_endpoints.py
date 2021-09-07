@@ -4,16 +4,15 @@ import seaborn as sns
 
 from app.data_integration.data_config import DATASETS_DIC
 
-# from data_config import DATASETS_DIC
-
-
-def get_sns_color(palette, nb_of_colors):
-    color_list = sns.color_palette(palette, nb_of_colors)
-    rgb_list = [
-        ((int(255 * color[0])), (int(255 * color[1])), (int(255 * color[2])))
-        for color in color_list
-    ]
-    return rgb_list
+# def get_sns_color(palette, nb_of_colors):
+#     # Get a list of colors using Seaborn
+#     color_list = sns.color_palette(palette, nb_of_colors)
+#     # This conversion is needed by Mapnik
+#     rgb_list = [
+#         ((int(255 * color[0])), (int(255 * color[1])), (int(255 * color[2])))
+#         for color in color_list
+#     ]
+#     return rgb_list
 
 
 def get_ds(dataset_id):
@@ -26,7 +25,10 @@ def get_ds(dataset_id):
         return {}
 
 
+# TODO delete this function and the json parameters
 def get_json_params(dataset_id):
+    """
+    """
     dataset_params = get_ds(dataset_id)
     return dataset_params.get("json_params", None)
 
@@ -47,7 +49,7 @@ def get_ds_ids():
 # api/datasets/{ds_id}/name
 def get_ds_title(dataset_id):
     """
-    Return the displayable name of the dataset or undefined if the
+    Return the displayable name of the dataset or "undefined" if the
     dataset has no human readable name.
     """
     dataset_params = get_ds(dataset_id)
@@ -59,7 +61,9 @@ def get_ds_title(dataset_id):
 
 # api/datasets/{ds_id}/type
 def get_ds_type(dataset_id):
-    """Vector or raster"""
+    """Get the dataset type (vector or raster) and the dataset
+    data type (numerical, categorical), or "undefined" if the configuration
+    file does not contain this information"""
     dataset_params = get_ds(dataset_id)
     layer_type = dataset_params.get("layer_type", None)
     data_type = dataset_params.get("data_type", None)
@@ -71,7 +75,7 @@ def get_ds_type(dataset_id):
 # api/datasets/{ds_id}/layers/{l_id}/legend_variables/{variable}
 def get_legend_variable(dataset_id):
     """
-    Return the variable used to color the layer, its units and its min/max values, or
+    Return the layer variable used to color the layer, its units and its min/max values, or
     an empty dict if the legend or the variable used to color the map are not specified.
     """
     dataset_params = get_ds(dataset_id)
@@ -90,15 +94,14 @@ def get_legend_variable(dataset_id):
 def get_openair_link(dataset_id):
     """Return the address of the dataset on the OpenAir website, or a default link if it is not
     specified"""
-    default_link = (
-        "https://beta.enermaps.openaire.eu/search/publication?pid=10.3390%2Fen12244789"
-    )
+    default_link = "https://beta.openaire.eu/"
 
     dataset_params = get_ds(dataset_id)
     link = dataset_params.get("shared_id", None)
     if link is None or not link:
         return default_link
 
+    # Construct the OpenAIRE dataset address
     shared_id_hash = hashlib.md5(link.encode())  # nosec
     link = "https://beta.enermaps.openaire.eu/search/dataset?datasetId=enermaps____::{}".format(
         shared_id_hash.hexdigest()
@@ -114,11 +117,14 @@ def get_legend_style(dataset_id):
     (color, min_threshold, max_threshold)"""
 
     dataset_params = get_ds(dataset_id)
+    # Get the legend information needed to create the legend
     legend = dataset_params.get("legend", {})
     style = legend.get("style", {})
 
+    # Get a color list using Seaborn
     def get_sns_color(palette, nb_of_colors):
         color_list = sns.color_palette(palette, nb_of_colors)
+        # This conversion is needed by Mapnik
         rgb_list = [
             ((int(255 * color[0])), (int(255 * color[1])), (int(255 * color[2])))
             for color in color_list
@@ -126,6 +132,9 @@ def get_legend_style(dataset_id):
         return rgb_list
 
     layer_type, data_type = get_ds_type(dataset_id)
+
+    # If the layer contains categorical data, return a list
+    # of color code with its associated color and legend
     if data_type == "categorical":
         classes = style.get("classes", None)
         classes_list = []
@@ -162,6 +171,8 @@ def get_legend_style(dataset_id):
             for color in color_list
         ]
 
+    # If the layer data type is not categorical, return a list of color associated
+    # with the min and max values of the interval that is colorized with this color
     layer_style = []
     variable = get_legend_variable(dataset_id)
     min_value = variable.get("min", None)
@@ -180,6 +191,9 @@ def get_legend_style(dataset_id):
 
 
 def get_legend(dataset_id):
+    """
+    Return the layer variable used to colorize the layer and the legend style.
+    """
     variable = get_legend_variable(dataset_id)
     style = get_legend_style(dataset_id)
     return {"variable": variable, "style": style}
