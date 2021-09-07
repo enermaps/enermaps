@@ -10,6 +10,9 @@ You can manually execute the available pipelines witn the following commands:
   - 0: Admin units (LAU NUTS)
     `docker-compose -f ../docker-compose-db.yml run data-integration admin_units.py`
 
+  - 1: PVGIS raster files
+    `docker-compose -f ../docker-compose-db.yml run data-integration getPVGIS.py`
+
   - 2: JRC Geothermal power plants
     `docker-compose -f ../docker-compose-db.yml run data-integration getJRC_GEOPP_DB_csv.py`
 
@@ -44,7 +47,7 @@ You can manually execute the available pipelines witn the following commands:
     `docker-compose -f ../docker-compose-db.yml run data-integration getEdgar.py`
 
   - 20: ERA5 reanalysis-era5-pressure-levels
-    `docker-compose run data-integration  -f ../docker-compose-db.yml getERA5.py --select_ds_ids 20`
+    `docker-compose -f ../docker-compose-db.yml run data-integration getERA5.py --select_ds_ids 20`
 
   - 21: EU-DEM
     Note that the files must be manually downloaded by Copernicus website (requires log-in).
