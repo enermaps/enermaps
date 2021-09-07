@@ -4,16 +4,6 @@ import seaborn as sns
 
 from app.data_integration.data_config import DATASETS_DIC
 
-# def get_sns_color(palette, nb_of_colors):
-#     # Get a list of colors using Seaborn
-#     color_list = sns.color_palette(palette, nb_of_colors)
-#     # This conversion is needed by Mapnik
-#     rgb_list = [
-#         ((int(255 * color[0])), (int(255 * color[1])), (int(255 * color[2])))
-#         for color in color_list
-#     ]
-#     return rgb_list
-
 
 def get_ds(dataset_id):
     """Return the dataset default parameters as a dict or an
