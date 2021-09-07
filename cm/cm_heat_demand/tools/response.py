@@ -38,15 +38,12 @@ def get_response(
         base_dictionary["graphs"] = dict()
 
         # Areas potential
-        if areas_potential[1:].size > 0:
-            print("areas_potential")
-            print(areas_potential[1:])
+        if areas_potential.size > 0:
             base_dictionary["graphs"]["Areas potentials (GWh)"] = dict()
             base_dictionary["graphs"]["Areas potentials (GWh)"]["type"] = "bar"
 
-            # labels start from 1, therefore the array size is 'num_labels_array + 1'
-            generator = [element for element in areas_potential[1:] if element > 0]
-
+            generator = [element for element in areas_potential if element > 0]
+            generator.sort(reverse=True)
             values = [
                 ("Zone " + str(index + 1), value)
                 for index, value in enumerate(generator)
