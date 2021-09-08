@@ -8,7 +8,6 @@ import os
 from flask import Blueprint, Flask
 from flask_restx import Api
 
-from app.common import db
 from app.data_integration import data_controller
 from app.endpoints import calculation_module, geofile, wms
 from app.healthz import healthz
@@ -38,12 +37,6 @@ def create_app(environment="production", testing=False, on_startup=False):
     app.config["WMS"]["GETMAP"] = {}
     app.config["WMS"]["GETMAP"]["ALLOWED_OUTPUTS"] = ["image/png", "image/jpg"]
 
-    app.config["DB_PASSWORD"] = ""
-    app.config["DB_HOST"] = ""
-    app.config["DB_DB"] = ""
-    app.config["DB_USER"] = ""
-    app.config["DB_PORT"] = 0
-
     for k, v in app.config.items():
         app.config[k] = os.environ.get(k, v)
     api_bp = Blueprint("api", "api", url_prefix="/api")
@@ -54,7 +47,6 @@ def create_app(environment="production", testing=False, on_startup=False):
     app.register_blueprint(api_bp)
     app.register_blueprint(redirect_to_api)
     app.register_blueprint(healthz)
-    app.teardown_appcontext(db.teardown_db)
     with app.app_context():
         if on_startup:
             # we want to initalize enermaps datasets only at startup

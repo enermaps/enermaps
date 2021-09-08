@@ -14,6 +14,10 @@ RASTER_SERVER_URL = "https://lab.idiap.ch/enermaps/raster/"
 
 
 def get_nuts_and_lau_dataset(dataset_name):
+    """
+    Download NUTS and LAU geojson files from the enermaps server.
+    Possible datasets names are: country, NUTS1, NUTS2, NUTS3, LAU
+    """
     url = DATASETS_SERVER_URL + "rpc/enermaps_query_geojson"
     params = {
         "parameters": {
@@ -38,14 +42,18 @@ def get_nuts_and_lau_dataset(dataset_name):
 
 def get_dataset(dataset_id):
     """
-    Fetch a geojson dataset from the enermaps server with a given Id.
+    Fetch a geofile (geojson or raster) dataset layer from the enermaps server
+    with a given Id.
     """
     url = DATASETS_SERVER_URL + "rpc/enermaps_query_geojson"
 
+    # All the parameters needed to fetch (one layer of) the dataset are obtained
+    # from the configuration file
     params = data_endpoints.get_json_params(dataset_id)
     layer_type, _ = data_endpoints.get_ds_type(dataset_id)
     dataset_title = data_endpoints.get_ds_title(dataset_id)
 
+    # If the layer is a vector layer, it is converted into a FileStorage instance
     if (params is not None) and (layer_type == "vector"):
         try:
             headers = {"Authorization": "Bearer {}".format(DATASETS_SERVER_API_KEY)}
@@ -72,6 +80,10 @@ def get_dataset(dataset_id):
         except ConnectionError:
             raise
 
+    # If the layer is a raster file, we need to read the name of the raster file wich is
+    # contained in the geojson, reconstruct the address of the raster file and download
+    # the raster at this address.
+    # Finally, we create a FileStorage instance.
     if (params is not None) and (layer_type == "raster"):
         # We need to get the dataset info from the db before downloading the files
         # on another server

@@ -70,7 +70,9 @@
         'Region NUTS3',
         'Cities',
       ];
-      return areaList.indexOf(layer0.name) > areaList.indexOf(layer1.name);
+      const a = areaList.indexOf(layer0.name);
+      const b = areaList.indexOf(layer1.name);
+      return a - b;
     });
 
     const drawingLayer = getDrawingLayer();
