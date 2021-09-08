@@ -17,8 +17,7 @@ def get_ds(dataset_id):
 
 # TODO delete this function and the json parameters
 def get_json_params(dataset_id):
-    """
-    """
+    """ """
     dataset_params = get_ds(dataset_id)
     return dataset_params.get("json_params", None)
 
