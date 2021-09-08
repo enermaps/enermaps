@@ -32,7 +32,9 @@ current_file_dir = os.path.dirname(os.path.abspath(__file__))
 
 
 def make_line_style():
-    # add the black polygons contours
+    """
+    Add a black line style for contours of polygon layers
+    """
     mapnik_style = mapnik.Style()
     rule = mapnik.Rule()
     line_symbolizer = mapnik.LineSymbolizer()
@@ -40,21 +42,26 @@ def make_line_style():
     line_symbolizer.stroke_width = 1.0
     rule.symbols.append(line_symbolizer)
     mapnik_style.rules.append(rule)
-    style_name = "line_style"
-    return mapnik_style, style_name
+    return mapnik_style, "line_style"
 
 
 def make_point_style():
+    """
+    Make a style for vector points
+    """
     mapnik_style = mapnik.Style()
     rule = mapnik.Rule()
     pt_symbolizer = mapnik.PointSymbolizer()
     rule.symbols.append(pt_symbolizer)
     mapnik_style.rules.append(rule)
-    style_name = "point_style"
-    return mapnik_style, style_name
+    return mapnik_style, "point_style"
 
 
 def make_numerical_raster_style(layer_style):
+    """
+    Make a style for colorizing numerical rasters.
+    Return the style and the style name.
+    """
     mapnik_style = mapnik.Style()
     rule = mapnik.Rule()
     raster_symb = mapnik.RasterSymbolizer()
@@ -62,6 +69,7 @@ def make_numerical_raster_style(layer_style):
         mapnik.COLORIZER_LINEAR, mapnik.Color("transparent")
     )
 
+    # Add a "stop value" and the associated color for each color of the layer
     for n, (color, min_threshold, max_threshold) in enumerate(layer_style):
         raster_colorizer.add_stop(
             max_threshold, mapnik.COLORIZER_LINEAR, mapnik.Color(*color)
@@ -70,11 +78,13 @@ def make_numerical_raster_style(layer_style):
     raster_symb.colorizer = raster_colorizer
     rule.symbols.append(raster_symb)
     mapnik_style.rules.append(rule)
-    style_name = "num_raster_style"
-    return mapnik_style, style_name
+    return mapnik_style, "num_raster_style"
 
 
 def make_categorical_raster_style(layer_style):
+    """
+    Make a style for categorical rasters.
+    """
     mapnik_style = mapnik.Style()
     rule = mapnik.Rule()
 
@@ -88,11 +98,13 @@ def make_categorical_raster_style(layer_style):
 
     rule.symbols.append(raster_symb)
     mapnik_style.rules.append(rule)
-    style_name = "categorical_raster_style"
-    return mapnik_style, style_name
+    return mapnik_style, "categorical_raster_style"
 
 
 def make_numerical_polygon_style(layer_style):
+    """
+    Make a style for vector polygons
+    """
     mapnik_style = mapnik.Style()
     nb_of_colors = len(layer_style)
     for n, (color, min_threshold, max_threshold) in enumerate(layer_style):
@@ -111,9 +123,7 @@ def make_numerical_polygon_style(layer_style):
         rule.filter = mapnik.Expression(expression)
         rule.symbols.append(polygon_symb)
         mapnik_style.rules.append(rule)
-
-    style_name = "vector_polygon_style"
-    return mapnik_style, style_name
+    return mapnik_style, "vector_polygon_style"
 
 
 def parse_envelope(params):
@@ -390,7 +400,10 @@ class WMS(Resource):
                         mp.append_style(style_name, mapnik_style)
                     else:
                         print("Unknown data type", flush=True)
+            # If the layer has no index, it is not a layer contained in the database
             else:
+                # Make a default numerical raster layer style (the layer should be a
+                # raster layer produced by a CM)
                 legend_style = []
                 min_value = 0
                 max_value = 255
