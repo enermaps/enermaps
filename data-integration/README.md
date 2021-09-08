@@ -91,6 +91,9 @@ You can manually execute the available pipelines witn the following commands:
   - 45: HotMaps: Heated gross floor area density
     `docker-compose -f ../docker-compose-db.yml run data-integration getHotMaps_raster.py --select_ds_ids 45`
 
+  - 45: OECD: Greenhouse gas emissions
+    `docker-compose -f ../docker-compose-db.yml run data-integration getOECD.py`
+
   - 47: EUROSTAT Electricity prices for household consumers
     `docker-compose -f ../docker-compose-db.yml run data-integration getEurostat.py --select_ds_ids 47`
 
