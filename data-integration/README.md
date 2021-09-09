@@ -31,6 +31,9 @@ You can manually execute the available pipelines witn the following commands:
   - 11: SETIS
     `docker-compose -f ../docker-compose-db.yml run data-integration getSETIS.py`
 
+  - 14: Climate Extreme Indices,
+    `docker-compose  -f ../docker-compose-db.yml run data-integration getPANGAEA.py`
+
   - 15: ERA5 reanalysis-era5-single-levels
     `docker-compose  -f ../docker-compose-db.yml run data-integration getERA5.py --select_ds_ids 15`
 
