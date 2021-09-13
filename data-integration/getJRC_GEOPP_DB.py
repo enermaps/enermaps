@@ -32,36 +32,6 @@ ISRASTER = False
 DB_URL = utilities.DB_URL
 
 
-def isValid(dp: frictionless.package.Package, new_dp: frictionless.package.Package):
-    """
-
-    Check whether the new DataPackage is valid and make sure the schema has not changed.
-
-    Parameters
-    ----------
-    dp : frictionless.package.Package
-        Original datapackage
-    new_dp : frictionless.package.Package
-        Datapackage describing the new loaded data
-
-    Returns
-    -------
-    Boolean
-
-    """
-    val = frictionless.validate(new_dp)
-    if (
-        val["valid"]
-        and dp["resources"][0]["schema"] == new_dp["resources"][0]["schema"]
-    ):
-        logging.info("Returning valid and schema-compliant data")
-        return True
-    else:
-        logging.error("Data is not valid or the schema has changed")
-        print(val)
-        return False
-
-
 def prepare(dp: frictionless.package.Package, name: str):
     """
 
@@ -178,18 +148,18 @@ def get(url: str, dp: frictionless.package.Package, force: bool = False):
             isChangedStats or isChangedDate
         ):  # Data integration will continue, regardless of force argument
             logging.info("Data has changed")
-            if isValid(dp, new_dp):
+            if utilities.isDPvalid(dp, new_dp):
                 enermaps_data, spatial = prepare(new_dp, name)
         elif force:  # Data integration will continue, even if data has not changed
             logging.info("Forced update")
-            if isValid(dp, new_dp):
+            if utilities.isDPvalid(dp, new_dp):
                 enermaps_data, spatial = prepare(new_dp, name)
         else:  # Data integration will stop here, returning Nones
             logging.info("Data has not changed. Use --force if you want to reupload.")
             return None, None, None
     else:  # New dataset
         dp = new_dp  # this is just for the sake of the schema control
-        if isValid(dp, new_dp):
+        if utilities.isDPvalid(dp, new_dp):
             enermaps_data, spatial = prepare(new_dp, name)
 
     return enermaps_data, spatial, new_dp
