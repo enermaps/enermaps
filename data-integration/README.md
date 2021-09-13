@@ -34,6 +34,9 @@ You can manually execute the available pipelines witn the following commands:
   - 8: GISCO Population
     `docker-compose -f ../docker-compose-db.yml run data-integration getPopulation.py`
 
+  - 9: EUROSTAT Degree Days
+    `docker-compose -f ../docker-compose-db.yml run data-integration getEurostat.py --select_ds_ids 9`
+
   - 11: SETIS
     `docker-compose -f ../docker-compose-db.yml run data-integration getSETIS.py`
 
@@ -66,8 +69,14 @@ You can manually execute the available pipelines witn the following commands:
   - 22: EUROSTAT Energy efficiency indicator
     `docker-compose -f ../docker-compose-db.yml run data-integration getEurostat.py --select_ds_ids 22`
 
+  - 23: JRC Projected fresh water use from the European energy sector
+    `docker-compose -f ../docker-compose-db.yml run data-integration getWater.py`
+
   - 24: Solar Atlas
     `docker-compose -f ../docker-compose-db.yml run data-integration getSolarAtlas.py`
+
+  - 25: HotMaps wind potential
+    `docker-compose -f ../docker-compose-db.yml run data-integration getHotMaps_raster.py --select_ds_ids 25`
 
   - 27: S2BIOM
     `docker-compose -f ../docker-compose-db.yml run data-integration getS2BIOM.py`
@@ -103,11 +112,14 @@ You can manually execute the available pipelines witn the following commands:
   - 45: HotMaps: Heated gross floor area density
     `docker-compose -f ../docker-compose-db.yml run data-integration getHotMaps_raster.py --select_ds_ids 45`
 
-  - 45: OECD: Greenhouse gas emissions
+  - 46: OECD: Greenhouse gas emissions
     `docker-compose -f ../docker-compose-db.yml run data-integration getOECD.py`
 
   - 47: EUROSTAT Electricity prices for household consumers
     `docker-compose -f ../docker-compose-db.yml run data-integration getEurostat.py --select_ds_ids 47`
+
+  - 48: EUROSTAT Expenditure per household on energy
+    `docker-compose -f ../docker-compose-db.yml run data-integration getEurostat.py --select_ds_ids 48`
 
   - 49: EUROSTAT Energy dependence
     `docker-compose -f ../docker-compose-db.yml run data-integration getEurostat.py --select_ds_ids 49`
