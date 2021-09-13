@@ -154,7 +154,7 @@ def prepareRaster(
                     metadata = json.loads(
                         os.popen("gdalinfo {} -json".format(filename)).read()  # nosec
                     )
-                    metadata = metadata["bands"][b-1]
+                    metadata = metadata["bands"][b - 1]
                     if all(k in metadata for k in ("offset", "scale")):
                         # Offset and scale are not handled by gdalwarp https://gis.stackexchange.com/a/229954
                         offset, scale = metadata["offset"], metadata["scale"]
@@ -535,11 +535,11 @@ def get_query_metadata(
     default_parameters : dict
         Default parameter values to be used in the query.
     """
-
     logging.info("Creating query metadata")
 
     # Set parameter values (unique values)
     parameters = custom_parameters
+    data.loc[data["fields"].isnull(), "fields"] = "{}"
     fields = data["fields"].apply(lambda x: json.loads(x))
     fields_df = pd.json_normalize(fields)
     # Restrict parameters to only some fields
