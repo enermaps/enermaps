@@ -154,7 +154,7 @@ def prepareRaster(
                     metadata = json.loads(
                         os.popen("gdalinfo {} -json".format(filename)).read()  # nosec
                     )
-                    metadata = metadata["bands"][b]
+                    metadata = metadata["bands"][b-1]
                     if all(k in metadata for k in ("offset", "scale")):
                         # Offset and scale are not handled by gdalwarp https://gis.stackexchange.com/a/229954
                         offset, scale = metadata["offset"], metadata["scale"]
