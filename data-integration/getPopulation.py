@@ -163,9 +163,7 @@ if __name__ == "__main__":
         datasets["di_script"] == os.path.basename(sys.argv[0]), "di_URL"
     ].values[0]
     name = urllib.parse.quote_plus(
-        datasets.loc[
-            datasets["di_script"] == script_name, "Title (with Hyperlink)"
-        ].values[0]
+        datasets.loc[datasets["di_script"] == script_name, "Title"].values[0]
     )
     for ds_id in ds_ids:
         dp = utilities.getDataPackage(ds_id, DB_URL)

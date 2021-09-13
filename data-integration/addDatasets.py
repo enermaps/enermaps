@@ -44,7 +44,7 @@ EXCLUDED_FROM_JSON = ["shared_id", "isInEDMT"]
 
 
 if __name__ == "__main__":
-    datasets = pd.read_csv("datasets_full.csv", engine="python", index_col=[0])
+    datasets = pd.read_csv("datasets.csv", engine="python", index_col=[0])
     datasets.drop(["di_script", "di_URL"], inplace=True, axis=1)  # remove di columns
 
     # Format the date

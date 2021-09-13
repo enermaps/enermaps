@@ -191,7 +191,7 @@ GRANT EXECUTE ON FUNCTION enermaps_query_table(parameters text, row_limit int, r
 -- View to provide list of parameters to construct the queries
 CREATE OR REPLACE VIEW parameters AS
 SELECT ds_id::int as ds_id,
-        (metadata ->> 'Title (with Hyperlink)') as title,
+        (metadata ->> 'Title') as title,
         (metadata ->> 'variables')::jsonb as variables,
         TO_TIMESTAMP(metadata ->> 'start_at', 'YYYY-MM-DD HH24:MI')::timestamp without time zone as start_at,
         TO_TIMESTAMP(metadata ->> 'end_at', 'YYYY-MM-DD HH24:MI')::timestamp without time zone as end_at,
@@ -203,7 +203,7 @@ SELECT ds_id::int as ds_id,
         (metadata ->> 'levels')::jsonb as levels,
         (metadata ->> 'to_be_fixed')::bool as to_be_fixed
         FROM datasets
-        WHERE (metadata ->> 'Title (with Hyperlink)') <> ''
+        WHERE (metadata ->> 'Title') <> ''
         ORDER BY ds_id;
 GRANT SELECT ON public.parameters to api_anon;
 GRANT SELECT ON public.parameters to api_user;

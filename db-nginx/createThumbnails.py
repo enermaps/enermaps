@@ -11,7 +11,7 @@ import shutil
 
 import pandas as pd
 
-datasets = pd.read_csv("../data-integration/datasets_full.csv", index_col=0)
+datasets = pd.read_csv("../data-integration/datasets.csv", index_col=0)
 
 for i, ds in datasets.iterrows():
     pid = ds["shared_id"]

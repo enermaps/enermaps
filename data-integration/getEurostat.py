@@ -197,9 +197,7 @@ if __name__ == "__main__":
     script_name = os.path.basename(sys.argv[0])
     ds_ids, isForced = utilities.parser(script_name, datasets)
     for ds_id in ds_ids:
-        logging.info(
-            "{} - {}".format(ds_id, datasets.loc[ds_id, "Title (with Hyperlink)"])
-        )
+        logging.info("{} - {}".format(ds_id, datasets.loc[ds_id, "Title"]))
 
         if utilities.datasetExists(ds_id, DB_URL,):
             if isForced:
