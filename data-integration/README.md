@@ -19,6 +19,9 @@ You can manually execute the available pipelines witn the following commands:
   - 3: JRC hydropower
     `docker-compose -f ../docker-compose-db.yml run data-integration getJRC-hydro-power.py`
 
+  - 4: JRC PPDB
+    `docker-compose -f ../docker-compose-db.yml run data-integration getJRC-PPDB-OPEN.py`
+
   - 5: EEA: Share of gross final consumption of renewable energy sources
     `docker-compose -f ../docker-compose-db.yml run data-integration getEEA.py`
 
