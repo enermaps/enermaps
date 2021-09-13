@@ -16,6 +16,9 @@ You can manually execute the available pipelines witn the following commands:
   - 2: JRC Geothermal power plants
     `docker-compose -f ../docker-compose-db.yml run data-integration getJRC_GEOPP_DB_csv.py`
 
+  - 3: JRC hydropower
+    `docker-compose -f ../docker-compose-db.yml run data-integration getJRC-hydro-power.py`
+
   - 5: EEA: Share of gross final consumption of renewable energy sources
     `docker-compose -f ../docker-compose-db.yml run data-integration getEEA.py`
 
