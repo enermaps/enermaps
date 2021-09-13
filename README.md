@@ -111,17 +111,22 @@ rights (see https://github.community/t/git-bash-symbolic-links-on-windows/522), 
 be the same. When updating one setup.cfg, you will need to be carefull to update all of them.
 
 
-# Code structure with pre-commit, black, bandit, flake8, isort :
+# Code structure with pre-commit, black, bandit, flake8, isort, eslint
 
 Setup your work environment:
 
-```
+```bash
 # create a virtual environment
 virtualenv env --python=python3 # or python3 -m venv env
 # activate the virtual environment
 source env/bin/activate
 # install the requirements
 pip install -r requirements.txt
+# nodejs will be in the python env
+nodeenv --python-virtualenv
+# install npm packages
+npm install eslint-config-google
+npm install eslint-plugin-svelte3
 # install pre-commit
 pre-commit install
 ```
