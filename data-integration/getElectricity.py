@@ -20,24 +20,82 @@ import requests
 import utilities
 from jsonschema.exceptions import ValidationError
 
-SOURCES = [
-    "battery storage",
-    "biomass",
-    "coal",
-    "gas",
-    "geothermal",
-    "hydro",
-    "hydro storage",
-    "nuclear",
-    "oil",
-    "solar",
-    "unknown",
-    "wind",
-]
 OTHER_FIELDS = ["contributors", "delays", "comment"]
 UNITS = "MW"
 VARIABLE = "Electricity production capacity"
 ISRASTER = False
+
+SCHEMA = {
+    "$schema": "https://json-schema.org/draft/2019-09/schema",
+    "$id": "https://github.com/tmrowco/electricitymap-contrib/blob/master/config/zones.schema.json",
+    "title": "ElectricityMap Zones",
+    "type": "object",
+    "additionalProperties": {
+        "type": "object",
+        "additionalProperties": False,
+        "properties": {
+            "_todo": {"type": "string"},
+            "_comment": {"type": "string"},
+            "comment": {"type": "string"},
+            "flag_file_name": {"type": "string"},
+            "bounding_box": {
+                "type": "array",
+                "items": {
+                    "type": "array",
+                    "minItems": 2,
+                    "maxItems": 2,
+                    "items": {"type": "number", "minItems": 2, "maxItems": 2},
+                },
+            },
+            "capacity": {
+                "type": "object",
+                "additionalProperties": False,
+                "properties": {
+                    "battery storage": {"type": "number", "minimum": 0},
+                    "biomass": {"type": "number", "minimum": 0},
+                    "coal": {"type": "number", "minimum": 0},
+                    "gas": {"type": "number", "minimum": 0},
+                    "geothermal": {"type": "number", "minimum": 0},
+                    "hydro": {"type": "number", "minimum": 0},
+                    "hydro storage": {"type": "number", "minimum": 0},
+                    "nuclear": {"type": "number", "minimum": 0},
+                    "oil": {"type": "number", "minimum": 0},
+                    "solar": {"type": "number", "minimum": 0},
+                    "unknown": {"type": "number", "minimum": 0},
+                    "wind": {"type": "number", "minimum": 0},
+                },
+            },
+            "contributors": {"type": "array", "items": {"type": "string"}},
+            "disclaimer": {"type": "string"},
+            "parsers": {
+                "type": "object",
+                "additionalProperties": False,
+                "properties": {
+                    "consumption": {"type": "string"},
+                    "consumptionForecast": {"type": "string"},
+                    "generationForecast": {"type": "string"},
+                    "productionPerModeForecast": {"type": "string"},
+                    "price": {"type": "string"},
+                    "production": {"type": "string"},
+                    "productionPerUnit": {"type": "string"},
+                },
+            },
+            "subZoneNames": {"type": "array", "items": {"type": "string"}},
+            "delays": {
+                "type": "object",
+                "additionalProperties": False,
+                "properties": {
+                    "production": {"type": "number", "minimum": 0},
+                    "consumptionForecast": {"type": "number", "minimum": 0},
+                    "consumption": {"type": "number", "minimum": 0},
+                },
+            },
+            "timezone": {"anyOf": [{"type": "string"}, {"type": "null"}]},
+        },
+    },
+}
+
+SOURCES = SCHEMA["additionalProperties"]["properties"]["capacity"]["properties"].keys()
 
 logging.basicConfig(level=logging.INFO)
 
@@ -128,11 +186,7 @@ def get(url: str, dp: dict, force: bool) -> Union[pd.DataFrame, dict]:
     new_dp = {}
     new_dp["url"] = url
     new_dp["datePublished"] = utilities.getGitHub(user, repo, "date", file, branch)
-    new_dp["schema"] = requests.get(
-        utilities.getGitHub(
-            user, repo, "content", file.replace("json", "schema.json"), branch
-        )
-    ).json()
+    new_dp["schema"] = SCHEMA
 
     # Logic for update
     if dp is not None:  # Existing dataset
