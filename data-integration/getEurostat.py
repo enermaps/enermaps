@@ -63,6 +63,39 @@ QUERIES = {
     50: dict(provider="ESTAT", stat_id="tgs00004", dimensions=[], filters={}),
 }
 
+QUERY_FIELDS = {
+    6: dict([],),  # empty list means all; None means do not use query fields.
+    9: dict([],),  # empty list means all; None means do not use query fields.
+    22: dict([],),  # empty list means all; None means do not use query fields.
+    42: dict([],),  # empty list means all; None means do not use query fields.
+    47: dict([],),  # empty list means all; None means do not use query fields.
+    48: dict([],),  # empty list means all; None means do not use query fields.
+    49: dict([],),  # empty list means all; None means do not use query fields.
+    50: dict([],),  # empty list means all; None means do not use query fields.
+}
+
+QUERY_PARAMETERS = {
+    6: {"temporal_granularity": "year", "is_tiled": False, "is_raster": False},
+    9: {
+        "temporal_granularity": "month",
+        "is_tiled": False,
+        "is_raster": False,
+        "levels": ["NUTS3", "NUTS2", "NUTS1", "country"],
+    },
+    22: {"temporal_granularity": "year", "is_tiled": False, "is_raster": False},
+    42: {
+        "temporal_granularity": "custom",
+        "is_tiled": False,
+        "is_raster": False,
+        "levels": ["NUTS3", "NUTS2", "NUTS1", "country"],
+    },
+    47: {"temporal_granularity": "semester", "is_tiled": False, "is_raster": False},
+    48: {"temporal_granularity": "year", "is_tiled": False, "is_raster": False},
+    49: {"temporal_granularity": "year", "is_tiled": False, "is_raster": False},
+    50: {"temporal_granularity": "year", "is_tiled": False, "is_raster": False},
+}
+
+
 DB_URL = utilities.DB_URL
 
 
@@ -210,10 +243,15 @@ if __name__ == "__main__":
 
         if not utilities.datasetExists(ds_id, DB_URL,):
             data = get(**QUERIES[ds_id])
-
-            dataset = pd.DataFrame(
-                [{"ds_id": ds_id, "metadata": datasets.loc[ds_id].to_json()}]
+            metadata = datasets.loc[ds_id]
+            # Add parameters as metadata
+            (
+                metadata["parameters"],
+                metadata["default_parameters"],
+            ) = utilities.get_query_metadata(
+                data, QUERY_FIELDS[ds_id], QUERY_PARAMETERS[ds_id]
             )
+            dataset = pd.DataFrame([{"ds_id": ds_id, "metadata": metadata.to_json()}])
             utilities.toPostgreSQL(
                 dataset, DB_URL, schema="datasets",
             )
