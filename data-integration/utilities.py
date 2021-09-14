@@ -549,8 +549,8 @@ def get_query_metadata(
         column: fields_df[column].unique().tolist() for column in fields_df.columns
     }
     parameters["variables"] = list(data["variable"].unique())
-    parameters["start_at"] = data["start_at"].max().strftime(DT_FORMAT)
-    parameters["end_at"] = data["start_at"].min().strftime(DT_FORMAT)
+    parameters["start_at"] = data["start_at"].min().strftime(DT_FORMAT)
+    parameters["end_at"] = data["start_at"].max().strftime(DT_FORMAT)
     # Add custom time periods
     if parameters.get("temporal_granularity") == "custom":
         parameters["time_periods"] = list(
