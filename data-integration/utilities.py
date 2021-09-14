@@ -524,7 +524,7 @@ def get_query_metadata(
     ----------
     data : pd.DataFrame
         Data using the EnerMaps schema.
-    selected_fields : list, optional.
+    selected_fields : list or None, optional.
         The keys in the "fields" column that are actually used in the query.
     custom_fields : dict, optional.
         Additional custom parameters.
@@ -540,14 +540,15 @@ def get_query_metadata(
     # Set parameter values (unique values)
     parameters = custom_parameters
     data.loc[data["fields"].isnull(), "fields"] = "{}"
-    fields = data["fields"].apply(lambda x: json.loads(x))
-    fields_df = pd.json_normalize(fields)
-    # Restrict parameters to only some fields
-    if selected_fields:
-        fields_df = fields_df[selected_fields]
-    parameters["fields"] = {
-        column: fields_df[column].unique().tolist() for column in fields_df.columns
-    }
+    if selected_fields is not None:
+        fields = data["fields"].apply(lambda x: json.loads(x))
+        fields_df = pd.json_normalize(fields)
+        # Restrict parameters to only some fields
+        if selected_fields:
+            fields_df = fields_df.loc[:, selected_fields]
+        parameters["fields"] = {
+            column: fields_df[column].unique().tolist() for column in fields_df.columns
+        }
     parameters["variables"] = list(data["variable"].unique())
     if not data["start_at"].isnull().any():
         parameters["start_at"] = data["start_at"].min().strftime(DT_FORMAT)
@@ -560,13 +561,14 @@ def get_query_metadata(
 
     # Set default parameters (corresponding to the first record)
     default_parameters = {}
-    default_fields = json.loads(data["fields"].iloc[0])
-    if selected_fields:
-        default_parameters["fields"] = {
-            key: default_fields[key] for key in selected_fields
-        }
-    else:
-        default_parameters["fields"] = default_fields
+    if selected_fields is not None:
+        default_fields = json.loads(data["fields"].iloc[0])
+        if selected_fields:
+            default_parameters["fields"] = {
+                key: default_fields[key] for key in selected_fields
+            }
+        else:
+            default_parameters["fields"] = default_fields
     if not data["start_at"].isnull().any():
         default_parameters["start_at"] = data["start_at"].iloc[0].strftime(DT_FORMAT)
     default_parameters["variables"] = data["variable"].iloc[0]
