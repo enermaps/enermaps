@@ -549,8 +549,9 @@ def get_query_metadata(
         column: fields_df[column].unique().tolist() for column in fields_df.columns
     }
     parameters["variables"] = list(data["variable"].unique())
-    parameters["start_at"] = data["start_at"].min().strftime(DT_FORMAT)
-    parameters["end_at"] = data["start_at"].max().strftime(DT_FORMAT)
+    if not data["start_at"].isnull().any():
+        parameters["start_at"] = data["start_at"].min().strftime(DT_FORMAT)
+        parameters["end_at"] = data["start_at"].max().strftime(DT_FORMAT)
     # Add custom time periods
     if parameters.get("temporal_granularity") == "custom":
         parameters["time_periods"] = list(
@@ -566,7 +567,8 @@ def get_query_metadata(
         }
     else:
         default_parameters["fields"] = default_fields
-    default_parameters["start_at"] = data["start_at"].iloc[0].strftime(DT_FORMAT)
+    if not data["start_at"].isnull().any():
+        default_parameters["start_at"] = data["start_at"].iloc[0].strftime(DT_FORMAT)
     default_parameters["variables"] = data["variable"].iloc[0]
 
     return parameters, default_parameters
