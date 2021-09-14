@@ -16,6 +16,7 @@ import frictionless
 import geopandas as gpd
 import numpy as np
 import pandas as pd
+import requests
 import utilities
 from pandas_datapackage_reader import read_datapackage
 
@@ -28,6 +29,7 @@ ID = "id_powerplant"
 SPATIAL_VARS = ["longitude", "latitude"]
 UNIT = "MW"
 ISRASTER = False
+NAME = "JRC GEOPP"
 
 DB_URL = utilities.DB_URL
 
@@ -122,16 +124,13 @@ def get(url: str, dp: frictionless.package.Package, force: bool = False):
         Pakage descring the data.
 
     """
-    ld = utilities.get_ld_json(url)
-    csv_file = ld["distribution"][0]["contentUrl"]
-    datePublished = ld["datePublished"]
-    name = ld["name"].replace(" ", "_")
+    ld = requests.get(url).json()
+    csv_file = ld["@graph"][-1]["accessURL"]
+    name = NAME
 
     # Inferring and completing metadata
     logging.info("Creating datapackage for input data")
     new_dp = frictionless.describe_package(csv_file, stats=True,)  # Add stats
-    # Add date
-    new_dp["datePublished"] = datePublished
 
     # Add missing valies
     new_dp.resources[0]["schema"]["missingValues"] = ["NULL"]
@@ -142,7 +141,7 @@ def get(url: str, dp: frictionless.package.Package, force: bool = False):
     if dp is not None:  # Existing dataset
         # check stats
         isChangedStats = dp["resources"][0]["stats"] != new_dp["resources"][0]["stats"]
-        isChangedDate = dp["datePublished"] != new_dp["datePublished"]
+        isChangedDate = False  # no date available
 
         if (
             isChangedStats or isChangedDate
