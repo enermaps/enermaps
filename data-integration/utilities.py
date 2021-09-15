@@ -555,9 +555,12 @@ def get_query_metadata(
         parameters["end_at"] = data["start_at"].max().strftime(DT_FORMAT)
     # Add custom time periods
     if parameters.get("temporal_granularity") == "custom":
-        parameters["time_periods"] = list(
-            pd.Series(data["start_at"].unique()).dt.strftime(DT_FORMAT)
+        parameters["time_periods"] = pd.Series(data["start_at"].unique()).dt.strftime(
+            DT_FORMAT
         )
+        parameters["time_periods"] = list(
+            parameters["time_periods"].where(parameters["time_periods"].notnull(), None)
+        )  # missing dates
 
     # Set default parameters (corresponding to the first record)
     default_parameters = {}
