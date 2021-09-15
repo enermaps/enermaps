@@ -35,6 +35,16 @@ DATASETS = {
     },
 }
 
+QUERY_FIELDS = {
+    17: None,
+    16: None,
+}
+
+QUERY_PARAMETERS = {
+    17: {"temporal_granularity": "hour", "is_tiled": False, "is_raster": False},
+    16: {"temporal_granularity": "hour", "is_tiled": False, "is_raster": False},
+}
+
 DB_URL = utilities.DB_URL
 
 
@@ -130,6 +140,13 @@ if __name__ == "__main__":
 
         # Create dataset table
         metadata = datasets.loc[ds_id].fillna("").to_dict()
+        # Add parameters as metadata
+        (
+            metadata["parameters"],
+            metadata["default_parameters"],
+        ) = utilities.get_query_metadata(
+            data, QUERY_FIELDS[ds_id], QUERY_PARAMETERS[ds_id]
+        )
         metadata = json.dumps(metadata)
         dataset = pd.DataFrame([{"ds_id": ds_id, "metadata": metadata}])
         utilities.toPostgreSQL(
