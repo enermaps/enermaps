@@ -30,8 +30,6 @@ SPATIAL_VARS = ["longitude", "latitude"]
 UNIT = "MW"
 ISRASTER = False
 NAME = "JRC GEOPP"
-<<<<<<< HEAD
-=======
 
 # Settings for the query metadata
 # these are the fields that are used to construct a query
@@ -42,7 +40,6 @@ QUERY_PARAMETERS = {
     "is_raster": False,
 }
 
->>>>>>> 3b21476... add metadata to JRC_GEOPP_DB
 
 DB_URL = utilities.DB_URL
 
