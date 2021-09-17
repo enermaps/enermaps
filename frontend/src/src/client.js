@@ -61,7 +61,7 @@ export async function postCMTask(cm, parameters) {
     body: JSON.stringify(parameters),
   });
   const task = await response.json();
-  return {'cm': cm, 'id': task.task_id};
+  return {'cm': cm, 'id': task.task_id, 'parameters': parameters};
 }
 
 export async function getTaskResult(cm, task) {
@@ -70,8 +70,10 @@ export async function getTaskResult(cm, task) {
 }
 
 export async function deleteTaskResult(cm, task) {
-  const taskResponse = await fetch(BASE_URL + 'api/cm/' + cm + '/task/' + task.id, {
-    method: 'DELETE',
-  });
+  const taskResponse = await fetch(
+      BASE_URL + 'api/cm/' + cm.name + '/task/' + task.id,
+      {
+        method: 'DELETE',
+      });
   return await taskResponse.json();
 }
