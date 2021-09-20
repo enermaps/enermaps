@@ -111,6 +111,10 @@
       showHideResults();
     }
 
+    if (isTaskPending) {
+      cancel();
+    }
+
     dispatch('delete', {});
   }
 </script>
@@ -118,8 +122,6 @@
 
 <style>
   .cmresult {
-    border: 1px solid #27275b;
-    border-radius: 0px;
     padding: 5px;
     background-color: #fff;
     background-color: white;
@@ -139,7 +141,7 @@
     padding-bottom: 4px;
   }
 
-  div.tabs span {
+  div.tabs span:not(.close_button) {
     border: 1px solid black;
     padding: 4px;
     margin-left: 0;
@@ -148,7 +150,7 @@
     cursor: pointer;
   }
 
-  div.tabs span.selected {
+  div.tabs span.selected:not(.close_button) {
     border-bottom: 1px solid white;
     font-weight: bold;
     background-color: white;
@@ -165,24 +167,33 @@
 
   button {
     margin-top: 10px;
+    padding-left: 10px;
+    padding-right: 10px;
+  }
+
+  span.close_button {
+    position: absolute;
+    right: 0;
+    padding-top: 0px;
   }
 </style>
 
 
 <div class="cmresult">
-  <div class="close_button" on:click="{removeTask}"><img src='/images/clear-icon.png' alt='close'></div>
-
   {#if isTaskPending || isTaskFailed }
+    <div>
+      <span class="close_button" on:click="{removeTask}"><img src='/images/clear-icon.png' alt='close'></span>
+    </div>
+
     <dl>
       <dt><strong>task_id</strong></dt><dd>{formatTaskID(task)}</dd>
       <dt><strong>status</strong></dt><dd>{taskResult.status}</dd>
     </dl>
-  {/if}
-
-  {#if !isTaskPending}
+  {:else}
     <div class="tabs">
       <span class:selected={activeTab === 'parameters'} on:click={() => (activeTab = 'parameters')}>Parameters</span>
       <span class:selected={activeTab === 'result'} on:click={() => (activeTab = 'result')}>Result</span>
+      <span class="close_button" on:click="{removeTask}"><img src='/images/clear-icon.png' alt='close'></span>
     </div>
 
     {#if activeTab === 'parameters' }
