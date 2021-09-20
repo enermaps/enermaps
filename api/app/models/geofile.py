@@ -88,6 +88,10 @@ def create(file_upload: FileStorage, is_cm_output=False):
 @functools.lru_cache
 def load(name):
     """Create a new instance of RasterLayer based on its name"""
+    if name.startswith("cm_outputs/"):
+        _, name = name.split("/")
+        return load_cm_output(name)
+
     if name.endswith("zip") or name.endswith("geojson"):
         return VectorLayer(name)
     elif name.endswith("tif") or name.endswith("tiff"):

@@ -1,6 +1,7 @@
 <script src="../settings.js">
   import {onMount, createEventDispatcher} from 'svelte';
-  import {deleteTaskResult, getTaskResult} from '../client.js';
+  import {deleteTaskResult, getTaskResult, WMS_URL} from '../client.js';
+  import {activeCMOutputLayersStore} from '../stores.js';
   import Chart from './Chart.svelte';
   import Value from './Value.svelte';
 
@@ -14,6 +15,8 @@
   let isTaskPending = true;
   let isTaskFailed = false;
   let activeTab = 'result';
+  let resultsDisplayed = false;
+  let layers = [];
 
   const updateTime = 500;
   const PENDING_STATUS = 'PENDING';
@@ -62,11 +65,52 @@
         }
 
         parameters = Object.entries(task.parameters.parameters);
+
+        if (!isTaskFailed) {
+          showHideResults();
+        }
       }
     }
   }
 
+  function showHideResults() {
+    let activeLayers = $activeCMOutputLayersStore;
+
+    if (!resultsDisplayed) {
+      for (const value of Object.values(taskResult.result.geofiles)) {
+        let layerName = value.split('/');
+        layerName = layerName[layerName.length-2] + '/' + layerName[layerName.length-1];
+
+        const layer = L.tileLayer.wms(
+            WMS_URL,
+            {
+              transparent: 'true',
+              layers: encodeURIComponent(layerName),
+              format: 'image/png',
+            },
+        );
+
+        layers.push(layer);
+        activeLayers.push(layer);
+      }
+    } else {
+      for (const layer of layers) {
+        activeLayers = activeLayers.filter((item) => item !== layer);
+      }
+
+      layers = [];
+    }
+
+    $activeCMOutputLayersStore = activeLayers;
+
+    resultsDisplayed = !resultsDisplayed;
+  }
+
   function removeTask() {
+    if (resultsDisplayed) {
+      showHideResults();
+    }
+
     dispatch('delete', {});
   }
 </script>
@@ -118,6 +162,10 @@
   dd {
     margin-bottom: 5px;
   }
+
+  button {
+    margin-top: 10px;
+  }
 </style>
 
 
@@ -156,4 +204,5 @@
   {/if}
 
   <button on:click|once={cancel} hidden={!isTaskPending}>Cancel task</button>
+  <button on:click={showHideResults} hidden={isTaskPending || isTaskFailed}>{#if !resultsDisplayed }Show{:else}Hide{/if}</button>
 </div>
