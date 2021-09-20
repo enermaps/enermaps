@@ -64,8 +64,7 @@ def list_layers():
 
 
 def list_cm_outputs():
-    """Return the list of all cm_outputs
-    """
+    """Return the list of all cm_outputs"""
     return CMRasterLayer.list_layers()
 
 
@@ -284,8 +283,7 @@ class RasterLayer(Layer):
         return file_descriptor, self.MIMETYPE[0]
 
     def exists(self):
-        """Indicates if the file exists
-        """
+        """Indicates if the file exists"""
         return os.path.exists(self._get_raster_path())
 
 
