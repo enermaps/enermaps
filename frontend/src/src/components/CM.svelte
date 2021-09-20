@@ -78,11 +78,7 @@
 }
 .cm_params {
   margin-top: 10px;
-  /* vertical-align: middle;
-  display: inline-block; */
-  overflow-x: scroll;
-  scrollbar-color: #27275b;
-  scrollbar-width: thin;
+  overflow-x: auto;
 }
 .cm_container {
   background-color : #4d88c7;
@@ -91,6 +87,7 @@
   padding : 8px;
   border-radius: 4px;
   width: inherit;
+  font-size: 0.8em;
 }
 h3 {
   margin: 0;
@@ -112,9 +109,7 @@ h3 {
   </div>
 
   <div hidden="{isCollapsed}">
-    <div>
-      <form class="cm_params" bind:this={formElement} />
-    </div>
+    <div class="cm_params" bind:this={formElement} />
     <div class="tasks">
     {#each [...tasks].reverse() as task (task.id)}
       <CMTask {cm} {task}  on:delete="{() => deleteCMTask(task)}"/>

@@ -125,7 +125,10 @@
     padding: 5px;
     background-color: #fff;
     background-color: white;
-    font-size: 0.9em;
+  }
+
+  .cmresult:not(:last-child) {
+    margin-bottom: 5px;
   }
 
   img {
@@ -158,7 +161,6 @@
 
   dl {
     margin: 0px;
-    font-size: 0.9em;
   }
 
   dd {
