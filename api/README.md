@@ -28,21 +28,6 @@ python $(pwd)/main.py
 ```
 The api will listen http://127.0.0.1:7000 after a short initialisation period.
 
-# Linting
-
-We run a series of linter which are listed in linter-requirements.txt with their version.
-You can run them locally by first installing them:
-
-```
-pip install -r linter-requirements.txt
-```
-They are:
-
-* black for automated formatting
-* bandit for security scanning
-* isort for the order of the import
-* flake8 for line length, unused variable and others.
-
 # acceptance test
 
 Currently, the wms_test/acceptance_test.py is testing for the initialisation of the wms library.

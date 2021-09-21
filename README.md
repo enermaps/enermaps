@@ -111,7 +111,30 @@ rights (see https://github.community/t/git-bash-symbolic-links-on-windows/522), 
 be the same. When updating one setup.cfg, you will need to be carefull to update all of them.
 
 
-# Code structure with pre-commit, black, bandit, flake8, isort, eslint
+# Linting
+
+We run a series of linter which are listed in linter-requirements.txt with their version.
+
+You can either run them manually, automatically each time you do a commit, or both.
+
+
+## Manual linting
+
+You can install the linting tools by doing:
+
+```
+pip install -r linter-requirements.txt
+```
+
+They are:
+
+* black for automated formatting
+* bandit for security scanning
+* isort for the order of the import
+* flake8 for line length, unused variable and others.
+
+
+## Automatic linting at each commit
 
 Setup your work environment:
 
@@ -121,7 +144,7 @@ virtualenv env --python=python3 # or python3 -m venv env
 # activate the virtual environment
 source env/bin/activate
 # install the requirements
-pip install -r requirements.txt
+pip install -r precommit-requirements.txt
 # nodejs will be in the python env
 nodeenv --python-virtualenv
 # install npm packages
