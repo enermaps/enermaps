@@ -4,6 +4,7 @@
   import CMTask from './CMTask.svelte';
   import {activeOverlayLayersStore, activeSelectionLayerStore} from '../stores.js';
   import 'brutusin-json-forms';
+
   const BrutusinForms = brutusin['json-forms'];
 
   export let cm;
@@ -31,7 +32,7 @@
     form.render(formElement);
   });
 
-  $ : {
+  $: {
     if (!$activeOverlayLayersStore.length) {
       callCMTooltip = 'An overlay layer needs to be selected first';
     } else if (!$activeSelectionLayerStore !== undefined) {
@@ -53,51 +54,58 @@
     tasks = tasks.filter((task)=> taskToDelete.id != task.id);
   }
 </script>
+
+
 <style>
-.tasks {
-  margin-top: 10px;
-  position: relative;
-}
-.open_menu {
-  display: inline-block;
-  height: 25px;
-  width: 25px;
-  background: url('/images/menu-close-icon.png');
-  background-size : 100%;
-}
-.cm_run {
-  vertical-align: middle;
-  display: inline-block;
-}
-.close_menu {
-  display: inline-block;
-  height: 25px;
-  width: 25px;
-  background: url('/images/menu-open-icon.png');
-  background-size : 100%;
-}
-.cm_params {
-  margin-top: 10px;
-  /* vertical-align: middle;
-  display: inline-block; */
-  overflow-x: scroll;
-  scrollbar-color: #27275b;
-  scrollbar-width: thin;
-}
-.cm_container {
-  background-color : #4d88c7;
-  margin-top: 8px;
-  margin-bottom: 8px;
-  padding : 8px;
-  border-radius: 4px;
-  width: inherit;
-}
-h3 {
-  margin: 0;
-}
+  .tasks {
+    margin-top: 10px;
+    position: relative;
+  }
 
+  .open_menu {
+    display: inline-block;
+    height: 25px;
+    width: 25px;
+    background: url('/images/menu-close-icon.png');
+    background-size : 100%;
+  }
 
+  .cm_run {
+    vertical-align: middle;
+    display: inline-block;
+  }
+
+  .close_menu {
+    display: inline-block;
+    height: 25px;
+    width: 25px;
+    background: url('/images/menu-open-icon.png');
+    background-size : 100%;
+  }
+
+  .cm_params {
+    margin-top: 10px;
+    /* vertical-align: middle;
+    display: inline-block; */
+    overflow-x: scroll;
+    scrollbar-color: #27275b;
+    scrollbar-width: thin;
+  }
+
+  .cm_container {
+    background-color : #4d88c7;
+    margin-top: 8px;
+    margin-bottom: 8px;
+    padding : 8px;
+    border-radius: 4px;
+    width: inherit;
+  }
+
+  h3 {
+    margin: 0;
+  }
 </style>
+
 
 <div class="cm_container">
   <div class="cm_header">
@@ -106,7 +114,7 @@ h3 {
       <div style="float: right;" class="cm_run">
         <div class="cm_run" style="cursor: pointer;" class:open_menu="{isCollapsed}" class:close_menu="{!isCollapsed}" on:click="{toggleCollapse}"></div>
         <span class="cm_run"></span>
-        <button class="cm_run"  type=submit on:click={() => callCM(cm)} disabled={isDisabled} title={callCMTooltip}>Run CM</button>
+        <button class="cm_run" type=submit on:click={() => callCM(cm)} disabled={isDisabled} title={callCMTooltip}>Run CM</button>
       </div>
     </div>
   </div>
@@ -116,9 +124,9 @@ h3 {
       <form class="cm_params" bind:this={formElement} />
     </div>
     <div class="tasks">
-    {#each [...tasks].reverse() as task (task.id)}
-      <CMTask {cm} {task}  on:delete="{() => deleteCMTask(task)}"/>
-    {/each}
+      {#each [...tasks].reverse() as task (task.id)}
+        <CMTask {cm} {task}  on:delete="{() => deleteCMTask(task)}" />
+      {/each}
     </div>
   </div>
 </div>

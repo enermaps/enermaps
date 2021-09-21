@@ -3,6 +3,7 @@
   import {deleteTaskResult, getTaskResult} from '../client.js';
   import Chart from './Chart.svelte';
   import Value from './Value.svelte';
+
   export let task;
   export let cm;
   let graphs = {};
@@ -21,6 +22,7 @@
   onMount(async () => {
     updateTaskResult();
   });
+
   async function updateTaskResult() {
     const taskResponse = await getTaskResult(cm, task);
     // The above reponse can be undefined if it encountered an error,
@@ -32,13 +34,17 @@
       taskResult = taskResponse;
     }
   }
+
   async function cancel() {
     await deleteTaskResult(cm, task);
   }
+
   function formatTaskID(task) {
     return task.id.slice(0, 5) + '...';
   }
+
   $: isTaskPending = taskResult.status === PENDING_STATUS;
+
   $: if (!isTaskPending) {
     if (typeof taskResult.result === 'string') {
       values.push(['details', taskResult.result]);
@@ -48,43 +54,48 @@
       values = Object.entries(taskResult.result.values);
     }
   }
+
   function removeTask() {
     dispatch('delete', {});
   }
 </script>
+
+
 <style>
-.cmresult {
-  border: 1px solid #27275b;
-  border-radius: 0px;
-  padding: 5px;
-  background-color: #fff;
-  background-color: white;
-}
-img {
-  max-width:100%;
-  height:auto;
-  cursor: pointer;
-}
+  .cmresult {
+    border: 1px solid #27275b;
+    border-radius: 0px;
+    padding: 5px;
+    background-color: #fff;
+    background-color: white;
+  }
 
-dl {
-  margin: 0px;
-}
+  img {
+    max-width:100%;
+    height:auto;
+    cursor: pointer;
+  }
 
+  dl {
+    margin: 0px;
+  }
 </style>
+
+
 <div class="cmresult">
   <div class="close_button" on:click="{removeTask}"><img src='/images/clear-icon.png' alt='close'></div>
   <dl>
-  <dt><strong>task_id</strong></dt><dd>{formatTaskID(task)}</dd>
-  <dt><strong>status</strong></dt><dd>{taskResult.status}</dd>
+    <dt><strong>task_id</strong></dt><dd>{formatTaskID(task)}</dd>
+    <dt><strong>status</strong></dt><dd>{taskResult.status}</dd>
 
-  {#if !isTaskPending}
-          {#each values as value}
-            <Value value={value}/>
-          {/each}
-          <Chart datasets={graphs}/>
-  {:else }
-    taskRunning...
-  {/if}
-</dl>
+    {#if !isTaskPending}
+      {#each values as value}
+        <Value value={value}/>
+      {/each}
+      <Chart datasets={graphs}/>
+    {:else }
+      taskRunning...
+    {/if}
+  </dl>
   <button on:click|once={cancel} hidden={!isTaskPending}>Cancel task</button>
 </div>
