@@ -52,7 +52,6 @@ services:
     restart: always
     environment:
       UPLOAD_DIR: /upload-dir
-      RASTER_DB_DIR: /raster-db-dir
     volumes:
       - upload-data:/upload-dir
       - data:/raster-db-dir
