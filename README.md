@@ -148,6 +148,7 @@ pip install -r precommit-requirements.txt
 # nodejs will be in the python env
 nodeenv --python-virtualenv
 # install npm packages
+npm install eslint@7.32.0
 npm install eslint-config-google
 npm install eslint-plugin-svelte3
 # install pre-commit
