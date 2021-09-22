@@ -21,7 +21,10 @@ def get_response(
         * response : dictionary that will be sent by the CM.
     """
 
-    def get_graphs(base_dictionary: dict, areas_potential: np.ndarray,) -> dict:
+    def get_graphs(
+        base_dictionary: dict,
+        areas_potential: np.ndarray,
+    ) -> dict:
         """
         Add information about the graphics to the based dictionary.
 
@@ -72,7 +75,10 @@ def get_response(
 
         return base_dictionary
 
-    def get_geofiles(base_dictionary: dict, layer_name: str,) -> dict:
+    def get_geofiles(
+        base_dictionary: dict,
+        layer_name: str,
+    ) -> dict:
         """
         Add path towards the geofiles to the based dictionary.
 
