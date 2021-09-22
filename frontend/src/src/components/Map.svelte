@@ -16,7 +16,7 @@
   import LayerSelection from './LayerSelection.svelte';
   import CMToggle from './CMToggle.svelte';
   import TopNav from './TopNav.svelte';
-  import {activeOverlayLayersStore, activeSelectionLayerStore} from '../stores.js';
+  import {activeOverlayLayersStore, activeSelectionLayerStore, activeCMOutputLayersStore} from '../stores.js';
 
   import {INITIAL_MAP_CENTER, INITIAL_ZOOM, BASE_LAYER_URL} from '../settings.js';
   import {BASE_LAYER_PARAMS} from '../settings.js';
@@ -24,7 +24,9 @@
   let map;
   $: activeSelectionLayer = $activeSelectionLayerStore;
   $: activeOverlayLayers = $activeOverlayLayersStore;
+  $: activeCMOutputLayers = $activeCMOutputLayersStore;
 
+  const cmOutputsGroup = L.layerGroup();
   const overlaysGroup = L.layerGroup();
   const selectionsGroup = L.layerGroup();
   const baseLayersGroup = L.layerGroup();
@@ -38,6 +40,7 @@
     map.addLayer(baseLayersGroup);
     map.addLayer(selectionsGroup);
     map.addLayer(overlaysGroup);
+    map.addLayer(cmOutputsGroup);
     const baseLayer = L.tileLayer(BASE_LAYER_URL, BASE_LAYER_PARAMS);
     baseLayersGroup.addLayer(baseLayer); // Add the openstreetmap layer
     // Add the map controls
@@ -56,8 +59,10 @@
   $: {
     console.log(`selected layer was changed: ${activeSelectionLayer}`);
     console.log(`overlay layer was changed: ${activeOverlayLayers}`);
+    console.log(`CM output layer was changed: ${activeCMOutputLayers}`);
     syncSelectionLayer();
     syncOverlayLayers();
+    syncCMOutputLayers();
   }
 
   function syncOverlayLayers() {
@@ -84,6 +89,20 @@
     }
     if (selectionsGroup.getLayers().length === 0) {
       selectionsGroup.addLayer(activeSelectionLayer);
+    }
+  }
+
+  function syncCMOutputLayers() {
+    const cmOutputsToBePruned = new Set(cmOutputsGroup.getLayers());
+    for (const activeCMOutputLayer of activeCMOutputLayers) {
+      if (!cmOutputsGroup.hasLayer(activeCMOutputLayer)) {
+        cmOutputsGroup.addLayer(activeCMOutputLayer);
+      } else {
+        cmOutputsToBePruned.delete(activeCMOutputLayer);
+      }
+    }
+    for (const cmOutput of cmOutputsToBePruned) {
+      cmOutputsGroup.removeLayer(cmOutput);
     }
   }
 

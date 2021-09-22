@@ -36,9 +36,10 @@
     border: 1px solid #27275b;
     background-color: #eff4fa;
     width: 30%;
+    min-width: 280px;
+    max-width: 500px;
     max-height: 90%;
     overflow-y: scroll;
-
   }
 
   [hidden]{
@@ -51,7 +52,7 @@
     margin: 0px;
     flex-shrink: 0;
     text-align: center;
-    font-size: 22px;
+    font-size: 20px;
     display: inline-block;
     vertical-align: middle;
   }
@@ -66,8 +67,8 @@
 
   #close_button_cm_list {
     display: inline-block;
-    height: 30px;
-    width: 30px;
+    height: 25px;
+    width: 25px;
     background-repeat: no-repeat;
     background-size: cover;
     box-sizing: border-box;
@@ -79,7 +80,7 @@
     height:auto;
     cursor: pointer;
   }
-</style>
+  </style>
 
 
 <div id="calculation_modules_pane" hidden={!$isCMPaneActiveStore}>

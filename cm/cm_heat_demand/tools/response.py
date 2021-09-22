@@ -92,7 +92,7 @@ def get_response(
 
         base_dictionary["geofiles"] = dict()
         base_dictionary["geofiles"]["areas"] = (
-            os.environ.get("API_URL") + "/api/geofile/" + layer_name
+            os.environ.get("API_URL") + "/api/cm_outputs/" + layer_name
         )
 
         return base_dictionary

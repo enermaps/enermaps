@@ -85,7 +85,7 @@ def output_raster(raster_name, raster_fd):
     """Add a raster to the api."""
     files = {"file": (raster_name, raster_fd, "image/tiff")}
     try:
-        resp = requests.post(API_URL + "/api/geofile/", files=files)
+        resp = requests.post(API_URL + "/api/cm_outputs/", files=files)
         return resp.status_code
     except ConnectionError as error:
         logging.error("Error during the post of the file.")

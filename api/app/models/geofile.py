@@ -55,14 +55,20 @@ def list_layers():
     def list_subclass_layers(cl):
         layers = []
         for subclass in cl.__subclasses__():
-            layers += subclass.list_layers()
-            layers += list_subclass_layers(subclass)
+            if subclass not in [CMRasterLayer]:
+                layers += subclass.list_layers()
+                layers += list_subclass_layers(subclass)
         return layers
 
     return list_subclass_layers(Layer)
 
 
-def create(file_upload: FileStorage):
+def list_cm_outputs():
+    """Return the list of all cm_outputs"""
+    return CMRasterLayer.list_layers()
+
+
+def create(file_upload: FileStorage, is_cm_output=False):
     """Take an instance of a fileupload and create a layer from it.
     Return the resulting layer
     """
@@ -71,17 +77,30 @@ def create(file_upload: FileStorage):
     if file_upload.mimetype in VectorLayer.MIMETYPE:
         return VectorLayer.save(file_upload)
     if file_upload.mimetype in RasterLayer.MIMETYPE:
-        return RasterLayer.save(file_upload)
+        if is_cm_output:
+            return CMRasterLayer.save(file_upload)
+        else:
+            return RasterLayer.save(file_upload)
     raise Exception("Unknown file format {}".format(file_upload.mimetype))
 
 
 @functools.lru_cache
 def load(name):
     """Create a new instance of RasterLayer based on its name"""
+    if name.startswith("cm_outputs/"):
+        _, name = name.split("/")
+        return load_cm_output(name)
+
     if name.endswith("zip") or name.endswith("geojson"):
         return VectorLayer(name)
     elif name.endswith("tif") or name.endswith("tiff"):
         return RasterLayer(name)
+
+
+@functools.lru_cache
+def load_cm_output(name):
+    """Create a new instance of RasterLayer based on its name"""
+    return CMRasterLayer(name)
 
 
 class Layer(ABC):
@@ -172,19 +191,20 @@ class RasterLayer(Layer):
     # chosen by default for exposing the file
     MIMETYPE = ["image/geotiff", "image/tiff"]
     _RASTER_NAME = "raster.tiff"
+    FOLDER = "raster"
 
-    @staticmethod
-    def list_layers():
+    @classmethod
+    def list_layers(cls):
         """As we store rasters on disk, we only want to list
         files in the directory.
         """
-        layers = os.listdir(get_user_upload("raster"))
+        layers = os.listdir(get_user_upload(cls.FOLDER))
         non_hidden_layers = filter(lambda a: not a.startswith("."), layers)
         return map(RasterLayer, non_hidden_layers)
 
     def _get_raster_dir(self):
         """Return the path to the directory containing the raster path"""
-        raster_dir = safe_join(get_user_upload("raster"), self.name)
+        raster_dir = safe_join(get_user_upload(self.FOLDER), self.name)
         return raster_dir
 
     def _get_raster_path(self):
@@ -214,8 +234,8 @@ class RasterLayer(Layer):
             os.rename(self._get_raster_dir(), tmp_dir)
             shutil.rmtree(tmp_dir)
 
-    @staticmethod
-    def save(file_upload: FileStorage):
+    @classmethod
+    def save(cls, file_upload: FileStorage):
         """Save a FileStorage instance and return the RasterLayer instance.
         To do so,
         * the layer is saved in a temporary directory as tiff.
@@ -228,7 +248,9 @@ class RasterLayer(Layer):
         with TemporaryDirectory(prefix=get_tmp_upload()) as tmp_dir:
             tmp_filepath = safe_join(tmp_dir, RasterLayer._RASTER_NAME)
             file_upload.save(tmp_filepath)
-            output_filepath = safe_join(get_user_upload("raster"), file_upload.filename)
+            output_filepath = safe_join(
+                get_user_upload(cls.FOLDER), file_upload.filename
+            )
             # replace will replace the file if it already exists, we should first check
             # if the file already exists before proceeding
             try:
@@ -237,7 +259,7 @@ class RasterLayer(Layer):
                 print("Geofile already exists")
             # except FileExistsError:
             #     raise SaveException("Geofile already exists")
-        return RasterLayer(file_upload.filename)
+        return cls(file_upload.filename)
 
     def as_mapnik_layer(self):
         """Open the geofile as Mapnik layer."""
@@ -259,6 +281,15 @@ class RasterLayer(Layer):
         """
         file_descriptor = open(self._get_raster_path(), "rb")
         return file_descriptor, self.MIMETYPE[0]
+
+    def exists(self):
+        """Indicates if the file exists"""
+        return os.path.exists(self._get_raster_path())
+
+
+class CMRasterLayer(RasterLayer):
+
+    FOLDER = "cm_output"
 
 
 class VectorLayer(Layer):
