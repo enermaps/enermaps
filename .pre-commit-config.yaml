@@ -34,5 +34,5 @@ repos:
     hooks:
       - id: eslint
         verbose: true
-        files: \.(js$|svelte)
+        files: \.(js|svelte)$
         types: [file]
