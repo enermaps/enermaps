@@ -27,6 +27,20 @@
     tasks = tasks;
   }
 
+
+  async function refreshTask(task) {
+    const index = tasks.indexOf(task);
+    tasks.splice(index, 1);
+    tasks = tasks;
+
+    console.log('Refreshing task with parameters: ' + task.parameters);
+    const newTask = await postCMTask(cm, task.parameters);
+
+    tasks.splice(index, 0, newTask);
+    tasks = tasks;
+  }
+
+
   onMount(() => {
     form = BrutusinForms.create(cm.schema);
     form.render(formElement);
@@ -120,7 +134,7 @@
     <div class="cm_params" bind:this={formElement} />
     <div class="tasks">
       {#each [...tasks].reverse() as task (task.id)}
-        <CMTask {cm} {task}  on:delete="{() => deleteCMTask(task)}" />
+        <CMTask {cm} {task} on:delete="{() => deleteCMTask(task)}" on:refresh="{() => refreshTask(task)}" />
       {/each}
     </div>
   </div>

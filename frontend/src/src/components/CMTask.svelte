@@ -90,6 +90,8 @@
             },
         );
 
+        layer.on('tileerror', onTileError);
+
         layers.push(layer);
         activeLayers.push(layer);
       }
@@ -104,6 +106,31 @@
     $activeCMOutputLayersStore = activeLayers;
 
     resultsDisplayed = !resultsDisplayed;
+  }
+
+  function onTileError() {
+    if (!isTaskPending) {
+      // Reset the component
+      graphs = {};
+      values = [];
+      taskResult = {status: 'PENDING'};
+      isTaskPending = true;
+      isTaskFailed = false;
+      resultsDisplayed = false;
+
+      // Destroy the layers
+      let activeLayers = $activeCMOutputLayersStore;
+
+      for (const layer of layers) {
+        activeLayers = activeLayers.filter((item) => item !== layer);
+      }
+
+      layers = [];
+      $activeCMOutputLayersStore = activeLayers;
+
+      // Refresh the task
+      dispatch('refresh', {});
+    }
   }
 
   function removeTask() {
