@@ -93,7 +93,7 @@
     ctr.onAdd = (map) => {
       const overlayDiv = L.DomUtil.create('div' );
       L.DomUtil.addClass(overlayDiv, 'testComponent');
-      toolbar = new LayerSelection({target: overlayDiv});
+      toolbar = new AreaSelection({target: overlayDiv});
       return overlayDiv;
     };
     return ctr;
@@ -105,7 +105,7 @@
     ctr.onAdd = (map) => {
       const areaDiv = L.DomUtil.create('div' );
       L.DomUtil.addClass(areaDiv, 'testComponent');
-      toolbar = new AreaSelection({target: areaDiv});
+      toolbar = new LayerSelection({target: areaDiv});
       return areaDiv;
     };
     return ctr;
