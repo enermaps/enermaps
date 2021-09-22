@@ -154,7 +154,7 @@ def prepareRaster(
                     metadata = json.loads(
                         os.popen("gdalinfo {} -json".format(filename)).read()  # nosec
                     )
-                    metadata = metadata["bands"][b-1]
+                    metadata = metadata["bands"][b - 1]
                     if all(k in metadata for k in ("offset", "scale")):
                         # Offset and scale are not handled by gdalwarp https://gis.stackexchange.com/a/229954
                         offset, scale = metadata["offset"], metadata["scale"]
@@ -524,7 +524,7 @@ def get_query_metadata(
     ----------
     data : pd.DataFrame
         Data using the EnerMaps schema.
-    selected_fields : list, optional.
+    selected_fields : list or None, optional.
         The keys in the "fields" column that are actually used in the query.
     custom_fields : dict, optional.
         Additional custom parameters.
@@ -535,38 +535,45 @@ def get_query_metadata(
     default_parameters : dict
         Default parameter values to be used in the query.
     """
-
     logging.info("Creating query metadata")
 
     # Set parameter values (unique values)
     parameters = custom_parameters
-    fields = data["fields"].apply(lambda x: json.loads(x))
-    fields_df = pd.json_normalize(fields)
-    # Restrict parameters to only some fields
-    if selected_fields:
-        fields_df = fields_df[selected_fields]
-    parameters["fields"] = {
-        column: fields_df[column].unique().tolist() for column in fields_df.columns
-    }
+    data.loc[data["fields"].isnull(), "fields"] = "{}"
+    if selected_fields is not None:
+        fields = data["fields"].apply(lambda x: json.loads(x))
+        fields_df = pd.json_normalize(fields)
+        # Restrict parameters to only some fields
+        if selected_fields:
+            fields_df = fields_df.loc[:, selected_fields]
+        parameters["fields"] = {
+            column: fields_df[column].unique().tolist() for column in fields_df.columns
+        }
     parameters["variables"] = list(data["variable"].unique())
-    parameters["start_at"] = data["start_at"].max().strftime(DT_FORMAT)
-    parameters["end_at"] = data["start_at"].min().strftime(DT_FORMAT)
+    if not data["start_at"].isnull().any():
+        parameters["start_at"] = data["start_at"].min().strftime(DT_FORMAT)
+        parameters["end_at"] = data["start_at"].max().strftime(DT_FORMAT)
     # Add custom time periods
     if parameters.get("temporal_granularity") == "custom":
-        parameters["time_periods"] = list(
-            pd.Series(data["start_at"].unique()).dt.strftime(DT_FORMAT)
+        parameters["time_periods"] = pd.Series(data["start_at"].unique()).dt.strftime(
+            DT_FORMAT
         )
+        parameters["time_periods"] = list(
+            parameters["time_periods"].where(parameters["time_periods"].notnull(), None)
+        )  # missing dates
 
     # Set default parameters (corresponding to the first record)
     default_parameters = {}
-    default_fields = json.loads(data["fields"].iloc[0])
-    if selected_fields:
-        default_parameters["fields"] = {
-            key: default_fields[key] for key in selected_fields
-        }
-    else:
-        default_parameters["fields"] = default_fields
-    default_parameters["start_at"] = data["start_at"].iloc[0].strftime(DT_FORMAT)
+    if selected_fields is not None:
+        default_fields = json.loads(data["fields"].iloc[0])
+        if selected_fields:
+            default_parameters["fields"] = {
+                key: default_fields[key] for key in selected_fields
+            }
+        else:
+            default_parameters["fields"] = default_fields
+    if not data["start_at"].isnull().any():
+        default_parameters["start_at"] = data["start_at"].iloc[0].strftime(DT_FORMAT)
     default_parameters["variables"] = data["variable"].iloc[0]
 
     return parameters, default_parameters

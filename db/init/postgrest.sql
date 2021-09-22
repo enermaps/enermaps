@@ -192,16 +192,16 @@ GRANT EXECUTE ON FUNCTION enermaps_query_table(parameters text, row_limit int, r
 CREATE OR REPLACE VIEW parameters AS
 SELECT ds_id::int as ds_id,
         (metadata ->> 'Title (with Hyperlink)') as title,
-        (metadata ->> 'variables')::jsonb as variables,
-        TO_TIMESTAMP(metadata ->> 'start_at', 'YYYY-MM-DD HH24:MI')::timestamp without time zone as start_at,
-        TO_TIMESTAMP(metadata ->> 'end_at', 'YYYY-MM-DD HH24:MI')::timestamp without time zone as end_at,
-        (metadata ->> 'parameters')::jsonb as parameters,
-        (metadata ->> 'is_raster')::bool as is_raster,
-        metadata ->> 'temporal_granularity' as temporal_granularity,
-        (metadata ->> 'custom_periods')::jsonb as custom_periods,
-        (metadata ->> 'is_tiled')::bool as is_tiled,
-        (metadata ->> 'levels')::jsonb as levels,
-        (metadata ->> 'to_be_fixed')::bool as to_be_fixed
+        (metadata ->> 'parameters')::jsonb ->> 'variables' as variables,
+        TO_TIMESTAMP((metadata ->> 'parameters')::jsonb ->> 'start_at', 'YYYY-MM-DD HH24:MI')::timestamp without time zone as start_at,
+        TO_TIMESTAMP((metadata ->> 'parameters')::jsonb ->> 'end_at', 'YYYY-MM-DD HH24:MI')::timestamp without time zone as end_at,
+        ((metadata ->> 'parameters')::jsonb ->> 'fields')::jsonb as fields,
+        ((metadata ->> 'parameters')::jsonb ->> 'is_raster')::bool as is_raster,
+        (metadata ->> 'parameters')::jsonb ->> 'temporal_granularity' as temporal_granularity,
+        ((metadata ->> 'parameters')::jsonb ->> 'time_periods')::jsonb as time_periods,
+        ((metadata ->> 'parameters')::jsonb ->> 'is_tiled')::bool as is_tiled,
+        ((metadata ->> 'parameters')::jsonb ->> 'levels')::jsonb as levels,
+        (metadata ->> 'default_parameters')::jsonb as default_parameters
         FROM datasets
         WHERE (metadata ->> 'Title (with Hyperlink)') <> ''
         ORDER BY ds_id;
