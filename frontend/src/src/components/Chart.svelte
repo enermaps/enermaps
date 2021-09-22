@@ -1,6 +1,7 @@
 <script>
   import {onMount} from 'svelte';
   import Chart from 'chart.js';
+
   export let datasets;
 
   const lineDatasets = {};
@@ -13,7 +14,6 @@
 
   let xyChart;
   let lineChart;
-  // let barChart;
 
   function processDatasets() {
     for (const [datasetName, dataset] of Object.entries(datasets)) {
@@ -45,6 +45,7 @@
       default:
     }
   }
+
   function insertBarChart(name, dataset) {
     const values = dataset.values;
     const xLabels = [];
@@ -57,6 +58,7 @@
     barDatasets['datasets'] = [];
     barDatasets['datasets'].push({label: name, data: data, tension: 0.1});
   }
+
   function insertLineChart(name, dataset) {
     const values = dataset.values;
     const xLabels = [];
@@ -112,13 +114,17 @@
 
   onMount(createChart);
 </script>
+
+
 <style>
-.graph {
-  max-width: 300px;
-}
+  .graph {
+    max-width: 300px;
+  }
 </style>
+
+
 <div class="graph-container">
-  <canvas class="graph" bind:this={xyCanvas}/>
-  <canvas class="graph" bind:this={barCanvas}/>
-  <canvas class="graph" bind:this={lineCanvas}/>
+  <canvas class="graph" bind:this={xyCanvas} />
+  <canvas class="graph" bind:this={barCanvas} />
+  <canvas class="graph" bind:this={lineCanvas} />
 </div>

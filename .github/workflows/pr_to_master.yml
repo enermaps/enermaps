@@ -28,7 +28,7 @@ jobs:
         with:
           python-version: 3.x
       - name: install linters
-        run: pip install -r api/linter-requirements.txt
+        run: pip install -r linter-requirements.txt
 
       - name: check-lint with black
         run: cd api && black --diff --check .
