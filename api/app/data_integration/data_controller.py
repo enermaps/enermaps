@@ -39,7 +39,7 @@ def init_enermaps_datasets():
     for dataset_id in datasets_ids:
         try:
             time_started = time.time()
-            current_app.logger.info(f"Get/update dataset <{dataset_id}>...")
+            current_app.logger.info(f"Download dataset <{dataset_id}>...")
             file_upload = enermaps_server.get_dataset(dataset_id)
             time_fetched = time.time()
             current_app.logger.info(

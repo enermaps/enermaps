@@ -17,6 +17,7 @@
     'LAU.geojson',
   ];
   export const SELECTIONS = new Set(SELECTIONS_LIST);
+
   let selectionLayers = [];
   let isLayerListReady = false;
 
@@ -81,62 +82,69 @@
     selectionLayers = selectionLayers;
     isLayerListReady = true;
   });
+
   function getDrawingLayer() {
     return new L.DrawingLayer();
   }
+
   $: {
     console.log('layer changed in selector to ' + $activeSelectionLayerStore);
   }
 </script>
-<style>
-#map_selection {
-  width: 240px;
-  padding: 4px;
-  border: 1px solid #27275b;
-	border-radius: 0px;
-  background-color: #eff4fa !important;
-  box-sizing: border-box;
-}
-#map_selection h3 {
-  margin: 0px;
-  height: 25px;
-  display: flex;
-  flex-direction: column;
-  white-space: nowrap;
-  text-overflow: ellipsis;
-  overflow: hidden !important;
-}
-h3 {
-  flex-shrink: 0;
-  border : none;
-}
-#selection_layers {
-  overflow-y: auto;
-  border : none;
-}
 
-label {
-  display: block;
-  overflow-y: auto;
-  white-space: nowrap;
-  text-overflow: ellipsis;
-  overflow-x: hidden;
-  margin-top: 2px;
-}
+
+<style>
+  #map_selection {
+    width: 240px;
+    padding: 4px;
+    border: 1px solid #27275b;
+    border-radius: 0px;
+    background-color: #eff4fa !important;
+    box-sizing: border-box;
+  }
+
+  #map_selection h3 {
+    margin: 0px;
+    height: 25px;
+    display: flex;
+    flex-direction: column;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    overflow: hidden !important;
+  }
+
+  h3 {
+    flex-shrink: 0;
+    border : none;
+  }
+
+  #selection_layers {
+    overflow-y: auto;
+    border : none;
+  }
+
+  label {
+    display: block;
+    overflow-y: auto;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    overflow-x: hidden;
+    margin-top: 2px;
+  }
 </style>
 
-<div id="map_selection" on:click|stopPropagation="">
+<div id="map_selection" on:click|stopPropagation on:wheel|stopPropagation>
   {#if !isLayerListReady}
-  Loading layers...
+    Loading layers...
   {:else}
-  <h3>Area selection</h3>
-  <div id="selection_layers">
-  {#each selectionLayers as selectionLayer}
-  <label title={selectionLayer.name}>
-    <input type=radio bind:group={$activeSelectionLayerStore} value={selectionLayer}>
-    {selectionLayer.name}
-  </label>
-  {/each}
-  </div>
+    <h3>Area selection</h3>
+    <div id="selection_layers">
+      {#each selectionLayers as selectionLayer}
+        <label title={selectionLayer.name}>
+          <input type=radio bind:group={$activeSelectionLayerStore} value={selectionLayer}>
+          {selectionLayer.name}
+        </label>
+      {/each}
+    </div>
   {/if}
 </div>

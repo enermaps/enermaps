@@ -1,42 +1,45 @@
 <script >
-    import {onMount} from 'svelte';
-    import 'leaflet-search/dist/leaflet-search.src.js';
-    import 'leaflet-search/dist/leaflet-search.src.css';
-    let btn;
-    let modal;
-    let span;
-    onMount(async () => {
-      // Get the modal
-      modal = document.getElementById('myModal');
-      // Get the button that opens the modal
-      btn = document.getElementById('myBtn');
-      // Get the <span> element that closes the modal
-      span = document.getElementsByClassName('close')[0];
-      // When the user clicks the button, open the modal
-      btn.onclick = function() {
-        modal.style.display = 'block';
-      };
-      // When the user clicks on <span> (x), close the modal
-      span.onclick = function() {
+  import {onMount} from 'svelte';
+  import 'leaflet-search/dist/leaflet-search.src.js';
+  import 'leaflet-search/dist/leaflet-search.src.css';
+
+  let btn;
+  let modal;
+  let span;
+
+  onMount(async () => {
+    // Get the modal
+    modal = document.getElementById('myModal');
+    // Get the button that opens the modal
+    btn = document.getElementById('myBtn');
+    // Get the <span> element that closes the modal
+    span = document.getElementsByClassName('close')[0];
+    // When the user clicks the button, open the modal
+    btn.onclick = function() {
+      modal.style.display = 'block';
+    };
+    // When the user clicks on <span> (x), close the modal
+    span.onclick = function() {
+      modal.style.display = 'none';
+    };
+    // When the user clicks anywhere outside of the modal, close it
+    window.onclick = function(event) {
+      if (event.target == modal) {
         modal.style.display = 'none';
-      };
-      // When the user clicks anywhere outside of the modal, close it
-      window.onclick = function(event) {
-        if (event.target == modal) {
-          modal.style.display = 'none';
-        }
-      };
-    });
+      }
+    };
+  });
 </script>
 
 
-  <style>
+<style>
   #topnav {
     background-color: #27275b;
     overflow: visible;
     padding: 8px 20px;
     display: inline-block;
   }
+
   #topnav div {
     text-align: center;
     text-decoration: none;
@@ -44,6 +47,7 @@
     vertical-align: middle;
     display: inline-block;
   }
+
   .link {
     font-size: 24px;
     color: #eff4fa;
@@ -52,31 +56,37 @@
     text-decoration: none;
     margin-left: 30px;
   }
+
   .link:hover{
     text-decoration: underline;
     text-decoration-thickness: 2.5px;
   }
+
   #logo {
     box-sizing: border-box;
     height: 100%;
     display: inline-block;
     vertical-align: middle;
   }
+
   #title {
     color: #eff4fa;
     font-size: 22px;
   }
+
   img {
     vertical-align: middle;
     display: inline-block;
     height: 40px;
     box-sizing: border-box;
   }
+
   #slot {
     vertical-align: middle;
     display: inline-block;
     box-sizing: border-box;
   }
+
   /* The Modal (background) */
   .modal {
     display: none; /* Hidden by default */
@@ -91,6 +101,7 @@
     background-color: rgb(0,0,0); /* Fallback color */
     background-color: rgba(0,0,0,0.5); /* Black w/ opacity */
   }
+
   /* Modal Content */
   .modal-content {
     position: relative;
@@ -116,13 +127,12 @@
     justify-content: center; /* Horizontal center alignment */
   }
 
-
-
   .close:hover,
   .close:focus {
     text-decoration: none;
     cursor: pointer;
   }
+
   .modal-header {
     padding: 0px 45px;
     background-color: #eff4fa;
@@ -130,6 +140,7 @@
     width: 100%;
     cursor: default;
   }
+
   .modal-body {
     padding: 0px 60px;
     background-color: #eff4fa;
@@ -138,28 +149,31 @@
     text-align: justify;
     text-justify: inter-word;
     cursor: default;
-    }
+  }
+
   button, button:hover {
     font-family: inherit;
     border: 0;
     padding: 0;
     background-color: inherit;
   }
-  </style>
+</style>
 
-  <div id="topnav">
-    <div>
-      <div id='logo'> <img src='images/logo.png' alt='EnerMaps'> </div>
-      <div id='title'>EnerMaps</div>
-    </div>
-    <a href="https://enermaps.eu/" target="_blank" class="link">Wiki</a>
-    <a href="https://beta.enermaps.openaire.eu/" target="_blank" class="link">OpenAIRE</a>
-    <a href="https://www.kialo.com/" target="_blank" class="link">Kialo</a>
-    <!-- Trigger/Open The Modal -->
-    <button id="myBtn" class="link">About</button>
-    <slot id='slot'></slot>
 
-    <!-- The Modal -->
+<div id="topnav">
+  <div>
+    <div id='logo'> <img src='images/logo.png' alt='EnerMaps'> </div>
+    <div id='title'>EnerMaps</div>
+  </div>
+
+  <a href="https://enermaps.eu/" target="_blank" class="link">Wiki</a>
+  <a href="https://beta.enermaps.openaire.eu/" target="_blank" class="link">OpenAIRE</a>
+  <a href="https://www.kialo.com/" target="_blank" class="link">Kialo</a>
+  <!-- Trigger/Open The Modal -->
+  <button id="myBtn" class="link">About</button>
+  <slot id='slot'></slot>
+
+  <!-- The Modal -->
   <div id="myModal" class="modal">
     <!-- Modal content -->
     <div class="modal-content">
@@ -199,4 +213,4 @@
     </div>
   </div>
 
-  </div>
+</div>

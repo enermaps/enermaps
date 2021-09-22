@@ -29,8 +29,7 @@ def create_app(environment="production", testing=False, on_startup=False):
     app.config["TESTING"] = testing
     app.config["MAX_CONTENT_LENGTH"] = 16 * 1024 * 1024
     app.config["MAX_PROJECTION_LENGTH"] = 1024
-    app.config["UPLOAD_DIR"] = "/tmp/upload_dir"
-    app.config["RASTER_DB_DIR"] = "/tmp/db_dir"
+    app.config["UPLOAD_DIR"] = "upload_dir"
     app.config["WMS"] = {}
     app.config["WMS"]["ALLOWED_PROJECTIONS"] = ["EPSG:3857"]
     app.config["WMS"]["MAX_SIZE"] = 2048 ** 2

@@ -169,12 +169,14 @@
     box-sizing: border-box;
     flex-direction: column;
   }
+
   #map {
     width: 100%;
     height: 100%;
     display: flex;
     box-sizing: border-box;
   }
+
   #findbox {
     display: inline-block;
     overflow: visible;
@@ -183,6 +185,7 @@
     border: 0px;
   }
 </style>
+
 
 <svelte:window on:resize={resizeMap} />
 

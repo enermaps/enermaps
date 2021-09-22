@@ -9,6 +9,7 @@
   let isLayerListReady = false;
   let overlayLayersFilter = '';
   let filteredOverlayLayers = [];
+
   export const SELECTIONS_LIST= [
     'country.geojson',
     'NUTS1.geojson',
@@ -18,10 +19,10 @@
   ];
   export const SELECTIONS = new Set(SELECTIONS_LIST);
 
+
   function splitName(name) {
     return name.substring(3).replace(/\.[^/.]+$/, '');
   };
-
 
   function toQueryableLayer(layerName) {
     const layer = L.tileLayer.queryableLayer(
@@ -100,10 +101,12 @@
       }
       return 0;
     });
+
     overlayLayers = overlayLayers;
     filteredOverlayLayers = overlayLayers;
     isLayerListReady = true;
   });
+
   $: {
     console.log('layer changed in selector to ' + $activeOverlayLayersStore);
     filteredOverlayLayers = overlayLayers.filter((layer) =>
@@ -111,8 +114,8 @@
   }
 </script>
 
-  <style>
 
+<style>
   #map_selection {
     width: 240px;
     padding: 4px;
@@ -147,12 +150,12 @@
   }
 
   label {
-  display: block;
-  overflow-y: auto;
-  white-space: nowrap;
-  text-overflow: ellipsis;
-  overflow-x: hidden;
-  margin-top: 2px;
+    display: block;
+    overflow-y: auto;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    overflow-x: hidden;
+    margin-top: 2px;
   }
   .overlay_search {
     width: 100%;
@@ -175,64 +178,63 @@
     margin-left: 10px;
     overflow: hidden;
   }
+</style>
 
-  </style>
-  <div id="map_selection" on:click|stopPropagation="">
-    {#if !isLayerListReady}
+
+<div id="map_selection" on:click|stopPropagation on:wheel|stopPropagation>
+  {#if !isLayerListReady}
     Loading layers...
-    {:else}
+  {:else}
     <h3>Overlays layers</h3>
-      <input bind:value={overlayLayersFilter} class="overlay_search" placeholder="Search layer...">
+    <input bind:value={overlayLayersFilter} class="overlay_search" placeholder="Search layer...">
+
     <div id="overlay_layers" style="margin-top: 10px;">
+      {#each filteredOverlayLayers as overlayLayer (overlayLayer.name)}
+        <label title={splitName(overlayLayer.name)}>
+          <input type=checkbox bind:group={$activeOverlayLayersStore} value={overlayLayer} bind:checked={overlayLayer.checked}>
+            {splitName(overlayLayer.name)}
+        </label>
 
-    {#each filteredOverlayLayers as overlayLayer (overlayLayer.name)}
-    <label title={splitName(overlayLayer.name)}>
-      <input type=checkbox bind:group={$activeOverlayLayersStore} value={overlayLayer} bind:checked={overlayLayer.checked}>
-        {splitName(overlayLayer.name)}
-    </label>
+        <div id="metadata_box" hidden={!overlayLayer.checked}>
+          {#await overlayLayer.legend_promise}
+            <div>...waiting for legend</div>
+          {:then legend}
+            <div><b>{legend.variable.variable}</b></div>
+            <div>
+              {#each legend.style as color}
+                <div style="display: inline-block;">
+                  {#await overlayLayer.layer_type_promise}
+                    <div>...waiting for data_type</div>
+                  {:then layerType}
+                    {#if layerType.data_type == 'categorical'}
+                      <div class='box' style="background-color: rgb( {color[1][0][0]}, {color[1][0][1]}, {color[1][0][2]} )"> </div>
+                      <div style="display: inline-block;">{color[1][1]}</div><br>
+                    {:else}
+                      <div class='box' style="background-color: rgb( {color[0][0]}, {color[0][1]}, {color[0][2]} )"> </div>
+                      <div style="display: inline-block;">{color[1].toFixed(2)} to {color[2].toFixed(2)} {legend.variable.units}</div><br>
+                    {/if}
+                  {/await}
+                </div>
+              {/each}
+            </div>
 
-    <div id="metadata_box" hidden={!overlayLayer.checked}>
-      {#await overlayLayer.legend_promise}
-        <div>...waiting for legend</div>
-      {:then legend}
-        <div><b>{legend.variable.variable}</b></div>
-        <div>
-        {#each legend.style as color}
-          <div style="display: inline-block;">
-            {#await overlayLayer.layer_type_promise}
-              <div>...waiting for data_type</div>
-            {:then layerType}
-              {#if layerType.data_type == 'categorical'}
-                <div class='box' style="background-color: rgb( {color[1][0][0]}, {color[1][0][1]}, {color[1][0][2]} )"> </div>
-                <div style="display: inline-block;">{color[1][1]}</div><br>
-              {:else}
-                <div class='box' style="background-color: rgb( {color[0][0]}, {color[0][1]}, {color[0][2]} )"> </div>
-                <div style="display: inline-block;">{color[1].toFixed(2)} to {color[2].toFixed(2)} {legend.variable.units}</div><br>
-              {/if}
-            {/await}
+          {:catch error}
+            <div style="color: red">{error.message}</div>
+          {/await}
 
-          </div>
-        {/each}
+          {#await overlayLayer.openairLink_promise}
+            <div>...waiting for OpenAIRE link</div>
+          {:then openairLink}
+            <div>
+              <a href={openairLink} target="_blank">Link to OpenAIRE metadata &#128279;</a>
+            </div>
+          {:catch error}
+            <div style="color: red">{error.message}</div>
+          {/await}
+
         </div>
+      {/each}
 
-      {:catch error}
-        <div style="color: red">{error.message}</div>
-      {/await}
-
-      {#await overlayLayer.openairLink_promise}
-      <div>...waiting for OpenAIRE link</div>
-      {:then openairLink}
-        <div>
-          <a href={openairLink} target="_blank">Link to OpenAIRE metadata &#128279;</a>
-        </div>
-      {:catch error}
-        <div style="color: red">{error.message}</div>
-      {/await}
     </div>
-
-
-    {/each}
-    </div>
-
-    {/if}
-  </div>
+  {/if}
+</div>
