@@ -181,7 +181,7 @@
 </style>
 
 
-<div id="map_selection" on:click|stopPropagation on:wheel|stopPropagation>
+<div id="map_selection" on:click|stopPropagation on:dblclick|stopPropagation on:wheel|stopPropagation>
   {#if !isLayerListReady}
     Loading layers...
   {:else}
