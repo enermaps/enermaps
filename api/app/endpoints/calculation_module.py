@@ -61,7 +61,7 @@ class CMTask(Resource):
         """
         res = CM.task_by_id(task_id, cm_name=cm_name)
         res.revoke(terminate=True)
-        return redirect(url_for(".cm_cm_task", cm_name=cm_name, task_id=task_id))
+        return {"status": "REVOKED", "task_id": task_id, "cm_name": cm_name}
 
     def get(self, cm_name, task_id):
         """Get task based on the CM name and the task ID,
