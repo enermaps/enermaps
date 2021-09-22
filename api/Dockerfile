@@ -8,16 +8,17 @@ RUN apt update && apt install --yes \
     python3-gunicorn \
     gunicorn \
     libpq-dev \
-    python3-gdal && \
+    python3-gdal \
+    cron && \
     rm -rf /var/cache/apt/archives/
 
-VOLUME /upload
 WORKDIR /api
 COPY requirements.txt requirements.txt
 RUN pip3 install -r requirements.txt
 COPY . .
+
 #always ensure the python test are fine before proceeding to build the image
 RUN python3 test.py
 
 EXPOSE 80
-CMD ["gunicorn", "--config", "gunicorn.py", "--bind", "0.0.0.0:80", "wsgi:app"]
+ENTRYPOINT scripts/entrypoint.sh
