@@ -8,7 +8,6 @@ export async function getLayerType(layerId) {
     return {};
   }
   const legend = await response.json();
-  console.log(legend);
   return legend;
 }
 
@@ -18,7 +17,6 @@ export async function getLegend(layerId) {
     return {};
   }
   const legend = await response.json();
-  console.log(legend);
   return legend;
 }
 
@@ -28,7 +26,6 @@ export async function getOpenairLink(layerId) {
     return {};
   }
   const legend = await response.json();
-  console.log(legend);
   return legend;
 }
 
@@ -45,7 +42,6 @@ export async function getCMs() {
 export async function getGeofiles() {
   const response = await fetch(BASE_URL + 'api/geofile');
   if (!response.ok) {
-    console.log(response);
     return [];
   }
   const layersResponse = await response.json();

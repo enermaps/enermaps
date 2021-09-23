@@ -50,8 +50,9 @@
 
   $: {
     if (taskResult.status === REVOKED_STATUS) {
+      console.log('[CMTask ' + task.id + '] Revoked');
       removeTask();
-    } else {
+    } else if (isTaskPending) {
       isTaskPending = (taskResult.status === PENDING_STATUS);
       isTaskFailed = (taskResult.status === FAILURE_STATUS);
 
@@ -66,6 +67,8 @@
 
         parameters = Object.entries(task.parameters.parameters);
 
+        console.log('[CMTask ' + task.id + '] Got response: ' + taskResult.status);
+
         if (!isTaskFailed) {
           showHideResults();
         }
@@ -77,6 +80,7 @@
     let activeLayers = $activeCMOutputLayersStore;
 
     if (!resultsDisplayed) {
+      let index = 0;
       for (const value of Object.values(taskResult.result.geofiles)) {
         let layerName = value.split('/');
         layerName = layerName[layerName.length-2] + '/' + layerName[layerName.length-1];
@@ -90,12 +94,20 @@
             },
         );
 
+        layer.id = task.id + '/' + index;
+
         layer.on('tileerror', onTileError);
 
         layers.push(layer);
         activeLayers.push(layer);
+
+        ++index;
       }
+
+      console.log('[CMTask ' + task.id + '] Created layers:', layers.map((x) => x.id));
     } else {
+      console.log('[CMTask ' + task.id + '] Destroying layers:', layers.map((x) => x.id));
+
       for (const layer of layers) {
         activeLayers = activeLayers.filter((item) => item !== layer);
       }

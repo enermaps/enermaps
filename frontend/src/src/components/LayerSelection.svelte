@@ -52,15 +52,10 @@
     const layers = await getGeofiles();
     for (const [layer, layerParameters] of Object.entries(layers)) {
       let leafletLayer;
-      console.log(layer, layerParameters);
       if (!SELECTIONS.has(layer)) {
         const legend = getLegend(layer);
-        console.log(legend);
         const layerType = getLayerType(layer);
-        console.log(layerType);
-
         const openairLink = getOpenairLink(layer);
-        console.log(openairLink);
 
         if (layerParameters.isQueryable) {
           leafletLayer = toQueryableLayer(layer);
@@ -108,7 +103,7 @@
   });
 
   $: {
-    console.log('layer changed in selector to ' + $activeOverlayLayersStore);
+    console.log('Active layers changed to', $activeOverlayLayersStore.map((x) => x.name));
     filteredOverlayLayers = overlayLayers.filter((layer) =>
       layer.name.toLowerCase().indexOf(overlayLayersFilter.toLowerCase()) !== -1);
   }

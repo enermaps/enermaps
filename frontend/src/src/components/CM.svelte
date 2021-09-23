@@ -20,23 +20,34 @@
     newTaskParams['selection'] = $activeSelectionLayerStore.getSelection();
     newTaskParams['layers'] = $activeOverlayLayersStore.map((layer)=>layer.name);
     newTaskParams['parameters'] = form.getData();
-    console.log('Creating new task with parameters: ' + newTaskParams);
+
+    console.log(
+        '[CM ' + cm.name + '] Creating new task with parameters:',
+        newTaskParams.parameters,
+    );
+
     const task = await postCMTask(cm, newTaskParams);
+    console.log('[CM ' + cm.name + '] Created task: ' + task.id);
 
     tasks.push(task);
+    console.log('[CM ' + cm.name + '] Active tasks:', tasks.map((x) => x.id));
+
     tasks = tasks;
   }
 
 
   async function refreshTask(task) {
-    const index = tasks.indexOf(task);
-    tasks.splice(index, 1);
-    tasks = tasks;
+    console.log('[CM ' + cm.name + '] Refreshing task ' + task.id +
+                ' with parameters:', task.parameters.parameters);
 
-    console.log('Refreshing task with parameters: ' + task.parameters);
     const newTask = await postCMTask(cm, task.parameters);
+    console.log('[CM ' + cm.name + '] Created task: ' + newTask.id +
+                ' to replace ' + task.id);
 
-    tasks.splice(index, 0, newTask);
+    const index = tasks.indexOf(task);
+    tasks.splice(index, 1, newTask);
+    console.log('[CM ' + cm.name + '] Active tasks:', tasks.map((x) => x.id));
+
     tasks = tasks;
   }
 
@@ -64,7 +75,7 @@
   }
 
   function deleteCMTask(taskToDelete) {
-    console.log('Deleting task: ' + taskToDelete.id);
+    console.log('[CM ' + cm.name + '] Deleting task: ' + taskToDelete.id);
     tasks = tasks.filter((task)=> taskToDelete.id != task.id);
   }
 </script>
