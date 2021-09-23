@@ -205,6 +205,10 @@ class RasterLayer(Layer):
         non_hidden_layers = filter(lambda a: not a.startswith("."), layers)
         return map(RasterLayer, non_hidden_layers)
 
+    @classmethod
+    def _convert_name(cls, name):
+        return name
+
     def _get_raster_dir(self):
         """Return the path to the directory containing the raster path"""
         raster_dir = safe_join(get_user_upload(self.FOLDER), self.name)
@@ -244,7 +248,7 @@ class RasterLayer(Layer):
         * the layer is saved in a temporary directory as tiff.
           -> path : /upload-dir/tmp/raster.tiff,
         * and then replace its in the raster directory.
-          -> path : /upload-dir/raster/(file_upload_filename)/raster.tiff.
+          -> path : /upload-dir/{FOLDER}/(file_upload_filename)/raster.tiff.
 
         An error is raised if the geofile already exists.
         """
@@ -252,8 +256,10 @@ class RasterLayer(Layer):
             tmp_filepath = safe_join(tmp_dir, RasterLayer._RASTER_NAME)
             file_upload.save(tmp_filepath)
             output_filepath = safe_join(
-                get_user_upload(cls.FOLDER), file_upload.filename
+                get_user_upload(cls.FOLDER), cls._convert_name(file_upload.filename)
             )
+            parent, _ = os.path.split(output_filepath)
+            os.makedirs(parent, exist_ok=True)
             # replace will replace the file if it already exists, we should first check
             # if the file already exists before proceeding
             try:
@@ -293,6 +299,47 @@ class RasterLayer(Layer):
 class CMRasterLayer(RasterLayer):
 
     FOLDER = "cm_output"
+
+    def __init__(self, name):
+        super().__init__(name)
+        self.folder_name = self._convert_name(name)
+
+    @classmethod
+    def list_layers(cls):
+        """As we store rasters on disk, we only want to list
+        files in the directory.
+        """
+        root_folder = get_user_upload(cls.FOLDER)
+
+        layers = []
+        for root, dirs, files in os.walk(root_folder):
+            if files:
+                _, name = os.path.split(root)
+                layers.append(name)
+
+        non_hidden_layers = filter(lambda a: not a.startswith("."), layers)
+
+        return map(CMRasterLayer, non_hidden_layers)
+
+    @classmethod
+    def _convert_name(cls, name):
+        parts = name.split("_")
+
+        if parts[-1].find("-") >= 0:
+            prefix = parts[-1].split("-")[0]
+            parts = parts[:-1]
+
+            for i in range(0, len(prefix), 2):
+                parts.append(prefix[i : i + 2])
+
+        parts.append(name)
+
+        return os.path.sep.join(parts)
+
+    def _get_raster_dir(self):
+        """Return the path to the directory containing the raster path"""
+        raster_dir = safe_join(get_user_upload(self.FOLDER), self.folder_name)
+        return raster_dir
 
     def touch(self):
         """Sets the modification and access times of files to the current time of day"""
