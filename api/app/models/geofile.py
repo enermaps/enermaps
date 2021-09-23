@@ -12,6 +12,7 @@ import subprocess  # nosec
 import zipfile
 from abc import ABC, abstractmethod
 from glob import glob
+from pathlib import Path
 from tempfile import TemporaryDirectory
 
 import mapnik
@@ -99,6 +100,7 @@ def load_cm_output(name):
     """Create a new instance of RasterLayer based on its name"""
     layer = CMRasterLayer(name)
     if layer.exists():
+        layer.touch()
         return layer
 
     raise FileNotFoundError
@@ -291,6 +293,10 @@ class RasterLayer(Layer):
 class CMRasterLayer(RasterLayer):
 
     FOLDER = "cm_output"
+
+    def touch(self):
+        """Sets the modification and access times of files to the current time of day"""
+        Path(self._get_raster_path()).touch()
 
 
 class VectorLayer(Layer):
