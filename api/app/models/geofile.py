@@ -5,7 +5,6 @@ really prevent race condition on list vs delete. We
 also catch those on accessing the layer.
 
 """
-import functools
 import io
 import os
 import shutil
@@ -84,7 +83,6 @@ def create(file_upload: FileStorage, is_cm_output=False):
     raise Exception("Unknown file format {}".format(file_upload.mimetype))
 
 
-@functools.lru_cache
 def load(name):
     """Create a new instance of RasterLayer based on its name"""
     if name.startswith("cm_outputs/"):
@@ -97,10 +95,13 @@ def load(name):
         return RasterLayer(name)
 
 
-@functools.lru_cache
 def load_cm_output(name):
     """Create a new instance of RasterLayer based on its name"""
-    return CMRasterLayer(name)
+    layer = CMRasterLayer(name)
+    if layer.exists():
+        return layer
+
+    raise FileNotFoundError
 
 
 class Layer(ABC):
