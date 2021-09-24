@@ -22,6 +22,7 @@
   const PENDING_STATUS = 'PENDING';
   const FAILURE_STATUS = 'FAILURE';
   const REVOKED_STATUS = 'REVOKED';
+  const REFRESHING_STATUS = 'REFRESHING';
   const dispatch = createEventDispatcher();
 
   onMount(async () => {
@@ -53,7 +54,8 @@
       console.log('[CMTask ' + task.id + '] Revoked');
       removeTask();
     } else if (isTaskPending) {
-      isTaskPending = (taskResult.status === PENDING_STATUS);
+      isTaskPending = (taskResult.status === PENDING_STATUS) ||
+                      (taskResult.status === REFRESHING_STATUS);
       isTaskFailed = (taskResult.status === FAILURE_STATUS);
 
       if (!isTaskPending) {
@@ -125,7 +127,7 @@
       // Reset the component
       graphs = {};
       values = [];
-      taskResult = {status: 'PENDING'};
+      taskResult = {status: REFRESHING_STATUS};
       isTaskPending = true;
       isTaskFailed = false;
       resultsDisplayed = false;
