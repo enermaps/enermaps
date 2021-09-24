@@ -1,4 +1,4 @@
-enermaps is a rewrite of the hotmaps poc based on the previous experience.
+enermaps is a rewrite of the hotmaps.
 
 # Development
 First you need to have docker installed on your machine.
@@ -89,7 +89,7 @@ You can stop the entire stack with
 docker-compose stop
 ```
 
-You can remove all data and images, if for example you wanna start from scratch with:
+You can remove all data and images, if for example you want to start from scratch with:
 
 ```
 docker-compose down --volumes --remove-orphans
@@ -113,7 +113,7 @@ be the same. When updating one setup.cfg, you will need to be carefull to update
 
 # Linting
 
-We run a series of linter which are listed in linter-requirements.txt with their version.
+We run a series of linters which are listed in linter-requirements.txt with their version.
 
 You can either run them manually, automatically each time you do a commit, or both.
 
