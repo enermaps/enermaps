@@ -29,22 +29,29 @@ class SaveException(Exception):
     pass
 
 
-def get_tmp_upload():
+def get_tmp_geodb_dir():
     """Return the buffer location for fetching file locally."""
-    return get_user_upload("tmp")
+    return get_geodb_subfolder("tmp")
 
 
-def get_user_upload(subdirectory):
-    """Return the location of a subdirectory for uploads. This also uses a
-    subdirectories path component in the main user upload directory.
+def get_tmp_cm_outputs_dir():
+    """Return the buffer location for fetching file locally."""
+    tmp_dir = safe_join(current_app.config["CM_OUTPUTS_DIR"], "tmp")
+    os.makedirs(tmp_dir, exist_ok=True)
+    return tmp_dir
+
+
+def get_geodb_subfolder(subdirectory):
+    """Return the location of a subdirectory for geodbs. This also uses a
+    subdirectories path component in the main geodb directory.
     This function is safe to path injection (such as .. in filename).
     This function will also care about directory creation if it doesn't exist
     yet.
-    Path example : /upload-dir/subdirectory
+    Path example : /geodb/subdirectory
     """
-    user_dir = safe_join(current_app.config["UPLOAD_DIR"], subdirectory)
-    os.makedirs(user_dir, exist_ok=True)
-    return user_dir
+    subdir = safe_join(current_app.config["GEODB_DIR"], subdirectory)
+    os.makedirs(subdir, exist_ok=True)
+    return subdir
 
 
 def list_layers():
@@ -196,22 +203,26 @@ class RasterLayer(Layer):
     _RASTER_NAME = "raster.tiff"
     FOLDER = "raster"
 
-    @classmethod
-    def list_layers(cls):
+    @staticmethod
+    def list_layers():
         """As we store rasters on disk, we only want to list
         files in the directory.
         """
-        layers = os.listdir(get_user_upload(cls.FOLDER))
+        layers = os.listdir(get_geodb_subfolder(RasterLayer.FOLDER))
         non_hidden_layers = filter(lambda a: not a.startswith("."), layers)
         return map(RasterLayer, non_hidden_layers)
 
-    @classmethod
-    def _convert_name(cls, name):
-        return name
+    @staticmethod
+    def _get_file_fullpath(name):
+        return safe_join(get_geodb_subfolder(RasterLayer.FOLDER), name)
+
+    @staticmethod
+    def _get_tmp_dir():
+        return get_tmp_geodb_dir()
 
     def _get_raster_dir(self):
         """Return the path to the directory containing the raster path"""
-        raster_dir = safe_join(get_user_upload(self.FOLDER), self.name)
+        raster_dir = safe_join(get_geodb_subfolder(self.FOLDER), self.name)
         return raster_dir
 
     def _get_raster_path(self):
@@ -237,7 +248,7 @@ class RasterLayer(Layer):
         For raster, deleting a layer is equivalent to just removing
         the file.
         """
-        with TemporaryDirectory(prefix=get_tmp_upload()) as tmp_dir:
+        with TemporaryDirectory(prefix=self._get_tmp_dir()) as tmp_dir:
             os.rename(self._get_raster_dir(), tmp_dir)
             shutil.rmtree(tmp_dir)
 
@@ -246,20 +257,18 @@ class RasterLayer(Layer):
         """Save a FileStorage instance and return the RasterLayer instance.
         To do so,
         * the layer is saved in a temporary directory as tiff.
-          -> path : /upload-dir/tmp/raster.tiff,
+          -> path : /geodb/tmp/raster.tiff,
         * and then replace its in the raster directory.
-          -> path : /upload-dir/{FOLDER}/(file_upload_filename)/raster.tiff.
+          -> path : /geodb/{FOLDER}/(file_upload_filename)/raster.tiff.
+          -> path : /cm_outputs/{FOLDER}/(file_upload_filename)/raster.tiff.
 
         An error is raised if the geofile already exists.
         """
-        with TemporaryDirectory(prefix=get_tmp_upload()) as tmp_dir:
+        with TemporaryDirectory(prefix=cls._get_tmp_dir()) as tmp_dir:
             tmp_filepath = safe_join(tmp_dir, RasterLayer._RASTER_NAME)
             file_upload.save(tmp_filepath)
-            output_filepath = safe_join(
-                get_user_upload(cls.FOLDER), cls._convert_name(file_upload.filename)
-            )
-            parent, _ = os.path.split(output_filepath)
-            os.makedirs(parent, exist_ok=True)
+            output_filepath = cls._get_file_fullpath(file_upload.filename)
+            os.makedirs(output_filepath, exist_ok=True)
             # replace will replace the file if it already exists, we should first check
             # if the file already exists before proceeding
             try:
@@ -297,19 +306,12 @@ class RasterLayer(Layer):
 
 
 class CMRasterLayer(RasterLayer):
-
-    FOLDER = "cm_output"
-
-    def __init__(self, name):
-        super().__init__(name)
-        self.folder_name = self._convert_name(name)
-
-    @classmethod
-    def list_layers(cls):
+    @staticmethod
+    def list_layers():
         """As we store rasters on disk, we only want to list
         files in the directory.
         """
-        root_folder = get_user_upload(cls.FOLDER)
+        root_folder = current_app.config["CM_OUTPUTS_DIR"]
 
         layers = []
         for root, dirs, files in os.walk(root_folder):
@@ -321,8 +323,8 @@ class CMRasterLayer(RasterLayer):
 
         return map(CMRasterLayer, non_hidden_layers)
 
-    @classmethod
-    def _convert_name(cls, name):
+    @staticmethod
+    def _get_file_fullpath(name):
         parts = name.split("_")
 
         if parts[-1].find("-") >= 0:
@@ -334,12 +336,15 @@ class CMRasterLayer(RasterLayer):
 
         parts.append(name)
 
-        return os.path.sep.join(parts)
+        return safe_join(current_app.config["CM_OUTPUTS_DIR"], os.path.sep.join(parts))
+
+    @staticmethod
+    def _get_tmp_dir():
+        return get_tmp_cm_outputs_dir()
 
     def _get_raster_dir(self):
         """Return the path to the directory containing the raster path"""
-        raster_dir = safe_join(get_user_upload(self.FOLDER), self.folder_name)
-        return raster_dir
+        return self._get_file_fullpath(self.name)
 
     def touch(self):
         """Sets the modification and access times of files to the current time of day"""
@@ -383,7 +388,7 @@ class VectorLayer(Layer):
         return layer
 
     def _get_vector_dir(self):
-        return safe_join(get_user_upload("vectors"), self.name)
+        return safe_join(get_geodb_subfolder("vectors"), self.name)
 
     @property
     def projection(self):
@@ -410,10 +415,10 @@ class VectorLayer(Layer):
         # Use a temp file in the same directory as the ginal vector location
         # The point here is to have an atomic replace which is only possible if
         # the origin and the destination are in the same filesystem.
-        with TemporaryDirectory(prefix=get_tmp_upload()) as tmp_dir:
+        with TemporaryDirectory(prefix=get_tmp_geodb_dir()) as tmp_dir:
             zip_ref.extractall(tmp_dir)
-            upload_dir = get_user_upload("vectors")
-            output_dirpath = safe_join(upload_dir, file_upload.filename)
+            geodb_dir = get_geodb_subfolder("vectors")
+            output_dirpath = safe_join(geodb_dir, file_upload.filename)
             try:
                 os.replace(tmp_dir, output_dirpath)
             except FileExistsError:
@@ -427,7 +432,7 @@ class VectorLayer(Layer):
         Ignore hidden file as they are used for unzipping destination and don't
         provide ondisk consistency.
         """
-        layers = os.listdir(get_user_upload("vectors"))
+        layers = os.listdir(get_geodb_subfolder("vectors"))
         non_hidden_layers = filter(lambda a: not a.startswith("."), layers)
         return map(VectorLayer, non_hidden_layers)
 
@@ -439,7 +444,7 @@ class VectorLayer(Layer):
         2) Run shutil.rmtree, this operation could fail at any moment and leave
            remaining files around in the to_be_deleted_dir
         """
-        with TemporaryDirectory(prefix=get_tmp_upload()) as tmp_dir:
+        with TemporaryDirectory(prefix=get_tmp_geodb_dir()) as tmp_dir:
             os.rename(self._get_vector_dir(), tmp_dir)
             shutil.rmtree(tmp_dir)
 
@@ -461,7 +466,7 @@ class GeoJSONLayer(VectorLayer):
     @staticmethod
     def save(file_upload: FileStorage):
         """This method takes a geojson as input and present it as a raster file"""
-        with TemporaryDirectory(prefix=get_tmp_upload()) as tmp_dir:
+        with TemporaryDirectory(prefix=get_tmp_geodb_dir()) as tmp_dir:
             tmp_filepath = safe_join(tmp_dir, file_upload.filename)
             file_upload.save(tmp_filepath)
             shape_name, _ = os.path.splitext(file_upload.filename)
@@ -487,8 +492,8 @@ class GeoJSONLayer(VectorLayer):
             os.remove(tmp_filepath)
 
             # everything went fine, symlink and return the corresponding VectorLayer
-            upload_dir = get_user_upload("vectors")
-            output_dirpath = safe_join(upload_dir, shape_name + ".geojson")
+            geodb_dir = get_geodb_subfolder("vectors")
+            output_dirpath = safe_join(geodb_dir, shape_name + ".geojson")
             try:
                 os.replace(tmp_dir, output_dirpath)
             except (FileExistsError, OSError):

@@ -5,9 +5,11 @@ services:
       context: ./cm
       dockerfile: cm_heat_demand/Dockerfile
     environment:
-      UPLOAD_DIR: /upload-dir
+      GEODB_DIR: /geodb
+      CM_OUTPUTS_DIR: /cm_outputs
     volumes:
-      - upload-data:/upload-dir
+      - geodb:/geodb:ro
+      - cm_outputs:/cm_outputs
     env_file:
       .env
 
@@ -16,9 +18,11 @@ services:
       context: ./cm
       dockerfile: example_multiply/Dockerfile
     environment:
-      UPLOAD_DIR: /upload-dir
+      GEODB_DIR: /geodb
+      CM_OUTPUTS_DIR: /cm_outputs
     volumes:
-      - upload-data:/upload-dir
+      - geodb:/geodb:ro
+      - cm_outputs:/cm_outputs
     env_file:
       .env
 
@@ -27,9 +31,11 @@ services:
       context: ./cm
       dockerfile: example_empty/Dockerfile
     environment:
-      UPLOAD_DIR: /upload-dir
+      GEODB_DIR: /geodb
+      CM_OUTPUTS_DIR: /cm_outputs
     volumes:
-      - upload-data:/upload-dir
+      - geodb:/geodb:ro
+      - cm_outputs:/cm_outputs
     env_file:
       .env
 
@@ -54,9 +60,11 @@ services:
       - "127.0.0.1:9000:80"
     restart: always
     environment:
-      UPLOAD_DIR: /upload-dir
+      GEODB_DIR: /geodb
+      CM_OUTPUTS_DIR: /cm_outputs
     volumes:
-      - upload-data:/upload-dir
+      - geodb:/geodb
+      - cm_outputs:/cm_outputs
     env_file:
       .env
 
@@ -77,7 +85,8 @@ services:
       .env
 
 volumes:
-  upload-data:
+  geodb:
+  cm_outputs:
   caddy-data:
   caddy-config:
   redis-data:

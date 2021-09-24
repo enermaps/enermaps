@@ -5,11 +5,9 @@ import sys
 from datetime import datetime, timedelta
 
 # Retrieve the root folder of the CM outputs
-upload_dir = os.environ.get("UPLOAD_DIR", None)
-if upload_dir is None:
+cm_outputs_dir = os.environ.get("CM_OUTPUTS_DIR", None)
+if cm_outputs_dir is None:
     sys.exit(1)
-
-cm_outputs_dir = os.path.join(upload_dir, "cm_output")
 
 
 # Find all the files to delete
