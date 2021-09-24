@@ -231,6 +231,10 @@
     <dl>
       <dt><strong>task_id</strong></dt><dd>{formatTaskID(task)}</dd>
       <dt><strong>status</strong></dt><dd>{taskResult.status}</dd>
+
+      {#if isTaskFailed}
+        <dt><strong>error</strong></dt><dd>{taskResult.result}</dd>
+      {/if}
     </dl>
   {:else}
     <div class="tabs">
