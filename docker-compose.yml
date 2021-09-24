@@ -41,6 +41,9 @@ services:
     restart: always
     # depends_on:
     #   - "api"
+    volumes:
+      - caddy-data:/data
+      - caddy-config:/config
     env_file:
       .env
 
@@ -54,7 +57,6 @@ services:
       UPLOAD_DIR: /upload-dir
     volumes:
       - upload-data:/upload-dir
-      - data:/raster-db-dir
     env_file:
       .env
 
@@ -62,13 +64,21 @@ services:
     image: redis:6-alpine
     ports:
       - "127.0.0.1:6379:6379"
+    volumes:
+      - redis-data:/data
+
   flower:
     image: mher/flower:0.9.4
     ports:
       - "127.0.0.1:5555:5555"
+    volumes:
+      - flower-data:/data
     env_file:
       .env
 
 volumes:
   upload-data:
-  data:
+  caddy-data:
+  caddy-config:
+  redis-data:
+  flower-data:
