@@ -169,7 +169,10 @@ def parse_projection(params):
     crs = params.get("crs")
     if not (srs or crs):
         abort(400, "Parameter srs nor crs was not found")
-    return srs.lower()
+    elif srs:
+        return srs.lower()
+    else:
+        return crs.lower()
 
 
 Size = namedtuple("Size", ("width", "height"))
