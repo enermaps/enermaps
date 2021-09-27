@@ -1,9 +1,9 @@
 Base directory for the calculation modules (cm).
 
-A calculation module is an asynchronous slow task (from seconds to hours of latency for the answer). 
+A calculation module is an asynchronous slow task (from seconds to hours of latency for the answer).
 A calculation module takes a set of rasters, a selection vector shape and an optional set of parameters
 
-For a non implemented example, see [example_empty](./example_empty) CM. 
+For a non implemented example, see [example_empty](./example_empty) CM.
 And for a simple example, see [example_multiply](./example_multiply) CM.
 
 # Create a new cm
@@ -14,9 +14,9 @@ It must contain:
 * A setup.cfg symlink to the cm/setup.cfg file. (see
   https://mokacoding.com/blog/symliks-in-git/ for a brief explanation on symbolic links)
 * A worker.py entrypoint, this must be an executable that start the worker.
-* A test.py unittest testing the calculation without service dependencies (see 
+* A test.py unittest testing the calculation without service dependencies (see
   https://docs.python.org/3/library/unittest.html for explination about unittest library).
-* A schema.json jsonschema which describes the schema used for the input parameters (if applicable). 
+* A schema.json jsonschema which describes the schema used for the input parameters (if applicable).
   You can find additional information about jsonschema
   (see https://json-schema.org/).
 * A requirements.txt including cm specific dependencies.
@@ -43,7 +43,7 @@ Below is an example of the tree structure :
 Once the calculation module is created, it appears on the front-end.
 The name of the calculation module that appears depends on the function name decorated in the worker file.
 
-For example: 
+For example:
 * for the example_multiply module, the function name is "multiply_raster" and becomes "Multiply raster" at the front-end.
 * for the example_empty module, the function name is "new_cm" and becomes "New cm" on the front-end.
 
@@ -58,7 +58,7 @@ max-line-length=88
 line_length=88
 ```
 
-To keep consistency in the project, 
+To keep consistency in the project,
 the following parameters mustn't be changed.
 
 ## Worker.py
@@ -79,7 +79,7 @@ schema_path = cm_base.get_default_schema_path()
 @app.task(base=cm_base.CMBase, bind=True, schema_path=schema_path)
 def fun(self, selection: dict, rasters: list, params: dict):
     """New cm description"""
-    # Validate the raster used 
+    # Validate the raster used
     if not rasters:
         raise ValueError("Raster list must be non-empty.")
     # Validate the selection used
@@ -89,11 +89,11 @@ def fun(self, selection: dict, rasters: list, params: dict):
         raise ValueError("The selection must be non-empty.")
     # Validate the parameters used
     self.validate_params(params)
-    
+
     result = process(selection, rasters, params)
-    
+
     validate(result)
-    
+
     return result
 
 
@@ -101,9 +101,9 @@ if __name__ == "__main__":
     cm_base.start_app(app)
 ````
 
-A broker manages the requests made to the calculation module.  
-The requests made to a calculation module are placed in a queue and each calculation 
-module has its own queue. 
+A broker manages the requests made to the calculation module.
+The requests made to a calculation module are placed in a queue and each calculation
+module has its own queue.
 This queue is identified by a name given by the `get_default_app` function.
 
 The selected area (a geojson file) and the selected raster (a geotiff file)
@@ -112,43 +112,43 @@ are in the variable ```selection``` and ```rasters``` respectively.
 See [test data](./multiply/testdata) for geojson file and geotiff file example.
 
 The variable ```params``` refers to the data provided by the form on the frontend.
-The method ```validate_params``` verifies if the values entered by the user match with the schema 
+The method ```validate_params``` verifies if the values entered by the user match with the schema
 of the ```schema.json``` file, see "schema.json" section below.
 
 All CM provide an output dictionary. The 3 keys required are as follows:
 
-* graphs 
+* graphs
 * geofiles
 * values
 
 The schema of this dictionary has to be validated before it is sent to the frontend.
 See [cm_output.py](./base/BaseCM/cm_output.py) for more information about the output json schema.
 
-Warning: the name of the function in the `worker.py` file corresponds to the name of the CM as it will appear in the front-end. Make sure that this name is unique, otherwise it will generate conflicts with other CMs. 
+Warning: the name of the function in the `worker.py` file corresponds to the name of the CM as it will appear in the front-end. Make sure that this name is unique, otherwise it will generate conflicts with other CMs.
 
 ## Test.py
 
 To perform unit tests on CMs, we use the Unittest library.
-For this, we define a class dependent on the Unittest.TestCase class. 
+For this, we define a class dependent on the Unittest.TestCase class.
 In this class are functions that test a particular functionality of the CM.
 
 Pre-implemented methods make it possible to study the behaviour of the CM quite easily.
 Below is a non-exhaustive list of these methods:
 
-| Method                    | Checks that           
+| Method                    | Checks that
 |---------------------------|----------------------
-| assertEqual(a, b)         | a == b                       
-| assertNotEqual(a, b)      | a != b                       
-| assertTrue(x)             | bool(x) is True              
-| assertFalse(x)            | bool(x) is False             
-| assertIs(a, b)            | a is b                   
-| assertIsNot(a, b)         | a is not b               
-| assertIsNone(x)           | x is None            
-| assertIsNotNone(x)        | x is not None        
-| assertIn(a, b)            | a in b               
-| assertNotIn(a, b)         | a not in b           
-| assertIsInstance(a, b)    | isinstance(a, b)     
-| assertNotIsInstance(a, b) | not isinstance(a, b) 
+| assertEqual(a, b)         | a == b
+| assertNotEqual(a, b)      | a != b
+| assertTrue(x)             | bool(x) is True
+| assertFalse(x)            | bool(x) is False
+| assertIs(a, b)            | a is b
+| assertIsNot(a, b)         | a is not b
+| assertIsNone(x)           | x is None
+| assertIsNotNone(x)        | x is not None
+| assertIn(a, b)            | a in b
+| assertNotIn(a, b)         | a not in b
+| assertIsInstance(a, b)    | isinstance(a, b)
+| assertNotIsInstance(a, b) | not isinstance(a, b)
 
 See [unittest documentation](https://docs.python.org/3/library/unittest.html#assert-methods)
 for more information.
@@ -176,7 +176,7 @@ if __name__ == "__main__":
 
 ## Schema.json
 
-The calculation module form is built thanks to a JSON file using `org.brutusin:json-forms`, 
+The calculation module form is built thanks to a JSON file using `org.brutusin:json-forms`,
 a javascript library.
 
 Below is an example of the data schema expected by the library to build the form.
@@ -193,12 +193,12 @@ Below is an example of the data schema expected by the library to build the form
 }
 ```
 
-As shown in the example above, generally the data entered by the user is numerical data 
-(see [documentation on JSON numeric variable type](https://json-schema.org/understanding-json-schema/reference/numeric.html)), 
+As shown in the example above, generally the data entered by the user is numerical data
+(see [documentation on JSON numeric variable type](https://json-schema.org/understanding-json-schema/reference/numeric.html)),
 but other types of data are supported by JSON schemas (see [documentation on JSON variable types]
 (https://json-schema.org/understanding-json-schema/reference/)).
 
-See the [GitHub repository](https://github.com/brutusin/json-forms) or 
+See the [GitHub repository](https://github.com/brutusin/json-forms) or
 [the demo website](http://brutusin.org/json-forms/) of the project for more information.
 
 
@@ -226,8 +226,8 @@ redis==3.5.3
 requests
 ````
 
-Whenever possible, it is preferable to specify 
-the version of the dependency used. 
+Whenever possible, it is preferable to specify
+the version of the dependency used.
 
 ## Docker
 
@@ -263,9 +263,9 @@ cm-new_cm:
     context: ./cm
     dockerfile: new_cm/Dockerfile
   environment:
-    UPLOAD_DIR: /upload-dir
+    GEODB_DIR: /geodb
   volumes:
-    - upload-data:/upload-dir
+    - geodb:/geodb
   env_file:
     .env
 ```
@@ -274,16 +274,16 @@ cm-new_cm:
 
 This python script file contains all the functions that make the CM work.
 If the need arises, it is possible to organise these functions in directories.
-But, to keep the structure the same throughout each CM, it is recommended to keep 
-a main function in a separate file at the root of the CM directory 
+But, to keep the structure the same throughout each CM, it is recommended to keep
+a main function in a separate file at the root of the CM directory
 (as shown in first section or in the [example_multiply](./example_multiply) folder).
 
-It is also important to note that before running CM, we need to check that the selection made 
+It is also important to note that before running CM, we need to check that the selection made
 contains non-null pixels and at most a maximum number of pixels.
 
 For this purpose the function `validate_selection` has been developed.
-The script for this function can be found in the [cm_input.py](./base/BaseCM/cm_input.py) file. 
-If, for some reason, this function does not work for you, it is up to each CM developer to develop 
+The script for this function can be found in the [cm_input.py](./base/BaseCM/cm_input.py) file.
+If, for some reason, this function does not work for you, it is up to each CM developer to develop
 a function compatible with the CM in question.
 
 # Post geofile
@@ -315,7 +315,7 @@ At the moment, only Geotiff is supported.
 Currently to test a particular cm, you will need to first start enermaps using `docker-compose up` in the root directory.
 Then you can connect to the redis queue. The multiply cm is given as an example.
 
-We strongly encourage you to write unittest that verify the good working of a calculation module 
+We strongly encourage you to write unittest that verify the good working of a calculation module
 and separated from the enermaps api.
 
 # CMs interaction
