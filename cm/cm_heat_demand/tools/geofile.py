@@ -1,6 +1,6 @@
 import json
 import tempfile
-from os import close, remove, system
+from os import remove, system
 from os.path import exists, isfile, splitext
 
 import numpy as np
@@ -38,10 +38,8 @@ def clip_raster(src: str, shapes: dict, dst: str, quiet: bool = True):
         * projection : projection of the clipped raster.
     """
 
-    (file, cutline) = tempfile.mkstemp()
-    close(file)
-
-    with open(cutline, "w") as file:
+    (fd, cutline) = tempfile.mkstemp()
+    with open(fd, "w") as file:
         json.dump(shapes, file)
 
     command = (
