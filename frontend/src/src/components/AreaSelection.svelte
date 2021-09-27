@@ -35,9 +35,8 @@
 
   onMount(async () => {
     const layers = await getGeofiles();
-    for (const [layer, layerParameters] of Object.entries(layers)) {
+    for (const layer of Object.keys(layers)) {
       let leafletLayer;
-      console.log(layer, layerParameters);
       if (SELECTIONS.has(layer)) {
         // We can put something else than the full name of the file
         function convertName(layer) {
@@ -88,7 +87,9 @@
   }
 
   $: {
-    console.log('layer changed in selector to ' + $activeSelectionLayerStore);
+    if ($activeSelectionLayerStore !== undefined) {
+      console.log('Active area changed to ' + $activeSelectionLayerStore.name);
+    }
   }
 </script>
 

@@ -22,6 +22,7 @@
   const PENDING_STATUS = 'PENDING';
   const FAILURE_STATUS = 'FAILURE';
   const REVOKED_STATUS = 'REVOKED';
+  const REFRESHING_STATUS = 'REFRESHING';
   const dispatch = createEventDispatcher();
 
   onMount(async () => {
@@ -50,9 +51,11 @@
 
   $: {
     if (taskResult.status === REVOKED_STATUS) {
+      console.log('[CMTask ' + task.id + '] Revoked');
       removeTask();
-    } else {
-      isTaskPending = (taskResult.status === PENDING_STATUS);
+    } else if (isTaskPending) {
+      isTaskPending = (taskResult.status === PENDING_STATUS) ||
+                      (taskResult.status === REFRESHING_STATUS);
       isTaskFailed = (taskResult.status === FAILURE_STATUS);
 
       if (!isTaskPending) {
@@ -66,6 +69,8 @@
 
         parameters = Object.entries(task.parameters.parameters);
 
+        console.log('[CMTask ' + task.id + '] Got response: ' + taskResult.status);
+
         if (!isTaskFailed) {
           showHideResults();
         }
@@ -77,6 +82,7 @@
     let activeLayers = $activeCMOutputLayersStore;
 
     if (!resultsDisplayed) {
+      let index = 0;
       for (const value of Object.values(taskResult.result.geofiles)) {
         let layerName = value.split('/');
         layerName = layerName[layerName.length-2] + '/' + layerName[layerName.length-1];
@@ -90,10 +96,20 @@
             },
         );
 
+        layer.id = task.id + '/' + index;
+
+        layer.on('tileerror', onTileError);
+
         layers.push(layer);
         activeLayers.push(layer);
+
+        ++index;
       }
+
+      console.log('[CMTask ' + task.id + '] Created layers:', layers.map((x) => x.id));
     } else {
+      console.log('[CMTask ' + task.id + '] Destroying layers:', layers.map((x) => x.id));
+
       for (const layer of layers) {
         activeLayers = activeLayers.filter((item) => item !== layer);
       }
@@ -104,6 +120,31 @@
     $activeCMOutputLayersStore = activeLayers;
 
     resultsDisplayed = !resultsDisplayed;
+  }
+
+  function onTileError() {
+    if (!isTaskPending) {
+      // Reset the component
+      graphs = {};
+      values = [];
+      taskResult = {status: REFRESHING_STATUS};
+      isTaskPending = true;
+      isTaskFailed = false;
+      resultsDisplayed = false;
+
+      // Destroy the layers
+      let activeLayers = $activeCMOutputLayersStore;
+
+      for (const layer of layers) {
+        activeLayers = activeLayers.filter((item) => item !== layer);
+      }
+
+      layers = [];
+      $activeCMOutputLayersStore = activeLayers;
+
+      // Refresh the task
+      dispatch('refresh', {});
+    }
   }
 
   function removeTask() {
@@ -190,6 +231,10 @@
     <dl>
       <dt><strong>task_id</strong></dt><dd>{formatTaskID(task)}</dd>
       <dt><strong>status</strong></dt><dd>{taskResult.status}</dd>
+
+      {#if isTaskFailed}
+        <dt><strong>error</strong></dt><dd>{taskResult.result}</dd>
+      {/if}
     </dl>
   {:else}
     <div class="tabs">

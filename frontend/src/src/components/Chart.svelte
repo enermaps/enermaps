@@ -17,7 +17,6 @@
 
   function processDatasets() {
     for (const [datasetName, dataset] of Object.entries(datasets)) {
-      console.log('inserting dataset ' + datasetName);
       insertDataset(datasetName, dataset);
     }
   }
@@ -25,22 +24,18 @@
   function insertDataset(name, dataset) {
     const values = dataset.values;
     if (values.length === 0) {
-      console.log('empty graph ' + name + ', skip this graph');
       return;
     }
     const graphType = dataset.type;
     switch (graphType) {
       case 'xy':
         insertXYChart(name, dataset);
-        console.log('Graph type : XY');
         break;
       case 'bar':
         insertBarChart(name, dataset);
-        console.log('Graph type : BAR');
         break;
       case 'line':
         insertLineChart(name, dataset);
-        console.log('Graph type : LINE');
         break;
       default:
     }

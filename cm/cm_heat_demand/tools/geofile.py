@@ -1,4 +1,5 @@
 import json
+import tempfile
 from os import remove, system
 from os.path import exists, isfile, splitext
 
@@ -37,14 +38,16 @@ def clip_raster(src: str, shapes: dict, dst: str, quiet: bool = True):
         * projection : projection of the clipped raster.
     """
 
-    cutline = "cutline.json"
-    with open(cutline, "w") as file:
+    (fd, cutline) = tempfile.mkstemp()
+    with open(fd, "w") as file:
         json.dump(shapes, file)
+
     command = (
         f'gdalwarp -cutline {cutline} -crop_to_cutline -dstnodata 0 "{src}" "{dst}"'
     )
     if quiet:
         command += " -q"
+
     system(command=command)
     remove(cutline)
 

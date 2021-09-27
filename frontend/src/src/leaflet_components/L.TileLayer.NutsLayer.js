@@ -89,7 +89,6 @@ L.TileLayer.NutsLayer = L.TileLayer.WMS.extend({
     // Otherwise show the content in a popup, or something.
     // this._map.getLayer("selection")
     // check if we already clicked to toggle the selection
-    console.log('check click');
     // this._map.removeLayer(this.selection);
     // to be replaced by a dict to find the data per id
     for (const feature of content.features) {
@@ -106,7 +105,6 @@ L.TileLayer.NutsLayer = L.TileLayer.WMS.extend({
         this.selection.addData(feature);
       }
     }
-    console.log(this.selection.toGeoJSON().features.map(this.getFeatureId));
   },
 });
 

@@ -22,9 +22,9 @@
   import {BASE_LAYER_PARAMS} from '../settings.js';
 
   let map;
-  $: activeSelectionLayer = $activeSelectionLayerStore;
-  $: activeOverlayLayers = $activeOverlayLayersStore;
-  $: activeCMOutputLayers = $activeCMOutputLayersStore;
+  let activeSelectionLayer;
+  let activeOverlayLayers;
+  let activeCMOutputLayers;
 
   const cmOutputsGroup = L.layerGroup();
   const overlaysGroup = L.layerGroup();
@@ -57,9 +57,10 @@
   }
 
   $: {
-    console.log(`selected layer was changed: ${activeSelectionLayer}`);
-    console.log(`overlay layer was changed: ${activeOverlayLayers}`);
-    console.log(`CM output layer was changed: ${activeCMOutputLayers}`);
+    activeSelectionLayer = $activeSelectionLayerStore;
+    activeOverlayLayers = $activeOverlayLayersStore;
+    activeCMOutputLayers = $activeCMOutputLayersStore;
+
     syncSelectionLayer();
     syncOverlayLayers();
     syncCMOutputLayers();
@@ -69,12 +70,14 @@
     const overlayToBePruned = new Set(overlaysGroup.getLayers());
     for (const activeOverlayLayer of activeOverlayLayers) {
       if (!overlaysGroup.hasLayer(activeOverlayLayer)) {
+        console.log('[Map] Add overlay layer: ' + activeOverlayLayer.name);
         overlaysGroup.addLayer(activeOverlayLayer);
       } else {
         overlayToBePruned.delete(activeOverlayLayer);
       }
     }
     for (const overlay of overlayToBePruned) {
+      console.log('[Map] Remove overlay layer: ' + overlay.name);
       overlaysGroup.removeLayer(overlay);
     }
   }
@@ -96,12 +99,14 @@
     const cmOutputsToBePruned = new Set(cmOutputsGroup.getLayers());
     for (const activeCMOutputLayer of activeCMOutputLayers) {
       if (!cmOutputsGroup.hasLayer(activeCMOutputLayer)) {
+        console.log('[Map] Add CM output layer: ' + activeCMOutputLayer.id);
         cmOutputsGroup.addLayer(activeCMOutputLayer);
       } else {
         cmOutputsToBePruned.delete(activeCMOutputLayer);
       }
     }
     for (const cmOutput of cmOutputsToBePruned) {
+      console.log('[Map] Remove CM output layer: ' + cmOutput.id);
       cmOutputsGroup.removeLayer(cmOutput);
     }
   }

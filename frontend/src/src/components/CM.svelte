@@ -20,12 +20,37 @@
     newTaskParams['selection'] = $activeSelectionLayerStore.getSelection();
     newTaskParams['layers'] = $activeOverlayLayersStore.map((layer)=>layer.name);
     newTaskParams['parameters'] = form.getData();
-    console.log('Creating new task with parameters: ' + newTaskParams);
+
+    console.log(
+        '[CM ' + cm.name + '] Creating new task with parameters:',
+        newTaskParams.parameters,
+    );
+
     const task = await postCMTask(cm, newTaskParams);
+    console.log('[CM ' + cm.name + '] Created task: ' + task.id);
 
     tasks.push(task);
+    console.log('[CM ' + cm.name + '] Active tasks:', tasks.map((x) => x.id));
+
     tasks = tasks;
   }
+
+
+  async function refreshTask(task) {
+    console.log('[CM ' + cm.name + '] Refreshing task ' + task.id +
+                ' with parameters:', task.parameters.parameters);
+
+    const newTask = await postCMTask(cm, task.parameters);
+    console.log('[CM ' + cm.name + '] Created task: ' + newTask.id +
+                ' to replace ' + task.id);
+
+    const index = tasks.indexOf(task);
+    tasks.splice(index, 1, newTask);
+    console.log('[CM ' + cm.name + '] Active tasks:', tasks.map((x) => x.id));
+
+    tasks = tasks;
+  }
+
 
   onMount(() => {
     form = BrutusinForms.create(cm.schema);
@@ -50,7 +75,7 @@
   }
 
   function deleteCMTask(taskToDelete) {
-    console.log('Deleting task: ' + taskToDelete.id);
+    console.log('[CM ' + cm.name + '] Deleting task: ' + taskToDelete.id);
     tasks = tasks.filter((task)=> taskToDelete.id != task.id);
   }
 </script>
@@ -120,7 +145,7 @@
     <div class="cm_params" bind:this={formElement} />
     <div class="tasks">
       {#each [...tasks].reverse() as task (task.id)}
-        <CMTask {cm} {task}  on:delete="{() => deleteCMTask(task)}" />
+        <CMTask {cm} {task} on:delete="{() => deleteCMTask(task)}" on:refresh="{() => refreshTask(task)}" />
       {/each}
     </div>
   </div>
