@@ -1,8 +1,10 @@
 import logging
 import os
 
+import geojson
 import pyproj
 import rasterio
+import shapely
 from rasterstats import zonal_stats
 from shapely.geometry import shape
 from shapely.ops import cascaded_union, transform
@@ -85,3 +87,15 @@ def validate_selection(
             selection_valid = True
     validate(response)
     return selection_valid, response
+
+
+def merged_polygons(selection: dict) -> dict:
+    merged_polygon = shapely.geometry.polygon.Polygon()
+    region = selection["features"]
+    n_polygon = len(region)
+
+    for i in range(n_polygon):
+        poly_to_add = shapely.geometry.asShape(region[i]["geometry"])
+        merged_polygon = merged_polygon.union(poly_to_add)
+    geojson_out = geojson.Feature(geometry=merged_polygon, properties={})
+    return geojson_out.geometry
