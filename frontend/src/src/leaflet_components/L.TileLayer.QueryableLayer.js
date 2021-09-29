@@ -78,8 +78,8 @@ L.TileLayer.QueryableLayer = L.TileLayer.WMS.extend({
     for (const feature of content.features) {
       const properties = feature.properties;
 
-      const variables = JSON.parse(properties.variables);
-      const units = JSON.parse(properties.units);
+      const variables = this.convertField(properties.variables);
+      const units = this.convertField(properties.units);
 
       for (const [key, value] of Object.entries(variables)) {
         if (value !== null) {
@@ -94,9 +94,11 @@ L.TileLayer.QueryableLayer = L.TileLayer.WMS.extend({
           td2.className = 'value';
           td2.innerText = value;
 
-          const unit = units[key];
-          if ((unit !== undefined) && (unit !== null)) {
-            td2.innerText += ' ' + unit;
+          if (key in units) {
+            const unit = units[key];
+            if ((unit !== undefined) && (unit !== null)) {
+              td2.innerText += ' ' + unit;
+            }
           }
 
           popupContent += td2.outerHTML;
@@ -105,27 +107,24 @@ L.TileLayer.QueryableLayer = L.TileLayer.WMS.extend({
         }
       }
 
-      try {
-        const fields = JSON.parse(properties.fields);
+      const fields = this.convertField(properties.fields);
 
-        for (const [key, value] of Object.entries(fields)) {
-          if (value !== null) {
-            popupContent += '<tr>';
+      for (const [key, value] of Object.entries(fields)) {
+        if (value !== null) {
+          popupContent += '<tr>';
 
-            const td1 = document.createElement('td');
-            td1.className = 'name';
-            td1.innerText = key + ':';
-            popupContent += td1.outerHTML;
+          const td1 = document.createElement('td');
+          td1.className = 'name';
+          td1.innerText = key + ':';
+          popupContent += td1.outerHTML;
 
-            const td2 = document.createElement('td');
-            td2.className = 'value';
-            td2.innerText = value;
-            popupContent += td2.outerHTML;
+          const td2 = document.createElement('td');
+          td2.className = 'value';
+          td2.innerText = value;
+          popupContent += td2.outerHTML;
 
-            popupContent += '</tr>';
-          }
+          popupContent += '</tr>';
         }
-      } catch {
       }
     }
 
@@ -134,6 +133,38 @@ L.TileLayer.QueryableLayer = L.TileLayer.WMS.extend({
           .setLatLng(latlng)
           .setContent('<table><tbody>' + popupContent + '</tbody></<table>')
           .openOn(this._map);
+    }
+  },
+
+  convertField: function(value) {
+    // Fields containing JSON data (in string format) might be truncated (due to some
+    // file format limitation), and thus not be valid JSON. We try to extract as many
+    // info as possible from it anyway by building a valid JSON string.
+    let jsonValue = null;
+
+    if (!value.endsWith('}')) {
+      value += '}';
+    }
+
+    try {
+      jsonValue = JSON.parse(value);
+    } catch {
+      let index = value.lastIndexOf(',');
+      while ((jsonValue === null) && (index > 0)) {
+        value = value.substring(0, index) + '}';
+
+        try {
+          jsonValue = JSON.parse(value);
+        } catch {
+          index = value.lastIndexOf(',');
+        }
+      }
+    }
+
+    if (jsonValue !== null) {
+      return jsonValue;
+    } else {
+      return {};
     }
   },
 });
