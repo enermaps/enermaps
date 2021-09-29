@@ -45,18 +45,6 @@ def make_line_style():
     return mapnik_style, "line_style"
 
 
-def make_point_style():
-    """
-    Make a style for vector points
-    """
-    mapnik_style = mapnik.Style()
-    rule = mapnik.Rule()
-    pt_symbolizer = mapnik.PointSymbolizer()
-    rule.symbols.append(pt_symbolizer)
-    mapnik_style.rules.append(rule)
-    return mapnik_style, "point_style"
-
-
 def make_numerical_raster_style(layer_style):
     """
     Make a style for colorizing numerical rasters.
@@ -124,6 +112,31 @@ def make_numerical_polygon_style(layer_style):
         rule.symbols.append(polygon_symb)
         mapnik_style.rules.append(rule)
     return mapnik_style, "vector_polygon_style"
+
+
+def make_numerical_point_style(layer_style, legend_images):
+    """
+    Make a style for vector points
+    """
+    mapnik_style = mapnik.Style()
+    nb_of_colors = len(layer_style)
+    for n, (color, min_threshold, max_threshold) in enumerate(layer_style):
+        if n == 0:
+            expression = f"[legend] < {max_threshold}"
+        elif n == nb_of_colors - 1:
+            expression = f"[legend] >= {min_threshold}"
+        else:
+            expression = f"[legend] < {max_threshold} and [legend] >= {min_threshold}"
+
+        pt_symbolizer = mapnik.PointSymbolizer()
+        pt_symbolizer.file = legend_images[n]
+
+        rule = mapnik.Rule()
+        rule.filter = mapnik.Expression(expression)
+        rule.symbols.append(pt_symbolizer)
+        mapnik_style.rules.append(rule)
+
+    return mapnik_style, "vector_point_style"
 
 
 def parse_envelope(params):
@@ -361,14 +374,10 @@ class WMS(Resource):
                 abort(404, e.strerror)
             mapnik_layer = layer.as_mapnik_layer()
 
-            # For each layer, add a line style and a point style
+            # Style for lines
             line_style, style_name = make_line_style()
             mapnik_layer.styles.append(style_name)
             mp.append_style(style_name, line_style)
-            # Style for points
-            pt_style, style_name = make_point_style()
-            mapnik_layer.styles.append(style_name)
-            mp.append_style(style_name, pt_style)
 
             # Custom styles for layers that are in the DB and must be "colorized"
             if layer_name[0:2].isdigit():
@@ -378,31 +387,40 @@ class WMS(Resource):
                 legend_style = data_endpoints.get_legend_style(layer_id)
                 layer_type, data_type = data_endpoints.get_ds_type(layer_id)
 
-                if layer_type == "vector":
-                    # we are not dealing with the case of categorical layers at the moment
-                    # and we colorize only polygons, not points
-                    if data_type == "numerical":
-                        mapnik_style, style_name = make_numerical_polygon_style(
-                            legend_style
-                        )
-                        mapnik_layer.styles.append(style_name)
-                        mp.append_style(style_name, mapnik_style)
+                mapnik_style = None
+                style_name = None
 
-                if layer_type == "raster":
+                if layer_type == "vector":
+                    if data_type == "numerical":
+                        if (
+                            mapnik_layer.datasource.geometry_type()
+                            is mapnik.DataGeometryType.Polygon
+                        ):
+                            mapnik_style, style_name = make_numerical_polygon_style(
+                                legend_style
+                            )
+                        else:
+                            legend_images = layer.get_legend_images(legend_style)
+                            mapnik_style, style_name = make_numerical_point_style(
+                                legend_style, legend_images
+                            )
+
+                elif layer_type == "raster":
                     if data_type == "numerical":
                         mapnik_style, style_name = make_numerical_raster_style(
                             legend_style
                         )
-                        mapnik_layer.styles.append(style_name)
-                        mp.append_style(style_name, mapnik_style)
                     elif data_type == "categorical":
                         mapnik_style, style_name = make_categorical_raster_style(
                             legend_style
                         )
-                        mapnik_layer.styles.append(style_name)
-                        mp.append_style(style_name, mapnik_style)
-                    else:
-                        print("Unknown data type", flush=True)
+
+                if mapnik_style is not None:
+                    mapnik_layer.styles.append(style_name)
+                    mp.append_style(style_name, mapnik_style)
+                else:
+                    print("Unknown data type", flush=True)
+
             # If the layer has no index, it is not a layer contained in the database
             else:
                 # Make a default numerical raster layer style (the layer should be a

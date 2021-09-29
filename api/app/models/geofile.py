@@ -17,6 +17,7 @@ from tempfile import TemporaryDirectory
 
 import mapnik
 from flask import current_app, safe_join
+from PIL import Image
 from werkzeug.datastructures import FileStorage
 
 from app.common.projection import proj4_from_geotiff  # epsg_to_proj4,
@@ -356,8 +357,6 @@ class VectorLayer(Layer):
 
     MIMETYPE = ["application/zip"]
 
-    TO_BE_DELETED_DIR = "vectors_to_be_deleted"
-
     def as_fd(self):
         """For shapefile, rezip the directory and send it.
         The created zipfile this will use in memory zip."""
@@ -447,6 +446,25 @@ class VectorLayer(Layer):
         with TemporaryDirectory(prefix=get_tmp_geodb_dir()) as tmp_dir:
             os.rename(self._get_vector_dir(), tmp_dir)
             shutil.rmtree(tmp_dir)
+
+    def get_legend_images(self, legend_style):
+        """Returns a list of the images corresponding to the colors needed by the
+        legend. If the images don't exists, create them.
+        """
+        images_folder = safe_join(self._get_vector_dir(), "legend")
+        if not os.path.exists(images_folder):
+            os.makedirs(images_folder)
+
+        images = []
+        for n, (color, min_threshold, max_threshold) in enumerate(legend_style):
+            filename = safe_join(images_folder, f"{n:02}.png")
+            if not os.path.exists(filename):
+                img = Image.new("RGB", (4, 4), color=color)
+                img.save(filename)
+
+            images.append(filename)
+
+        return images
 
 
 class GeoJSONLayer(VectorLayer):
