@@ -14,7 +14,7 @@
   import 'leaflet-search/dist/leaflet-search.src.css';
 
   import AreaSelection from './AreaSelection.svelte';
-  import LayerSelection from './LayerSelection.svelte';
+  import DatasetSelection from './DatasetSelection.svelte';
   import CMToggle from './CMToggle.svelte';
   import TopNav from './TopNav.svelte';
   import {activeOverlayLayersStore, activeSelectionLayerStore, activeCMOutputLayersStore} from '../stores.js';
@@ -48,7 +48,7 @@
     map.addControl(makeSearchControl()); // Search tools
     map.addControl(makeCMToggleControl()); // Button to open calculation module pane
     map.addControl(makeAreaSelectionControl());
-    map.addControl(makeOverlayLayersControl());
+    map.addControl(makeDatasetSelectionControl());
   });
 
   function resizeMap() {
@@ -125,16 +125,28 @@
   }
 
   /* Left control (area selection and overlay layers)*/
-  function makeOverlayLayersControl() {
+  function makeDatasetSelectionControl() {
     const ctr = L.control({position: 'topleft'});
     ctr.onAdd = (map) => {
       const areaDiv = L.DomUtil.create('div' );
       L.DomUtil.addClass(areaDiv, 'testComponent');
-      toolbar = new LayerSelection({target: areaDiv});
+      toolbar = new DatasetSelection({target: areaDiv});
       return areaDiv;
     };
     return ctr;
   }
+
+  /* Left control (area selection and overlay layers)*/
+  // function makeOverlayLayersControl() {
+  //   const ctr = L.control({position: 'topleft'});
+  //   ctr.onAdd = (map) => {
+  //     const areaDiv = L.DomUtil.create('div' );
+  //     L.DomUtil.addClass(areaDiv, 'testComponent');
+  //     toolbar = new LayerSelection({target: areaDiv});
+  //     return areaDiv;
+  //   };
+  //   return ctr;
+  // }
 
   function makeCMToggleControl() {
     const CMToggleControl = L.control({position: 'topright'});
