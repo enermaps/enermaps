@@ -263,7 +263,7 @@ cm-new_cm:
     context: ./cm
     dockerfile: new_cm/Dockerfile
   environment:
-    GEODB_DIR: /geodb
+    GEODB_CACHE_DIR: /geodb
   volumes:
     - geodb:/geodb
   env_file:

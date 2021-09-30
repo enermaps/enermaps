@@ -1,5 +1,6 @@
 version: "3.8"
 services:
+
   frontend:
     build:
       context: ./frontend
@@ -21,7 +22,7 @@ services:
       - "127.0.0.1:9000:80"
     restart: always
     environment:
-      GEODB_DIR: /geodb
+      GEODB_CACHE_DIR: /geodb
       CM_OUTPUTS_DIR: /cm_outputs
     depends_on:
       - redis
@@ -57,7 +58,7 @@ services:
       context: ./cm
       dockerfile: cm_heat_demand/Dockerfile
     environment:
-      GEODB_DIR: /geodb
+      GEODB_CACHE_DIR: /geodb
       CM_OUTPUTS_DIR: /cm_outputs
     depends_on:
       - redis
@@ -85,7 +86,7 @@ services:
       context: ./cm
       dockerfile: example_multiply/Dockerfile
     environment:
-      GEODB_DIR: /geodb
+      GEODB_CACHE_DIR: /geodb
       CM_OUTPUTS_DIR: /cm_outputs
     depends_on:
       - redis
@@ -100,7 +101,7 @@ services:
       context: ./cm
       dockerfile: example_empty/Dockerfile
     environment:
-      GEODB_DIR: /geodb
+      GEODB_CACHE_DIR: /geodb
       CM_OUTPUTS_DIR: /cm_outputs
     depends_on:
       - redis
