@@ -24,9 +24,9 @@ class BaseApiTest(unittest.TestCase):
         * ensure we don't run the test in debug
         """
         self.flask_app = create_app(testing=True)
-        self.geodb_dir = tempfile.mkdtemp()
+        self.geodb_cache_dir = tempfile.mkdtemp()
         self.cm_outputs_dir = tempfile.mkdtemp()
-        self.flask_app.config["GEODB_DIR"] = self.geodb_dir
+        self.flask_app.config["GEODB_CACHE_DIR"] = self.geodb_cache_dir
         self.flask_app.config["CM_OUTPUTS_DIR"] = self.cm_outputs_dir
         self.client = self.flask_app.test_client()
         self.client.follow_redirect = True
@@ -34,7 +34,7 @@ class BaseApiTest(unittest.TestCase):
 
     def tearDown(self):
         """After each test, cleanup the upload directory"""
-        shutil.rmtree(self.flask_app.config["GEODB_DIR"])
+        shutil.rmtree(self.flask_app.config["GEODB_CACHE_DIR"])
         shutil.rmtree(self.flask_app.config["CM_OUTPUTS_DIR"])
 
     def get_testformdata(self, testfile, testfile_name=None):
