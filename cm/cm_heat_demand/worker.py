@@ -24,7 +24,7 @@ def heat_demand(self, selection: dict, rasters: list, params: dict):
     name, extension = splitext(raster)
     if not isfile(raster) or extension.lower() not in [".tif", ".tiff"]:
         raise TypeError(f"The file path is not correct: {raster}")
-    region = selection["features"][0]["geometry"]
+    region = cm_input.merged_polygons(selection=selection)
 
     result = processing(raster=raster, region=region, parameters=params)
 
