@@ -22,7 +22,15 @@ class GeoFiles(Resource):
         """Return a list of all geofile known by
         the system and accessible by the user making the request."""
         layers = geofile.list_layers()
-        return {layer.name: layer.as_dict() for layer in layers}
+
+        result = {layer.name: layer.as_dict() for layer in layers}
+        for k, v in result.items():
+            if k[0:2].isdigit():
+                dataset_id = int(k[0:2])
+                dataset_params = data_endpoints.get_ds(dataset_id)
+                v["shared_id"] = dataset_params.get("shared_id", None)
+
+        return result
 
 
 @api.route("/<string:layer_name>/legend")
