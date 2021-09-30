@@ -1,6 +1,7 @@
 #!/usr/bin/python
 import io
 import json
+import logging
 import os
 
 import requests
@@ -11,6 +12,39 @@ from app.data_integration import data_endpoints
 DATASETS_SERVER_URL = os.environ.get("DATASETS_SERVER_URL", "")
 DATASETS_SERVER_API_KEY = os.environ.get("DATASETS_SERVER_API_KEY", "")
 RASTER_SERVER_URL = os.environ.get("RASTER_SERVER_URL", "")
+
+
+def get_dataset_list():
+    """Retrieve the list of all available datasets on the enermaps server"""
+    url = DATASETS_SERVER_URL + "dataset_list"
+
+    try:
+        with requests.get(url) as resp:
+            return resp.json()
+
+    except Exception as ex:
+        logging.error(f"Failed to retrieve the list of datasets: {repr(ex)}")
+        return []
+
+
+def get_variables(dataset_id):
+    url = DATASETS_SERVER_URL + "rpc/enermaps_get_variables"
+
+    params = {
+        "id": dataset_id,
+    }
+
+    headers = {"Authorization": "Bearer {}".format(DATASETS_SERVER_API_KEY)}
+
+    try:
+        with requests.get(url, headers=headers, params=params) as resp:
+            return resp.json()
+
+    except Exception as ex:
+        logging.error(
+            f"Failed to retrieve the variables of the dataset <{dataset_id}>: {repr(ex)}"
+        )
+        return None
 
 
 def get_nuts_and_lau_dataset(dataset_name):
@@ -60,6 +94,8 @@ def get_dataset(dataset_id):
             with requests.post(url, headers=headers, json=params) as resp:
                 # TODO check here that we have recieved a valid geojson?
                 geojson = resp.json()
+                with open("data.json", "w") as f:
+                    json.dump(geojson, f, indent=4)
                 for i in range(len(geojson["features"])):
                     # Modify the original geojson to put the legend key some levels higher
                     # (needed by mapnik to make the color rules)
