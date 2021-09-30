@@ -50,7 +50,7 @@ def get_geodb_subfolder(subdirectory):
     yet.
     Path example : /geodb/subdirectory
     """
-    subdir = safe_join(current_app.config["GEODB_DIR"], subdirectory)
+    subdir = safe_join(current_app.config["GEODB_CACHE_DIR"], subdirectory)
     os.makedirs(subdir, exist_ok=True)
     return subdir
 
