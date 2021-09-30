@@ -45,6 +45,10 @@
     text-decoration: none;
     box-sizing: border-box;
     vertical-align: middle;
+  }
+
+  #topnav div.top,
+  #topnav div.top div {
     display: inline-block;
   }
 
@@ -109,7 +113,7 @@
     margin: auto;
     padding: 0;
     border: 1px solid #888;
-    width: 80%;
+    width: 60%;
     box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2),0 6px 20px 0 rgba(0,0,0,0.19);
   }
 
@@ -161,7 +165,7 @@
 
 
 <div id="topnav">
-  <div>
+  <div class="top">
     <div id='logo'> <img src='images/logo.png' alt='EnerMaps'> </div>
     <div id='title'>EnerMaps</div>
   </div>
@@ -183,32 +187,18 @@
       </div>
       <div class="modal-body">
         <p>
-          Intellectum est enim mihi quidem in multis, et maxime in me ipso, sed paulo ante in omnibus,
-          cum M. Marcellum senatui reique publicae concessisti, commemoratis praesertim offensionibus,
-          te auctoritatem huius ordinis dignitatemque rei publicae tuis vel doloribus vel suspicionibus anteferre.
-          Ille quidem fructum omnis ante actae vitae hodierno die maximum cepit, cum summo consensu senatus, tum iudicio
-          tuo gravissimo et maximo.
-          Ex quo profecto intellegis quanta in dato beneficio sit laus, cum in accepto sit tanta gloria.
+          EnerMaps Open Data Management Tool aims to improve data management and
+          accessibility in the field of energy research for the renewable energy industry.
         </p>
         <p>
-          Nunc vero inanes flatus quorundam vile esse quicquid extra urbis pomerium
-          nascitur aestimant praeter orbos et caelibes, nec credi potest qua obsequiorum
-           diversitate coluntur homines sine liberis Romae.
+          EnerMaps’ tool accelerates and facilitates the energy transition offering a
+          qualitative and user-friendly digital platform to the energy professionals.
         </p>
         <p>
-          Principium autem unde latius se funditabat, emersit ex negotio tali.
-          Chilo ex vicario et coniux eius Maxima nomine, questi apud Olybrium ea tempestate urbi praefectum,
-          vitamque suam venenis petitam adseverantes inpetrarunt ut hi, quos suspectati sunt, ilico rapti
-          conpingerentur in vincula, organarius Sericus et Asbolius palaestrita et aruspex Campensis.
+          The EnerMaps project has received funding from the European Union’s Horizon
+          2020 research and innovation program under grant agreement N°884161.
         </p>
         <p>
-          Novitates autem si spem adferunt, ut tamquam in herbis non fallacibus fructus appareat, non sunt
-          illae quidem repudiandae, vetustas tamen suo loco conservanda; maxima est enim vis vetustatis et
-          consuetudinis. Quin in ipso equo, cuius modo feci mentionem, si nulla res impediat, nemo est, quin eo,
-          quo consuevit, libentius utatur quam intractato et novo. Nec vero in hoc quod est animal, sed in iis etiam
-          quae sunt inanima, consuetudo valet, cum locis ipsis delectemur, montuosis etiam et silvestribus, in quibus
-          diutius commorati sumus.
-        </p>
       </div>
     </div>
   </div>

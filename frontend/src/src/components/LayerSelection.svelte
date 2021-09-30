@@ -65,6 +65,7 @@
 
         leafletLayer.name = layer;
         leafletLayer.datasetId = parseInt(layer.substring(0, 2));
+        leafletLayer.sharedId = layerParameters['shared_id'];
         leafletLayer.legend_promise = legend;
         leafletLayer.openairLink_promise = openairLink;
         leafletLayer.layer_type_promise = layerType;
@@ -72,9 +73,18 @@
 
         // select if dataset to show is set in the URL
         const urlParams = new URLSearchParams(window.location.search);
+
         if (urlParams.has('datasetId')) {
           const datasetSelected = parseInt(urlParams.get('datasetId'));
           if (leafletLayer.datasetId == datasetSelected) {
+            leafletLayer.checked = true;
+            activeOverlayLayers.push(leafletLayer);
+          }
+        }
+
+        if (urlParams.has('shared_id')) {
+          const sharedId = urlParams.get('shared_id');
+          if (leafletLayer.sharedId == sharedId) {
             leafletLayer.checked = true;
             activeOverlayLayers.push(leafletLayer);
           }
