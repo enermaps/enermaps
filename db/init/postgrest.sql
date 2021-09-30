@@ -387,3 +387,35 @@ CREATE OR REPLACE FUNCTION enermaps_set_legend(parameters text, legend text)
 GRANT EXECUTE ON FUNCTION enermaps_set_legend(parameters text, legend text) to legend_editor;
 GRANT SELECT, UPDATE ON public.data TO legend_editor;
 GRANT SELECT, INSERT ON public.visualization TO legend_editor;
+
+
+-- Returns a list of all the datasets, with the data needed by the web app
+DROP VIEW IF EXISTS dataset_list;
+CREATE OR REPLACE VIEW dataset_list AS
+SELECT  datasets.ds_id::int as ds_id,
+        (datasets.metadata ->> 'Title (with Hyperlink)') as title,
+        COALESCE(((datasets.metadata ->> 'parameters')::jsonb ->> 'is_raster')::bool, true) as is_raster,
+        datasets_full.shared_id as shared_id
+        FROM datasets
+        INNER JOIN datasets_full ON datasets.ds_id = datasets_full.ds_id
+        WHERE (datasets.metadata ->> 'Title (with Hyperlink)') <> ''
+        ORDER BY ds_id;
+GRANT SELECT ON public.dataset_list to api_anon;
+
+
+-- Returns a list of all the variables and time periods available in a given dataset
+DROP FUNCTION IF EXISTS enermaps_get_variables(id integer);
+CREATE OR REPLACE FUNCTION enermaps_get_variables(id integer)
+  RETURNS jsonb
+  AS $$
+    SELECT
+      jsonb_build_object(
+        'variables', ((metadata ->> 'parameters')::jsonb ->> 'variables')::jsonb,
+        'time_periods', ((metadata ->> 'parameters')::jsonb ->> 'time_periods')::jsonb
+      )
+    FROM datasets
+    WHERE ds_id=id
+  $$
+  LANGUAGE SQL
+  IMMUTABLE;
+GRANT EXECUTE ON FUNCTION enermaps_get_variables(id integer) to api_user;

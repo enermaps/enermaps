@@ -9,7 +9,7 @@ from flask import Blueprint, Flask
 from flask_restx import Api
 
 from app.data_integration import data_controller
-from app.endpoints import calculation_module, cm_outputs, geofile, wms
+from app.endpoints import calculation_module, cm_outputs, datasets, geofile, wms
 from app.healthz import healthz
 from app.redirect import redirect_to_api
 
@@ -57,11 +57,14 @@ def create_app(environment="production", testing=False, on_startup=False):
         app.config[k] = os.environ.get(k, v)
 
     api_bp = Blueprint("api", "api", url_prefix="/api")
+
     api = Api(api_bp)
+    api.add_namespace(datasets.api)
     api.add_namespace(geofile.api)
     api.add_namespace(cm_outputs.api)
     api.add_namespace(wms.api)
     api.add_namespace(calculation_module.api)
+
     app.register_blueprint(api_bp)
     app.register_blueprint(redirect_to_api)
     app.register_blueprint(healthz)

@@ -3,7 +3,7 @@
   import '../leaflet_components/L.TileLayer.NutsLayer.js';
   import '../leaflet_components/L.DrawingLayer.js';
   import '../leaflet_components/L.TileLayer.QueryableLayer.js';
-  import {getGeofiles, WMS_URL} from '../client.js';
+  import {getDatasets, WMS_URL} from '../client.js';
   import {activeSelectionLayerStore} from '../stores.js';
 
   // List of queryable layers that are used as selection layers.
@@ -34,7 +34,7 @@
   }
 
   onMount(async () => {
-    const layers = await getGeofiles();
+    const layers = await getDatasets();
     for (const layer of Object.keys(layers)) {
       let leafletLayer;
       if (SELECTIONS.has(layer)) {

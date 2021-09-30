@@ -2,6 +2,30 @@ import {BASE_URL} from './settings.js';
 
 export const WMS_URL = BASE_URL + 'api/wms?';
 
+
+async function fetchJSON(endpoint, defaultValue) {
+  const response = await fetch(BASE_URL + endpoint);
+
+  if (!response.ok) {
+    return defaultValue;
+  }
+
+  return await response.json();
+}
+
+
+// Datasets-related endpoints --------------------------------------------------
+
+export async function getDatasets() {
+  return fetchJSON('api/datasets/', []);
+}
+
+
+export async function getDatasetVariables(datasetId) {
+  return fetchJSON('api/datasets/' + datasetId + '/variables/', {});
+}
+
+
 export async function getLayerType(layerId) {
   const response = await fetch(BASE_URL + 'api/geofile/' + layerId + '/type/');
   if (!response.ok) {
@@ -39,14 +63,6 @@ export async function getCMs() {
   return cmsResponse.cms;
 }
 
-export async function getGeofiles() {
-  const response = await fetch(BASE_URL + 'api/geofile/');
-  if (!response.ok) {
-    return [];
-  }
-  const layersResponse = await response.json();
-  return layersResponse;
-}
 
 export async function postCMTask(cm, parameters) {
   const response = await fetch(BASE_URL + 'api/cm/' + cm.name + '/task/', {
