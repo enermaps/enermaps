@@ -1,16 +1,16 @@
 #!/usr/bin/python
 import io
 import json
+import os
 
 import requests
 from werkzeug.datastructures import FileStorage
 
 from app.data_integration import data_endpoints
 
-DATASETS_SERVER_URL = "https://lab.idiap.ch/enermaps/api/"
-DATASETS_SERVER_API_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoiYXBpX3VzZXIifQ.gzl3uCe1OdCjf3feliREDJFfNkMTiDkVFcVDrCNlpBU"
-
-RASTER_SERVER_URL = "https://lab.idiap.ch/enermaps/raster/"
+DATASETS_SERVER_URL = os.environ.get("DATASETS_SERVER_URL", "")
+DATASETS_SERVER_API_KEY = os.environ.get("DATASETS_SERVER_API_KEY", "")
+RASTER_SERVER_URL = os.environ.get("RASTER_SERVER_URL", "")
 
 
 def get_nuts_and_lau_dataset(dataset_name):
