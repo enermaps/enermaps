@@ -44,8 +44,16 @@ CREATE TABLE public.data
     dt double precision,
     z double precision,
     isRaster boolean,
-    layer jsonb default'{"type": "numerical"}'::jsonb
+    vis_id int DEFAULT 0;
 );
+
+CREATE TABLE public.visualization
+(
+    vis_id int PRIMARY KEY,
+    legend jsonb default'{}'::jsonb
+);
+
+INSERT INTO public.visualization (vis_id,legend) VALUES (0, '{}'::jsonb);
 
 
 ALTER TABLE spatial
@@ -59,6 +67,13 @@ ALTER TABLE data
     ADD CONSTRAINT fk_ds_id
     FOREIGN KEY(ds_id)
     REFERENCES datasets(ds_id)
+    ON DELETE CASCADE
+;
+
+ALTER TABLE data
+    ADD CONSTRAINT fk_vis_id
+    FOREIGN KEY(vis_id)
+    REFERENCES visualization(vis_id)
     ON DELETE CASCADE
 ;
 
