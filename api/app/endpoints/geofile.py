@@ -33,7 +33,7 @@ class GeoFiles(Resource):
         return result
 
 
-@api.route("/<string:layer_name>/legend")
+@api.route("/<string:layer_name>/legend/")
 class GeofileLegend(Resource):
     def get(self, layer_name):
         """Get the layer legend: variable used for coloring the map, min and max values,
@@ -45,7 +45,7 @@ class GeofileLegend(Resource):
         return {}
 
 
-@api.route("/<string:layer_name>/openair")
+@api.route("/<string:layer_name>/openair/")
 class GeofileOpenair(Resource):
     def get(self, layer_name):
         """Get the layer legend: variable used for coloring the map, min and max values,
@@ -57,7 +57,7 @@ class GeofileOpenair(Resource):
         return {}
 
 
-@api.route("/<string:layer_name>/type")
+@api.route("/<string:layer_name>/type/")
 class GeofileType(Resource):
     def get(self, layer_name):
         """Get the layer legend: variable used for coloring the map, min and max values,

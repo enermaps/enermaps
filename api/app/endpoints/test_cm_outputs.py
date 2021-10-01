@@ -1,7 +1,5 @@
-import io
 import json
 import unittest
-import zipfile
 
 from app.common.test import BaseApiTest
 from app.models.geofile import RasterLayer
@@ -92,7 +90,7 @@ class CMTifGeofileTest(BaseApiTest):
         json_content = json.loads(response.data)
         self.assertIn(testfile, json_content)
 
-        response = self.client.get("api/cm_outputs/" + testfile)
+        response = self.client.get("api/cm_outputs/" + testfile + "/")
         self.assertStatusCodeEqual(response, 200)
         self.assertEqual(response.data, testfile_content)
         self.assertEqual(response.mimetype, RasterLayer.MIMETYPE[0])
