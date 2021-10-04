@@ -4,8 +4,6 @@ from flask import redirect, send_file, url_for
 from flask_restx import Namespace, Resource, abort
 from werkzeug.datastructures import FileStorage
 
-# from app.data_integration.data_config import get_legend, get_openair_link
-from app.data_integration import data_endpoints
 from app.models import geofile as geofile
 
 api = Namespace("cm_outputs", description="CM outputs related endpoints")
@@ -45,7 +43,7 @@ class CMOutputs(Resource):
         return redirect(url_for(".geofile_geo_files"))
 
 
-@api.route("/<string:layer_name>")
+@api.route("/<string:layer_name>/")
 class CMOutput(Resource):
     def get(self, layer_name):
         """Get a geofile, currently shapefile as zip
@@ -60,7 +58,7 @@ class CMOutput(Resource):
         return redirect(url_for(".geofile_geo_files"))
 
 
-@api.route("/<string:layer_name>/legend")
+@api.route("/<string:layer_name>/legend/")
 class CMOutputLegend(Resource):
     def get(self, layer_name):
         """Get the layer legend: variable used for coloring the map, min and max values,

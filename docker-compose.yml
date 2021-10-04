@@ -1,52 +1,13 @@
 version: "3.8"
 services:
-  cm-heat-demand:
-    build:
-      context: ./cm
-      dockerfile: cm_heat_demand/Dockerfile
-    environment:
-      GEODB_DIR: /geodb
-      CM_OUTPUTS_DIR: /cm_outputs
-    volumes:
-      - geodb:/geodb:ro
-      - cm_outputs:/cm_outputs
-    env_file:
-      .env
-
-  cm-multiply:
-    build:
-      context: ./cm
-      dockerfile: example_multiply/Dockerfile
-    environment:
-      GEODB_DIR: /geodb
-      CM_OUTPUTS_DIR: /cm_outputs
-    volumes:
-      - geodb:/geodb:ro
-      - cm_outputs:/cm_outputs
-    env_file:
-      .env
-
-  cm-empty:
-    build:
-      context: ./cm
-      dockerfile: example_empty/Dockerfile
-    environment:
-      GEODB_DIR: /geodb
-      CM_OUTPUTS_DIR: /cm_outputs
-    volumes:
-      - geodb:/geodb:ro
-      - cm_outputs:/cm_outputs
-    env_file:
-      .env
-
   frontend:
     build:
       context: ./frontend
     ports:
       - "127.0.0.1:7000:80"
     restart: always
-    # depends_on:
-    #   - "api"
+    depends_on:
+      - "api"
     volumes:
       - caddy-data:/data
       - caddy-config:/config
@@ -62,6 +23,8 @@ services:
     environment:
       GEODB_DIR: /geodb
       CM_OUTPUTS_DIR: /cm_outputs
+    depends_on:
+      - redis
     volumes:
       - geodb:/geodb
       - cm_outputs:/cm_outputs
@@ -73,6 +36,7 @@ services:
     image: redis:6-alpine
     ports:
       - "127.0.0.1:6379:6379"
+    restart: always
     volumes:
       - redis-data:/data
 
@@ -80,8 +44,56 @@ services:
     image: mher/flower:0.9.4
     ports:
       - "127.0.0.1:5555:5555"
+    depends_on:
+      - redis
+    restart: always
     volumes:
       - flower-data:/data
+    env_file:
+      .env
+
+  cm-heat-demand:
+    build:
+      context: ./cm
+      dockerfile: cm_heat_demand/Dockerfile
+    environment:
+      GEODB_DIR: /geodb
+      CM_OUTPUTS_DIR: /cm_outputs
+    depends_on:
+      - redis
+    restart: always
+    volumes:
+      - geodb:/geodb:ro
+    env_file:
+      .env
+
+  cm-multiply:
+    build:
+      context: ./cm
+      dockerfile: example_multiply/Dockerfile
+    environment:
+      GEODB_DIR: /geodb
+      CM_OUTPUTS_DIR: /cm_outputs
+    depends_on:
+      - redis
+    restart: always
+    volumes:
+      - geodb:/geodb:ro
+    env_file:
+      .env
+
+  cm-empty:
+    build:
+      context: ./cm
+      dockerfile: example_empty/Dockerfile
+    environment:
+      GEODB_DIR: /geodb
+      CM_OUTPUTS_DIR: /cm_outputs
+    depends_on:
+      - redis
+    restart: always
+    volumes:
+      - geodb:/geodb:ro
     env_file:
       .env
 

@@ -3,7 +3,7 @@ import {BASE_URL} from './settings.js';
 export const WMS_URL = BASE_URL + 'api/wms?';
 
 export async function getLayerType(layerId) {
-  const response = await fetch(BASE_URL + 'api/geofile/' + layerId + '/type');
+  const response = await fetch(BASE_URL + 'api/geofile/' + layerId + '/type/');
   if (!response.ok) {
     return {};
   }
@@ -12,7 +12,7 @@ export async function getLayerType(layerId) {
 }
 
 export async function getLegend(layerId) {
-  const response = await fetch(BASE_URL + 'api/geofile/' + layerId + '/legend');
+  const response = await fetch(BASE_URL + 'api/geofile/' + layerId + '/legend/');
   if (!response.ok) {
     return {};
   }
@@ -21,7 +21,7 @@ export async function getLegend(layerId) {
 }
 
 export async function getOpenairLink(layerId) {
-  const response = await fetch(BASE_URL + 'api/geofile/' + layerId + '/openair');
+  const response = await fetch(BASE_URL + 'api/geofile/' + layerId + '/openair/');
   if (!response.ok) {
     return {};
   }
@@ -40,7 +40,7 @@ export async function getCMs() {
 }
 
 export async function getGeofiles() {
-  const response = await fetch(BASE_URL + 'api/geofile');
+  const response = await fetch(BASE_URL + 'api/geofile/');
   if (!response.ok) {
     return [];
   }
@@ -49,7 +49,7 @@ export async function getGeofiles() {
 }
 
 export async function postCMTask(cm, parameters) {
-  const response = await fetch(BASE_URL + 'api/cm/' + cm.name + '/task', {
+  const response = await fetch(BASE_URL + 'api/cm/' + cm.name + '/task/', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -61,13 +61,15 @@ export async function postCMTask(cm, parameters) {
 }
 
 export async function getTaskResult(cm, task) {
-  const taskResponse = await fetch(BASE_URL + 'api/cm/' + cm.name + '/task/' + task.id);
+  const taskResponse = await fetch(
+      BASE_URL + 'api/cm/' + cm.name + '/task/' + task.id + '/',
+  );
   return await taskResponse.json();
 }
 
 export async function deleteTaskResult(cm, task) {
   const taskResponse = await fetch(
-      BASE_URL + 'api/cm/' + cm.name + '/task/' + task.id,
+      BASE_URL + 'api/cm/' + cm.name + '/task/' + task.id + '/',
       {
         method: 'DELETE',
       });

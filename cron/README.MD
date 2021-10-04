@@ -12,9 +12,17 @@ Here are the jobs currently implemented:
 
 ## Usage
 
-- Copy the `.enermaps` to your HOME directory `cp .enermaps ~/.enermaps`.
+- Copy the `config` file to the `/etc/enermaps` directory:
 
-- Edit the `~/.enermaps` file to set the ENERMAPS_ROOT variable to the path to the EnerMaps root directory
+```bash
+$ sudo mkdir /etc/enermaps
+$ sudo cp config /etc/enermaps/
+```
 
-- Append to your user crontab the content of the `crontab.txt` file.
-Use for example `EDITOR=nano crontab -e` to open your user crontab in `nano`.
+- Edit the `/etc/enermaps/config` file to set the ENERMAPS_ROOT variable to the path to the EnerMaps root directory
+- Copy the `crontab.txt` file to `/etc/cron.d/`:
+
+```bash
+$ sudo cp crontab.txt /etc/cron.d/enermaps
+$ sudo chown root:root /etc/cron.d/enermaps
+```
