@@ -14,6 +14,22 @@ from app.healthz import healthz
 from app.redirect import redirect_to_api
 
 
+class ReverseProxied(object):
+    """WSGI middleware that ensure URLs are generated with the same protocol scheme
+    that the request (HTTPS or HTTP)
+    """
+
+    def __init__(self, app):
+        self.app = app
+
+    def __call__(self, environ, start_response):
+        scheme = environ.get("HTTP_X_FORWARDED_PROTO")
+        if scheme:
+            environ["wsgi.url_scheme"] = scheme
+
+        return self.app(environ, start_response)
+
+
 def create_app(environment="production", testing=False, on_startup=False):
     """Create the application and set the configuration.
     By default, testing mode is set to False."""
@@ -39,6 +55,7 @@ def create_app(environment="production", testing=False, on_startup=False):
 
     for k, v in app.config.items():
         app.config[k] = os.environ.get(k, v)
+
     api_bp = Blueprint("api", "api", url_prefix="/api")
     api = Api(api_bp)
     api.add_namespace(geofile.api)
@@ -48,8 +65,13 @@ def create_app(environment="production", testing=False, on_startup=False):
     app.register_blueprint(api_bp)
     app.register_blueprint(redirect_to_api)
     app.register_blueprint(healthz)
+
     with app.app_context():
         if on_startup:
             # we want to initalize enermaps datasets only at startup
             data_controller.init_enermaps_datasets()
+
+    # Install thr WSGI middleware
+    app.wsgi_app = ReverseProxied(app.wsgi_app)
+
     return app
