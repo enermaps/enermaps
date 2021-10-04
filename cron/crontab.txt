@@ -1,9 +1,9 @@
 SHELL=/bin/bash
 
 # Biannual pipelines at 02:00 on day-of-month 1 in March and September
-0 2 1 MAR,SEP * source ~/.enermaps; cd $ENERMAPS_ROOT/cron && ./data-integration.sh  >> enermaps_di.log 2>&1
+0 2 1 MAR,SEP * root source /etc/enermaps/config; cd $ENERMAPS_ROOT/cron && ./data-integration.sh  >> enermaps_di.log 2>&1
 
 # Hourly parsing of db logs
-5 * * * * source ~/.enermaps; cd $ENERMAPS_ROOT/cron && ./db-stats.sh  >> enermaps_db-stats.log 2>&1
+5 * * * * root source /etc/enermaps/config; cd $ENERMAPS_ROOT/cron && ./db-stats.sh  >> enermaps_db-stats.log 2>&1
 
 # An empty line is required at the end of this file for a valid cron file.
