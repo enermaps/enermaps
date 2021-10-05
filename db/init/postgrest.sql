@@ -10,6 +10,7 @@ GRANT USAGE ON schema public TO api_user;
 GRANT SELECT ON public.spatial TO api_user;
 GRANT SELECT ON public.data TO api_user;
 GRANT SELECT ON public.datasets TO api_user;
+GRANT SELECT ON public.visualization TO api_user;
 
 
 -- Query returning geojson with flexible json input (actually in text format, to be PostgREST-friendly)
