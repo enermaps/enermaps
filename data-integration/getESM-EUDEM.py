@@ -18,6 +18,7 @@ import os
 import pathlib
 import shutil
 import sys
+import uuid
 
 import geopandas as gpd
 import pandas as pd
@@ -29,36 +30,86 @@ ISRASTER = True
 logging.basicConfig(level=logging.INFO)
 
 DB_URL = utilities.DB_URL
+LEGENDS = {
+    35: {
+        "vis_id": uuid.uuid4(),
+        "legend": {
+            "name": "Land use",
+            "type": "custom",
+            "symbology": [
+                {
+                    "red": 112,
+                    "green": 162,
+                    "blue": 255,
+                    "opacity": 1.0,
+                    "value": "1",
+                    "label": "Water",
+                },
+                {
+                    "red": 102,
+                    "green": 102,
+                    "blue": 102,
+                    "opacity": 1.0,
+                    "value": "2",
+                    "label": "Railways",
+                },
+                {
+                    "red": 242,
+                    "green": 242,
+                    "blue": 242,
+                    "opacity": 1.0,
+                    "value": "10",
+                    "label": "Non-built area - Open Space",
+                },
+                {
+                    "red": 221,
+                    "green": 230,
+                    "blue": 207,
+                    "opacity": 1.0,
+                    "value": "20",
+                    "label": "Non-built area - Green ndvix",
+                },
+                {
+                    "red": 102,
+                    "green": 102,
+                    "blue": 102,
+                    "opacity": 1.0,
+                    "value": "30",
+                    "label": "Built area - Open space",
+                },
+                {
+                    "red": 181,
+                    "green": 204,
+                    "blue": 142,
+                    "opacity": 1.0,
+                    "value": "40",
+                    "label": "Built area - Green ndvix",
+                },
+                {
+                    "red": 181,
+                    "green": 204,
+                    "blue": 142,
+                    "opacity": 1.0,
+                    "value": "41",
+                    "label": "Built area - Green Urban Atlas",
+                },
+                {
+                    "red": 181,
+                    "green": 204,
+                    "blue": 142,
+                    "opacity": 1.0,
+                    "value": "50",
+                    "label": "Built area - Built up",
+                },
+            ],
+        },
+    }
+}
 
 RECORD_METADATA = {
     "variable": {21: "Elevation", 35: "Land use"},
     "unit": {21: "m", 35: ""},
-    "layer": {
-        21: {"type": "numerical"},
-        35: {
-            "type": "categorical",
-            "classes": {
-                1: "Water",  # water
-                2: "Railways",  # railways
-                10: "Non-built area - Open Space",  # NBU Area - Open Space
-                20: "Non-built area - Green ndvix",  # NBU Area - Green ndvix
-                30: "Builu area - Open space",  # BU Area - Open Space
-                40: "Built area - Green NDVIx",  # BU Area - Green ndvix
-                41: "Built area - Green Urban Atlas",  # BU Area - Green Urban Atlas
-                50: "Built area - Built-up",  # BU Area - Built-up
-            },
-            "colors": {
-                1: "#70a2ff",  # water
-                2: "#666666",  # railways
-                10: "#f2f2f2",  # NBU Area - Open Space
-                20: "#dde6cf",  # NBU Area - Green ndvix
-                30: "#e1e1e1",  # BU Area - Open Space
-                40: "#b5cc8e",  # BU Area - Green ndvix
-                41: "#c8e6a1",  # BU Area - Green Urban Atlas
-                50: "#807d79",  # BU Area - Built-up
-            },
-        },
-    },
+    "vis_id": {35: LEGENDS[35]["vis_id"]},
 }
 
 
@@ -146,7 +197,10 @@ def get(directory):
     enermaps_data["fid"] = data["tilename"]
     enermaps_data["israster"] = ISRASTER
 
-    spatial = gpd.GeoDataFrame(geometry=data["extentBox"], crs="EPSG:3035",)
+    spatial = gpd.GeoDataFrame(
+        geometry=data["extentBox"],
+        crs="EPSG:3035",
+    )
     spatial["fid"] = data["tilename"]
 
     return enermaps_data, spatial
@@ -156,11 +210,6 @@ def addRecordMetadata(data: pd.DataFrame, metadata: dict):
     """Add custom metadata to each record in the data table."""
     for ds_id in data["ds_id"].unique():
         for column in metadata.keys():
-            if column not in data.columns:
-                if column == "layer":
-                    data.loc[data["ds_id"] == ds_id, column] = ""
-                else:
-                    data.loc[data["ds_id"] == ds_id, column] = '{"type": "numerical"}'
             if isinstance(metadata[column][ds_id], dict):
                 data.loc[data["ds_id"] == ds_id, column] = json.dumps(
                     metadata[column][ds_id]
@@ -213,20 +262,40 @@ if __name__ == "__main__":
             metadata = json.dumps(metadata)
             dataset = pd.DataFrame([{"ds_id": ds_id, "metadata": metadata}])
             utilities.toPostgreSQL(
-                dataset, DB_URL, schema="datasets",
+                dataset,
+                DB_URL,
+                schema="datasets",
+            )
+
+            # Add legends
+            legends = []
+            for key in LEGENDS.keys():
+                df = pd.DataFrame()
+                df["vis_id"] = LEGENDS[key]["vis_id"]
+                df["legend"] = json.dumps(LEGENDS[key]["legend"])
+                legends.append(df)
+            legends_df = pd.concat(legends)
+            utilities.toPostgreSQL(
+                legends_df,
+                DB_URL,
+                schema="visualization",
             )
 
             # Create data table
             data["ds_id"] = ds_id
             data = addRecordMetadata(data, RECORD_METADATA)
             utilities.toPostgreSQL(
-                data, DB_URL, schema="data",
+                data,
+                DB_URL,
+                schema="data",
             )
 
             # Create spatial table
             spatial["ds_id"] = ds_id
             utilities.toPostGIS(
-                spatial, DB_URL, schema="spatial",
+                spatial,
+                DB_URL,
+                schema="spatial",
             )
         else:
             logging.error(

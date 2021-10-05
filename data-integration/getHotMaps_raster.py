@@ -12,6 +12,7 @@ import logging
 import os
 import shutil
 import sys
+import uuid
 
 import frictionless
 import pandas as pd
@@ -21,16 +22,46 @@ import utilities
 logging.basicConfig(level=logging.INFO)
 Z = None
 DT = 8760
-
+UUID = (uuid.uuid4(),)
 DB_URL = utilities.DB_URL
 
 
-LAYER_METADATA = {
+LEGENDS = {
     "Climate zones": {
-        "type": "categorical",
-        "classes": {0: "warmer climate", 1: "average climate", 2: "colder climate"},
+        "vis_id": UUID,
+        "legend": {
+            "name": "Climate zones",
+            "type": "custom",
+            "symbology": [
+                {
+                    "red": 230,
+                    "green": 216,
+                    "blue": 207,
+                    "opacity": 1.0,
+                    "value": "1",
+                    "label": "Warmer climate",
+                },
+                {
+                    "red": 242,
+                    "green": 242,
+                    "blue": 242,
+                    "opacity": 1.0,
+                    "value": "2",
+                    "label": "Average climate",
+                },
+                {
+                    "red": 157,
+                    "green": 185,
+                    "blue": 204,
+                    "opacity": 1.0,
+                    "value": "10",
+                    "label": "Colder climate",
+                },
+            ],
+        },
     }
 }
+
 
 # Settings for the query metadata
 # these are the fields that are used to construct a query
@@ -67,40 +98,43 @@ def get(repository: str, dp: frictionless.package.Package, isForced: bool = Fals
     # Prepare df containing paths to rasters
     rasters = []
     for resource_idx in range(len(new_dp["resources"])):
-        if "temporal" in new_dp["resources"][resource_idx]:
-            start_at = pd.to_datetime(
-                new_dp["resources"][resource_idx]["temporal"]["start"]
-            )
-        else:
-            start_at = None
+        if new_dp["resources"][resource_idx]["title"] == "Climate zones":
+            if "temporal" in new_dp["resources"][resource_idx]:
+                start_at = pd.to_datetime(
+                    new_dp["resources"][resource_idx]["temporal"]["start"]
+                )
+            else:
+                start_at = None
 
-        if "unit" in new_dp["resources"][resource_idx]:
-            unit = new_dp["resources"][resource_idx]["unit"]
-        else:
-            unit = None
+            if "unit" in new_dp["resources"][resource_idx]:
+                unit = new_dp["resources"][resource_idx]["unit"]
+            else:
+                unit = None
 
-        if new_dp["resources"][resource_idx]["format"] == "tif":
-            logging.info(new_dp["resources"][resource_idx]["path"])
-            utilities.download_url(
-                repository + new_dp["resources"][resource_idx]["path"],
-                os.path.basename(new_dp["resources"][resource_idx]["path"]),
-            )
-            raster = {
-                "value": os.path.basename(new_dp["resources"][resource_idx]["path"]),
-                "variable": new_dp["resources"][resource_idx]["title"],
-                "start_at": start_at,
-                "z": Z,
-                "unit": unit,
-                "dt": DT,
-            }
-            rasters.append(raster)
-            # check statistics for each resource
-            if dp is not None and "stats" in new_dp["resources"][resource_idx]:
-                if (
-                    dp["resources"][resource_idx]["stats"]
-                    != new_dp["resources"][resource_idx]["stats"]
-                ):
-                    isChangedStats = True
+            if new_dp["resources"][resource_idx]["format"] == "tif":
+                logging.info(new_dp["resources"][resource_idx]["path"])
+                utilities.download_url(
+                    repository + new_dp["resources"][resource_idx]["path"],
+                    os.path.basename(new_dp["resources"][resource_idx]["path"]),
+                )
+                raster = {
+                    "value": os.path.basename(
+                        new_dp["resources"][resource_idx]["path"]
+                    ),
+                    "variable": new_dp["resources"][resource_idx]["title"],
+                    "start_at": start_at,
+                    "z": Z,
+                    "unit": unit,
+                    "dt": DT,
+                }
+                rasters.append(raster)
+                # check statistics for each resource
+                if dp is not None and "stats" in new_dp["resources"][resource_idx]:
+                    if (
+                        dp["resources"][resource_idx]["stats"]
+                        != new_dp["resources"][resource_idx]["stats"]
+                    ):
+                        isChangedStats = True
     rasters = pd.DataFrame(rasters)
 
     if dp is not None:  # Existing dataset
@@ -129,14 +163,10 @@ def get(repository: str, dp: frictionless.package.Package, isForced: bool = Fals
     return data_enermaps, new_dp
 
 
-def addLayerMetadata(data: pd.DataFrame, layer_metadata: dict):
-    """Add categorical raster layer metadata."""
-    if "layer" not in data.columns:
-        data["layer"] = '{"type": "numerical"}'
-    for variable in layer_metadata.keys():
-        data.loc[data["variable"] == variable, "layer"] = json.dumps(
-            layer_metadata[variable]
-        )
+def addLegend(data: pd.DataFrame, legends: dict):
+    """Add legend for assigned variables."""
+    for variable in legends.keys():
+        data.loc[data["variable"] == variable, "vis_id"] = legends[variable]["vis_id"]
     return data
 
 
@@ -147,12 +177,18 @@ if __name__ == "__main__":
 
     for ds_id in ds_ids:
         logging.info("Retrieving Dataset {}".format(ds_id))
-        dp = utilities.getDataPackage(ds_id, DB_URL,)
+        dp = utilities.getDataPackage(
+            ds_id,
+            DB_URL,
+        )
 
         data, dp = get(datasets.loc[ds_id, "di_URL"], dp, isForced)
 
         if isinstance(data, pd.DataFrame):
-            if utilities.datasetExists(ds_id, DB_URL,):
+            if utilities.datasetExists(
+                ds_id,
+                DB_URL,
+            ):
                 utilities.removeDataset(ds_id, DB_URL)
                 logging.info("Removed existing dataset")
 
@@ -167,19 +203,39 @@ if __name__ == "__main__":
             metadata = json.dumps(metadata)
             dataset = pd.DataFrame([{"ds_id": ds_id, "metadata": metadata}])
             utilities.toPostgreSQL(
-                dataset, DB_URL, schema="datasets",
+                dataset,
+                DB_URL,
+                schema="datasets",
+            )
+
+            # Add legends
+            legends = []
+            for key in LEGENDS.keys():
+                df = pd.DataFrame()
+                df["vis_id"] = LEGENDS[key]["vis_id"]
+                df["legend"] = json.dumps(LEGENDS[key]["legend"])
+                legends.append(df)
+            legends_df = pd.concat(legends)
+            utilities.toPostgreSQL(
+                legends_df,
+                DB_URL,
+                schema="visualization",
             )
 
             # Create data table
             data["ds_id"] = ds_id
-            data = addLayerMetadata(data, LAYER_METADATA)
+            data = addLegend(data, LEGENDS)
             utilities.toPostgreSQL(
-                data, DB_URL, schema="data",
+                data,
+                DB_URL,
+                schema="data",
             )
 
             # Create empty spatial table
             spatial = pd.DataFrame()
             spatial[["fid", "ds_id"]] = data[["fid", "ds_id"]]
             utilities.toPostgreSQL(
-                spatial, DB_URL, schema="spatial",
+                spatial,
+                DB_URL,
+                schema="spatial",
             )
