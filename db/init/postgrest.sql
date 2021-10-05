@@ -116,7 +116,7 @@ CREATE OR REPLACE FUNCTION enermaps_query_geojson(parameters text,
                     start_at, dt, z, data.ds_id, geometry
                     FROM data
                     INNER JOIN spatial ON data.fid = spatial.fid
-                    INNER JOIN visualization ON data.vis_id = visualization.vis_id
+                    LEFT JOIN visualization ON data.vis_id = visualization.vis_id
                     %s
                     GROUP BY data.fid, start_at, dt, z, data.ds_id, fields, legend, geometry
                     ORDER BY data.fid LIMIT %s OFFSET %s)
@@ -181,7 +181,7 @@ CREATE OR REPLACE FUNCTION enermaps_query_table(parameters text,
                     start_at, dt, z, data.ds_id, geometry
                     FROM data
                     INNER JOIN spatial ON data.fid = spatial.fid
-                    INNER JOIN visualization ON data.vis_id = visualization.vis_id
+                    LEFT JOIN visualization ON data.vis_id = visualization.vis_id
                     %s
                     GROUP BY data.fid, start_at, dt, z, data.ds_id, fields, legend, geometry
                     ORDER BY data.fid LIMIT %s OFFSET %s;', where_string, row_limit, row_offset);
