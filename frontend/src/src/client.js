@@ -16,6 +16,11 @@ async function fetchJSON(endpoint, defaultValue) {
 
 // Datasets-related endpoints --------------------------------------------------
 
+export async function getAreas() {
+  return fetchJSON('api/datasets/areas/', []);
+}
+
+
 export async function getDatasets() {
   return fetchJSON('api/datasets/', []);
 }
