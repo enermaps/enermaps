@@ -13,7 +13,7 @@ api = Namespace("datasets", description="Datasets related endpoints")
 @api.route("/")
 class Datasets(Resource):
     def get(self):
-        """Return a list of all datasets known by the system"""
+        """Return a list of all datasets known by the platform"""
         datasets = client.get_dataset_list()
 
         # Construct the OpenAIRE link
@@ -48,3 +48,31 @@ class DatasetVariables(Resource):
             variables["time_periods"] = []
 
         return variables
+
+
+@api.route("/areas/")
+class Areas(Resource):
+    def get(self):
+        """Return a list of all areas known by the platform"""
+        return [
+            {
+                "id": "country",
+                "title": "Countries",
+            },
+            {
+                "id": "NUTS1",
+                "title": "Region NUTS1",
+            },
+            {
+                "id": "NUTS2",
+                "title": "Region NUTS2",
+            },
+            {
+                "id": "NUTS3",
+                "title": "Region NUTS3",
+            },
+            {
+                "id": "LAU",
+                "title": "Cities",
+            },
+        ]

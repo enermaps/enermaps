@@ -187,3 +187,27 @@ class DatasetVariablesTest(BaseApiTest):
     def testDeleteNotAllowed(self):
         response = self.client.delete("api/datasets/1/variables/")
         self.assertEqual(response.status_code, 405)
+
+
+class AreasTest(BaseApiTest):
+    def testGetAllAreas(self):
+        response = self.client.get("api/datasets/areas/")
+        self.assertEqual(response.status_code, 200)
+
+        self.assertEqual(len(response.json), 5)
+
+        for area in response.json:
+            self.assertIn("id", area)
+            self.assertIn("title", area)
+
+    def testPostNotAllowed(self):
+        response = self.client.post("api/datasets/areas/")
+        self.assertEqual(response.status_code, 405)
+
+    def testPutNotAllowed(self):
+        response = self.client.put("api/datasets/areas/")
+        self.assertEqual(response.status_code, 405)
+
+    def testDeleteNotAllowed(self):
+        response = self.client.delete("api/datasets/areas/")
+        self.assertEqual(response.status_code, 405)
