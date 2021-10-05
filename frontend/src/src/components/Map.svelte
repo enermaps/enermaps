@@ -12,20 +12,24 @@
   import 'leaflet.gridlayer.googlemutant/Leaflet.GoogleMutant';
   import 'leaflet-search/dist/leaflet-search.src.js';
   import 'leaflet-search/dist/leaflet-search.src.css';
+  import '../leaflet_components/L.TileLayer.NutsLayer.js';
+  import '../leaflet_components/L.DrawingLayer.js';
 
   import AreaSelection from './AreaSelection.svelte';
   import DatasetSelection from './DatasetSelection.svelte';
   import CMToggle from './CMToggle.svelte';
   import TopNav from './TopNav.svelte';
-  import {activeOverlayLayersStore, activeSelectionLayerStore, activeCMOutputLayersStore} from '../stores.js';
+  import {selectionStore} from '../stores.js';
+  import {INITIAL_MAP_CENTER, INITIAL_ZOOM, BASE_LAYER_URL, BASE_LAYER_PARAMS} from '../settings.js';
+  import {WMS_URL} from '../client.js';
 
-  import {INITIAL_MAP_CENTER, INITIAL_ZOOM, BASE_LAYER_URL} from '../settings.js';
-  import {BASE_LAYER_PARAMS} from '../settings.js';
 
   let map;
-  let activeSelectionLayer;
-  let activeOverlayLayers;
-  let activeCMOutputLayers;
+  // let activeOverlayLayers;
+  // let activeCMOutputLayers;
+
+  let selection = null;
+  const selectionLayers = {};
 
   const cmOutputsGroup = L.layerGroup();
   const overlaysGroup = L.layerGroup();
@@ -34,16 +38,20 @@
 
 
   onMount(async () => {
-    console.log('init map');
+    console.log('Initialisation of the map');
+
     // To add the draw toolbar set the option drawControl: true in the map options.
     map = L.map('map', {zoomControl: false});
     map.setView(INITIAL_MAP_CENTER, INITIAL_ZOOM);
+
     map.addLayer(baseLayersGroup);
     map.addLayer(selectionsGroup);
     map.addLayer(overlaysGroup);
     map.addLayer(cmOutputsGroup);
+
     const baseLayer = L.tileLayer(BASE_LAYER_URL, BASE_LAYER_PARAMS);
     baseLayersGroup.addLayer(baseLayer); // Add the openstreetmap layer
+
     // Add the map controls
     map.addControl(makeSearchControl()); // Search tools
     map.addControl(makeCMToggleControl()); // Button to open calculation module pane
@@ -58,59 +66,88 @@
   }
 
   $: {
-    activeSelectionLayer = $activeSelectionLayerStore;
-    activeOverlayLayers = $activeOverlayLayersStore;
-    activeCMOutputLayers = $activeCMOutputLayersStore;
+    // activeSelectionLayer = $activeSelectionLayerStore;
+    // activeOverlayLayers = $activeOverlayLayersStore;
+    // activeCMOutputLayers = $activeCMOutputLayersStore;
+    //
+    // syncSelectionLayer();
+    // syncOverlayLayers();
+    // syncCMOutputLayers();
 
-    syncSelectionLayer();
-    syncOverlayLayers();
-    syncCMOutputLayers();
+    updateSelectionLayer($selectionStore);
   }
 
-  function syncOverlayLayers() {
-    const overlayToBePruned = new Set(overlaysGroup.getLayers());
-    for (const activeOverlayLayer of activeOverlayLayers) {
-      if (!overlaysGroup.hasLayer(activeOverlayLayer)) {
-        console.log('[Map] Add overlay layer: ' + activeOverlayLayer.name);
-        overlaysGroup.addLayer(activeOverlayLayer);
-      } else {
-        overlayToBePruned.delete(activeOverlayLayer);
-      }
-    }
-    for (const overlay of overlayToBePruned) {
-      console.log('[Map] Remove overlay layer: ' + overlay.name);
-      overlaysGroup.removeLayer(overlay);
-    }
-  }
+  // function syncOverlayLayers() {
+  //   const overlayToBePruned = new Set(overlaysGroup.getLayers());
+  //   for (const activeOverlayLayer of activeOverlayLayers) {
+  //     if (!overlaysGroup.hasLayer(activeOverlayLayer)) {
+  //       console.log('[Map] Add overlay layer: ' + activeOverlayLayer.name);
+  //       overlaysGroup.addLayer(activeOverlayLayer);
+  //     } else {
+  //       overlayToBePruned.delete(activeOverlayLayer);
+  //     }
+  //   }
+  //   for (const overlay of overlayToBePruned) {
+  //     console.log('[Map] Remove overlay layer: ' + overlay.name);
+  //     overlaysGroup.removeLayer(overlay);
+  //   }
+  // }
 
-  function syncSelectionLayer() {
-    if (!activeSelectionLayer) {
+  function updateSelectionLayer(desiredSelection) {
+    if (selection === desiredSelection) {
       return;
     }
-    if (!selectionsGroup.hasLayer(activeSelectionLayer)) {
-      // currently the activated layer is not the right one so remove it
+
+    selection = desiredSelection;
+
+    if (desiredSelection == null) {
       selectionsGroup.clearLayers();
+      return;
     }
-    if (selectionsGroup.getLayers().length === 0) {
-      selectionsGroup.addLayer(activeSelectionLayer);
+
+    // Create the layer if necessary
+    if (!(desiredSelection in selectionLayers)) {
+      if (desiredSelection == 'selection') {
+        selectionLayers[desiredSelection] = new L.DrawingLayer();
+      } else {
+        const layer = L.tileLayer.nutsLayer(
+            WMS_URL,
+            {
+              transparent: 'true',
+              layers: desiredSelection + '.geojson',
+              format: 'image/png',
+            },
+        );
+
+        layer.setZIndex(1000);
+
+        selectionLayers[desiredSelection] = layer;
+      }
+    }
+
+    const layer = selectionLayers[desiredSelection];
+
+    if (!selectionsGroup.hasLayer(layer)) {
+      selectionsGroup.clearLayers();
+      selectionsGroup.addLayer(layer);
     }
   }
 
-  function syncCMOutputLayers() {
-    const cmOutputsToBePruned = new Set(cmOutputsGroup.getLayers());
-    for (const activeCMOutputLayer of activeCMOutputLayers) {
-      if (!cmOutputsGroup.hasLayer(activeCMOutputLayer)) {
-        console.log('[Map] Add CM output layer: ' + activeCMOutputLayer.id);
-        cmOutputsGroup.addLayer(activeCMOutputLayer);
-      } else {
-        cmOutputsToBePruned.delete(activeCMOutputLayer);
-      }
-    }
-    for (const cmOutput of cmOutputsToBePruned) {
-      console.log('[Map] Remove CM output layer: ' + cmOutput.id);
-      cmOutputsGroup.removeLayer(cmOutput);
-    }
-  }
+  // function syncCMOutputLayers() {
+  //   const cmOutputsToBePruned = new Set(cmOutputsGroup.getLayers());
+  //   for (const activeCMOutputLayer of activeCMOutputLayers) {
+  //     if (!cmOutputsGroup.hasLayer(activeCMOutputLayer)) {
+  //       console.log('[Map] Add CM output layer: ' + activeCMOutputLayer.id);
+  //       cmOutputsGroup.addLayer(activeCMOutputLayer);
+  //     } else {
+  //       cmOutputsToBePruned.delete(activeCMOutputLayer);
+  //     }
+  //   }
+  //   for (const cmOutput of cmOutputsToBePruned) {
+  //     console.log('[Map] Remove CM output layer: ' + cmOutput.id);
+  //     cmOutputsGroup.removeLayer(cmOutput);
+  //   }
+  // }
 
   /* Left control (area selection and overlay layers)*/
   function makeAreaSelectionControl() {
