@@ -44,16 +44,14 @@ CREATE TABLE public.data
     dt double precision,
     z double precision,
     isRaster boolean,
-    vis_id int DEFAULT 0;
+    vis_id uuid;
 );
 
 CREATE TABLE public.visualization
 (
-    vis_id int PRIMARY KEY,
+    vis_id uuid PRIMARY KEY,
     legend jsonb default'{}'::jsonb
 );
-
-INSERT INTO public.visualization (vis_id,legend) VALUES (0, '{}'::jsonb);
 
 
 ALTER TABLE spatial
