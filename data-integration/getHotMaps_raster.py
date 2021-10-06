@@ -98,43 +98,40 @@ def get(repository: str, dp: frictionless.package.Package, isForced: bool = Fals
     # Prepare df containing paths to rasters
     rasters = []
     for resource_idx in range(len(new_dp["resources"])):
-        if new_dp["resources"][resource_idx]["title"] == "Climate zones":
-            if "temporal" in new_dp["resources"][resource_idx]:
-                start_at = pd.to_datetime(
-                    new_dp["resources"][resource_idx]["temporal"]["start"]
-                )
-            else:
-                start_at = None
+        if "temporal" in new_dp["resources"][resource_idx]:
+            start_at = pd.to_datetime(
+                new_dp["resources"][resource_idx]["temporal"]["start"]
+            )
+        else:
+            start_at = None
 
-            if "unit" in new_dp["resources"][resource_idx]:
-                unit = new_dp["resources"][resource_idx]["unit"]
-            else:
-                unit = None
+        if "unit" in new_dp["resources"][resource_idx]:
+            unit = new_dp["resources"][resource_idx]["unit"]
+        else:
+            unit = None
 
-            if new_dp["resources"][resource_idx]["format"] == "tif":
-                logging.info(new_dp["resources"][resource_idx]["path"])
-                utilities.download_url(
-                    repository + new_dp["resources"][resource_idx]["path"],
-                    os.path.basename(new_dp["resources"][resource_idx]["path"]),
-                )
-                raster = {
-                    "value": os.path.basename(
-                        new_dp["resources"][resource_idx]["path"]
-                    ),
-                    "variable": new_dp["resources"][resource_idx]["title"],
-                    "start_at": start_at,
-                    "z": Z,
-                    "unit": unit,
-                    "dt": DT,
-                }
-                rasters.append(raster)
-                # check statistics for each resource
-                if dp is not None and "stats" in new_dp["resources"][resource_idx]:
-                    if (
-                        dp["resources"][resource_idx]["stats"]
-                        != new_dp["resources"][resource_idx]["stats"]
-                    ):
-                        isChangedStats = True
+        if new_dp["resources"][resource_idx]["format"] == "tif":
+            logging.info(new_dp["resources"][resource_idx]["path"])
+            utilities.download_url(
+                repository + new_dp["resources"][resource_idx]["path"],
+                os.path.basename(new_dp["resources"][resource_idx]["path"]),
+            )
+            raster = {
+                "value": os.path.basename(new_dp["resources"][resource_idx]["path"]),
+                "variable": new_dp["resources"][resource_idx]["title"],
+                "start_at": start_at,
+                "z": Z,
+                "unit": unit,
+                "dt": DT,
+            }
+            rasters.append(raster)
+            # check statistics for each resource
+            if dp is not None and "stats" in new_dp["resources"][resource_idx]:
+                if (
+                    dp["resources"][resource_idx]["stats"]
+                    != new_dp["resources"][resource_idx]["stats"]
+                ):
+                    isChangedStats = True
     rasters = pd.DataFrame(rasters)
 
     if dp is not None:  # Existing dataset
