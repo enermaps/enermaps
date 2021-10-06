@@ -10,6 +10,7 @@ GRANT USAGE ON schema public TO api_user;
 GRANT SELECT ON public.spatial TO api_user;
 GRANT SELECT ON public.data TO api_user;
 GRANT SELECT ON public.datasets TO api_user;
+GRANT SELECT ON public.visualization TO api_user;
 
 
 -- Query returning geojson with flexible json input (actually in text format, to be PostgREST-friendly)
@@ -112,12 +113,13 @@ CREATE OR REPLACE FUNCTION enermaps_query_geojson(parameters text,
                     jsonb_object_agg(variable, value) as variables,
                     jsonb_object_agg(variable, unit) as units,
                     fields,
-                    layer,
+                    legend,
                     start_at, dt, z, data.ds_id, geometry
                     FROM data
                     INNER JOIN spatial ON data.fid = spatial.fid
+                    LEFT JOIN visualization ON data.vis_id = visualization.vis_id
                     %s
-                    GROUP BY data.fid, start_at, dt, z, data.ds_id, fields, layer, geometry
+                    GROUP BY data.fid, start_at, dt, z, data.ds_id, fields, legend, geometry
                     ORDER BY data.fid LIMIT %s OFFSET %s)
                 inputs)
             features;', where_string, row_limit, row_offset)
@@ -138,7 +140,7 @@ CREATE OR REPLACE FUNCTION enermaps_query_table(parameters text,
         variables jsonb,
         units jsonb,
         fields jsonb,
-        layer jsonb,
+        legend jsonb,
         start_at timestamp without time zone,
         dt double precision,
         z double precision,
@@ -176,12 +178,13 @@ CREATE OR REPLACE FUNCTION enermaps_query_table(parameters text,
                     jsonb_object_agg(variable, value) as variables,
                     jsonb_object_agg(variable, unit) as units,
                     fields,
-                    layer,
+                    legend,
                     start_at, dt, z, data.ds_id, geometry
                     FROM data
                     INNER JOIN spatial ON data.fid = spatial.fid
+                    LEFT JOIN visualization ON data.vis_id = visualization.vis_id
                     %s
-                    GROUP BY data.fid, start_at, dt, z, data.ds_id, fields, layer, geometry
+                    GROUP BY data.fid, start_at, dt, z, data.ds_id, fields, legend, geometry
                     ORDER BY data.fid LIMIT %s OFFSET %s;', where_string, row_limit, row_offset);
     END;
     $$
