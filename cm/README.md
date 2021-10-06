@@ -296,6 +296,12 @@ To do so, we strongly encourage you to use the method ```CMBase.post_raster()```
 task.post_raster("result.tif", fd)
 ```
 
+def output_raster(raster_name, raster_fd):
+    """Add a raster to the api"""
+    files = {"file": (raster_name, raster_fd, "image/tiff")}
+    resp = requests.post(API_URL + "api/geofile/", files=files)
+    return resp.ok
+
 At the moment, only Geotiff is supported.
 
 Note that the API is in charge of creating an unique name for the geofile, so you only
