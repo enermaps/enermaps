@@ -109,6 +109,21 @@ services:
     env_file:
       .env
 
+  cm-heatlearn:
+    build:
+      context: ./cm
+      dockerfile: heatlearn/Dockerfile
+    environment:
+      GEODB_DIR: /geodb
+      CM_OUTPUTS_DIR: /cm_outputs
+    depends_on:
+      - redis
+    restart: always
+    volumes:
+      - geodb:/geodb:ro
+    env_file:
+      .env
+
 volumes:
   wms_cache:
   cm_outputs:
