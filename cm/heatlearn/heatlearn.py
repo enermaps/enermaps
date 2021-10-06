@@ -27,6 +27,7 @@ if not os.path.exists("API_KEY.txt"):
     raise FileNotFoundError("Missing API key.")
 with open("API_KEY.txt", "r") as f:
     API_KEY = f.read().replace("\n", "")
+
 POSTGREST_URL = "https://lab.idiap.ch/enermaps/api/db/rpc/enermaps_query_table"
 API_URL = "http://api"
 HEADERS = {"Authorization": "Bearer {}".format(API_KEY)}
@@ -48,25 +49,25 @@ MODELS = {
     500: "9216fdce-9855-11eb-b3f9-3e22fb3fc3ab",
     300: "2dcaa71c-9837-11eb-b3f9-3e22fb3fc3ab",
 }
-
+PIXEL_SIZE = 2.5
 HDD_MODEL = {"slope": -0.0002855045732455094, "intercept": 1.8116549365250931}
 
 
-def replace_with_dict(ar: np.array, dic: dict = ESM_dict):
+def replace_with_dict(array: np.array, dic: dict = ESM_dict):
     """Replace numpy values with dict (source: https://stackoverflow.com/a/47171600)."""
-    #
+
     # Extract out keys and values
-    k = np.array(list(dic.keys()))
-    v = np.array(list(dic.values()))
+    keys = np.array(list(dic.keys()))
+    values = np.array(list(dic.values()))
 
     # Get argsort indices
-    sidx = k.argsort()
+    sorted_idx = keys.argsort()
 
     # Drop the magic bomb with searchsorted to get the corresponding
     # places for a in keys (using sorter since a is not necessarily sorted).
     # Then trace it back to original order with indexing into sidx
     # Finally index into values for desired output.
-    return v[sidx[np.searchsorted(k, ar, sorter=sidx)]]
+    return values[sorted_idx[np.searchsorted(keys, array, sorter=sorted_idx)]]
 
 
 def wait_for_reachability(session, url, max_retry=20, wait_time=3):
@@ -159,14 +160,27 @@ def getHDD(polygon, year=2020):
             raise ValueError("In this area Heating Degree Days are not available.")
 
 
+def getFeatures(gdf):
+    """Prepare features for rasterio.
+    (source: https://automating-gis-processes.github.io/
+    CSC18/lessons/L6/clipping-raster.html).
+    """
+    return [json.loads(gdf.to_json())["features"][0]["geometry"]]
+
+
+def checkTile(matrix, tile_size):
+    """Check whether tile complies with minimum requirements."""
+    with open(os.path.join("models", MODELS[tile_size], "parameters.json"), "r") as f:
+        parameters = json.loads(f.read())
+    coverage_ratio = np.sum(matrix == 0) / np.sum(matrix >= 0)
+    if coverage_ratio > parameters["idc_coverage_ratio"]:
+        return True
+    else:
+        return False
+
+
 def heatlearn(geojson, raster_paths, tile_size=500, year=2020, to_colorize=False):
     """Get heating demand from HeatLearn Model."""
-    if tile_size not in MODELS.keys():
-        raise ValueError(
-            "Only these tile sizes are possible: {}".format(", ".join(MODELS.keys()))
-        )
-
-    pixel_size = 2.5
     start = time()
 
     # Create boundary
@@ -186,7 +200,7 @@ def heatlearn(geojson, raster_paths, tile_size=500, year=2020, to_colorize=False
     boundary["geometry"] = boundary["geometry"].apply(
         lambda x: wkt.loads(wkt.dumps(x, rounding_precision=0))
     )
-    offset = boundary.total_bounds % pixel_size
+    offset = boundary.total_bounds % PIXEL_SIZE
     boundary["geometry"] = boundary["geometry"].translate(
         xoff=-offset[0], yoff=-offset[1]
     )
@@ -208,35 +222,17 @@ def heatlearn(geojson, raster_paths, tile_size=500, year=2020, to_colorize=False
     else:
         raise ValueError("Only a single raster is supported for now.")
         # TBD: Use Rasterio to merge rasters
+
     with rasterio.open(raster_path) as dataset:
         raster = dataset.read()
         meta = dataset.meta
         raster = replace_with_dict(raster)
         raster = raster.astype(np.uint16)
 
-    def getFeatures(gdf):
-        """Prepare features for rasterio.
-        (source: https://automating-gis-processes.github.io/
-        CSC18/lessons/L6/clipping-raster.html).
-        """
-        return [json.loads(gdf.to_json())["features"][0]["geometry"]]
-
-    def checkTile(matrix, tile_size):
-        """Check whether tile complies with minimum requirements."""
-        with open(
-            os.path.join("models", MODELS[tile_size], "parameters.json"), "r"
-        ) as f:
-            parameters = json.loads(f.read())
-        coverage_ratio = np.sum(matrix == 0) / np.sum(matrix >= 0)
-        if coverage_ratio > parameters["idc_coverage_ratio"]:
-            return True
-        else:
-            return False
-
     # Prepare inputs for the model
     # Initialize variables
     X = np.zeros(
-        [tiles.shape[0], int(tile_size / pixel_size), int(tile_size / pixel_size), 2]
+        [tiles.shape[0], int(tile_size / PIXEL_SIZE), int(tile_size / PIXEL_SIZE), 2]
     )  # the second channel (mask) must have zeros
     tiles["suitable"] = False
     # Clip and check raster tiles

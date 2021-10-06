@@ -1,5 +1,5 @@
 export const BASE_URL = '/';
-export const INITIAL_MAP_CENTER = [48.8698, 2.3076]; // Paris
+export const INITIAL_MAP_CENTER = [48.8698, 2.3076]; // Paris - this is provisional - remove before merging
 export const INITIAL_ZOOM = 13;
 export const BASE_LAYER_URL =
   'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png';
