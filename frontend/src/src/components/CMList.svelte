@@ -1,5 +1,6 @@
 <script>
   import {onMount} from 'svelte';
+  import {BASE_URL} from '../settings.js';
   import {getCMs} from '../client.js';
 
   import {isCMPaneActiveStore} from '../stores.js';
@@ -86,7 +87,7 @@
 <div id="calculation_modules_pane" hidden={!$isCMPaneActiveStore}>
   <div id="calculation_modules_content">
     <div id="cm_list_header">
-      <div id="close_button_cm_list" on:click={closeCMPanel}><img src='/images/clear-icon.png' alt='close'></div>
+      <div id="close_button_cm_list" on:click={closeCMPanel}><img src='{BASE_URL}images/clear-icon.png' alt='close'></div>
       <div id="header"><h2>Calculation Modules</h2></div>
     </div>
     <div id="list">

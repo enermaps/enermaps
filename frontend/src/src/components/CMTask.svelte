@@ -1,5 +1,6 @@
 <script src="../settings.js">
   import {onMount, createEventDispatcher} from 'svelte';
+  import {BASE_URL} from '../settings.js';
   import {deleteTaskResult, getTaskResult, WMS_URL} from '../client.js';
   import {activeCMOutputLayersStore} from '../stores.js';
   import Chart from './Chart.svelte';
@@ -225,7 +226,7 @@
 <div class="cmresult">
   {#if isTaskPending || isTaskFailed }
     <div>
-      <span class="close_button" on:click="{removeTask}"><img src='/images/clear-icon.png' alt='close'></span>
+      <span class="close_button" on:click="{removeTask}"><img src='{BASE_URL}images/clear-icon.png' alt='close'></span>
     </div>
 
     <dl>
@@ -240,7 +241,7 @@
     <div class="tabs">
       <span class:selected={activeTab === 'parameters'} on:click={() => (activeTab = 'parameters')}>Parameters</span>
       <span class:selected={activeTab === 'result'} on:click={() => (activeTab = 'result')}>Result</span>
-      <span class="close_button" on:click="{removeTask}"><img src='/images/clear-icon.png' alt='close'></span>
+      <span class="close_button" on:click="{removeTask}"><img src='{BASE_URL}images/clear-icon.png' alt='close'></span>
     </div>
 
     {#if activeTab === 'parameters' }

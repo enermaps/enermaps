@@ -44,6 +44,7 @@ You can manually execute the available pipelines witn the following commands:
     `docker-compose  -f ../docker-compose-db.yml run data-integration getPANGAEA.py`
 
   - 15: ERA5 reanalysis-era5-single-levels
+    Note that the CDS API key is required. See [here](#cdsapirc).
     `docker-compose  -f ../docker-compose-db.yml run data-integration getERA5.py --select_ds_ids 15`
 
   - 16: EMHIRES: Wind power generation
@@ -59,6 +60,7 @@ You can manually execute the available pipelines witn the following commands:
     `docker-compose -f ../docker-compose-db.yml run data-integration getEdgar.py`
 
   - 20: ERA5 reanalysis-era5-pressure-levels
+    Note that the CDS API key is required. See [here](#cdsapirc).
     `docker-compose -f ../docker-compose-db.yml run data-integration getERA5.py --select_ds_ids 20`
 
   - 21: EU-DEM
@@ -128,6 +130,15 @@ You can manually execute the available pipelines witn the following commands:
     `docker-compose -f ../docker-compose-db.yml run data-integration getEurostat.py --select_ds_ids 50`
 
 Remember to start the db service via `docker-compose --file ../docker-compose-db.yml up -d db` before running the pipelines.
+
+## Required files
+
+### cdsapirc
+The file `/data-integration/.cdsapirc` is required to build this service.
+In order to execute data integration pipelines accessing the Copernicus Climate Data Store (`15` and `20`) the CDS API key should be provided.
+You can find more information here on how to include the CDS API key in this file here:
+https://cds.climate.copernicus.eu/api-how-to
+If you are not interested in using these pipelines, an empty file should be created.
 
 ## Metadata table for OpenAIRE gateway
 

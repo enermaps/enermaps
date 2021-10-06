@@ -33,7 +33,7 @@ class CMList(Resource):
         return {"cms": [cm_as_dict(cm) for cm in cms.values()]}
 
 
-@api.route("/<string:cm_name>/task")
+@api.route("/<string:cm_name>/task/")
 class TaskCreator(Resource):
     def post(self, cm_name):
         """Create a new task from CM name, generate a task ID,
@@ -52,7 +52,7 @@ class TaskCreator(Resource):
         return redirect(url_for(".cm_cm_task", cm_name=cm_name, task_id=task))
 
 
-@api.route("/<string:cm_name>/task/<string:task_id>")
+@api.route("/<string:cm_name>/task/<string:task_id>/")
 class CMTask(Resource):
     def delete(self, cm_name, task_id):
         """Delete task based on the CM name and the task ID,

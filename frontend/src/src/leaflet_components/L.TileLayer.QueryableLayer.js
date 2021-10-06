@@ -12,6 +12,7 @@ L.TileLayer.QueryableLayer = L.TileLayer.WMS.extend({
     L.TileLayer.WMS.prototype.onRemove.call(this, map);
     map.off('click', this.getFeatureInfo, this);
   },
+
   getFeatureInfo: function(evt) {
     const point = this._map.latLngToContainerPoint(evt.latlng,
         this._map.getZoom());
@@ -62,34 +63,108 @@ L.TileLayer.QueryableLayer = L.TileLayer.WMS.extend({
 
     return this._url + L.Util.getParamString(params, this._url, true);
   },
+
   onError: function(err) {
     console.log(err);
   },
+
   showResults: function(latlng, content) {
     // Otherwise show the content in a popup, or something.
     if (!content || !content.features) {
       return;
     }
+
     let popupContent = '';
     for (const feature of content.features) {
       const properties = feature.properties;
-      // iterate over all feature and make them into k-v
-      for (const [key, value] of Object.entries(properties)) {
-        const dt = document.createElement('dt');
-        dt.innerText = key;
-        popupContent += dt.outerHTML;
-        const dd = document.createElement('dd');
-        dd.innerText = value;
-        popupContent += dd.outerHTML;
+
+      const variables = this.convertField(properties.variables);
+      const units = this.convertField(properties.units);
+
+      for (const [key, value] of Object.entries(variables)) {
+        if (value !== null) {
+          popupContent += '<tr>';
+
+          const td1 = document.createElement('td');
+          td1.className = 'name';
+          td1.innerText = key + ':';
+          popupContent += td1.outerHTML;
+
+          const td2 = document.createElement('td');
+          td2.className = 'value';
+          td2.innerText = value;
+
+          if (key in units) {
+            const unit = units[key];
+            if ((unit !== undefined) && (unit !== null)) {
+              td2.innerText += ' ' + unit;
+            }
+          }
+
+          popupContent += td2.outerHTML;
+
+          popupContent += '</tr>';
+        }
+      }
+
+      const fields = this.convertField(properties.fields);
+
+      for (const [key, value] of Object.entries(fields)) {
+        if (value !== null) {
+          popupContent += '<tr>';
+
+          const td1 = document.createElement('td');
+          td1.className = 'name';
+          td1.innerText = key + ':';
+          popupContent += td1.outerHTML;
+
+          const td2 = document.createElement('td');
+          td2.className = 'value';
+          td2.innerText = value;
+          popupContent += td2.outerHTML;
+
+          popupContent += '</tr>';
+        }
       }
     }
+
     if (popupContent.length != 0) {
-      console.log(content);
-      L.popup({maxwidth: 500, maxHeight: 200})
+      L.popup({maxwidth: 500, maxHeight: 200, className: 'wms_feature_info'})
           .setLatLng(latlng)
-          .setContent(popupContent)
+          .setContent('<table><tbody>' + popupContent + '</tbody></<table>')
           .openOn(this._map);
-      // popup.maxHeight = 100;
+    }
+  },
+
+  convertField: function(value) {
+    // Fields containing JSON data (in string format) might be truncated (due to some
+    // file format limitation), and thus not be valid JSON. We try to extract as many
+    // info as possible from it anyway by building a valid JSON string.
+    let jsonValue = null;
+
+    if (!value.endsWith('}')) {
+      value += '}';
+    }
+
+    try {
+      jsonValue = JSON.parse(value);
+    } catch {
+      let index = value.lastIndexOf(',');
+      while ((jsonValue === null) && (index > 0)) {
+        value = value.substring(0, index) + '}';
+
+        try {
+          jsonValue = JSON.parse(value);
+        } catch {
+          index = value.lastIndexOf(',');
+        }
+      }
+    }
+
+    if (jsonValue !== null) {
+      return jsonValue;
+    } else {
+      return {};
     }
   },
 });

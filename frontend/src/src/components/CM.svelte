@@ -91,7 +91,7 @@
     display: inline-block;
     height: 25px;
     width: 25px;
-    background: url('/images/menu-close-icon.png');
+    background: url('../images/menu-close-icon.png');
     background-size : 100%;
   }
 
@@ -104,7 +104,7 @@
     display: inline-block;
     height: 25px;
     width: 25px;
-    background: url('/images/menu-open-icon.png');
+    background: url('../images/menu-open-icon.png');
     background-size : 100%;
   }
 
