@@ -3,6 +3,7 @@ import logging
 import os
 import subprocess  # nosec
 from time import sleep, time
+from uuid import uuid1
 
 import geopandas as gpd
 import numpy as np
@@ -10,6 +11,7 @@ import pandas as pd
 import rasterio
 import requests
 import urllib3
+from BaseCM.cm_output import output_raster as post_raster
 from BaseCM.cm_output import validate
 from geocube.api.core import make_geocube
 from rasterio.mask import mask
@@ -25,7 +27,8 @@ if not os.path.exists("API_KEY.txt"):
     raise FileNotFoundError("Missing API key.")
 with open("API_KEY.txt", "r") as f:
     API_KEY = f.read().replace("\n", "")
-API_URL = "https://lab.idiap.ch/enermaps/api/rpc/enermaps_query_table"
+POSTGREST_URL = "https://lab.idiap.ch/enermaps/api/db/rpc/enermaps_query_table"
+API_URL = "http://api"
 HEADERS = {"Authorization": "Bearer {}".format(API_KEY)}
 
 CURRENT_FILE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -116,7 +119,7 @@ def getHDD(polygon, year=2020):
     df = []
     for month in range(1, 13):
         r = requests.post(
-            API_URL,
+            POSTGREST_URL,
             headers=HEADERS,
             json={
                 "parameters": {
@@ -139,7 +142,7 @@ def getHDD(polygon, year=2020):
     else:
         # Find the NUTS3 code
         r = requests.post(
-            API_URL,
+            POSTGREST_URL,
             headers=HEADERS,
             json={
                 "parameters": {
@@ -307,24 +310,23 @@ def heatlearn(geojson, raster_paths, tile_size=500, year=2020, to_colorize=False
                 "tmp/tmp_rgb.tif",
             ],
         )
-        out_file = "tmp/tmp_rgb.tif"
+        dst_raster = "tmp/tmp_rgb.tif"
     else:
-        out_file = "tmp/tmp.tif"
+        dst_raster = "tmp/tmp.tif"
 
-    with open(out_file, "rb") as f:
-        files = {"file": ("out.tif", f, "image/tiff")}
+    with open(dst_raster, mode="rb") as raster_fd:
         session = requests.Session()
-        if not wait_for_reachability(session, "http://api"):
+        raster_name = "heatlearn" + str(uuid1()) + ".tiff"
+        if not wait_for_reachability(session, API_URL):
             logging.error("API is not reachable after max retries")
         else:
-            session.delete("http://api/api/geofile/out.tif")
-            session.post("http://api/api/geofile", files=files)
+            post_raster(raster_name=raster_name, raster_fd=raster_fd)
 
     # Dict return response
     ret = dict()
     ret["graphs"] = {}
 
-    ret["geofiles"] = {"file": "tmp/tmp_rgb.tif"}
+    ret["geofiles"] = {"file": API_URL + "/api/cm_outputs/" + raster_name}
     ret["values"] = {
         "Annual heating demand [GWh]": int(np.round(np.sum(preds) / 1000, 0)),
         "Heating density [MWh/ha]": int(
