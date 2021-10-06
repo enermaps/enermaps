@@ -44,9 +44,11 @@ services:
       context: ./cm
       dockerfile: cm_hdd_cdd/Dockerfile
     environment:
-      UPLOAD_DIR: /upload-dir
+      GEODB_DIR: /geodb
+      CM_OUTPUTS_DIR: /cm_outputs
     volumes:
-      - upload-data:/upload-dir
+      - geodb:/geodb:ro
+      - cm_outputs:/cm_outputs
     env_file:
       .env
 
