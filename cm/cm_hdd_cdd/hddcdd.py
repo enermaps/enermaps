@@ -1,14 +1,14 @@
 import logging
 import os
+from functools import lru_cache
+from pathlib import Path
 from time import time
-from typing import List, Optional, Text
+from typing import Dict, Tuple
 
-import pyproj
+import numpy as np
+import pandas as pd
 import rasterio
 from BaseCM.cm_output import validate
-from rasterstats import zonal_stats
-from shapely.geometry import shape
-from shapely.ops import cascaded_union, transform
 
 GEOJSON_PROJ = "EPSG:4326"
 DEFAULT_STATS = ("min", "max", "mean", "median", "count")
@@ -16,6 +16,8 @@ SCALED_STATS_PREFIX = ("min", "max", "mean", "median", "percentile_")
 CURRENT_FILE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 CDF_POINTS = range(0, 101)
+
+DECIMALS = 3
 
 
 def scale_stat(stats: dict, factor):
@@ -28,84 +30,108 @@ def scale_stat(stats: dict, factor):
                 stats[stat_name] = stat * factor
 
 
-def extract_graph(stats: dict):
-    graph = []
-    is_graph_invalid = False
-    for cdf_point, percentile in zip(CDF_POINTS, get_cdf_stats()):
-        percentile_step = stats[percentile]
-        if percentile_step is None:
-            is_graph_invalid = True
-        graph.append((stats[percentile], cdf_point,))
-        del stats[percentile]
-    if is_graph_invalid:
-        return []
-    return graph
-
-
-def get_cdf_stats():
-    def to_percentile(percent):
-        return "percentile_" + str(percent)
-
-    return [to_percentile(percent) for percent in CDF_POINTS]
-
-
-def rasterstats(geojson, raster_path, factor, stat_types: Optional[List[Text]] = None):
-    """Multiply the rasters values by a factor.
-
-    Rasters are selected from the frontend.
-    Factor should be an integrer.
-    By default, the indicators are "count min mean max median".
+def compute_centroid(geojson: Dict) -> Tuple[float, float]:
     """
-    if not stat_types:
-        stat_types = DEFAULT_STATS
-    stat_types = list(stat_types)
-    stat_types += get_cdf_stats()
-    start = time()
-    with rasterio.open(raster_path) as src:
-        project = pyproj.Transformer.from_crs(
-            GEOJSON_PROJ, src.crs, always_xy=True
-        ).transform
-    geometries = []
-    for feature in geojson["features"]:
-        geometry = feature["geometry"]
-        geoshape = shape(geometry)
-        projected_shape = transform(project, geoshape)
-        geometries.append(projected_shape)
-    merged_geometries = cascaded_union(geometries)
-    stats = zonal_stats(
-        merged_geometries, raster_path, affine=src.transform, stats=stat_types
+    Example
+    >>> gj = {'features': [
+    ...          {'geometry':
+    ...               {'coordinates': [[[11.061588, 45.567844],
+    ...                                 [11.055015, 45.563899],
+    ...                                 [11.050421, 45.565349],
+    ...                                 [11.040453, 45.560869],
+    ...                                 [11.032734, 45.561389]]],
+    ...                'type': 'Polygon'},
+    ...           'id': 80284,
+    ...           'properties': {'ds_id': 0,
+    ...                          'dt': '',
+    ...                          'fields': '',
+    ...                          'id': 'IT_023038',
+    ...                          'layer': '{ "type": "numerical" }',
+    ...                          'start_at': '',
+    ...                          'units': '{ "": null }',
+    ...                          'variables': '{ "": 0 }',
+    ...                          'z': ''},
+    ...           'type': 'Feature'}],
+    ...       'type': 'FeatureCollection'}
+    >>> compute_centroid(gj)
+    (11.048, 45.564)
+    """
+    try:
+        coords = np.array(geojson["features"][0]["geometry"]["coordinates"])
+    except KeyError:
+        logging.error(geojson)
+        raise ValueError(
+            "FAILED! The provided geometry is not a correct/supported geojson format."
+        )
+    return tuple(np.around(coords[0].mean(0), decimals=DECIMALS))
+
+
+def get_datarepodir() -> Path:
+    return Path(os.environ["CM_HDD_CDD_REPOSITORY"])
+
+
+@lru_cache(maxsize=256)
+def get_datadir(
+    datarepository: Path,
+    sim_type: str = "historical",
+    dd_type: str = "hdd",
+    Tb=18.0,
+    aggr_window="monthly",
+    method="average",
+) -> Path:
+    """
+    >>> get_datadir("cm/cm_hdd_cdd/testdata").as_posix()
+    "cm/cm_hdd_cdd/testdata/historical/hdd/18.0/monthly/average/"
+    """
+    return (
+        Path(datarepository) / sim_type / dd_type / f"{Tb:.1f}" / aggr_window / method
     )
-    # we have a single feature, thus we expose a single stat
-    if len(stats):
-        stat = stats[0]
-    else:
-        stat = {}
-    scale_stat(stat, factor)
-    graph = extract_graph(stat)
-
-    stat_done = time()
-    ret = dict()
-    ret["graphs"] = {}
-    if graph:
-        ret["graphs"]["cdf"] = {}
-        ret["graphs"]["cdf"]["type"] = "xy"
-        ret["graphs"]["cdf"]["values"] = graph
-    ret["geofiles"] = {}
-    ret["values"] = stat
-
-    logging.info("We took {!s} to calculate stats".format(stat_done - start))
-    res = validate(ret)
-    return res
 
 
-def download_hdd_cdd():
-    """Function to download the HDD and CDD pre-computed layers into a local directory"""
-    # check if the file already exists in the local directory
-    # if file are not present, then download the latest version
-    raise NotImplementedError
+@lru_cache()
+def extract_by_dir(
+    gdir: Path,
+    lon: float,
+    lat: float,
+    __datasets: Dict[str, rasterio.DatasetReader] = {},
+):
+    res = []
+    idx = []
+    for gfi in gdir.iterdir():
+        if gfi.name.endswith(".tif"):
+            idx.append(gfi.name[:-4])
+            try:
+                gx = __datasets[gfi.as_posix()]
+            except KeyError:
+                gx = rasterio.open(gfi)
+                __datasets[gfi.as_posix()] = gx
+            yp, xp = gx.index(lon, lat)
+            val = gx.read()[0][yp, xp]
+            logging.info(
+                f"{gfi.name}@{lon:.{DECIMALS}f},{lat:.{DECIMALS}f}: {yp}, {xp} => {val}"
+            )
+            res.append(val)
+    sr = pd.Series(np.array(res), index=idx, name=f"yp={yp},xp={xp}")
+    sr.sort_index(inplace=True)
+    return sr
 
 
-def hdd_cdd_stats(refyear: int = 2050, rcp: str = "4.5", t_base_h=18.0, t_base_c=22.0):
+def dd_my_group(sr: pd.Series) -> pd.Series:
+    isplit = sr.index.str.split("_")
+    years = [yr for yr, _ in isplit]
+    mnths = [mnth for _, mnth in isplit]
+    yrgrp = sr.groupby(years)
+    mngrp = sr.groupby(mnths)
+    return mngrp, yrgrp
+
+
+def hdd_cdd_stats(
+    geojson: Dict,
+    refyear: int = 2050,
+    rcp: str = "4.5",
+    t_base_h: float = 18.0,
+    t_base_c: float = 22.0,
+):
     """The `hdd_cdd_stats` returns a set of graphs and KPI extracted by the HDD and CDD
     layers computed starting from the EURO CORDEX ensamble simulations.
 
@@ -125,12 +151,56 @@ def hdd_cdd_stats(refyear: int = 2050, rcp: str = "4.5", t_base_h=18.0, t_base_c
     * number of tropical days
     """
     # select the right layer and return the results
-    print(
+    start = time()
+    logging.info(
         "    » ref. year: {refyear}, crp: {rcp}, Tbh: {t_base_h:.1f}, Tbc: {t_base_c:.1f}"
     )
-    # Select the list of pixels that are covered by the selected geometry
+    # Compute the centroid of the geometry selected by the user
+    lon, lat = compute_centroid(geojson)
     # Query the file-directory-netcdf structure for all the pixels involved
+    hdd_path = get_datadir(
+        datarepository=get_datarepodir(),
+        sim_type=rcp,
+        dd_type="hdd",
+        Tb=t_base_h,
+        aggr_window="monthly",
+        method="average",
+    )
+    avg_hdds = extract_by_dir(gdir=hdd_path, lon=lon, lat=lat)
+    cdd_path = get_datadir(
+        datarepository=get_datarepodir(),
+        sim_type=rcp,
+        dd_type="cdd",
+        Tb=t_base_c,
+        aggr_window="monthly",
+        method="average",
+    )
+    avg_cdds = extract_by_dir(gdir=cdd_path, lon=lon, lat=lat)
+    end = time()
     # extract the min, max, mean with their confidence intervals
     # prepare monthly and yearly graphs
+    ret = dict()
+    ret["graphs"] = {}
+
+    ret["graphs"]["Monthly HDDs"] = {}
+    ret["graphs"]["Monthly HDDs"]["type"] = "line"
+    ret["graphs"]["Monthly HDDs"]["values"] = avg_hdds.tolist()
+
+    ret["graphs"]["Monthly CDDs"] = {}
+    ret["graphs"]["Monthly CDDs"]["type"] = "line"
+    ret["graphs"]["Monthly CDDs"]["values"] = avg_cdds.tolist()
+
+    ret["geofiles"] = {}
+
+    # TODO: extract stats for yearly values and not monthly
+    ret["values"] = {
+        f"{var} {stats}": value
+        for var, st in zip(["HDDs", "CDDs"], [avg_hdds.describe(), avg_cdds.describe()])
+        for stats, value in st.items()
+    }
+
     # extract the main KPIs
-    return []
+    logging.info(f"We took {end - start!s} to query the data repository")
+
+    res = validate(ret)
+    return res

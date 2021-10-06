@@ -29,8 +29,9 @@ def cm_hddcdd(self, selection: dict, rasters: list, params: dict):
 
     # self.validate_params(params)
     return hdd_cdd_stats(
+        geojson=selection,
         refyear=params.get("reference year", 2050),
-        rcp=f"{params.get('scenario RCP', 4.5):.1f}",
+        rcp=params.get("scenario RCP", "historical"),
         t_base_h=params.get("base temperature for HDD", 18.0),
         t_base_c=params.get("base temperature for CDD", 22.0),
     )
