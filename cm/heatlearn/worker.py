@@ -2,7 +2,7 @@
 from BaseCM import cm_base as cm_base
 from BaseCM import cm_input as cm_input
 
-from heatlearn import heatlearn
+from heatlearn import MODELS, heatlearn
 
 ADMISSIBLE_TILE_SIZES = [500, 300]
 
@@ -16,6 +16,9 @@ def heat_learn(self, selection: dict, rasters: list, params: dict):
     If there is no raster, we raise a value error.
     """
 
+    tile_size = params["tileSize"]
+    year = params["year"]
+
     if not rasters:
         raise ValueError("Raster list must be non-empty.")
     if len(rasters) > 1:
@@ -24,13 +27,17 @@ def heat_learn(self, selection: dict, rasters: list, params: dict):
         raise ValueError("The selection must be a feature set.")
     if not selection["features"]:
         raise ValueError("The selection must be non-empty.")
+
+    if tile_size not in MODELS.keys():
+        raise ValueError(
+            "Only these tile sizes are possible: {}".format(", ".join(MODELS.keys()))
+        )
+
     raster_paths = []
     for raster in rasters:
         raster_paths.append(cm_input.get_raster_path(raster))
     self.validate_params(params)
 
-    tile_size = params["tileSize"]
-    year = params["year"]
     results = heatlearn(selection, raster_paths, tile_size, year)
     return results
 
