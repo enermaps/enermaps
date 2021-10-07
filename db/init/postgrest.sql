@@ -336,3 +336,54 @@ json_build_object(
 GROUP BY ds_id
 ORDER BY ds_id;
 GRANT SELECT ON public.metadata to api_anon;
+
+
+-- Function to set new legends
+-- Initialize
+DROP FUNCTION IF EXISTS enermaps_set_legend(parameters text, legend text);
+REVOKE ALL PRIVILEGES ON ALL TABLES IN SCHEMA public FROM legend_editor;
+DROP ROLE IF EXISTS legend_editor;
+-- Create new user for the API
+CREATE ROLE legend_editor nologin;
+GRANT legend_editor TO test;
+
+CREATE OR REPLACE FUNCTION enermaps_set_legend(parameters text, legend text)
+    RETURNS void
+    AS $$
+    DECLARE
+        -- where string
+        where_string text := 'WHERE ';
+        -- variables to loop on the json input
+        _key text;
+        _value text;
+        counter int := 0;
+        my_uuid uuid := uuid_generate_v4();
+    BEGIN
+        INSERT into visualization values(my_uuid, legend::jsonb);
+        FOR _key, _value IN
+           SELECT * FROM json_each_text(parameters::json)
+            LOOP
+            IF _key = 'level' THEN
+                where_string := where_string || 'spatial.levl_code = ANY(''' || _value || '''::levl[])';
+            ELSIF _key = 'intersecting' THEN
+                where_string := where_string || 'ST_intersects(spatial.geometry,ST_TRANSFORM(ST_GeometryFromText(''' || _value || ''',4326),3035))';
+            ELSIF is_json_object(_value) THEN
+                where_string :=  where_string || create_json_where(_key, _value::json);
+            ELSE
+                where_string := where_string || _key || ' = ' || _value;
+            END IF;
+            counter := counter + 1;
+            IF counter < count(*) FROM json_object_keys(parameters::json) THEN
+                where_string := where_string || ' AND ';
+            END IF;
+        END LOOP;
+        EXECUTE format('
+        UPDATE data SET vis_id = ''%s''
+                    %s', my_uuid, where_string);
+    END;
+    $$
+    LANGUAGE plpgsql;
+-- Set rights
+GRANT EXECUTE ON FUNCTION enermaps_set_legend(parameters text, legend text) to legend_editor;
+GRANT SELECT, UPDATE ON public.data TO legend_editor;
+GRANT SELECT, INSERT ON public.visualization TO legend_editor;
