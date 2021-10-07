@@ -13,13 +13,13 @@ RUN apt-get update && \
 ENV CPLUS_INCLUDE_PATH=/usr/include/gdal
 ENV C_INCLUDE_PATH=/usr/include/gdal
 
-WORKDIR cm-heatlearn
+COPY /.env-db-server /.env-db-server
 
-COPY heatlearn/requirements.txt requirements.txt
+COPY cm/heatlearn/requirements.txt requirements.txt
 RUN pip3 install -r requirements.txt
-COPY base /tmp/base
+COPY cm/base /tmp/base
 RUN cd /tmp/base && pip3 install . && python3 test.py
-COPY heatlearn .
+COPY cm/heatlearn .
 RUN mkdir -p tmp
 RUN python3 test.py
 CMD ["python3", "worker.py"]
