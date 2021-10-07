@@ -1,15 +1,20 @@
-import unittest
+import io
+import os
+import shutil
+from glob import glob
 
 import lxml  # nosec
 from lxml import etree  # nosec
 from owslib.wms import WebMapService
+from PIL import Image
 
 import app.common.xml as xml
-from app.common import filepath
+from app.common import filepath, path
 from app.common.test import BaseApiTest, BaseIntegrationTest
-from app.endpoints import wms
+from app.models import storage
 
 GETCAPABILITIES_ARGS = {"service": "WMS", "request": "GetCapabilities"}
+WMS_VERSION = "1.3.0"
 
 
 class BaseWMSTest(BaseApiTest):
@@ -17,24 +22,6 @@ class BaseWMSTest(BaseApiTest):
         """Try to achieve the WMS without request."""
         response = self.client.get("api/wms", query_string={"service": "WMS"})
         self.assertEqual(response.status, "400 BAD REQUEST", response.data)
-
-
-class WMSHelperTest(unittest.TestCase):
-    def testLayerSplit(self):
-        raw_l = "a,b,c"
-        parsed_list = wms.parse_list(raw_l)
-        self.assertEqual(
-            parsed_list,
-            ["a", "b", "c"],
-        )
-
-    def testLayerSplitWithComma(self):
-        raw_l = "a%2C,b,c"
-        parsed_list = wms.parse_list(raw_l)
-        self.assertEqual(
-            parsed_list,
-            ["a,", "b", "c"],
-        )
 
 
 class WMSGetCapabilitiesTest(BaseApiTest):
@@ -109,76 +96,99 @@ class WMSGetCapabilitiesTest(BaseApiTest):
         self.assertTrue(valid, self.schema.error_log.filter_from_errors())
 
 
-# class WMSGetMapTest(BaseApiTest):
-#     """Test the wms GetMap endpoint"""
-#
-#     TILE_SIZE = (256, 256)
-#     TILE_PARAMETERS = {
-#         "service": "WMS",
-#         "request": "GetMap",
-#         "layers": "",
-#         "styles": "",
-#         "format": "image/png",
-#         "transparent": "true",
-#         "version": "1.1.1",
-#         "width": str(TILE_SIZE[0]),
-#         "height": str(TILE_SIZE[1]),
-#         "srs": "EPSG:3857",
-#         "bbox": "19567.87924100512,6809621.975869781"
-#         ","
-#         "39135.75848201024,6829189.85511079",
-#     }
-#
-#     GETMAP_ARGS = {"service": "WMS", "request": "GetMap"}
-#
-#     def testVectorTileWorkflow(self):
-#         """Post a vector file, retrieve it as image from WMS endpoint,
-#         check if the image has the right size  without being empty.
-#         """
-#         testfile = "nuts.zip"
-#         test_data, testfile_content = self.get_testformdata(testfile)
-#         response = self.client.post(
-#             "api/geofile/",
-#             data=test_data,
-#             content_type="multipart/form-data",
-#             follow_redirects=True,
-#         )
-#         self.assertStatusCodeEqual(response, 200)
-#         response.close()
-#         args = self.TILE_PARAMETERS
-#         args["layers"] = testfile
-#         response = self.client.get("api/wms", query_string=self.TILE_PARAMETERS)
-#         self.assertStatusCodeEqual(response, 200)
-#         self.assertGreater(len(response.data), 0)
-#         image = Image.open(io.BytesIO(response.data))
-#         self.assertEqual(image.size, self.TILE_SIZE)
-#         self.assertEqual(image.size, self.TILE_SIZE)
-#         self.assertEqual(image.format, "PNG")
-#         empty_pixel = 0
-#         for x in range(image.width):
-#             for y in range(image.height):
-#                 pixel = image.getpixel((x, y))
-#                 if pixel == (0, 0, 0, 0):
-#                     empty_pixel += 1
-#         total_pixel = image.width * image.height
-#         non_empty_pixel = total_pixel - empty_pixel
-#         self.assertNotEqual(non_empty_pixel, 0)
-#
-#     def testRasterTileWorkflow(self):
-#         """Upload a raster, then check that the tile request is not empty"""
-#         testfile = "hotmaps-cdd_curr_adapted.tif"
-#         response = self.import_testdata(testfile)
-#
-#         args = self.TILE_PARAMETERS
-#         args["layers"] = testfile
-#         response = self.client.get("api/wms", query_string=self.TILE_PARAMETERS)
-#         self.assertStatusCodeEqual(response, 200)
-#         self.assertGreater(len(response.data), 0)
-#         Image.open(io.BytesIO(response.data))
-#         # test that we received an image
+class WMSGetMapTest(BaseApiTest):
+    """Test the wms GetMap endpoint"""
 
+    TILE_SIZE = (256, 256)
+    TILE_PARAMETERS = {
+        "service": "WMS",
+        "request": "GetMap",
+        "layers": "",
+        "styles": "",
+        "format": "image/png",
+        "transparent": "true",
+        "version": "1.1.1",
+        "width": str(TILE_SIZE[0]),
+        "height": str(TILE_SIZE[1]),
+        "srs": "EPSG:3857",
+        "bbox": "19567.87924100512,6809621.975869781"
+        ","
+        "39135.75848201024,6829189.85511079",
+    }
 
-WMS_VERSION = "1.3.0"
+    def setUp(self):
+        super().setUp()
+
+        with self.flask_app.app_context():
+            # Copy the vector dataset
+            layer_name = path.make_unique_layer_name(path.AREA, "nuts")
+            storage_instance = storage.create(layer_name)
+
+            os.makedirs(storage_instance.get_dir(layer_name))
+
+            for filename in glob(os.path.join(filepath.get_testdata_path("nuts"), "*")):
+                (_, extension) = os.path.splitext(filename)
+                shutil.copy(
+                    filename, storage_instance.get_file_path(layer_name, extension[1:])
+                )
+
+            # Copy the raster dataset
+            layer_name = path.make_unique_layer_name(path.RASTER, "hotmaps", "heat")
+            storage_instance = storage.create(layer_name)
+
+            os.makedirs(storage_instance.get_dir(layer_name))
+
+            shutil.copy(
+                filepath.get_testdata_path("hotmaps-cdd_curr_adapted.tif"),
+                storage_instance.get_file_path(layer_name, "FID"),
+            )
+
+    # def testFail(self):
+    #     self.assertTrue(False)
+    #
+
+    def testVectorTileWorkflow(self):
+        """Retrieve a vector layer as image from WMS endpoint,
+        check if the image has the right size  without being empty.
+        """
+        args = self.TILE_PARAMETERS
+        args["layers"] = path.make_unique_layer_name(path.AREA, "nuts")
+
+        response = self.client.get("api/wms", query_string=args)
+        self.assertStatusCodeEqual(response, 200)
+        self.assertGreater(len(response.data), 0)
+
+        image = Image.open(io.BytesIO(response.data))
+        self.assertEqual(image.size, self.TILE_SIZE)
+        self.assertEqual(image.size, self.TILE_SIZE)
+        self.assertEqual(image.format, "PNG")
+
+        empty_pixel = 0
+        for x in range(image.width):
+            for y in range(image.height):
+                pixel = image.getpixel((x, y))
+                if pixel == (0, 0, 0, 0):
+                    empty_pixel += 1
+
+        total_pixel = image.width * image.height
+        non_empty_pixel = total_pixel - empty_pixel
+
+        self.assertNotEqual(non_empty_pixel, 0)
+
+    def testRasterTileWorkflow(self):
+        """Retrieve a raster layer as image from WMS endpoint,
+        then check that the tile request is not empty"""
+        args = self.TILE_PARAMETERS
+        args["layers"] = path.make_unique_layer_name(path.RASTER, "hotmaps", "heat")
+
+        response = self.client.get("api/wms", query_string=args)
+        self.assertStatusCodeEqual(response, 200)
+        self.assertGreater(len(response.data), 0)
+
+        image = Image.open(io.BytesIO(response.data))
+        self.assertEqual(image.size, self.TILE_SIZE)
+        self.assertEqual(image.size, self.TILE_SIZE)
+        self.assertEqual(image.format, "PNG")
 
 
 class TestWMSLibCompliance(BaseIntegrationTest):

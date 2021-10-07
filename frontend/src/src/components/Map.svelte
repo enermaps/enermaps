@@ -114,7 +114,7 @@
             WMS_URL,
             {
               transparent: 'true',
-              layers: desiredSelection + '.geojson',
+              layers: 'area/' + desiredSelection,
               format: 'image/png',
             },
         );

@@ -8,7 +8,7 @@ import os
 from flask import Blueprint, Flask
 from flask_restx import Api
 
-from app.data_integration import data_controller
+from app.commands.cache import update_all_datasets, update_areas, update_dataset
 from app.endpoints import calculation_module, cm_outputs, datasets, geofile, wms
 from app.healthz import healthz
 from app.redirect import redirect_to_api
@@ -48,6 +48,7 @@ def create_app(environment="production", testing=False, on_startup=False):
     app.config["GEODB_DIR"] = None
     app.config["GEODB_CACHE_DIR"] = "geodb"
     app.config["CM_OUTPUTS_DIR"] = "cm_outputs"
+    app.config["FILTER_DATASETS"] = False
     app.config["WMS"] = {}
     app.config["WMS"]["ALLOWED_PROJECTIONS"] = ["EPSG:3857"]
     app.config["WMS"]["MAX_SIZE"] = 2048 ** 2
@@ -70,10 +71,9 @@ def create_app(environment="production", testing=False, on_startup=False):
     app.register_blueprint(redirect_to_api)
     app.register_blueprint(healthz)
 
-    with app.app_context():
-        if on_startup:
-            # we want to initalize enermaps datasets only at startup
-            data_controller.init_enermaps_datasets()
+    app.cli.add_command(update_all_datasets)
+    app.cli.add_command(update_dataset)
+    app.cli.add_command(update_areas)
 
     # Install thr WSGI middleware
     app.wsgi_app = ReverseProxied(app.wsgi_app)

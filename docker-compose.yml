@@ -24,6 +24,7 @@ services:
     environment:
       GEODB_CACHE_DIR: /geodb
       CM_OUTPUTS_DIR: /cm_outputs
+      FILTER_DATASETS: 1
     depends_on:
       - redis
     volumes:
