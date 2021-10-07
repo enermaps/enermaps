@@ -1,4 +1,6 @@
-enermaps is a rewrite of the hotmaps.
+The EnerMaps project has received funding from the European Union’s Horizon 2020 research and innovation program under grant agreement N°884161.
+
+EnerMaps is a rewrite of Hotmaps Horizon 2020 project.
 
 # Development
 First you need to have docker installed on your machine.
