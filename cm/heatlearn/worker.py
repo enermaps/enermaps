@@ -1,13 +1,18 @@
 #!/usr/bin/env python3
+
+import os
+
 from BaseCM import cm_base as cm_base
 from BaseCM import cm_input as cm_input
 
-from heatlearn import MODELS, heatlearn
+import heatlearn
 
 ADMISSIBLE_TILE_SIZES = [500, 300]
 
 app = cm_base.get_default_app("heatlearn")
 schema_path = cm_base.get_default_schema_path()
+
+api_base_url = os.environ.get("API_BASE_URL")
 
 
 @app.task(base=cm_base.CMBase, bind=True, schema_path=schema_path)
@@ -28,9 +33,11 @@ def heat_learn(self, selection: dict, rasters: list, params: dict):
     if not selection["features"]:
         raise ValueError("The selection must be non-empty.")
 
-    if tile_size not in MODELS.keys():
+    if tile_size not in heatlearn.MODELS.keys():
         raise ValueError(
-            "Only these tile sizes are possible: {}".format(", ".join(MODELS.keys()))
+            "Only these tile sizes are possible: {}".format(
+                ", ".join(heatlearn.MODELS.keys())
+            )
         )
 
     raster_paths = []
@@ -38,7 +45,9 @@ def heat_learn(self, selection: dict, rasters: list, params: dict):
         raster_paths.append(cm_input.get_raster_path(raster))
     self.validate_params(params)
 
-    results = heatlearn(selection, raster_paths, tile_size, year)
+    results = heatlearn.heatlearn(
+        selection, raster_paths, tile_size, year, api_base_url
+    )
     return results
 
 

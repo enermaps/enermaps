@@ -23,13 +23,16 @@ from tensorflow.keras.models import load_model
 logging.basicConfig(level=logging.INFO)
 
 # REST API for HDD
-if not os.path.exists("API_KEY.txt"):
-    raise FileNotFoundError("Missing API key.")
-with open("API_KEY.txt", "r") as f:
-    API_KEY = f.read().replace("\n", "")
+env_db_server = ".env-db-server"
+if not os.path.exists(env_db_server):
+    raise FileNotFoundError("Missing .env-db-server file")
+with open(env_db_server, "r") as f:
+    for line in f.read().splitlines():
+        if line.startswith("DATASETS_SERVER_API_KEY"):
+            API_KEY = line.split("=")[-1].replace('"', "")
 
 POSTGREST_URL = "https://lab.idiap.ch/enermaps/api/db/rpc/enermaps_query_table"
-API_URL = "http://api"
+API_URL = os.environ.get("API_BASE_URL")
 HEADERS = {"Authorization": "Bearer {}".format(API_KEY)}
 
 CURRENT_FILE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -131,7 +134,6 @@ def getHDD(polygon, year=2020):
                 }
             },
         )
-
         df.append(pd.DataFrame(r.json()))
     df = pd.concat(df, ignore_index=True)
     if df.shape[0] > 0:  # there are NUTS3 with HDD
@@ -179,7 +181,14 @@ def checkTile(matrix, tile_size):
         return False
 
 
-def heatlearn(geojson, raster_paths, tile_size=500, year=2020, to_colorize=False):
+def heatlearn(
+    geojson,
+    raster_paths,
+    tile_size=500,
+    year=2020,
+    to_colorize=False,
+    api_base_url="http://api",
+):
     """Get heating demand from HeatLearn Model."""
     start = time()
 
@@ -312,8 +321,8 @@ def heatlearn(geojson, raster_paths, tile_size=500, year=2020, to_colorize=False
 
     with open(dst_raster, mode="rb") as raster_fd:
         session = requests.Session()
-        raster_name = "heatlearn" + str(uuid1()) + ".tiff"
-        if not wait_for_reachability(session, API_URL):
+        raster_name = "heat_learn_" + str(uuid1()) + ".tiff"
+        if not wait_for_reachability(session, api_base_url):
             logging.error("API is not reachable after max retries")
         else:
             post_raster(raster_name=raster_name, raster_fd=raster_fd)
@@ -322,7 +331,7 @@ def heatlearn(geojson, raster_paths, tile_size=500, year=2020, to_colorize=False
     ret = dict()
     ret["graphs"] = {}
 
-    ret["geofiles"] = {"file": API_URL + "/api/cm_outputs/" + raster_name}
+    ret["geofiles"] = {"file": api_base_url + "/api/cm_outputs/" + raster_name}
     ret["values"] = {
         "Annual heating demand [GWh]": int(np.round(np.sum(preds) / 1000, 0)),
         "Heating density [MWh/ha]": int(
