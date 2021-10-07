@@ -111,8 +111,8 @@ services:
 
   cm-heatlearn:
     build:
-      context: ./cm
-      dockerfile: heatlearn/Dockerfile
+      context: ./
+      dockerfile: ./cm/heatlearn/Dockerfile
     environment:
       GEODB_DIR: /geodb
       CM_OUTPUTS_DIR: /cm_outputs
