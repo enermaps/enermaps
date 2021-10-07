@@ -158,3 +158,66 @@ print(json.dumps(response,indent=4, sort_keys=True))
 #### Metadata view using GET
 A custom view has been created to provide an endpoint for OpenAIRE and list all Enermaps-specific metadata.
 This is available on: http://localhost:3000/metadata
+
+
+## Endpoint to set new legends
+A new endpoint `/enermaps_set_legend`is created to let authorized members change the legends of the layers.
+
+A custom function allows the `legend_editor` user to:
+
+- create a new legend in the `visualization` table with a generated UUID
+- set to a specific layer in the `data` the corresponding `vis_id`
+
+The function accepts two `text` parameters (which will be converted to `jsonb`):
+
+- `parameters` using the same format as [the main functions](#usage)
+- `legend` using the HotMaps format
+
+
+Example:
+
+```python
+import requests
+import json
+API_KEY = {API_KEY}
+
+r = requests.post('http://localhost:3000/rpc/enermaps_set_legend',
+    headers={'Authorization': 'Bearer {}'.format(API_KEY)},
+    json={"parameters" : {"data.ds_id": "31", "variable": "'Climate zones'"},
+          "legend": {
+            "name": "Climate zones",
+            "type": "custom",
+            "symbology": [
+        {
+            "red": 230,
+            "blue": 207,
+            "green": 216,
+            "label": "Warmer climate",
+            "value": "1",
+            "opacity": 1
+        },
+        {
+            "red": 242,
+            "blue": 242,
+            "green": 242,
+            "label": "Average climate",
+            "value": "2",
+            "opacity": 1
+        },
+        {
+            "red": 157,
+            "blue": 204,
+            "green": 185,
+            "label": "Colder climate",
+            "value": "3",
+            "opacity": 1
+        }
+        ]
+            }
+        }
+    )
+
+
+print(r.status_code)
+```
+where `{API_KEY`} is the private API key for the `legend_editor` user.
