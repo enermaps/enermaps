@@ -40,13 +40,6 @@ class DatasetVariables(Resource):
         if variables is None:
             abort(404)
 
-        # Ensure all fields have the format we want
-        if ("variables" not in variables) or (variables["variables"] is None):
-            variables["variables"] = []
-
-        if ("time_periods" not in variables) or (variables["time_periods"] is None):
-            variables["time_periods"] = []
-
         return variables
 
 
@@ -54,25 +47,4 @@ class DatasetVariables(Resource):
 class Areas(Resource):
     def get(self):
         """Return a list of all areas known by the platform"""
-        return [
-            {
-                "id": "country",
-                "title": "Countries",
-            },
-            {
-                "id": "NUTS1",
-                "title": "Region NUTS1",
-            },
-            {
-                "id": "NUTS2",
-                "title": "Region NUTS2",
-            },
-            {
-                "id": "NUTS3",
-                "title": "Region NUTS3",
-            },
-            {
-                "id": "LAU",
-                "title": "Cities",
-            },
-        ]
+        return client.get_areas()
