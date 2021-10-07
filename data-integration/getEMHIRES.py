@@ -23,14 +23,14 @@ START_DATE = "1986-01-01"
 DATASETS = {
     17: {
         "file": "EMHIRESPV_NUTS2_level.zip",
-        "variable": "installed PV power capacity",
-        "unit": "MW",
+        "variable": "PV power capacity factor",
+        "unit": "[-]",
         "time_variable": "time_step",
     },
     16: {
         "file": "EMHIRES_WIND_NUTS2_June2019.zip",
-        "variable": "installed wind power capacity",
-        "unit": "MW",
+        "variable": "Wind power capacity factor",
+        "unit": "[-]",
         "time_variable": "Time step",
     },
 }
@@ -150,11 +150,15 @@ if __name__ == "__main__":
         metadata = json.dumps(metadata)
         dataset = pd.DataFrame([{"ds_id": ds_id, "metadata": metadata}])
         utilities.toPostgreSQL(
-            dataset, DB_URL, schema="datasets",
+            dataset,
+            DB_URL,
+            schema="datasets",
         )
 
         # Create data table
         data["ds_id"] = ds_id
         utilities.toPostgreSQL(
-            data, DB_URL, schema="data",
+            data,
+            DB_URL,
+            schema="data",
         )

@@ -240,8 +240,8 @@ DATASETS_DIC = {
         "legend": {
             "style": {"colors": {"color_palet": "viridis", "nb_of_colors": 12}},
             "legend_variable": {
-                "variable": "installed wind power capacity",
-                "units": "MW",
+                "variable": "Wind power capacity factor",
+                "units": "[-]",
                 "min": 0.0,
                 "max": 1.0,
             },
@@ -252,7 +252,7 @@ DATASETS_DIC = {
         "layer_type": "vector",
         "data_type": "numerical",
         "json_params": {
-            "parameters": {"data.ds_id": 17, "start_at": "'01/01/2014  00:00:00'"},
+            "parameters": {"data.ds_id": 17, "start_at": "'01/01/2014  12:00:00'"},
             "row_limit": 100000,
         },
         "title": "EMHIRES: Solar power generation",
@@ -260,10 +260,10 @@ DATASETS_DIC = {
         "legend": {
             "style": {"colors": {"color_palet": "rocket_r", "nb_of_colors": 12}},
             "legend_variable": {
-                "variable": "installed PV power capacity",
-                "units": "MW",
-                "min": None,
-                "max": None,
+                "variable": "PV power capacity factor",
+                "units": "[-]",
+                "min": 0.0,
+                "max": 1.0,
             },
         },
     },
