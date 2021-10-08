@@ -38,8 +38,18 @@ def load(name):
 
 
 def save_vector_geojson(layer_name, geojson):
-    type = path.get_type(layer_name)
+    (type, _, variable, _) = path.parse_unique_layer_name(layer_name)
     storage_instance = storage.create_for_layer_type(type)
+
+    # Add the variable as a legend key to each feature (needed by mapnik)
+    if (variable is None) and (len(geojson["features"]) > 0):
+        if len(geojson["features"][0]["properties"]["variables"]) > 0:
+            variable = list(geojson["features"][0]["properties"]["variables"].keys())[0]
+
+    if variable is not None:
+        for i in range(len(geojson["features"])):
+            value = geojson["features"][i]["properties"]["variables"][variable]
+            geojson["features"][i]["properties"]["legend"] = value
 
     with TemporaryDirectory(prefix=storage_instance.get_tmp_dir()) as tmp_dir:
         tmp_filepath = safe_join(tmp_dir, "data.geojson")
@@ -160,7 +170,11 @@ class RasterLayer(Layer):
         currently this approach is quite naive as we read
         from the disk to only extract the projection.
         """
-        return proj4_from_geotiff(self.storage.list_feature_ids(self.name)[0])
+        return proj4_from_geotiff(
+            self.storage.get_file_path(
+                self.name, self.storage.list_feature_ids(self.name)[0]
+            )
+        )
 
     def as_mapnik_layers(self):
         """Open the geofile as Mapnik layer."""
@@ -171,7 +185,7 @@ class RasterLayer(Layer):
 
             layer = mapnik.Layer(feature_id)
             layer.datasource = mapnik.Gdal(file=layer_path, band=1)
-            layer.srs = layer.srs
+            layer.srs = self.projection
             layer.queryable = False
 
             layers.append(layer)
@@ -238,7 +252,7 @@ class VectorLayer(Layer):
         """Returns a list of the images corresponding to the colors needed by the
         legend. If the images don't exists, create them.
         """
-        images_folder = safe_join(self._get_vector_dir(), "legend")
+        images_folder = safe_join(self.storage.get_dir(self.name), "legend")
         if not os.path.exists(images_folder):
             os.makedirs(images_folder)
 
