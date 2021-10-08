@@ -140,7 +140,7 @@ def get_geojson(layer_name):
         parameters["variable"] = f"'{variable}'"
 
     if time_period is not None:
-        parameters["start_at"] = f"'{time_period}-01-01 00:00:00'"
+        parameters["start_at"] = f"'{time_period}-01-01'"
 
     return _get_geojson(parameters)
 

@@ -13,13 +13,14 @@
   import 'leaflet-search/dist/leaflet-search.src.js';
   import 'leaflet-search/dist/leaflet-search.src.css';
   import '../leaflet_components/L.TileLayer.NutsLayer.js';
+  import '../leaflet_components/L.TileLayer.QueryableLayer.js';
   import '../leaflet_components/L.DrawingLayer.js';
 
   import AreaSelection from './AreaSelection.svelte';
   import DatasetSelection from './DatasetSelection.svelte';
   import CMToggle from './CMToggle.svelte';
   import TopNav from './TopNav.svelte';
-  import {selectionStore} from '../stores.js';
+  import {selectionStore, layersStore} from '../stores.js';
   import {INITIAL_MAP_CENTER, INITIAL_ZOOM, BASE_LAYER_URL, BASE_LAYER_PARAMS} from '../settings.js';
   import {WMS_URL} from '../client.js';
 
@@ -75,6 +76,7 @@
     // syncCMOutputLayers();
 
     updateSelectionLayer($selectionStore);
+    updateOverlayLayers($layersStore);
   }
 
   // function syncOverlayLayers() {
@@ -130,6 +132,44 @@
     if (!selectionsGroup.hasLayer(layer)) {
       selectionsGroup.clearLayers();
       selectionsGroup.addLayer(layer);
+    }
+  }
+
+  function updateOverlayLayers(layers) {
+    for (const layer of layers) {
+      if (layer.visible) {
+        if (layer.leaflet_layer === null) {
+          if (layer.is_raster) {
+            layer.leaflet_layer = L.tileLayer.wms(
+                WMS_URL,
+                {
+                  transparent: 'true',
+                  layers: encodeURIComponent(layer.name),
+                  format: 'image/png',
+                },
+            );
+          } else {
+            layer.leaflet_layer = L.tileLayer.queryableLayer(
+                WMS_URL,
+                {
+                  transparent: 'true',
+                  layers: encodeURIComponent(layer.name),
+                  format: 'image/png',
+                },
+            );
+          }
+        }
+
+        if (!overlaysGroup.hasLayer(layer.leaflet_layer)) {
+          console.log('[Map] Add overlay layer: ' + layer.name);
+          overlaysGroup.addLayer(layer.leaflet_layer);
+        }
+      } else {
+        if (overlaysGroup.hasLayer(layer.leaflet_layer)) {
+          console.log('[Map] Remove overlay layer: ' + layer.name);
+          overlaysGroup.removeLayer(layer.leaflet_layer);
+        }
+      }
     }
   }
 
