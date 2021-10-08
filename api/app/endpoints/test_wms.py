@@ -133,19 +133,15 @@ class WMSGetMapTest(BaseApiTest):
                 )
 
             # Copy the raster dataset
-            layer_name = path.make_unique_layer_name(path.RASTER, "hotmaps", "heat")
+            layer_name = path.make_unique_layer_name(path.RASTER, 42, "heat")
             storage_instance = storage.create(layer_name)
 
             os.makedirs(storage_instance.get_dir(layer_name))
 
             shutil.copy(
                 filepath.get_testdata_path("hotmaps-cdd_curr_adapted.tif"),
-                storage_instance.get_file_path(layer_name, "FID"),
+                storage_instance.get_file_path(layer_name, "FID.tif"),
             )
-
-    # def testFail(self):
-    #     self.assertTrue(False)
-    #
 
     def testVectorTileWorkflow(self):
         """Retrieve a vector layer as image from WMS endpoint,
@@ -179,7 +175,7 @@ class WMSGetMapTest(BaseApiTest):
         """Retrieve a raster layer as image from WMS endpoint,
         then check that the tile request is not empty"""
         args = self.TILE_PARAMETERS
-        args["layers"] = path.make_unique_layer_name(path.RASTER, "hotmaps", "heat")
+        args["layers"] = path.make_unique_layer_name(path.RASTER, 42, "heat")
 
         response = self.client.get("api/wms", query_string=args)
         self.assertStatusCodeEqual(response, 200)

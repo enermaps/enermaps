@@ -3,6 +3,7 @@
 import mapnik
 
 from app.common import path
+from app.data_integration import data_endpoints
 from app.models import geofile
 from app.models.wms import utils
 
@@ -15,6 +16,10 @@ def get_mapnik_map(normalized_args):
     size = utils.parse_size(normalized_args)
     mp = mapnik.Map(size.width, size.height, "+init=" + projection)
 
+    # Style for lines
+    line_style, line_style_name = make_line_style()
+    mp.append_style(line_style_name, line_style)
+
     # Get the list of the layers to display
     layers = utils.parse_layers(normalized_args)
     for layer_name in layers:
@@ -26,64 +31,56 @@ def get_mapnik_map(normalized_args):
         if mapnik_layers is None:
             return None
 
-        # Style for lines
-        line_style, style_name = make_line_style()
-        mp.append_style(style_name, line_style)
-
         if path.get_type(layer_name) in (path.RASTER, path.VECTOR):
-            create_style_from_legend()
+            (legend_style, legend_style_name) = create_style_from_legend(
+                layer_name, layer, mapnik_layers[0]
+            )
         else:
             create_default_style()
+            legend_style = None
+
+        if legend_style is not None:
+            mp.append_style(legend_style_name, legend_style)
 
         for mapnik_layer in mapnik_layers:
-            mapnik_layer.styles.append(style_name)
+            mapnik_layer.styles.append(line_style_name)
+
+            if legend_style is not None:
+                mapnik_layer.styles.append(legend_style_name)
 
             mp.layers.append(mapnik_layer)
 
     return mp
 
 
-def create_style_from_legend():
-    #     layer_id = int(layer_name[0:2])
-    #
-    #     # Get the layer style and type
-    #     legend_style = data_endpoints.get_legend_style(layer_id)
-    #     layer_type, data_type = data_endpoints.get_ds_type(layer_id)
-    #
-    #     mapnik_style = None
-    #     style_name = None
-    #
-    #     if layer_type == "vector":
-    #         if data_type == "numerical":
-    #             if (
-    #                 mapnik_layer.datasource.geometry_type()
-    #                 is mapnik.DataGeometryType.Polygon
-    #             ):
-    #                 mapnik_style, style_name = make_numerical_polygon_style(
-    #                     legend_style
-    #                 )
-    #             else:
-    #                 legend_images = layer.get_legend_images(legend_style)
-    #                 mapnik_style, style_name = make_numerical_point_style(
-    #                     legend_style, legend_images
-    #                 )
-    #
-    #     elif layer_type == "raster":
-    #         if data_type == "numerical":
-    #             mapnik_style, style_name = make_numerical_raster_style(
-    #                 legend_style
-    #             )
-    #         elif data_type == "categorical":
-    #             mapnik_style, style_name = make_categorical_raster_style(
-    #                 legend_style
-    #             )
-    #
-    #     if mapnik_style is not None:
-    #         mapnik_layer.styles.append(style_name)
-    #         mp.append_style(style_name, mapnik_style)
-    #     else:
-    #         print("Unknown data type", flush=True)
-    pass
+def create_style_from_legend(layer_name, layer, mapnik_layer):
+    # return (None, None)
+
+    (type, layer_id, _, _) = path.parse_unique_layer_name(layer_name)
+
+    # Get the layer style and type
+    legend_style = data_endpoints.get_legend_style(layer_id)
+    layer_type, data_type = data_endpoints.get_ds_type(layer_id)
+
+    mapnik_style = None
+    style_name = None
+
+    if type == path.VECTOR:
+        if mapnik_layer.datasource.geometry_type() is mapnik.DataGeometryType.Polygon:
+            mapnik_style, style_name = make_numerical_polygon_style(legend_style)
+        else:
+            legend_images = layer.get_legend_images(legend_style)
+            mapnik_style, style_name = make_numerical_point_style(
+                legend_style, legend_images
+            )
+
+    elif type == path.RASTER:
+        if data_type == "numerical":
+            mapnik_style, style_name = make_numerical_raster_style(legend_style)
+        elif data_type == "categorical":
+            mapnik_style, style_name = make_categorical_raster_style(legend_style)
+
+    return (mapnik_style, style_name)
 
 
 def create_default_style():

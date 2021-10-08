@@ -1,5 +1,7 @@
+import os
 import shutil
 import tempfile
+from pathlib import Path
 
 from app.common import path
 from app.common.test import BaseApiTest
@@ -97,6 +99,25 @@ class TestGeoDBRasterStorage(BaseApiTest):
                 ),
                 f"{self.geodb_cache_dir}/rasters/10/{ENCODED_VAR}/layer.tif",
             )
+
+    def testListFeatureIds(self):
+        with self.flask_app.app_context():
+            storage_instance = storage.GeoDBRasterStorage()
+
+            layer_name = "raster/10"
+
+            folder = storage_instance.get_dir(layer_name)
+
+            os.makedirs(folder)
+            Path(os.path.join(folder, "FID1.tif")).touch()
+            Path(os.path.join(folder, "FID2.tif")).touch()
+
+            features = storage_instance.list_feature_ids(layer_name)
+
+            self.assertTrue(isinstance(features, list))
+            self.assertEqual(len(features), 2)
+            self.assertTrue("FID1.tif" in features)
+            self.assertTrue("FID2.tif" in features)
 
 
 class TestGeoDBRasterStorageWithoutCache(BaseApiTest):

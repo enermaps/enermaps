@@ -121,6 +121,19 @@ DATASETS_DIC = {
             },
         },
     },
+    "DS_8": {
+        "id": 8,
+        "layer_type": "vector",
+        "data_type": "numerical",
+        "legend": {
+            "legend_variable": {
+                "variable": "",
+                "units": "",
+                "min": 0,
+                "max": 3460725,
+            }
+        },
+    },
     "DS_9": {
         "id": 9,
         "layer_type": "vector",
@@ -381,6 +394,19 @@ DATASETS_DIC = {
                 "units": "Million tonnes of oil equivalent",
                 "min": 0.65,
                 "max": 216.0,
+            }
+        },
+    },
+    "DS_23": {
+        "id": 23,
+        "layer_type": "vector",
+        "data_type": "numerical",
+        "legend": {
+            "legend_variable": {
+                "variable": "Final energy consumption (Europe 2020-2030)",
+                "units": "Million tonnes of oil equivalent",
+                "min": 0,
+                "max": 2,
             }
         },
     },

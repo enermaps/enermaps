@@ -1,6 +1,6 @@
 <script>
   import {onMount} from 'svelte';
-  import {getDatasets, getDatasetVariables} from '../client.js';
+  import {getDatasets, getDatasetVariables, getDatasetLayerName} from '../client.js';
   import {layersStore} from '../stores.js';
 
 
@@ -49,18 +49,91 @@
 
     if (dataset.info === null) {
       dataset.info = await getDatasetVariables(dataset.ds_id);
+
+      dataset.info.both = false;
+      dataset.info.variables_only = false;
+      dataset.info.time_period_only = false;
+      dataset.info.unique = false;
+      dataset.info.const_variable = null;
+      dataset.info.const_time_period = null;
+      dataset.info.open_intermediate_layers = [];
+
+      if ((dataset.info.variables.length > 1) && (dataset.info.time_periods.length > 1)) {
+        dataset.info.both = true;
+      } else if ((dataset.info.variables.length > 1) &&
+                 (dataset.info.time_periods.length == 1)) {
+        dataset.info.variables_only = true;
+        dataset.info.const_time_period = dataset.info.time_periods[0];
+      } else if ((dataset.info.variables.length > 1) &&
+                 (dataset.info.time_periods.length == 0)) {
+        dataset.info.variables_only = true;
+      } else if ((dataset.info.variables.length == 1) &&
+                 (dataset.info.time_periods.length > 1)) {
+        dataset.info.time_period_only = true;
+        dataset.info.const_variable = dataset.info.variables[0];
+      } else if ((dataset.info.variables.length == 0) &&
+                 (dataset.info.time_periods.length > 1)) {
+        dataset.info.time_period_only = true;
+      } else {
+        dataset.info.unique = true;
+
+        if (dataset.info.variables.length == 1) {
+          dataset.info.const_variable = dataset.info.variables[0];
+        }
+
+        if (dataset.info.time_periods.length == 1) {
+          dataset.info.const_time_period = dataset.info.time_periods[0];
+        }
+      }
+
       availableDatasets = availableDatasets;
     }
   }
 
 
-  function addLayer(datasetId, variable) {
+  function toggleIntermediateLayer(dataset, variable) {
+    const index = dataset.info.open_intermediate_layers.indexOf(variable);
+
+    if (index >= 0) {
+      dataset.info.open_intermediate_layers.splice(index);
+    } else {
+      dataset.info.open_intermediate_layers.push(variable);
+    }
+
+    availableDatasets = availableDatasets;
+  }
+
+
+  function isIntermediateLayerOpen(dataset, variable) {
+    return (dataset.info.open_intermediate_layers.indexOf(variable) >= 0);
+  }
+
+
+  async function addLayer(datasetId, variable, timePeriod) {
     const dataset = availableDatasets.filter((dataset) => dataset.ds_id == datasetId)[0];
 
+    const layerName = await getDatasetLayerName(
+        datasetId, dataset.is_raster, variable, timePeriod,
+    );
+
+    let title = '';
+    let prefix = '';
+
+    if (variable !== null) {
+      title += prefix + variable;
+      prefix = ', ';
+    }
+
+    if (timePeriod !== null) {
+      title += prefix + timePeriod;
+      prefix = ', ';
+    }
+
+    title += prefix + dataset.title;
+
     const layer = {
-      ds_id: datasetId,
-      variable: variable,
-      title: (variable !== null) ? variable + ', ' + dataset.title : dataset.title,
+      name: layerName,
+      title: title,
       is_raster: dataset.is_raster,
       visible: true,
       leaflet_layer: null,
@@ -122,6 +195,10 @@
     cursor: pointer;
   }
 
+  tr.layer.final {
+    cursor: copy;
+  }
+
   tr:hover {
     background-color: #72aff9;
   }
@@ -132,6 +209,14 @@
 
   td.title {
     font-weight: bold;
+  }
+
+  tr.layer.intermediate td {
+    font-style: italic;
+  }
+
+  td.bullet {
+    width: 8px;
   }
 
   tr.open td.arrow span {
@@ -155,27 +240,57 @@
           {#each filteredDatasets as dataset (dataset.ds_id)}
             <tr class="dataset" title={dataset.title} on:click={toggleDataset(dataset)} class:open={dataset.open}>
               <td class="arrow"><span>►</span></td>
-              <td class="title" colspan="2">{dataset.title}</td>
+              <td class="title" colspan="3">{dataset.title}</td>
               <td class="openair">
                 <a href={dataset.openairLink} title="Link to OpenAIRE metadata" target="_blank">&#128279;</a>
               </td>
             </tr>
 
             {#if dataset.open && dataset.info}
-              {#if dataset.info.variables.length > 0}
+              {#if dataset.info.both}
                 {#each dataset.info.variables as variable}
-                  <tr class="layer" title={variable} on:click={addLayer(dataset.ds_id, variable)}>
+                  <tr class="layer intermediate" title={variable} on:click={toggleIntermediateLayer(dataset, variable)} class:open={isIntermediateLayerOpen(dataset, variable)}>
                     <td></td>
-                    <td>◦</td>
-                    <td>{variable}</td>
+                    <td class="arrow"><span>►</span></td>
+                    <td colspan="2">{variable}</td>
+                    <td></td>
+                  </tr>
+
+                  {#if isIntermediateLayerOpen(dataset, variable)}
+                    {#each dataset.info.time_periods as timePeriod}
+                      <tr class="layer final" title={timePeriod} on:click={addLayer(dataset.ds_id, variable, timePeriod)}>
+                        <td></td>
+                        <td class="bullet"></td>
+                        <td class="bullet">◦</td>
+                        <td>{timePeriod}</td>
+                        <td></td>
+                      </tr>
+                    {/each}
+                  {/if}
+                {/each}
+              {:else if dataset.info.variables_only}
+                {#each dataset.info.variables as variable}
+                  <tr class="layer final" title={variable} on:click={addLayer(dataset.ds_id, variable, dataset.info.const_time_period)}>
+                    <td></td>
+                    <td class="bullet">◦</td>
+                    <td colspan="2">{variable}</td>
+                    <td></td>
+                  </tr>
+                {/each}
+              {:else if dataset.info.time_period_only}
+                {#each dataset.info.time_periods as timePeriod}
+                  <tr class="layer final" title={timePeriod} on:click={addLayer(dataset.ds_id, dataset.info.const_variable, timePeriod)}>
+                    <td></td>
+                    <td class="bullet">◦</td>
+                    <td colspan="2">{timePeriod}</td>
                     <td></td>
                   </tr>
                 {/each}
               {:else}
-                <tr class="layer" title={dataset.title} on:click={addLayer(dataset.ds_id, null)}>
+                <tr class="layer final" title={dataset.title} on:click={addLayer(dataset.ds_id, dataset.info.const_variable, dataset.info.const_time_period)}>
                   <td></td>
-                  <td>◦</td>
-                  <td>{dataset.title}</td>
+                  <td class="bullet">◦</td>
+                  <td colspan="2">{dataset.title}</td>
                   <td></td>
                 </tr>
               {/if}
