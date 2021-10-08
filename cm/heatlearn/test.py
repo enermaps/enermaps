@@ -22,7 +22,9 @@ class TestCM(unittest.TestCase):
     def test_rasterstats(self):
         selection = load_geojson("ge_rive_droite_500.geojson")
         raster_paths = [get_testdata_path("200km_2p5m_N26E38_07_18.tif")]
-        stats = heatlearn.heatlearn(selection, raster_paths, 500)
+        stats = heatlearn.heatlearn(
+            selection, raster_paths, 500, 2020, to_colorize=False
+        )
 
         self.assertEqual(
             stats["values"]["Annual heating demand [GWh]"],

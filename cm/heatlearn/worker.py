@@ -9,10 +9,10 @@ import heatlearn
 
 ADMISSIBLE_TILE_SIZES = [500, 300]
 
+API_BASE_URL = os.environ.get("API_BASE_URL")
+
 app = cm_base.get_default_app("heatlearn")
 schema_path = cm_base.get_default_schema_path()
-
-api_base_url = os.environ.get("API_BASE_URL")
 
 
 @app.task(base=cm_base.CMBase, bind=True, schema_path=schema_path)
@@ -46,7 +46,12 @@ def heat_learn(self, selection: dict, rasters: list, params: dict):
     self.validate_params(params)
 
     results = heatlearn.heatlearn(
-        selection, raster_paths, tile_size, year, api_base_url
+        selection,
+        raster_paths,
+        tile_size,
+        year,
+        to_colorize=False,
+        api_base_url=API_BASE_URL,
     )
     return results
 
