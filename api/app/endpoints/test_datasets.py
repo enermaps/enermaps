@@ -1,6 +1,9 @@
 from unittest.mock import Mock, patch
 
+from app.common import path
 from app.common.test import BaseApiTest
+
+ENCODED_VAR = path.encode("var")
 
 
 class DatasetsTest(BaseApiTest):
@@ -152,4 +155,80 @@ class AreasTest(BaseApiTest):
 
     def testDeleteNotAllowed(self):
         response = self.client.delete("api/datasets/areas/")
+        self.assertEqual(response.status_code, 405)
+
+
+class VectorLayerNameTest(BaseApiTest):
+    def testIdOnly(self):
+        response = self.client.get("api/datasets/42/layer_name/vector/")
+        name = path.make_unique_layer_name(path.VECTOR, 42)
+        self.assertEqual(name, response.data.decode())
+
+    def testWithVariable(self):
+        response = self.client.get(f"api/datasets/42/layer_name/vector/{ENCODED_VAR}/")
+        name = path.make_unique_layer_name(path.VECTOR, 42, variable="var")
+        self.assertEqual(name, response.data.decode())
+
+    def testWithTimePeriod(self):
+        response = self.client.get("api/datasets/42/layer_name/vector/-/2015/")
+        name = path.make_unique_layer_name(path.VECTOR, 42, time_period=2015)
+        self.assertEqual(name, response.data.decode())
+
+    def testWithVariableAndTimePeriod(self):
+        response = self.client.get(
+            f"api/datasets/42/layer_name/vector/{ENCODED_VAR}/2015/"
+        )
+        name = path.make_unique_layer_name(
+            path.VECTOR, 42, variable="var", time_period=2015
+        )
+        self.assertEqual(name, response.data.decode())
+
+    def testPostNotAllowed(self):
+        response = self.client.post("api/datasets/42/layer_name/vector/")
+        self.assertEqual(response.status_code, 405)
+
+    def testPutNotAllowed(self):
+        response = self.client.put("api/datasets/42/layer_name/vector/")
+        self.assertEqual(response.status_code, 405)
+
+    def testDeleteNotAllowed(self):
+        response = self.client.delete("api/datasets/42/layer_name/vector/")
+        self.assertEqual(response.status_code, 405)
+
+
+class RasterLayerNameTest(BaseApiTest):
+    def testIdOnly(self):
+        response = self.client.get("api/datasets/42/layer_name/raster/")
+        name = path.make_unique_layer_name(path.RASTER, 42)
+        self.assertEqual(name, response.data.decode())
+
+    def testWithVariable(self):
+        response = self.client.get(f"api/datasets/42/layer_name/raster/{ENCODED_VAR}/")
+        name = path.make_unique_layer_name(path.RASTER, 42, variable="var")
+        self.assertEqual(name, response.data.decode())
+
+    def testWithTimePeriod(self):
+        response = self.client.get("api/datasets/42/layer_name/raster/-/2015/")
+        name = path.make_unique_layer_name(path.RASTER, 42, time_period=2015)
+        self.assertEqual(name, response.data.decode())
+
+    def testWithVariableAndTimePeriod(self):
+        response = self.client.get(
+            f"api/datasets/42/layer_name/raster/{ENCODED_VAR}/2015/"
+        )
+        name = path.make_unique_layer_name(
+            path.RASTER, 42, variable="var", time_period=2015
+        )
+        self.assertEqual(name, response.data.decode())
+
+    def testPostNotAllowed(self):
+        response = self.client.post("api/datasets/42/layer_name/raster/")
+        self.assertEqual(response.status_code, 405)
+
+    def testPutNotAllowed(self):
+        response = self.client.put("api/datasets/42/layer_name/raster/")
+        self.assertEqual(response.status_code, 405)
+
+    def testDeleteNotAllowed(self):
+        response = self.client.delete("api/datasets/42/layer_name/raster/")
         self.assertEqual(response.status_code, 405)
