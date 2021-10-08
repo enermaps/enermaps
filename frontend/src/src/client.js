@@ -14,6 +14,17 @@ async function fetchJSON(endpoint, defaultValue) {
 }
 
 
+async function fetchText(endpoint, defaultValue) {
+  const response = await fetch(BASE_URL + endpoint);
+
+  if (!response.ok) {
+    return defaultValue;
+  }
+
+  return response.text();
+}
+
+
 // Datasets-related endpoints --------------------------------------------------
 
 export async function getAreas() {
@@ -28,6 +39,30 @@ export async function getDatasets() {
 
 export async function getDatasetVariables(datasetId) {
   return fetchJSON('api/datasets/' + datasetId + '/variables/', {});
+}
+
+
+export async function getDatasetLayerName(datasetId, raster, variable, timePeriod) {
+  const prefix = raster ? 'raster' : 'vector';
+
+  if ((variable != null) && (timePeriod != null)) {
+    return fetchText(
+        'api/datasets/' + datasetId + '/layer_name/' + prefix + '/' +
+        btoa(variable) + '/' + timePeriod + '/',
+    );
+  } else if (variable != null) {
+    return fetchText(
+        'api/datasets/' + datasetId + '/layer_name/' + prefix + '/' +
+        btoa(variable) + '/',
+    );
+  } else if (timePeriod != null) {
+    return fetchText(
+        'api/datasets/' + datasetId + '/layer_name/' + prefix + '/-/' +
+        timePeriod + '/',
+    );
+  } else {
+    return fetchText('api/datasets/' + datasetId + '/layer_name/' + prefix + '/');
+  }
 }
 
 

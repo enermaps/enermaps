@@ -1,10 +1,13 @@
 """Endpoint for the manipulation of datasets
 """
 
+import base64
 import hashlib
 
+from flask import Response
 from flask_restx import Namespace, Resource, abort
 
+from app.common import path
 from app.data_integration import enermaps_server as client
 
 api = Namespace("datasets", description="Datasets related endpoints")
@@ -41,6 +44,54 @@ class DatasetVariables(Resource):
             abort(404)
 
         return variables
+
+
+@api.route(
+    "/<int:id>/layer_name/vector/", defaults={"variableb64": None, "time_period": None}
+)
+@api.route("/<int:id>/layer_name/vector/<string:variableb64>/<string:time_period>/")
+@api.route(
+    "/<int:id>/layer_name/vector/<string:variableb64>/", defaults={"time_period": None}
+)
+@api.route(
+    "/<int:id>/layer_name/vector/-/<string:time_period>/",
+    defaults={"variableb64": None},
+)
+class VectorLayerName(Resource):
+    def get(self, id, variableb64=None, time_period=None):
+        """Return an unique layer name"""
+        if variableb64 is not None:
+            variable = base64.b64decode(str.encode(variableb64)).decode()
+        else:
+            variable = None
+
+        layer_name = path.make_unique_layer_name(path.VECTOR, id, variable, time_period)
+
+        return Response(layer_name, mimetype="text/plain")
+
+
+@api.route(
+    "/<int:id>/layer_name/raster/", defaults={"variableb64": None, "time_period": None}
+)
+@api.route("/<int:id>/layer_name/raster/<string:variableb64>/<string:time_period>/")
+@api.route(
+    "/<int:id>/layer_name/raster/<string:variableb64>/", defaults={"time_period": None}
+)
+@api.route(
+    "/<int:id>/layer_name/raster/-/<string:time_period>/",
+    defaults={"variableb64": None},
+)
+class RasterLayerName(Resource):
+    def get(self, id, variableb64=None, time_period=None):
+        """Return an unique layer name"""
+        if variableb64 is not None:
+            variable = base64.b64decode(str.encode(variableb64)).decode()
+        else:
+            variable = None
+
+        layer_name = path.make_unique_layer_name(path.RASTER, id, variable, time_period)
+
+        return Response(layer_name, mimetype="text/plain")
 
 
 @api.route("/areas/")
