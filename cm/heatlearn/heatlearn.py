@@ -30,8 +30,9 @@ with open(env_db_server, "r") as f:
     for line in f.read().splitlines():
         if line.startswith("DATASETS_SERVER_API_KEY"):
             API_KEY = line.split("=")[-1].replace('"', "")
-
-POSTGREST_URL = "https://lab.idiap.ch/enermaps/api/db/rpc/enermaps_query_table"
+        if line.startswith("DATASETS_SERVER_URL"):
+            POSTGREST_URL = line.split("=")[-1]
+POSTGREST_ENDPOINT = "rpc/enermaps_query_table"
 API_URL = os.environ.get("API_BASE_URL")
 HEADERS = {"Authorization": "Bearer {}".format(API_KEY)}
 
@@ -123,7 +124,7 @@ def getHDD(polygon, year=2020):
     df = []
     for month in range(1, 13):
         r = requests.post(
-            POSTGREST_URL,
+            POSTGREST_URL + POSTGREST_ENDPOINT,
             headers=HEADERS,
             json={
                 "parameters": {
@@ -145,7 +146,7 @@ def getHDD(polygon, year=2020):
     else:
         # Find the NUTS3 code
         r = requests.post(
-            POSTGREST_URL,
+            POSTGREST_URL + POSTGREST_ENDPOINT,
             headers=HEADERS,
             json={
                 "parameters": {
