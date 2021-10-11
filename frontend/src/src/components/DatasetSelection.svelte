@@ -1,6 +1,6 @@
 <script>
   import {onMount} from 'svelte';
-  import {getDatasets, getDatasetVariables, getDatasetLayerName} from '../client.js';
+  import {getDatasetsWithVariables, getDatasetLayerName} from '../client.js';
   import {layersStore} from '../stores.js';
 
 
@@ -10,45 +10,10 @@
 
 
   onMount(async () => {
-    const datasets = await getDatasets();
+    const datasets = await getDatasetsWithVariables();
 
     for (const dataset of datasets) {
       dataset.open = false;
-      dataset.info = null;
-    }
-
-    datasets.sort(function(dataset1, dataset2) {
-      const title1 = dataset1.title;
-      const title2 = dataset2.title;
-      if (title1 < title2) {
-        return -1;
-      }
-      if (title1 > title2) {
-        return 1;
-      }
-      return 0;
-    });
-
-    console.log(datasets.length + ' datasets found');
-
-    availableDatasets = datasets;
-  });
-
-
-  $: {
-    if (availableDatasets !== null) {
-      filteredDatasets = availableDatasets.filter((dataset) =>
-        dataset.title.toLowerCase().indexOf(filter.toLowerCase()) !== -1);
-    }
-  }
-
-
-  async function toggleDataset(dataset) {
-    dataset.open = !dataset.open;
-    availableDatasets = availableDatasets;
-
-    if (dataset.info === null) {
-      dataset.info = await getDatasetVariables(dataset.ds_id);
 
       dataset.info.both = false;
       dataset.info.variables_only = false;
@@ -85,9 +50,37 @@
           dataset.info.const_time_period = dataset.info.time_periods[0];
         }
       }
-
-      availableDatasets = availableDatasets;
     }
+
+    datasets.sort(function(dataset1, dataset2) {
+      const title1 = dataset1.title;
+      const title2 = dataset2.title;
+      if (title1 < title2) {
+        return -1;
+      }
+      if (title1 > title2) {
+        return 1;
+      }
+      return 0;
+    });
+
+    console.log(datasets.length + ' datasets found');
+
+    availableDatasets = datasets;
+  });
+
+
+  $: {
+    if (availableDatasets !== null) {
+      filteredDatasets = availableDatasets.filter((dataset) =>
+        dataset.title.toLowerCase().indexOf(filter.toLowerCase()) !== -1);
+    }
+  }
+
+
+  async function toggleDataset(dataset) {
+    dataset.open = !dataset.open;
+    availableDatasets = availableDatasets;
   }
 
 
@@ -271,11 +264,11 @@
               <td class="arrow"><span>►</span></td>
               <td class="title" colspan="3">{dataset.title}</td>
               <td class="openair">
-                <a href={dataset.openairLink} title="Link to OpenAIRE metadata" target="_blank">&#128279;</a>
+                <a href={dataset.openaireLink} title="Link to OpenAIRE metadata" target="_blank">&#128279;</a>
               </td>
             </tr>
 
-            {#if dataset.open && dataset.info}
+            {#if dataset.open}
               {#if dataset.info.both}
                 {#each dataset.info.variables as variable}
                   <tr class="layer intermediate" title={variable} on:click={toggleIntermediateLayer(dataset, variable)} class:open={isIntermediateLayerOpen(dataset, variable)}>
@@ -319,7 +312,13 @@
                 <tr class="layer final" title={dataset.title} on:click={addLayer(dataset.ds_id, dataset.info.const_variable, dataset.info.const_time_period)}>
                   <td></td>
                   <td class="bullet">◦</td>
-                  <td colspan="2">{dataset.title}</td>
+                  {#if dataset.info.const_variable !== null}
+                    <td colspan="2">{dataset.info.const_variable}</td>
+                  {:else if dataset.info.const_time_period !== null}
+                    <td colspan="2">{dataset.info.const_time_period}</td>
+                  {:else}
+                    <td colspan="2">{dataset.title}</td>
+                  {/if}
                   <td></td>
                 </tr>
               {/if}

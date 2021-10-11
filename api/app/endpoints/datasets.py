@@ -19,18 +19,24 @@ class Datasets(Resource):
         """Return a list of all datasets known by the platform"""
         datasets = client.get_dataset_list()
 
-        # Construct the OpenAIRE link
+        add_openaire_links(datasets)
+
+        return datasets
+
+
+@api.route("/full/")
+class DatasetsFull(Resource):
+    def get(self):
+        """Return a list of all datasets known by the platform, along with their
+        variables and time periods"""
+        datasets = client.get_dataset_list()
+
         for dataset in datasets:
-            shared_id = dataset.get("shared_id")
-            if not shared_id:
-                dataset["openairLink"] = "https://beta.openaire.eu/"
-            else:
-                shared_id_hash = hashlib.md5(shared_id.encode())  # nosec
-                dataset[
-                    "openairLink"
-                ] = "https://beta.enermaps.openaire.eu/search/dataset?datasetId=enermaps____::{}".format(
-                    shared_id_hash.hexdigest()
-                )
+            dataset["info"] = client.get_variables(dataset["ds_id"])
+            if dataset["info"] is None:
+                abort(404)
+
+        add_openaire_links(datasets)
 
         return datasets
 
@@ -99,3 +105,17 @@ class Areas(Resource):
     def get(self):
         """Return a list of all areas known by the platform"""
         return client.get_areas()
+
+
+def add_openaire_links(datasets):
+    for dataset in datasets:
+        shared_id = dataset.get("shared_id")
+        if not shared_id:
+            dataset["openaireLink"] = "https://beta.openaire.eu/"
+        else:
+            shared_id_hash = hashlib.md5(shared_id.encode())  # nosec
+            dataset[
+                "openaireLink"
+            ] = "https://beta.enermaps.openaire.eu/search/dataset?datasetId=enermaps____::{}".format(
+                shared_id_hash.hexdigest()
+            )

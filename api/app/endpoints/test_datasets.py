@@ -33,9 +33,9 @@ class DatasetsTest(BaseApiTest):
                 self.assertIn(k, data)
                 self.assertEqual(v, data[k])
 
-            self.assertIn("openairLink", data)
+            self.assertIn("openaireLink", data)
             self.assertTrue(
-                data["openairLink"].startswith(
+                data["openaireLink"].startswith(
                     "https://beta.enermaps.openaire.eu/search/dataset?datasetId=enermaps____"
                 )
             )
@@ -50,6 +50,67 @@ class DatasetsTest(BaseApiTest):
 
     def testDeleteNotAllowed(self):
         response = self.client.delete("api/datasets/")
+        self.assertEqual(response.status_code, 405)
+
+
+class DatasetsFullTest(BaseApiTest):
+
+    DATASETS = [
+        {
+            "ds_id": 1,
+            "title": "Test dataset",
+            "is_raster": True,
+            "shared_id": "test_dataset",
+        }
+    ]
+
+    VARIABLES = {
+        "variables": ["var1", "var2"],
+        "time_periods": [2000],
+    }
+
+    @patch(
+        "app.data_integration.enermaps_server.get_dataset_list",
+        new=Mock(return_value=DATASETS),
+    )
+    @patch(
+        "app.data_integration.enermaps_server.get_variables",
+        new=Mock(return_value=VARIABLES),
+    )
+    def testGetAllDatasets(self):
+        response = self.client.get("api/datasets/full/")
+        self.assertEqual(response.status_code, 200)
+
+        self.assertEqual(len(response.json), len(DatasetsTest.DATASETS))
+
+        for index, ref in enumerate(DatasetsTest.DATASETS):
+            data = response.json[index]
+            for k, v in ref.items():
+                if k != "info":
+                    self.assertIn(k, data)
+                    self.assertEqual(v, data[k])
+                else:
+                    for k2, v2 in DatasetsTest.VARIABLES.items():
+                        self.assertIn(k2, v)
+                        self.assertEqual(v2, v[k])
+
+            self.assertIn("openaireLink", data)
+            self.assertTrue(
+                data["openaireLink"].startswith(
+                    "https://beta.enermaps.openaire.eu/search/dataset?datasetId=enermaps____"
+                )
+            )
+
+    def testPostNotAllowed(self):
+        response = self.client.post("api/datasets/full/")
+        self.assertEqual(response.status_code, 405)
+
+    def testPutNotAllowed(self):
+        response = self.client.put("api/datasets/full/")
+        self.assertEqual(response.status_code, 405)
+
+    def testDeleteNotAllowed(self):
+        response = self.client.delete("api/datasets/full/")
         self.assertEqual(response.status_code, 405)
 
 
