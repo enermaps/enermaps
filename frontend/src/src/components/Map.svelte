@@ -18,6 +18,7 @@
 
   import AreaSelection from './AreaSelection.svelte';
   import DatasetSelection from './DatasetSelection.svelte';
+  import Layers from './Layers.svelte';
   import CMToggle from './CMToggle.svelte';
   import TopNav from './TopNav.svelte';
   import {selectionStore, layersStore} from '../stores.js';
@@ -58,6 +59,7 @@
     map.addControl(makeCMToggleControl()); // Button to open calculation module pane
     map.addControl(makeAreaSelectionControl());
     map.addControl(makeDatasetSelectionControl());
+    map.addControl(makeLayerListControl());
   });
 
   function resizeMap() {
@@ -136,7 +138,15 @@
   }
 
   function updateOverlayLayers(layers) {
-    for (const layer of layers) {
+    const layersToBePruned = new Set(overlaysGroup.getLayers());
+
+    for (let i = 0; i < layers.length; ++i) {
+      const layer = layers[i];
+
+      if (layer.leaflet_layer !== null) {
+        layersToBePruned.delete(layer.leaflet_layer);
+      }
+
       if (layer.visible) {
         if (layer.leaflet_layer === null) {
           if (layer.is_raster) {
@@ -160,6 +170,8 @@
           }
         }
 
+        layer.leaflet_layer.setZIndex(layers.length - i);
+
         if (!overlaysGroup.hasLayer(layer.leaflet_layer)) {
           console.log('[Map] Add overlay layer: ' + layer.name);
           overlaysGroup.addLayer(layer.leaflet_layer);
@@ -170,6 +182,10 @@
           overlaysGroup.removeLayer(layer.leaflet_layer);
         }
       }
+    }
+
+    for (const leafletLayer of layersToBePruned) {
+      overlaysGroup.removeLayer(leafletLayer);
     }
   }
 
@@ -189,41 +205,50 @@
   //   }
   // }
 
-  /* Left control (area selection and overlay layers)*/
+  /* Area selection panel */
   function makeAreaSelectionControl() {
     const ctr = L.control({position: 'topleft'});
+
     ctr.onAdd = (map) => {
-      const overlayDiv = L.DomUtil.create('div' );
-      L.DomUtil.addClass(overlayDiv, 'testComponent');
-      toolbar = new AreaSelection({target: overlayDiv});
-      return overlayDiv;
+      const container = L.DomUtil.create('div' );
+      L.DomUtil.addClass(container, 'testComponent');
+      toolbar = new AreaSelection({target: container});
+      disableMapScrolling(container, map);
+      return container;
     };
+
     return ctr;
   }
 
-  /* Left control (area selection and overlay layers)*/
+  /* Datasets selection panel */
   function makeDatasetSelectionControl() {
     const ctr = L.control({position: 'topleft'});
+
     ctr.onAdd = (map) => {
-      const areaDiv = L.DomUtil.create('div' );
-      L.DomUtil.addClass(areaDiv, 'testComponent');
-      toolbar = new DatasetSelection({target: areaDiv});
-      return areaDiv;
+      const container = L.DomUtil.create('div' );
+      L.DomUtil.addClass(container, 'testComponent');
+      toolbar = new DatasetSelection({target: container});
+      disableMapScrolling(container, map);
+      return container;
     };
+
     return ctr;
   }
 
-  /* Left control (area selection and overlay layers)*/
-  // function makeOverlayLayersControl() {
-  //   const ctr = L.control({position: 'topleft'});
-  //   ctr.onAdd = (map) => {
-  //     const areaDiv = L.DomUtil.create('div' );
-  //     L.DomUtil.addClass(areaDiv, 'testComponent');
-  //     toolbar = new LayerSelection({target: areaDiv});
-  //     return areaDiv;
-  //   };
-  //   return ctr;
-  // }
+  /* Layer list panel */
+  function makeLayerListControl() {
+    const ctr = L.control({position: 'topleft'});
+
+    ctr.onAdd = (map) => {
+      const container = L.DomUtil.create('div' );
+      L.DomUtil.addClass(container, 'testComponent');
+      toolbar = new Layers({target: container});
+      disableMapScrolling(container, map);
+      return container;
+    };
+
+    return ctr;
+  }
 
   function makeCMToggleControl() {
     const CMToggleControl = L.control({position: 'topright'});
@@ -252,6 +277,18 @@
       autoResize: false,
     });
     return searchControl;
+  }
+
+  function disableMapScrolling(element, map) {
+    // Disable dragging when user's cursor enters the element
+    element.addEventListener('mouseover', function() {
+      map.dragging.disable();
+    });
+
+    // Re-enable dragging when user's cursor leaves the element
+    element.addEventListener('mouseout', function() {
+      map.dragging.enable();
+    });
   }
 </script>
 
