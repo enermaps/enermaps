@@ -107,23 +107,25 @@ L.TileLayer.QueryableLayer = L.TileLayer.WMS.extend({
         }
       }
 
-      const fields = this.convertField(properties.fields);
+      if (properties.fields !== undefined) {
+        const fields = this.convertField(properties.fields);
 
-      for (const [key, value] of Object.entries(fields)) {
-        if (value !== null) {
-          popupContent += '<tr>';
+        for (const [key, value] of Object.entries(fields)) {
+          if (value !== null) {
+            popupContent += '<tr>';
 
-          const td1 = document.createElement('td');
-          td1.className = 'name';
-          td1.innerText = key + ':';
-          popupContent += td1.outerHTML;
+            const td1 = document.createElement('td');
+            td1.className = 'name';
+            td1.innerText = key + ':';
+            popupContent += td1.outerHTML;
 
-          const td2 = document.createElement('td');
-          td2.className = 'value';
-          td2.innerText = value;
-          popupContent += td2.outerHTML;
+            const td2 = document.createElement('td');
+            td2.className = 'value';
+            td2.innerText = value;
+            popupContent += td2.outerHTML;
 
-          popupContent += '</tr>';
+            popupContent += '</tr>';
+          }
         }
       }
     }
