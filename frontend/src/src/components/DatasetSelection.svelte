@@ -116,33 +116,62 @@
         datasetId, dataset.is_raster, variable, timePeriod,
     );
 
-    let title = '';
-    let prefix = '';
-
-    if (variable !== null) {
-      title += prefix + variable;
-      prefix = ', ';
-    }
-
-    if (timePeriod !== null) {
-      title += prefix + timePeriod;
-      prefix = ', ';
-    }
-
-    title += prefix + dataset.title;
-
-    const layer = {
-      name: layerName,
-      title: title,
-      is_raster: dataset.is_raster,
-      visible: true,
-      leaflet_layer: null,
-    };
-
-    console.log('New layer:', layer);
-
     const layers = $layersStore;
-    layers.unshift(layer);
+
+    let existingLayer = null;
+    for (const layer of layers) {
+      if (layer.name === layerName) {
+        existingLayer = layer;
+        break;
+      }
+    }
+
+    if (existingLayer === null) {
+      const labels = {
+        primary: null,
+        secondary: null,
+        dataset: null,
+      };
+
+      let title = null;
+
+      if (variable !== null) {
+        labels.primary = variable;
+        labels.dataset = dataset.title;
+
+        if (timePeriod !== null) {
+          labels.secondary = timePeriod;
+          title = variable + '\n' + timePeriod + '\n' + dataset.title;
+        } else {
+          title = variable + '\n' + dataset.title;
+        }
+      } else if (timePeriod !== null) {
+        labels.primary = timePeriod;
+        labels.dataset = dataset.title;
+        title = timePeriod + '\n' + dataset.title;
+      } else {
+        labels.primary = dataset.title;
+        title = dataset.title;
+      }
+
+      const layer = {
+        name: layerName,
+        labels: labels,
+        title: title,
+        is_raster: dataset.is_raster,
+        visible: true,
+        effect: 'new',
+        leaflet_layer: null,
+      };
+
+      console.log('New layer:', layer);
+
+      layers.unshift(layer);
+    } else {
+      existingLayer.effect = 'refresh';
+      existingLayer.visible = true;
+    }
+
     $layersStore = layers;
   }
 </script>

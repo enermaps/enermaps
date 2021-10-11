@@ -6,5 +6,6 @@ export const activeCMOutputLayersStore= writable([]);
 
 export const selectionStore = writable();
 export const layersStore = writable([]);
+export const selectedLayer = writable();
 
 export const isCMPaneActiveStore = writable(false);
