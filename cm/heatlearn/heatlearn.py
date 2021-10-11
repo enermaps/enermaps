@@ -5,6 +5,7 @@ import subprocess  # nosec
 from time import sleep, time
 
 import geopandas as gpd
+import jenkspy
 import numpy as np
 import pandas as pd
 import rasterio
@@ -12,6 +13,7 @@ import requests
 import urllib3
 from BaseCM.cm_output import validate
 from geocube.api.core import make_geocube
+from matplotlib import cm
 from rasterio.mask import mask
 from shapely import wkt
 from shapely.geometry import Polygon, shape
@@ -53,6 +55,38 @@ MODELS = {
 }
 PIXEL_SIZE = 2.5
 HDD_MODEL = {"slope": -0.0002855045732455094, "intercept": 1.8116549365250931}
+
+
+def createLegend(
+    preds: np.array, name: str = "Heating density", unit: str = "MWh"
+) -> dict:
+    """Prepare a legend dict in HotMaps format"""
+    # Process color_scale
+    # color_scale = pd.read_csv("colors.txt",delim_whitespace=True,index_col=[0],header=None)
+    # color_scale.columns = ["R","G","B","alpha"]
+    # color_scale = color_scale.loc[color_scale.index != "nv",:]
+    # if len(color_scale) >= preds:
+    #     color_scale = color_scale.iloc[::2, :]
+    color_scale = cm.get_cmap(
+        "plasma", min([10, preds[~np.isnan(preds)].shape[0] - 1])
+    ).colors
+    color_scale[:, :-1] = color_scale[:, :-1] / 255
+
+    breaks = jenkspy.jenks_breaks(preds[~np.isnan(preds)], nb_class=3)
+
+    legend = {"legend": {"name": name, "type": "custom", "symbology": []}}
+    for i in range(len(breaks)):
+        legend["symbology"].append(
+            {
+                "red": color_scale["R"].iloc[i],
+                "green": color_scale["G"].iloc[i],
+                "blue": color_scale["B"].iloc[i],
+                "opacity": color_scale["alpha"].iloc[i],
+                "value": preds[i],
+                "label": "≥" + str(preds[i]) + unit,
+            }
+        )
+    return legend
 
 
 def replace_with_dict(array: np.array, dic: dict = ESM_dict):
@@ -325,8 +359,8 @@ def heatlearn(
     # Dict return response
     ret = dict()
     ret["graphs"] = {}
-
     ret["geofiles"] = {"file": raster_name}
+    # ret["legend"] = createLegend(preds)
     ret["values"] = {
         "Annual heating demand [GWh]": int(np.round(np.sum(preds) / 1000, 0)),
         "Heating density [MWh/ha]": int(
