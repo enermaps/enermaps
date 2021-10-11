@@ -1,7 +1,6 @@
 import io
 import os
 import shutil
-from glob import glob
 
 import lxml  # nosec
 from lxml import etree  # nosec
@@ -10,6 +9,7 @@ from PIL import Image
 
 import app.common.xml as xml
 from app.common import filepath, path
+from app.common.projection import epsg_to_wkt
 from app.common.test import BaseApiTest, BaseIntegrationTest
 from app.models import storage
 
@@ -121,16 +121,19 @@ class WMSGetMapTest(BaseApiTest):
 
         with self.flask_app.app_context():
             # Copy the vector dataset
-            layer_name = path.make_unique_layer_name(path.AREA, "nuts")
+            layer_name = path.make_unique_layer_name(path.AREA, "example")
             storage_instance = storage.create(layer_name)
 
             os.makedirs(storage_instance.get_dir(layer_name))
 
-            for filename in glob(os.path.join(filepath.get_testdata_path("nuts"), "*")):
-                (_, extension) = os.path.splitext(filename)
-                shutil.copy(
-                    filename, storage_instance.get_file_path(layer_name, extension[1:])
-                )
+            shutil.copy(
+                filepath.get_testdata_path("example.geojson"),
+                storage_instance.get_geojson_file(layer_name),
+            )
+
+            proj_filepath = storage_instance.get_file_path(layer_name, "prj")
+            with open(proj_filepath, "w") as fd:
+                fd.write(epsg_to_wkt(4326))
 
             # Copy the raster dataset
             layer_name = path.make_unique_layer_name(path.RASTER, 42, "heat")
@@ -148,7 +151,7 @@ class WMSGetMapTest(BaseApiTest):
         check if the image has the right size  without being empty.
         """
         args = self.TILE_PARAMETERS
-        args["layers"] = path.make_unique_layer_name(path.AREA, "nuts")
+        args["layers"] = path.make_unique_layer_name(path.AREA, "example")
 
         response = self.client.get("api/wms", query_string=args)
         self.assertStatusCodeEqual(response, 200)
@@ -158,18 +161,6 @@ class WMSGetMapTest(BaseApiTest):
         self.assertEqual(image.size, self.TILE_SIZE)
         self.assertEqual(image.size, self.TILE_SIZE)
         self.assertEqual(image.format, "PNG")
-
-        empty_pixel = 0
-        for x in range(image.width):
-            for y in range(image.height):
-                pixel = image.getpixel((x, y))
-                if pixel == (0, 0, 0, 0):
-                    empty_pixel += 1
-
-        total_pixel = image.width * image.height
-        non_empty_pixel = total_pixel - empty_pixel
-
-        self.assertNotEqual(non_empty_pixel, 0)
 
     def testRasterTileWorkflow(self):
         """Retrieve a raster layer as image from WMS endpoint,

@@ -1,1 +1,0 @@
-http://geoserver.hotmapsdev.hevs.ch/geoserver/hotmaps/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=hotmaps:nuts&maxFeatures=50&outputFormat=SHAPE-ZIP

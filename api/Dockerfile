@@ -3,7 +3,6 @@ FROM ubuntu:20.04
 ENV DEBIAN_FRONTEND="nointeractive" TZ="Europe/Zurich"
 RUN chmod 1777 /tmp && \
     apt-get update && apt-get install --yes \
-    gdal-bin \
     python3-mapnik \
     python3-pip \
     python3-gunicorn \
