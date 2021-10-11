@@ -238,7 +238,7 @@ class ToFolderPathTest(BaseApiTest):
 
     def testVectorLayerWithVariable(self):
         folder_path = path.to_folder_path(f"vector/42//{ENCODED_VAR}")
-        self.assertEqual(folder_path, f"42/{ENCODED_VAR}")
+        self.assertEqual(folder_path, "42")
 
     def testVectorLayerWithTimePeriod(self):
         folder_path = path.to_folder_path("vector/42/2015")
@@ -246,7 +246,7 @@ class ToFolderPathTest(BaseApiTest):
 
     def testVectorLayerWithVariableAndTimePeriod(self):
         folder_path = path.to_folder_path(f"vector/42/2015/{ENCODED_VAR}")
-        self.assertEqual(folder_path, f"42/2015/{ENCODED_VAR}")
+        self.assertEqual(folder_path, "42/2015")
 
     def testRasterLayer(self):
         folder_path = path.to_folder_path("raster/42")

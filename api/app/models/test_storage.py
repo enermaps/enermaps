@@ -244,31 +244,51 @@ class TestGeoDBVectorStorage(BaseApiTest):
             )
             self.assertEquals(
                 storage_instance.get_dir(f"vector/10/2015/{ENCODED_VAR}"),
-                f"{self.geodb_cache_dir}/vectors/10/2015/{ENCODED_VAR}",
+                f"{self.geodb_cache_dir}/vectors/10/2015",
             )
             self.assertEquals(
                 storage_instance.get_dir(f"vector/10//{ENCODED_VAR}"),
-                f"{self.geodb_cache_dir}/vectors/10/{ENCODED_VAR}",
+                f"{self.geodb_cache_dir}/vectors/10",
             )
 
-    def testShapefile(self):
+    def testFilePath(self):
         with self.flask_app.app_context():
             storage_instance = storage.GeoDBVectorStorage()
             self.assertEquals(
-                storage_instance.get_shape_file("vector/10"),
-                f"{self.geodb_cache_dir}/vectors/10/data.shp",
+                storage_instance.get_file_path("vector/10", "txt"),
+                f"{self.geodb_cache_dir}/vectors/10/data.txt",
             )
             self.assertEquals(
-                storage_instance.get_shape_file("vector/10/2015"),
-                f"{self.geodb_cache_dir}/vectors/10/2015/data.shp",
+                storage_instance.get_file_path("vector/10/2015", "txt"),
+                f"{self.geodb_cache_dir}/vectors/10/2015/data.txt",
             )
             self.assertEquals(
-                storage_instance.get_shape_file(f"vector/10/2015/{ENCODED_VAR}"),
-                f"{self.geodb_cache_dir}/vectors/10/2015/{ENCODED_VAR}/data.shp",
+                storage_instance.get_file_path(f"vector/10/2015/{ENCODED_VAR}", "txt"),
+                f"{self.geodb_cache_dir}/vectors/10/2015/data.txt",
             )
             self.assertEquals(
-                storage_instance.get_shape_file(f"vector/10//{ENCODED_VAR}"),
-                f"{self.geodb_cache_dir}/vectors/10/{ENCODED_VAR}/data.shp",
+                storage_instance.get_file_path(f"vector/10//{ENCODED_VAR}", "txt"),
+                f"{self.geodb_cache_dir}/vectors/10/data.txt",
+            )
+
+    def testGeoJSONFile(self):
+        with self.flask_app.app_context():
+            storage_instance = storage.GeoDBVectorStorage()
+            self.assertEquals(
+                storage_instance.get_geojson_file("vector/10"),
+                f"{self.geodb_cache_dir}/vectors/10/data.geojson",
+            )
+            self.assertEquals(
+                storage_instance.get_geojson_file("vector/10/2015"),
+                f"{self.geodb_cache_dir}/vectors/10/2015/data.geojson",
+            )
+            self.assertEquals(
+                storage_instance.get_geojson_file(f"vector/10/2015/{ENCODED_VAR}"),
+                f"{self.geodb_cache_dir}/vectors/10/2015/data.geojson",
+            )
+            self.assertEquals(
+                storage_instance.get_geojson_file(f"vector/10//{ENCODED_VAR}"),
+                f"{self.geodb_cache_dir}/vectors/10/data.geojson",
             )
 
 
@@ -295,10 +315,10 @@ class TestAreaStorage(BaseApiTest):
                 f"{self.geodb_cache_dir}/areas/NUTS42",
             )
 
-    def testShapefile(self):
+    def testGeoJSONFile(self):
         with self.flask_app.app_context():
             storage_instance = storage.AreaStorage()
             self.assertEquals(
-                storage_instance.get_shape_file("area/NUTS42"),
-                f"{self.geodb_cache_dir}/areas/NUTS42/data.shp",
+                storage_instance.get_geojson_file("area/NUTS42"),
+                f"{self.geodb_cache_dir}/areas/NUTS42/data.geojson",
             )

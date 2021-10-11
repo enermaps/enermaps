@@ -37,11 +37,60 @@ def update_areas():
         process_area(area["id"])
 
 
+@click.command("list-datasets")
+@with_appcontext
+def list_datasets():
+    datasets = client.get_dataset_list(disable_filtering=True)
+
+    result = "\n"
+
+    for dataset in datasets:
+        type = "raster" if dataset["is_raster"] else "vector"
+        result += f"- {dataset['ds_id']}: {dataset['title']} ({type})\n"
+
+    current_app.logger.info(result)
+
+
+@click.command("list-variables")
+@click.argument("ds_id")
+@with_appcontext
+def list_variables(ds_id):
+    datasets = client.get_dataset_list(disable_filtering=True)
+    datasets = [x for x in datasets if x["ds_id"] == int(ds_id)]
+
+    if len(datasets) == 1:
+        variables = client.get_variables(datasets[0]["ds_id"])
+
+        result = "\n"
+
+        if len(variables["variables"]) > 0:
+            result += "Variables:\n"
+            for variable in variables["variables"]:
+                result += f"- {variable}\n"
+
+        if len(variables["time_periods"]) > 0:
+            if result == "\n":
+                result += "\n"
+
+            result += "Time periods:\n"
+            for time_period in variables["time_periods"]:
+                result += f"- {time_period}\n"
+
+        if result == "\n":
+            result += "No variable nor time period"
+
+        current_app.logger.info(result)
+
+
 def process_dataset(dataset):
     type = path.RASTER if dataset["is_raster"] else path.VECTOR
 
     # Retrieve the variables of the dataset
     variables = client.get_variables(dataset["ds_id"])
+
+    # For vector datasets, we want to retrieve all variables at once
+    if type == path.VECTOR:
+        variables["variables"] = []
 
     # Iterate over all combinations of variables and time_periods
     if (len(variables["variables"]) > 0) and (len(variables["time_periods"]) > 0):
