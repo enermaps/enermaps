@@ -56,7 +56,7 @@ def get_mapnik_map(normalized_args):
 def create_style_from_legend(layer_name, layer, mapnik_layer):
     # return (None, None)
 
-    (type, layer_id, _, _) = path.parse_unique_layer_name(layer_name)
+    (type, layer_id, variable, _) = path.parse_unique_layer_name(layer_name)
 
     # Get the layer style and type
     legend_style = data_endpoints.get_legend_style(layer_id)
@@ -66,12 +66,23 @@ def create_style_from_legend(layer_name, layer, mapnik_layer):
     style_name = None
 
     if type == path.VECTOR:
+        if variable is None:
+            variables = [
+                x
+                for x in mapnik_layer.datasource.fields()
+                if x.startswith("__variable__")
+            ]
+            if len(variables) > 0:
+                variable = variables[0].replace("__variable__", "")
+
         if mapnik_layer.datasource.geometry_type() is mapnik.DataGeometryType.Polygon:
-            mapnik_style, style_name = make_numerical_polygon_style(legend_style)
+            mapnik_style, style_name = make_numerical_polygon_style(
+                variable, legend_style
+            )
         else:
             legend_images = layer.get_legend_images(legend_style)
             mapnik_style, style_name = make_numerical_point_style(
-                legend_style, legend_images
+                variable, legend_style, legend_images
             )
 
     elif type == path.RASTER:
@@ -176,7 +187,7 @@ def make_categorical_raster_style(layer_style):
     return mapnik_style, "categorical_raster_style"
 
 
-def make_numerical_polygon_style(layer_style):
+def make_numerical_polygon_style(variable, layer_style):
     """
     Make a style for vector polygons
     """
@@ -184,11 +195,11 @@ def make_numerical_polygon_style(layer_style):
     nb_of_colors = len(layer_style)
     for n, (color, min_threshold, max_threshold) in enumerate(layer_style):
         if n == 0:
-            expression = f"[legend] < {max_threshold}"
+            expression = f"[__variable__{variable}] < {max_threshold}"
         elif n == nb_of_colors - 1:
-            expression = f"[legend] >= {min_threshold}"
+            expression = f"[__variable__{variable}] >= {min_threshold}"
         else:
-            expression = f"[legend] < {max_threshold} and [legend] >= {min_threshold}"
+            expression = f"[__variable__{variable}] < {max_threshold} and [__variable__{variable}] >= {min_threshold}"
 
         polygon_symb = mapnik.PolygonSymbolizer()
         polygon_symb.fill = mapnik.Color(*color)
@@ -201,7 +212,7 @@ def make_numerical_polygon_style(layer_style):
     return mapnik_style, "vector_polygon_style"
 
 
-def make_numerical_point_style(layer_style, legend_images):
+def make_numerical_point_style(variable, layer_style, legend_images):
     """
     Make a style for vector points
     """
@@ -209,11 +220,11 @@ def make_numerical_point_style(layer_style, legend_images):
     nb_of_colors = len(layer_style)
     for n, (color, min_threshold, max_threshold) in enumerate(layer_style):
         if n == 0:
-            expression = f"[legend] < {max_threshold}"
+            expression = f"[__variable__{variable}] < {max_threshold}"
         elif n == nb_of_colors - 1:
-            expression = f"[legend] >= {min_threshold}"
+            expression = f"[__variable__{variable}] >= {min_threshold}"
         else:
-            expression = f"[legend] < {max_threshold} and [legend] >= {min_threshold}"
+            expression = f"[__variable__{variable}] < {max_threshold} and [__variable__{variable}] >= {min_threshold}"
 
         pt_symbolizer = mapnik.PointSymbolizer()
         pt_symbolizer.file = legend_images[n]

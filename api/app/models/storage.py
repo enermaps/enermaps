@@ -88,8 +88,8 @@ class BaseVectorStorage(object):
     def get_file_path(self, layer_name, extension):
         return safe_join(self.get_dir(layer_name), f"data.{extension}")
 
-    def get_shape_file(self, layer_name):
-        return self.get_file_path(layer_name, "shp")
+    def get_geojson_file(self, layer_name):
+        return self.get_file_path(layer_name, "geojson")
 
 
 class GeoDBVectorStorage(BaseVectorStorage):

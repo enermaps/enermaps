@@ -8,7 +8,6 @@ also catch those on accessing the layer.
 import io
 import json
 import os
-import subprocess  # nosec
 import zipfile
 from abc import ABC, abstractmethod
 from tempfile import TemporaryDirectory
@@ -38,44 +37,25 @@ def load(name):
 
 
 def save_vector_geojson(layer_name, geojson):
-    (type, _, variable, _) = path.parse_unique_layer_name(layer_name)
+    type = path.get_type(layer_name)
     storage_instance = storage.create_for_layer_type(type)
 
-    # Add the variable as a legend key to each feature (needed by mapnik)
-    if (variable is None) and (len(geojson["features"]) > 0):
-        if len(geojson["features"][0]["properties"]["variables"]) > 0:
-            variable = list(geojson["features"][0]["properties"]["variables"].keys())[0]
-
-    if variable is not None:
-        for i in range(len(geojson["features"])):
-            value = geojson["features"][i]["properties"]["variables"][variable]
-            geojson["features"][i]["properties"]["legend"] = value
+    # Add the variable names as keys accessible by mapnik
+    for i in range(len(geojson["features"])):
+        for variable, value in geojson["features"][i]["properties"][
+            "variables"
+        ].items():
+            geojson["features"][i]["properties"][f"__variable__{variable}"] = value
 
     with TemporaryDirectory(prefix=storage_instance.get_tmp_dir()) as tmp_dir:
         tmp_filepath = safe_join(tmp_dir, "data.geojson")
-        shapefile_filepath = safe_join(tmp_dir, "data.shp")
         proj_filepath = safe_join(tmp_dir, "data.prj")
 
         with open(tmp_filepath, "w") as f:
             f.write(json.dumps(geojson))
 
-        args = ["ogr2ogr", "-f", "ESRI Shapefile", shapefile_filepath, tmp_filepath]
-
-        try:
-            # This call is safe, as
-            # * we don't call a shell
-            # * we always prepend the location, thus we end up with
-            #   absolute path that don't start with - or --
-            # * all joins are contained in the subdirectories
-            subprocess.check_call(args)  # nosec
-        except subprocess.CalledProcessError as e:
-            print("File cannot be encoded into a shapefile")
-            print(e)
-
         with open(proj_filepath, "w") as fd:
             fd.write(epsg_to_wkt(4326))
-
-        os.remove(tmp_filepath)
 
         target_folder = storage_instance.get_dir(layer_name)
         os.makedirs(os.path.dirname(target_folder), exist_ok=True)
@@ -224,14 +204,14 @@ class VectorLayer(Layer):
         return zipbuffer, self.MIMETYPE[0]
 
     def as_mapnik_layers(self):
-        shapefile = self.storage.get_shape_file(self.name)
-        if not os.path.exists(shapefile):
-            print(f"Shapefile '{shapefile}' was not found")
+        geojson_file = self.storage.get_geojson_file(self.name)
+        if not os.path.exists(geojson_file):
+            print(f"GeoJSON file '{geojson_file}' was not found")
             return None
 
         layer = mapnik.Layer(self.name)
         layer.srs = self.projection
-        layer.datasource = mapnik.Shapefile(file=shapefile)
+        layer.datasource = mapnik.GeoJSON(file=geojson_file)
         layer.queryable = True
 
         return [layer]

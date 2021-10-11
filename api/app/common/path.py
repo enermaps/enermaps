@@ -64,4 +64,12 @@ def get_type(name):
 
 def to_folder_path(name):
     type, *parts = name.split("/")
+
+    if type == VECTOR:
+        (type, id, variable, time_period) = parse_unique_layer_name(name)
+        if time_period is not None:
+            return f"{id}/{time_period}"
+        else:
+            return f"{id}"
+
     return "/".join(parts).replace("//", "/")

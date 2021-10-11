@@ -127,8 +127,7 @@ def get_nuts_and_lau_dataset(dataset_name):
 
 def get_geojson(layer_name):
     """
-    Fetch a geofile (geojson or raster) dataset layer from the enermaps server
-    with a given Id.
+    Fetch a geojson dataset layer from the enermaps server with a given id.
     """
     (type, id, variable, time_period) = path.parse_unique_layer_name(layer_name)
 
