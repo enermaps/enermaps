@@ -46,14 +46,14 @@ class TestGeoDBRasterStorage(BaseApiTest):
         with self.flask_app.app_context():
             storage_instance = storage.GeoDBRasterStorage()
             self.assertEquals(
-                storage_instance.get_root_dir(), f"{self.geodb_cache_dir}/rasters"
+                storage_instance.get_root_dir(), f"{self.wms_cache_dir}/rasters"
             )
 
     def testTmpDir(self):
         with self.flask_app.app_context():
             storage_instance = storage.GeoDBRasterStorage()
             self.assertEquals(
-                storage_instance.get_tmp_dir(), f"{self.geodb_cache_dir}/tmp"  # nosec
+                storage_instance.get_tmp_dir(), f"{self.wms_cache_dir}/tmp"  # nosec
             )
 
     def testDir(self):
@@ -61,19 +61,19 @@ class TestGeoDBRasterStorage(BaseApiTest):
             storage_instance = storage.GeoDBRasterStorage()
             self.assertEquals(
                 storage_instance.get_dir("raster/10"),
-                f"{self.geodb_cache_dir}/rasters/10",
+                f"{self.wms_cache_dir}/rasters/10",
             )
             self.assertEquals(
                 storage_instance.get_dir("raster/10/2015"),
-                f"{self.geodb_cache_dir}/rasters/10/2015",
+                f"{self.wms_cache_dir}/rasters/10/2015",
             )
             self.assertEquals(
                 storage_instance.get_dir(f"raster/10/2015/{ENCODED_VAR}"),
-                f"{self.geodb_cache_dir}/rasters/10/2015/{ENCODED_VAR}",
+                f"{self.wms_cache_dir}/rasters/10/2015/{ENCODED_VAR}",
             )
             self.assertEquals(
                 storage_instance.get_dir(f"raster/10//{ENCODED_VAR}"),
-                f"{self.geodb_cache_dir}/rasters/10/{ENCODED_VAR}",
+                f"{self.wms_cache_dir}/rasters/10/{ENCODED_VAR}",
             )
 
     def testFilePath(self):
@@ -81,23 +81,23 @@ class TestGeoDBRasterStorage(BaseApiTest):
             storage_instance = storage.GeoDBRasterStorage()
             self.assertEquals(
                 storage_instance.get_file_path("raster/10", "layer.tif"),
-                f"{self.geodb_cache_dir}/rasters/10/layer.tif",
+                f"{self.wms_cache_dir}/rasters/10/layer.tif",
             )
             self.assertEquals(
                 storage_instance.get_file_path("raster/10/2015", "layer.tif"),
-                f"{self.geodb_cache_dir}/rasters/10/2015/layer.tif",
+                f"{self.wms_cache_dir}/rasters/10/2015/layer.tif",
             )
             self.assertEquals(
                 storage_instance.get_file_path(
                     f"raster/10/2015/{ENCODED_VAR}", "layer.tif"
                 ),
-                f"{self.geodb_cache_dir}/rasters/10/2015/{ENCODED_VAR}/layer.tif",
+                f"{self.wms_cache_dir}/rasters/10/2015/{ENCODED_VAR}/layer.tif",
             )
             self.assertEquals(
                 storage_instance.get_file_path(
                     f"raster/10//{ENCODED_VAR}", "layer.tif"
                 ),
-                f"{self.geodb_cache_dir}/rasters/10/{ENCODED_VAR}/layer.tif",
+                f"{self.wms_cache_dir}/rasters/10/{ENCODED_VAR}/layer.tif",
             )
 
     def testListFeatureIds(self):
@@ -123,40 +123,43 @@ class TestGeoDBRasterStorage(BaseApiTest):
 class TestGeoDBRasterStorageWithoutCache(BaseApiTest):
     def setUp(self):
         super().setUp()
-        self.geodb_dir = tempfile.mkdtemp()
-        self.flask_app.config["GEODB_DIR"] = self.geodb_dir
+        self.raster_cache_dir = tempfile.mkdtemp()
+        self.flask_app.config["RASTER_CACHE_DIR"] = self.raster_cache_dir
 
     def tearDown(self):
-        shutil.rmtree(self.flask_app.config["GEODB_DIR"])
+        shutil.rmtree(self.flask_app.config["RASTER_CACHE_DIR"])
 
     def testRootDir(self):
         with self.flask_app.app_context():
             storage_instance = storage.GeoDBRasterStorage()
-            self.assertEquals(storage_instance.get_root_dir(), f"{self.geodb_dir}")
+            self.assertEquals(
+                storage_instance.get_root_dir(), f"{self.raster_cache_dir}"
+            )
 
     def testTmpDir(self):
         with self.flask_app.app_context():
             storage_instance = storage.GeoDBRasterStorage()
             self.assertEquals(
-                storage_instance.get_tmp_dir(), f"{self.geodb_cache_dir}/tmp"  # nosec
+                storage_instance.get_tmp_dir(), f"{self.wms_cache_dir}/tmp"  # nosec
             )
 
     def testDir(self):
         with self.flask_app.app_context():
             storage_instance = storage.GeoDBRasterStorage()
             self.assertEquals(
-                storage_instance.get_dir("raster/10"), f"{self.geodb_dir}/10"
+                storage_instance.get_dir("raster/10"), f"{self.raster_cache_dir}/10"
             )
             self.assertEquals(
-                storage_instance.get_dir("raster/10/2015"), f"{self.geodb_dir}/10"
+                storage_instance.get_dir("raster/10/2015"),
+                f"{self.raster_cache_dir}/10",
             )
             self.assertEquals(
                 storage_instance.get_dir(f"raster/10/2015/{ENCODED_VAR}"),
-                f"{self.geodb_dir}/10",
+                f"{self.raster_cache_dir}/10",
             )
             self.assertEquals(
                 storage_instance.get_dir(f"raster/10//{ENCODED_VAR}"),
-                f"{self.geodb_dir}/10",
+                f"{self.raster_cache_dir}/10",
             )
 
     def testFilePath(self):
@@ -164,23 +167,23 @@ class TestGeoDBRasterStorageWithoutCache(BaseApiTest):
             storage_instance = storage.GeoDBRasterStorage()
             self.assertEquals(
                 storage_instance.get_file_path("raster/10", "layer.tif"),
-                f"{self.geodb_dir}/10/layer.tif",
+                f"{self.raster_cache_dir}/10/layer.tif",
             )
             self.assertEquals(
                 storage_instance.get_file_path("raster/10/2015", "layer.tif"),
-                f"{self.geodb_dir}/10/layer.tif",
+                f"{self.raster_cache_dir}/10/layer.tif",
             )
             self.assertEquals(
                 storage_instance.get_file_path(
                     f"raster/10/2015/{ENCODED_VAR}", "layer.tif"
                 ),
-                f"{self.geodb_dir}/10/layer.tif",
+                f"{self.raster_cache_dir}/10/layer.tif",
             )
             self.assertEquals(
                 storage_instance.get_file_path(
                     f"raster/10//{ENCODED_VAR}", "layer.tif"
                 ),
-                f"{self.geodb_dir}/10/layer.tif",
+                f"{self.raster_cache_dir}/10/layer.tif",
             )
 
 
@@ -221,14 +224,14 @@ class TestGeoDBVectorStorage(BaseApiTest):
         with self.flask_app.app_context():
             storage_instance = storage.GeoDBVectorStorage()
             self.assertEquals(
-                storage_instance.get_root_dir(), f"{self.geodb_cache_dir}/vectors"
+                storage_instance.get_root_dir(), f"{self.wms_cache_dir}/vectors"
             )
 
     def testTmpDir(self):
         with self.flask_app.app_context():
             storage_instance = storage.GeoDBVectorStorage()
             self.assertEquals(
-                storage_instance.get_tmp_dir(), f"{self.geodb_cache_dir}/tmp"  # nosec
+                storage_instance.get_tmp_dir(), f"{self.wms_cache_dir}/tmp"  # nosec
             )
 
     def testDir(self):
@@ -236,19 +239,19 @@ class TestGeoDBVectorStorage(BaseApiTest):
             storage_instance = storage.GeoDBVectorStorage()
             self.assertEquals(
                 storage_instance.get_dir("vector/10"),
-                f"{self.geodb_cache_dir}/vectors/10",
+                f"{self.wms_cache_dir}/vectors/10",
             )
             self.assertEquals(
                 storage_instance.get_dir("vector/10/2015"),
-                f"{self.geodb_cache_dir}/vectors/10/2015",
+                f"{self.wms_cache_dir}/vectors/10/2015",
             )
             self.assertEquals(
                 storage_instance.get_dir(f"vector/10/2015/{ENCODED_VAR}"),
-                f"{self.geodb_cache_dir}/vectors/10/2015",
+                f"{self.wms_cache_dir}/vectors/10/2015",
             )
             self.assertEquals(
                 storage_instance.get_dir(f"vector/10//{ENCODED_VAR}"),
-                f"{self.geodb_cache_dir}/vectors/10",
+                f"{self.wms_cache_dir}/vectors/10",
             )
 
     def testFilePath(self):
@@ -256,19 +259,19 @@ class TestGeoDBVectorStorage(BaseApiTest):
             storage_instance = storage.GeoDBVectorStorage()
             self.assertEquals(
                 storage_instance.get_file_path("vector/10", "txt"),
-                f"{self.geodb_cache_dir}/vectors/10/data.txt",
+                f"{self.wms_cache_dir}/vectors/10/data.txt",
             )
             self.assertEquals(
                 storage_instance.get_file_path("vector/10/2015", "txt"),
-                f"{self.geodb_cache_dir}/vectors/10/2015/data.txt",
+                f"{self.wms_cache_dir}/vectors/10/2015/data.txt",
             )
             self.assertEquals(
                 storage_instance.get_file_path(f"vector/10/2015/{ENCODED_VAR}", "txt"),
-                f"{self.geodb_cache_dir}/vectors/10/2015/data.txt",
+                f"{self.wms_cache_dir}/vectors/10/2015/data.txt",
             )
             self.assertEquals(
                 storage_instance.get_file_path(f"vector/10//{ENCODED_VAR}", "txt"),
-                f"{self.geodb_cache_dir}/vectors/10/data.txt",
+                f"{self.wms_cache_dir}/vectors/10/data.txt",
             )
 
     def testGeoJSONFile(self):
@@ -276,19 +279,19 @@ class TestGeoDBVectorStorage(BaseApiTest):
             storage_instance = storage.GeoDBVectorStorage()
             self.assertEquals(
                 storage_instance.get_geojson_file("vector/10"),
-                f"{self.geodb_cache_dir}/vectors/10/data.geojson",
+                f"{self.wms_cache_dir}/vectors/10/data.geojson",
             )
             self.assertEquals(
                 storage_instance.get_geojson_file("vector/10/2015"),
-                f"{self.geodb_cache_dir}/vectors/10/2015/data.geojson",
+                f"{self.wms_cache_dir}/vectors/10/2015/data.geojson",
             )
             self.assertEquals(
                 storage_instance.get_geojson_file(f"vector/10/2015/{ENCODED_VAR}"),
-                f"{self.geodb_cache_dir}/vectors/10/2015/data.geojson",
+                f"{self.wms_cache_dir}/vectors/10/2015/data.geojson",
             )
             self.assertEquals(
                 storage_instance.get_geojson_file(f"vector/10//{ENCODED_VAR}"),
-                f"{self.geodb_cache_dir}/vectors/10/data.geojson",
+                f"{self.wms_cache_dir}/vectors/10/data.geojson",
             )
 
 
@@ -297,14 +300,14 @@ class TestAreaStorage(BaseApiTest):
         with self.flask_app.app_context():
             storage_instance = storage.AreaStorage()
             self.assertEquals(
-                storage_instance.get_root_dir(), f"{self.geodb_cache_dir}/areas"
+                storage_instance.get_root_dir(), f"{self.wms_cache_dir}/areas"
             )
 
     def testTmpDir(self):
         with self.flask_app.app_context():
             storage_instance = storage.AreaStorage()
             self.assertEquals(
-                storage_instance.get_tmp_dir(), f"{self.geodb_cache_dir}/tmp"  # nosec
+                storage_instance.get_tmp_dir(), f"{self.wms_cache_dir}/tmp"  # nosec
             )
 
     def testDir(self):
@@ -312,7 +315,7 @@ class TestAreaStorage(BaseApiTest):
             storage_instance = storage.AreaStorage()
             self.assertEquals(
                 storage_instance.get_dir("area/NUTS42"),
-                f"{self.geodb_cache_dir}/areas/NUTS42",
+                f"{self.wms_cache_dir}/areas/NUTS42",
             )
 
     def testGeoJSONFile(self):
@@ -320,5 +323,5 @@ class TestAreaStorage(BaseApiTest):
             storage_instance = storage.AreaStorage()
             self.assertEquals(
                 storage_instance.get_geojson_file("area/NUTS42"),
-                f"{self.geodb_cache_dir}/areas/NUTS42/data.geojson",
+                f"{self.wms_cache_dir}/areas/NUTS42/data.geojson",
             )

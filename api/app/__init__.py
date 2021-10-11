@@ -45,8 +45,8 @@ def create_app(environment="production", testing=False, on_startup=False):
     app.config["TESTING"] = testing
     app.config["MAX_CONTENT_LENGTH"] = 16 * 1024 * 1024
     app.config["MAX_PROJECTION_LENGTH"] = 1024
-    app.config["GEODB_DIR"] = None
-    app.config["GEODB_CACHE_DIR"] = "geodb"
+    app.config["RASTER_CACHE_DIR"] = None
+    app.config["WMS_CACHE_DIR"] = "wms_cache"
     app.config["CM_OUTPUTS_DIR"] = "cm_outputs"
     app.config["FILTER_DATASETS"] = False
     app.config["WMS"] = {}
