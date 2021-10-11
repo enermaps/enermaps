@@ -22,13 +22,13 @@ services:
       - "127.0.0.1:9000:80"
     restart: always
     environment:
-      GEODB_CACHE_DIR: /geodb
+      WMS_CACHE_DIR: /wms_cache
       CM_OUTPUTS_DIR: /cm_outputs
       FILTER_DATASETS: 1
     depends_on:
       - redis
     volumes:
-      - geodb:/geodb
+      - wms_cache:/wms_cache
       - cm_outputs:/cm_outputs
     env_file:
       - .env
@@ -59,13 +59,13 @@ services:
       context: ./cm
       dockerfile: cm_heat_demand/Dockerfile
     environment:
-      GEODB_CACHE_DIR: /geodb
+      WMS_CACHE_DIR: /wms_cache
       CM_OUTPUTS_DIR: /cm_outputs
     depends_on:
       - redis
     restart: always
     volumes:
-      - geodb:/geodb:ro
+      - wms_cache:/wms_cache:ro
     env_file:
       .env
 
@@ -87,13 +87,13 @@ services:
       context: ./cm
       dockerfile: example_multiply/Dockerfile
     environment:
-      GEODB_CACHE_DIR: /geodb
+      WMS_CACHE_DIR: /wms_cache
       CM_OUTPUTS_DIR: /cm_outputs
     depends_on:
       - redis
     restart: always
     volumes:
-      - geodb:/geodb:ro
+      - wms_cache:/wms_cache:ro
     env_file:
       .env
 
@@ -102,18 +102,18 @@ services:
       context: ./cm
       dockerfile: example_empty/Dockerfile
     environment:
-      GEODB_CACHE_DIR: /geodb
+      WMS_CACHE_DIR: /wms_cache
       CM_OUTPUTS_DIR: /cm_outputs
     depends_on:
       - redis
     restart: always
     volumes:
-      - geodb:/geodb:ro
+      - wms_cache:/wms_cache:ro
     env_file:
       .env
 
 volumes:
-  geodb:
+  wms_cache:
   cm_outputs:
   caddy-data:
   caddy-config:

@@ -25,16 +25,16 @@ def create_for_layer_type(type):
 
 class GeoDBRasterStorage(object):
     def get_root_dir(self):
-        if current_app.config["GEODB_DIR"] is not None:
-            return current_app.config["GEODB_DIR"]
+        if current_app.config["RASTER_CACHE_DIR"] is not None:
+            return current_app.config["RASTER_CACHE_DIR"]
 
-        return safe_join(current_app.config["GEODB_CACHE_DIR"], "rasters")
+        return safe_join(current_app.config["WMS_CACHE_DIR"], "rasters")
 
     def get_tmp_dir(self):
-        return safe_join(current_app.config["GEODB_CACHE_DIR"], "tmp")
+        return safe_join(current_app.config["WMS_CACHE_DIR"], "tmp")
 
     def get_dir(self, layer_name):
-        if current_app.config["GEODB_DIR"] is not None:
+        if current_app.config["RASTER_CACHE_DIR"] is not None:
             (_, id, _, _) = path.parse_unique_layer_name(layer_name)
             return safe_join(self.get_root_dir(), str(id))
         else:
@@ -80,7 +80,7 @@ class BaseVectorStorage(object):
         raise NotImplementedError
 
     def get_tmp_dir(self):
-        return safe_join(current_app.config["GEODB_CACHE_DIR"], "tmp")
+        return safe_join(current_app.config["WMS_CACHE_DIR"], "tmp")
 
     def get_dir(self, layer_name):
         return safe_join(self.get_root_dir(), path.to_folder_path(layer_name))
@@ -94,9 +94,9 @@ class BaseVectorStorage(object):
 
 class GeoDBVectorStorage(BaseVectorStorage):
     def get_root_dir(self):
-        return safe_join(current_app.config["GEODB_CACHE_DIR"], "vectors")
+        return safe_join(current_app.config["WMS_CACHE_DIR"], "vectors")
 
 
 class AreaStorage(BaseVectorStorage):
     def get_root_dir(self):
-        return safe_join(current_app.config["GEODB_CACHE_DIR"], "areas")
+        return safe_join(current_app.config["WMS_CACHE_DIR"], "areas")
