@@ -263,9 +263,9 @@ cm-new_cm:
     context: ./cm
     dockerfile: new_cm/Dockerfile
   environment:
-    GEODB_CACHE_DIR: /geodb
+    WMS_CACHE_DIR: /wms_cache
   volumes:
-    - geodb:/geodb
+    - wms_cache:/wms_cache
   env_file:
     .env
 ```
