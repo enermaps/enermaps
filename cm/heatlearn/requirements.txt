@@ -6,3 +6,4 @@ matplotlib==3.4.2
 tensorflow==2.4.1
 urllib3==1.26.5
 geocube==0.0.17
+jenkspy==0.2.0
