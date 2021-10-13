@@ -1,7 +1,7 @@
 <script>
   import {onMount} from 'svelte';
   import {getDatasetsWithVariables, getDatasetLayerName} from '../client.js';
-  import {layersStore} from '../stores.js';
+  import {createLayer} from '../layers.js';
 
 
   let availableDatasets = null;
@@ -109,63 +109,34 @@
         datasetId, dataset.is_raster, variable, timePeriod,
     );
 
-    const layers = $layersStore;
+    const labels = {
+      primary: null,
+      secondary: null,
+      dataset: null,
+    };
 
-    let existingLayer = null;
-    for (const layer of layers) {
-      if (layer.name === layerName) {
-        existingLayer = layer;
-        break;
-      }
-    }
+    let title = null;
 
-    if (existingLayer === null) {
-      const labels = {
-        primary: null,
-        secondary: null,
-        dataset: null,
-      };
+    if (variable !== null) {
+      labels.primary = variable;
+      labels.dataset = dataset.title;
 
-      let title = null;
-
-      if (variable !== null) {
-        labels.primary = variable;
-        labels.dataset = dataset.title;
-
-        if (timePeriod !== null) {
-          labels.secondary = timePeriod;
-          title = variable + '\n' + timePeriod + '\n' + dataset.title;
-        } else {
-          title = variable + '\n' + dataset.title;
-        }
-      } else if (timePeriod !== null) {
-        labels.primary = timePeriod;
-        labels.dataset = dataset.title;
-        title = timePeriod + '\n' + dataset.title;
+      if (timePeriod !== null) {
+        labels.secondary = timePeriod;
+        title = variable + '\n\n' + timePeriod + '\n\n' + dataset.title;
       } else {
-        labels.primary = dataset.title;
-        title = dataset.title;
+        title = variable + '\n\n' + dataset.title;
       }
-
-      const layer = {
-        name: layerName,
-        labels: labels,
-        title: title,
-        is_raster: dataset.is_raster,
-        visible: true,
-        effect: 'new',
-        leaflet_layer: null,
-      };
-
-      console.log('New layer:', layer);
-
-      layers.unshift(layer);
+    } else if (timePeriod !== null) {
+      labels.primary = timePeriod;
+      labels.dataset = dataset.title;
+      title = timePeriod + '\n\n' + dataset.title;
     } else {
-      existingLayer.effect = 'refresh';
-      existingLayer.visible = true;
+      labels.primary = dataset.title;
+      title = dataset.title;
     }
 
-    $layersStore = layers;
+    createLayer(layerName, labels, title, dataset.is_raster, null);
   }
 </script>
 

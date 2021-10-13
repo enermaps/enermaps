@@ -33,6 +33,12 @@ class MakePathTest(BaseApiTest):
         )
         self.assertEqual(name, "area/NUTS2")
 
+    def testAreaLayerWithTaskId(self):
+        name = path.make_unique_layer_name(
+            path.AREA, "NUTS2", task_id="01234567-0000-0000-0000-000000000000"
+        )
+        self.assertEqual(name, "area/NUTS2")
+
     def testVectorLayer(self):
         name = path.make_unique_layer_name(path.VECTOR, 42)
         self.assertEqual(name, "vector/42")
@@ -50,6 +56,12 @@ class MakePathTest(BaseApiTest):
             path.VECTOR, 42, variable="var", time_period=2015
         )
         self.assertEqual(name, f"vector/42/2015/{ENCODED_VAR}")
+
+    def testVectorLayerWithTaskId(self):
+        name = path.make_unique_layer_name(
+            path.VECTOR, 42, task_id="01234567-0000-0000-0000-000000000000"
+        )
+        self.assertEqual(name, "vector/42")
 
     def testRasterLayer(self):
         name = path.make_unique_layer_name(path.RASTER, 42)
@@ -69,118 +81,159 @@ class MakePathTest(BaseApiTest):
         )
         self.assertEqual(name, f"raster/42/2015/{ENCODED_VAR}")
 
+    def testRasterLayerWithTaskId(self):
+        name = path.make_unique_layer_name(
+            path.RASTER, 42, task_id="01234567-0000-0000-0000-000000000000"
+        )
+        self.assertEqual(name, "raster/42")
+
     def testCMLayer(self):
         name = path.make_unique_layer_name(
-            path.CM, "heat_demand_01234567-0000-0000-0000-000000000000"
+            path.CM, "heat_demand", task_id="01234567-0000-0000-0000-000000000000"
         )
-        self.assertEqual(name, "cm/heat_demand_01234567-0000-0000-0000-000000000000")
+        self.assertEqual(name, "cm/heat_demand/01234567-0000-0000-0000-000000000000")
+
+    def testCMLayerWithoutTaskId(self):
+        name = path.make_unique_layer_name(path.CM, "heat_demand")
+        self.assertTrue(name is None)
 
     def testCMLayerWithVariable(self):
         name = path.make_unique_layer_name(
-            path.CM, "heat_demand_01234567-0000-0000-0000-000000000000", variable="var"
+            path.CM,
+            "heat_demand",
+            task_id="01234567-0000-0000-0000-000000000000",
+            variable="var",
         )
-        self.assertEqual(name, "cm/heat_demand_01234567-0000-0000-0000-000000000000")
+        self.assertEqual(name, "cm/heat_demand/01234567-0000-0000-0000-000000000000")
 
     def testCMLayerWithTimePeriod(self):
         name = path.make_unique_layer_name(
             path.CM,
-            "heat_demand_01234567-0000-0000-0000-000000000000",
+            "heat_demand",
+            task_id="01234567-0000-0000-0000-000000000000",
             time_period=2015,
         )
-        self.assertEqual(name, "cm/heat_demand_01234567-0000-0000-0000-000000000000")
+        self.assertEqual(name, "cm/heat_demand/01234567-0000-0000-0000-000000000000")
 
     def testCMLayerWithVariableAndTimePeriod(self):
         name = path.make_unique_layer_name(
             path.CM,
-            "heat_demand_01234567-0000-0000-0000-000000000000",
+            "heat_demand",
+            task_id="01234567-0000-0000-0000-000000000000",
             variable="var",
             time_period=2015,
         )
-        self.assertEqual(name, "cm/heat_demand_01234567-0000-0000-0000-000000000000")
+        self.assertEqual(name, "cm/heat_demand/01234567-0000-0000-0000-000000000000")
 
 
 class ParsePathTest(BaseApiTest):
     def testAreaLayer(self):
-        (type, id, variable, time_period) = path.parse_unique_layer_name("area/NUTS2")
+        (type, id, variable, time_period, task_id) = path.parse_unique_layer_name(
+            "area/NUTS2"
+        )
         self.assertEqual(type, path.AREA)
         self.assertEqual(id, "NUTS2")
         self.assertTrue(variable is None)
         self.assertTrue(time_period is None)
+        self.assertTrue(task_id is None)
 
     def testVectorLayer(self):
-        (type, id, variable, time_period) = path.parse_unique_layer_name("vector/42")
+        (type, id, variable, time_period, task_id) = path.parse_unique_layer_name(
+            "vector/42"
+        )
         self.assertEqual(type, path.VECTOR)
         self.assertEqual(id, 42)
         self.assertTrue(variable is None)
         self.assertTrue(time_period is None)
+        self.assertTrue(task_id is None)
 
     def testVectorLayerWithVariable(self):
-        (type, id, variable, time_period) = path.parse_unique_layer_name(
+        (type, id, variable, time_period, task_id) = path.parse_unique_layer_name(
             f"vector/42//{ENCODED_VAR}"
         )
         self.assertEqual(type, path.VECTOR)
         self.assertEqual(id, 42)
         self.assertEqual(variable, "var")
         self.assertTrue(time_period is None)
+        self.assertTrue(task_id is None)
 
     def testVectorLayerWithTimePeriod(self):
-        (type, id, variable, time_period) = path.parse_unique_layer_name(
+        (type, id, variable, time_period, task_id) = path.parse_unique_layer_name(
             "vector/42/2015"
         )
         self.assertEqual(type, path.VECTOR)
         self.assertEqual(id, 42)
         self.assertTrue(variable is None)
         self.assertEqual(time_period, 2015)
+        self.assertTrue(task_id is None)
 
     def testVectorLayerWithVariableAndTimePeriod(self):
-        (type, id, variable, time_period) = path.parse_unique_layer_name(
+        (type, id, variable, time_period, task_id) = path.parse_unique_layer_name(
             f"vector/42/2015/{ENCODED_VAR}"
         )
         self.assertEqual(type, path.VECTOR)
         self.assertEqual(id, 42)
         self.assertEqual(variable, "var")
         self.assertEqual(time_period, 2015)
+        self.assertTrue(task_id is None)
 
     def testRasterLayer(self):
-        (type, id, variable, time_period) = path.parse_unique_layer_name("raster/42")
+        (type, id, variable, time_period, task_id) = path.parse_unique_layer_name(
+            "raster/42"
+        )
         self.assertEqual(type, path.RASTER)
         self.assertEqual(id, 42)
         self.assertTrue(variable is None)
         self.assertTrue(time_period is None)
+        self.assertTrue(task_id is None)
 
     def testRasterLayerWithVariable(self):
-        (type, id, variable, time_period) = path.parse_unique_layer_name(
+        (type, id, variable, time_period, task_id) = path.parse_unique_layer_name(
             f"raster/42//{ENCODED_VAR}"
         )
         self.assertEqual(type, path.RASTER)
         self.assertEqual(id, 42)
         self.assertEqual(variable, "var")
         self.assertTrue(time_period is None)
+        self.assertTrue(task_id is None)
 
     def testRasterLayerWithTimePeriod(self):
-        (type, id, variable, time_period) = path.parse_unique_layer_name(
+        (type, id, variable, time_period, task_id) = path.parse_unique_layer_name(
             "raster/42/2015"
         )
         self.assertEqual(type, path.RASTER)
         self.assertEqual(id, 42)
         self.assertTrue(variable is None)
         self.assertEqual(time_period, 2015)
+        self.assertTrue(task_id is None)
 
     def testRasterLayerWithVariableAndTimePeriod(self):
-        (type, id, variable, time_period) = path.parse_unique_layer_name(
+        (type, id, variable, time_period, task_id) = path.parse_unique_layer_name(
             f"raster/42/2015/{ENCODED_VAR}"
         )
         self.assertEqual(type, path.RASTER)
         self.assertEqual(id, 42)
         self.assertEqual(variable, "var")
         self.assertEqual(time_period, 2015)
+        self.assertTrue(task_id is None)
 
     def testCMLayer(self):
-        (type, id, variable, time_period) = path.parse_unique_layer_name(
-            "cm/heat_demand_01234567-0000-0000-0000-000000000000"
+        (type, id, variable, time_period, task_id) = path.parse_unique_layer_name(
+            "cm/heat_demand/01234567-0000-0000-0000-000000000000"
         )
         self.assertEqual(type, path.CM)
-        self.assertEqual(id, "heat_demand_01234567-0000-0000-0000-000000000000")
+        self.assertEqual(id, "heat_demand")
+        self.assertEqual(task_id, "01234567-0000-0000-0000-000000000000")
+        self.assertTrue(variable is None)
+        self.assertTrue(time_period is None)
+
+    def testCMLayerWithoutTaskId(self):
+        (type, id, variable, time_period, task_id) = path.parse_unique_layer_name(
+            "cm/heat_demand"
+        )
+        self.assertTrue(type is None)
+        self.assertTrue(id is None)
+        self.assertTrue(task_id is None)
         self.assertTrue(variable is None)
         self.assertTrue(time_period is None)
 
@@ -223,7 +276,7 @@ class GetTypeTest(BaseApiTest):
         self.assertEqual(type, path.RASTER)
 
     def testCMLayer(self):
-        type = path.get_type("cm/heat_demand_01234567-0000-0000-0000-000000000000")
+        type = path.get_type("cm/heat_demand/01234567-0000-0000-0000-000000000000")
         self.assertEqual(type, path.CM)
 
 
@@ -266,8 +319,8 @@ class ToFolderPathTest(BaseApiTest):
 
     def testCMLayer(self):
         folder_path = path.to_folder_path(
-            "cm/heat_demand_01234567-0000-0000-0000-000000000000"
+            "cm/heat_demand/01234567-0000-0000-0000-000000000000"
         )
         self.assertEqual(
-            folder_path, "heat_demand_01234567-0000-0000-0000-000000000000"
+            folder_path, "heat_demand/01/23/45/67/01234567-0000-0000-0000-000000000000"
         )

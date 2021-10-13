@@ -1,163 +1,41 @@
 <script src="../settings.js">
-  import {onMount, createEventDispatcher} from 'svelte';
   import {BASE_URL} from '../settings.js';
-  import {deleteTaskResult, getTaskResult, WMS_URL} from '../client.js';
-  import {activeCMOutputLayersStore} from '../stores.js';
+  import {deleteTask, cancelTask, PENDING_STATUS, REFRESHING_STATUS, FAILURE_STATUS} from '../tasks.js';
   import Chart from './Chart.svelte';
   import Value from './Value.svelte';
 
   export let task;
-  export let cm;
 
   let graphs = {};
   let values = [];
   let parameters = [];
-  let taskResult = {status: 'PENDING'};
   let isTaskPending = true;
   let isTaskFailed = false;
   let activeTab = 'result';
-  let resultsDisplayed = false;
-  let layers = [];
 
-  const updateTime = 500;
-  const PENDING_STATUS = 'PENDING';
-  const FAILURE_STATUS = 'FAILURE';
-  const REVOKED_STATUS = 'REVOKED';
-  const REFRESHING_STATUS = 'REFRESHING';
-  const dispatch = createEventDispatcher();
-
-  onMount(async () => {
-    updateTaskResult();
-  });
-
-  async function updateTaskResult() {
-    const taskResponse = await getTaskResult(cm, task);
-    // The above reponse can be undefined if it encountered an error,
-    // just try again if it has
-    if (!taskResponse || taskResponse.status === PENDING_STATUS) {
-      setTimeout(updateTaskResult, updateTime);
-    }
-    if (!!taskResponse) {
-      taskResult = taskResponse;
-    }
-  }
-
-  async function cancel() {
-    await deleteTaskResult(cm, task);
-  }
 
   function formatTaskID(task) {
     return task.id.slice(0, 5) + '...';
   }
 
+
   $: {
-    if (taskResult.status === REVOKED_STATUS) {
-      console.log('[CMTask ' + task.id + '] Revoked');
-      removeTask();
-    } else if (isTaskPending) {
-      isTaskPending = (taskResult.status === PENDING_STATUS) ||
-                      (taskResult.status === REFRESHING_STATUS);
-      isTaskFailed = (taskResult.status === FAILURE_STATUS);
+    if (isTaskPending) {
+      isTaskPending = (task.result.status === PENDING_STATUS) ||
+                      (task.result.status === REFRESHING_STATUS);
+      isTaskFailed = (task.result.status === FAILURE_STATUS);
 
       if (!isTaskPending) {
-        if (typeof taskResult.result === 'string') {
-          values.push(['details', taskResult.result]);
+        if (typeof task.result.result === 'string') {
+          values.push(['details', task.result.result]);
         } else {
-          graphs = taskResult.result.graphs;
-          // TODO here check if values has an unit, if yes merge unit and value
-          values = Object.entries(taskResult.result.values);
+          graphs = task.result.result.graphs;
+          values = Object.entries(task.result.result.values);
         }
 
         parameters = Object.entries(task.parameters.parameters);
-
-        console.log('[CMTask ' + task.id + '] Got response: ' + taskResult.status);
-
-        if (!isTaskFailed) {
-          showHideResults();
-        }
       }
     }
-  }
-
-  function showHideResults() {
-    let activeLayers = $activeCMOutputLayersStore;
-
-    if (!resultsDisplayed) {
-      let index = 0;
-      for (const value of Object.values(taskResult.result.geofiles)) {
-        let layerName = value.split('/');
-        layerName = layerName[layerName.length-2] + '/' + layerName[layerName.length-1];
-
-        const layer = L.tileLayer.wms(
-            WMS_URL,
-            {
-              transparent: 'true',
-              layers: encodeURIComponent(layerName),
-              format: 'image/png',
-            },
-        );
-
-        layer.id = task.id + '/' + index;
-
-        layer.on('tileerror', onTileError);
-
-        layers.push(layer);
-        activeLayers.push(layer);
-
-        ++index;
-      }
-
-      console.log('[CMTask ' + task.id + '] Created layers:', layers.map((x) => x.id));
-    } else {
-      console.log('[CMTask ' + task.id + '] Destroying layers:', layers.map((x) => x.id));
-
-      for (const layer of layers) {
-        activeLayers = activeLayers.filter((item) => item !== layer);
-      }
-
-      layers = [];
-    }
-
-    $activeCMOutputLayersStore = activeLayers;
-
-    resultsDisplayed = !resultsDisplayed;
-  }
-
-  function onTileError() {
-    if (!isTaskPending) {
-      // Reset the component
-      graphs = {};
-      values = [];
-      taskResult = {status: REFRESHING_STATUS};
-      isTaskPending = true;
-      isTaskFailed = false;
-      resultsDisplayed = false;
-
-      // Destroy the layers
-      let activeLayers = $activeCMOutputLayersStore;
-
-      for (const layer of layers) {
-        activeLayers = activeLayers.filter((item) => item !== layer);
-      }
-
-      layers = [];
-      $activeCMOutputLayersStore = activeLayers;
-
-      // Refresh the task
-      dispatch('refresh', {});
-    }
-  }
-
-  function removeTask() {
-    if (resultsDisplayed) {
-      showHideResults();
-    }
-
-    if (isTaskPending) {
-      cancel();
-    }
-
-    dispatch('delete', {});
   }
 </script>
 
@@ -226,22 +104,22 @@
 <div class="cmresult">
   {#if isTaskPending || isTaskFailed }
     <div>
-      <span class="close_button" on:click="{removeTask}"><img src='{BASE_URL}images/clear-icon.png' alt='close'></span>
+      <span class="close_button" on:click="{deleteTask(task)}"><img src='{BASE_URL}images/clear-icon.png' alt='close'></span>
     </div>
 
     <dl>
       <dt><strong>task_id</strong></dt><dd>{formatTaskID(task)}</dd>
-      <dt><strong>status</strong></dt><dd>{taskResult.status}</dd>
+      <dt><strong>status</strong></dt><dd>{task.result.status}</dd>
 
       {#if isTaskFailed}
-        <dt><strong>error</strong></dt><dd>{taskResult.result}</dd>
+        <dt><strong>error</strong></dt><dd>{task.result.result}</dd>
       {/if}
     </dl>
   {:else}
     <div class="tabs">
       <span class:selected={activeTab === 'parameters'} on:click={() => (activeTab = 'parameters')}>Parameters</span>
       <span class:selected={activeTab === 'result'} on:click={() => (activeTab = 'result')}>Result</span>
-      <span class="close_button" on:click="{removeTask}"><img src='{BASE_URL}images/clear-icon.png' alt='close'></span>
+      <span class="close_button" on:click="{deleteTask(task)}"><img src='{BASE_URL}images/clear-icon.png' alt='close'></span>
     </div>
 
     {#if activeTab === 'parameters' }
@@ -262,6 +140,5 @@
     {/if}
   {/if}
 
-  <button on:click|once={cancel} hidden={!isTaskPending}>Cancel task</button>
-  <button on:click={showHideResults} hidden={isTaskPending || isTaskFailed}>{#if !resultsDisplayed }Show{:else}Hide{/if}</button>
+  <button on:click|once={cancelTask(task)} hidden={!isTaskPending}>Cancel task</button>
 </div>

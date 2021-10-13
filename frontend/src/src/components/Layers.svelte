@@ -1,5 +1,6 @@
 <script>
-  import {layersStore, selectedLayer} from '../stores.js';
+  import {layersStore, selectedLayerStore} from '../stores.js';
+  import {deleteLayer} from '../layers.js';
   import {BASE_URL} from '../settings.js';
 
 
@@ -10,10 +11,11 @@
 
   $: {
     layers = $layersStore;
-    selection = $selectedLayer;
+    selection = $selectedLayerStore;
 
     for (const layer of layers) {
-      if ((layer.effect !== null) && (effectTimers[layer.name] === undefined)) {
+      if ((layer.effect !== null) && (layer.effect !== 'compute') &&
+          (effectTimers[layer.name] === undefined)) {
         effectTimers[layer.name] = window.setTimeout(() => {
           endEffect(layer);
         }, 500);
@@ -183,22 +185,7 @@
       selection = null;
     }
 
-    $selectedLayer = selection;
-  }
-
-
-  function removeLayer(layer) {
-    for (let i = 0; i < layers.length; ++i) {
-      const layer2 = layers[i];
-
-      if (layer2 === layer) {
-        console.log('Remove layer:', layer.name);
-        layers.splice(i, 1);
-        break;
-      }
-    }
-
-    $layersStore = layers;
+    $selectedLayerStore = selection;
   }
 
 
@@ -291,6 +278,10 @@
     background-color: #ff9933;
   }
 
+  div :global(.layer.compute) {
+    background-color: #99ff33;
+  }
+
   :global(.no-pointer-events) {
     pointer-events: none;
   }
@@ -372,6 +363,7 @@
              on:drop={handleDrop} on:dragend={handleDragEnd}
              on:click={selectLayer(layer)} class:selected={layer.name === selection}
              class:new={layer.effect === 'new'} class:refresh={layer.effect === 'refresh'}
+             class:compute={layer.effect === 'compute'}
              title="{layer.title}">
           <div class="handle">
             <p>∙</p>
@@ -390,7 +382,7 @@
           </div>
           <div class="delete_button">
             <img src="{BASE_URL}images/clear-icon.png" title="Remove the layer"
-                 alt="Remove the layer" on:click={removeLayer(layer)}>
+                 alt="Remove the layer" on:click={deleteLayer(layer)}>
           </div>
         </div>
 

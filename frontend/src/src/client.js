@@ -99,13 +99,15 @@ export async function getOpenairLink(layerId) {
 }
 
 
+// Calculation modules-related endpoints ---------------------------------------
+
 export async function getCMs() {
   const response = await fetch(BASE_URL + 'api/cm/');
   if (!response.ok) {
     return [];
   }
   const cmsResponse = await response.json();
-  return cmsResponse.cms;
+  return cmsResponse;
 }
 
 
@@ -121,16 +123,18 @@ export async function postCMTask(cm, parameters) {
   return {'cm': cm, 'id': task.task_id, 'parameters': parameters};
 }
 
-export async function getTaskResult(cm, task) {
+
+export async function getTaskResult(task) {
   const taskResponse = await fetch(
-      BASE_URL + 'api/cm/' + cm.name + '/task/' + task.id + '/',
+      BASE_URL + 'api/cm/' + task.cm.name + '/task/' + task.id + '/',
   );
   return await taskResponse.json();
 }
 
-export async function deleteTaskResult(cm, task) {
+
+export async function deleteTaskResult(task) {
   const taskResponse = await fetch(
-      BASE_URL + 'api/cm/' + cm.name + '/task/' + task.id + '/',
+      BASE_URL + 'api/cm/' + task.cm.name + '/task/' + task.id + '/',
       {
         method: 'DELETE',
       });

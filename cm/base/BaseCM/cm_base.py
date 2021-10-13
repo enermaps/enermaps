@@ -7,11 +7,13 @@ import logging
 import os
 
 import jsonschema
+import requests
 from celery import Celery, Task
 from celery.worker import worker
 
 CELERY_BROKER_URL = os.environ.get("CELERY_BROKER_URL")
 CELERY_RESULT_BACKEND = os.environ.get("CELERY_RESULT_BACKEND")
+API_URL = os.environ.get("API_URL")
 
 
 def get_default_app(name):
@@ -87,6 +89,18 @@ class CMBase(Task):
         d["name"] = self.name
         d["queue"] = self.queue
         return json.dumps(d)
+
+    def post_raster(self, raster_name, raster_fd):
+        """Post a raster file to the api."""
+        files = {"file": (raster_name, raster_fd, "image/tiff")}
+        try:
+            resp = requests.post(
+                f"{API_URL}/cm/{self.name}/task/{self.request.id}/geofile/", files=files
+            )
+            return resp.status_code
+        except ConnectionError as error:
+            logging.error("Error during the post of the file.")
+            raise ConnectionError(error)
 
 
 def base_task(app, schema_path):

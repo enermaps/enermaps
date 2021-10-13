@@ -288,27 +288,26 @@ a function compatible with the CM in question.
 
 # Post geofile
 
-In case a CM would like to post a goofile to API, this is possible.
-To do so, we strongly encourage you to use the function in the [base/BaseCM/cm_output.py](./base/BaseCM/cm_output.py) folder.
+In case a CM would like to post a geofile to API, this is possible.
+
+To do so, we strongly encourage you to use the method ```CMBase.post_raster()``` in the [base/BaseCM/cm_base.py](./base/BaseCM/cm_base.py) file.
 
 ```python
-# get the api url
-API_URL = os.environ.get("API_URL")
-
-def output_raster(raster_name, raster_fd):
-    """Add a raster to the api"""
-    files = {"file": (raster_name, raster_fd, "image/tiff")}
-    resp = requests.post(API_URL + "api/geofile/", files=files)
-    return resp.ok
+task.post_raster("result.tif", fd)
 ```
 
-def output_raster(raster_name, raster_fd):
-    """Add a raster to the api"""
-    files = {"file": (raster_name, raster_fd, "image/tiff")}
-    resp = requests.post(API_URL + "api/geofile/", files=files)
-    return resp.ok
-
 At the moment, only Geotiff is supported.
+
+Note that the API is in charge of creating an unique name for the geofile, so you only
+have to supply a filename unique to the current task (should your CM produces several
+geofiles).
+
+For instance:
+
+```python
+task.post_raster("result1.tif", fd)
+task.post_raster("result2.tif", fd)
+```
 
 # Test a cm
 
