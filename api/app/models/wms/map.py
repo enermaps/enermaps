@@ -1,7 +1,7 @@
 """Functions related to the "GetMap" operation of the Web Map Service (WMS)"""
 
 import mapnik
-
+import seaborn as sns
 from app.common import path
 from app.data_integration import data_endpoints
 from app.models import geofile
@@ -28,7 +28,7 @@ def get_mapnik_map(normalized_args):
             return None
 
         mapnik_layers = layer.as_mapnik_layers()
-        if mapnik_layers is None:
+        if (mapnik_layers is None) or (len(mapnik_layers) == 0):
             return None
 
         if path.get_type(layer_name) in (path.RASTER, path.VECTOR):
@@ -36,8 +36,7 @@ def get_mapnik_map(normalized_args):
                 layer_name, layer, mapnik_layers[0]
             )
         else:
-            create_default_style()
-            legend_style = None
+            (legend_style, legend_style_name) = create_default_style()
 
         if legend_style is not None:
             mp.append_style(legend_style_name, legend_style)
@@ -56,7 +55,7 @@ def get_mapnik_map(normalized_args):
 def create_style_from_legend(layer_name, layer, mapnik_layer):
     # return (None, None)
 
-    (type, layer_id, variable, _) = path.parse_unique_layer_name(layer_name)
+    (type, layer_id, variable, _, _) = path.parse_unique_layer_name(layer_name)
 
     # Get the layer style and type
     legend_style = data_endpoints.get_legend_style(layer_id)
@@ -95,38 +94,33 @@ def create_style_from_legend(layer_name, layer, mapnik_layer):
 
 
 def create_default_style():
-    #     # Make a default numerical raster layer style (the layer should be a
-    #     # raster layer produced by a CM)
-    #     legend_style = []
-    #     min_value = 0
-    #     max_value = 255
-    #     color = (1, 0, 0)  # Default red
-    #     nb_of_colors = 8
-    #     import seaborn as sns
-    #
-    #     color_list = sns.dark_palette(color, n_colors=nb_of_colors, input="rgb")
-    #     color_list = [
-    #         (
-    #             (int(255 * color[0])),
-    #             (int(255 * color[1])),
-    #             (int(255 * color[2])),
-    #         )
-    #         for color in color_list
-    #     ]
-    #     for n, color in enumerate(color_list, start=1):
-    #         min_threshold = min_value + (n - 1) * (
-    #             (max_value - min_value) / nb_of_colors
-    #         )
-    #         min_threshold = round(min_threshold, 2)
-    #         max_threshold = min_value + n * (
-    #             (max_value - min_value) / nb_of_colors
-    #         )
-    #         max_threshold = round(max_threshold, 2)
-    #         legend_style.append((color, min_threshold, max_threshold))
-    #     mapnik_style, style_name = make_numerical_raster_style(legend_style)
-    #     mapnik_layer.styles.append(style_name)
-    #     mp.append_style(style_name, mapnik_style)
-    pass
+    # Make a default numerical raster layer style (the layer should be a
+    # raster layer produced by a CM)
+    legend_style = []
+    min_value = 0
+    max_value = 255
+    color = (1, 0, 0)  # Default red
+    nb_of_colors = 8
+
+    color_list = sns.dark_palette(color, n_colors=nb_of_colors, input="rgb")
+    color_list = [
+        (
+            (int(255 * color[0])),
+            (int(255 * color[1])),
+            (int(255 * color[2])),
+        )
+        for color in color_list
+    ]
+
+    for n, color in enumerate(color_list, start=1):
+        min_threshold = min_value + (n - 1) * ((max_value - min_value) / nb_of_colors)
+        min_threshold = round(min_threshold, 2)
+        max_threshold = min_value + n * ((max_value - min_value) / nb_of_colors)
+        max_threshold = round(max_threshold, 2)
+        legend_style.append((color, min_threshold, max_threshold))
+
+    mapnik_style, style_name = make_numerical_raster_style(legend_style)
+    return (mapnik_style, style_name)
 
 
 def make_line_style():

@@ -1,17 +1,15 @@
 from os.path import join
 from tempfile import TemporaryDirectory
-from uuid import uuid1
-
-from BaseCM.cm_output import output_raster as post_raster
-from BaseCM.cm_output import validate
 
 from tools import settings
 from tools.areas import get_areas
 from tools.geofile import clip_raster, get_projection, write_raster
 from tools.response import get_response
 
+from BaseCM.cm_output import validate
 
-def processing(region: dict, raster: str, parameters: dict):
+
+def processing(task, region: dict, raster: str, parameters: dict):
     """
     Cuts the raster according to given region and applies some filters
     in order to find the district heating potentials and
@@ -57,9 +55,10 @@ def processing(region: dict, raster: str, parameters: dict):
             dst=dst_raster,
         )
 
+        raster_name = "areas.tif"
+
         with open(dst_raster, mode="rb") as raster_fd:
-            raster_name = "heat_demand_" + str(uuid1()) + ".tiff"
-            post_raster(raster_name=raster_name, raster_fd=raster_fd)
+            task.post_raster(raster_name=raster_name, raster_fd=raster_fd)
 
         response = get_response(
             total_potential=total_potential,

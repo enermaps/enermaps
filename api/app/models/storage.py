@@ -1,9 +1,7 @@
 import glob
-import os
-
-from flask import current_app, safe_join
 
 from app.common import path
+from flask import current_app, safe_join
 
 
 def create(layer_name):
@@ -14,16 +12,34 @@ def create_for_layer_type(type):
     if type == path.AREA:
         return AreaStorage()
     elif type == path.VECTOR:
-        return GeoDBVectorStorage()
+        return VectorStorage()
     elif type == path.RASTER:
-        return GeoDBRasterStorage()
+        return RasterStorage()
     elif type == path.CM:
-        return CMOutputStorage()
+        return CMStorage()
 
     return None
 
 
-class GeoDBRasterStorage(object):
+class BaseRasterStorage(object):
+    def get_root_dir(self):
+        raise NotImplementedError
+
+    def get_tmp_dir(self):
+        raise NotImplementedError
+
+    def get_dir(self, layer_name):
+        raise NotImplementedError
+
+    def get_file_path(self, layer_name, feature_id):
+        return safe_join(self.get_dir(layer_name), feature_id)
+
+    def list_feature_ids(self, layer_name):
+        folder = self.get_dir(layer_name)
+        return [x[len(folder) + 1 :] for x in glob.glob(safe_join(folder, "*.tif"))]
+
+
+class RasterStorage(BaseRasterStorage):
     def get_root_dir(self):
         if current_app.config["RASTER_CACHE_DIR"] is not None:
             return current_app.config["RASTER_CACHE_DIR"]
@@ -35,20 +51,13 @@ class GeoDBRasterStorage(object):
 
     def get_dir(self, layer_name):
         if current_app.config["RASTER_CACHE_DIR"] is not None:
-            (_, id, _, _) = path.parse_unique_layer_name(layer_name)
+            (_, id, _, _, _) = path.parse_unique_layer_name(layer_name)
             return safe_join(self.get_root_dir(), str(id))
         else:
             return safe_join(self.get_root_dir(), path.to_folder_path(layer_name))
 
-    def get_file_path(self, layer_name, feature_id):
-        return safe_join(self.get_dir(layer_name), feature_id)
 
-    def list_feature_ids(self, layer_name):
-        folder = self.get_dir(layer_name)
-        return [x[len(folder) + 1 :] for x in glob.glob(safe_join(folder, "*.tif"))]
-
-
-class CMOutputStorage(object):
+class CMStorage(BaseRasterStorage):
     def get_root_dir(self):
         return safe_join(current_app.config["CM_OUTPUTS_DIR"])
 
@@ -56,23 +65,7 @@ class CMOutputStorage(object):
         return safe_join(current_app.config["CM_OUTPUTS_DIR"], "tmp")
 
     def get_dir(self, layer_name):
-        folder_path = path.to_folder_path(layer_name)
-
-        parts = folder_path.split("_")
-
-        if parts[-1].find("-") >= 0:
-            prefix = parts[-1].split("-")[0]
-            parts = parts[:-1]
-
-            for i in range(0, min(len(prefix), 6), 2):
-                parts.append(prefix[i : i + 2])
-
-        parts.append(folder_path)
-
-        return safe_join(self.get_root_dir(), os.path.sep.join(parts))
-
-    def get_file_path(self, layer_name, feature_id):
-        return safe_join(self.get_dir(layer_name), feature_id)
+        return safe_join(self.get_root_dir(), path.to_folder_path(layer_name))
 
 
 class BaseVectorStorage(object):
@@ -92,7 +85,7 @@ class BaseVectorStorage(object):
         return self.get_file_path(layer_name, "geojson")
 
 
-class GeoDBVectorStorage(BaseVectorStorage):
+class VectorStorage(BaseVectorStorage):
     def get_root_dir(self):
         return safe_join(current_app.config["WMS_CACHE_DIR"], "vectors")
 

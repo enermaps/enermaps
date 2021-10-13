@@ -16,18 +16,18 @@ class TestLoad(BaseApiTest):
             layer = geofile.load("raster/42")
             self.assertTrue(layer is not None)
             self.assertEqual(layer.name, "raster/42")
-            self.assertTrue(isinstance(layer.storage, storage.GeoDBRasterStorage))
+            self.assertTrue(isinstance(layer.storage, storage.RasterStorage))
 
     def testVector(self):
         with self.flask_app.app_context():
             layer = geofile.load("vector/42")
             self.assertTrue(layer is not None)
             self.assertEqual(layer.name, "vector/42")
-            self.assertTrue(isinstance(layer.storage, storage.GeoDBVectorStorage))
+            self.assertTrue(isinstance(layer.storage, storage.VectorStorage))
 
     def testCMOutput(self):
         with self.flask_app.app_context():
             layer = geofile.load("cm/blah")
             self.assertTrue(layer is not None)
             self.assertEqual(layer.name, "cm/blah")
-            self.assertTrue(isinstance(layer.storage, storage.CMOutputStorage))
+            self.assertTrue(isinstance(layer.storage, storage.CMStorage))

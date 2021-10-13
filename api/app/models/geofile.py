@@ -8,17 +8,18 @@ also catch those on accessing the layer.
 import io
 import json
 import os
+import shutil
 import zipfile
 from abc import ABC, abstractmethod
+from pathlib import Path
 from tempfile import TemporaryDirectory
 
 import mapnik
-from flask import safe_join
-from PIL import Image
-
 from app.common import path
 from app.common.projection import proj4_from_geotiff  # epsg_to_proj4,
 from app.common.projection import epsg_to_wkt, proj4_from_shapefile
+from flask import safe_join
+from PIL import Image
 
 from . import storage
 
@@ -72,7 +73,15 @@ def save_vector_geojson(layer_name, geojson):
 
 def save_raster_file(layer_name, feature_id, raster_content):
     storage_instance = storage.create_for_layer_type(path.RASTER)
+    return _save_raster_file(storage_instance, layer_name, feature_id, raster_content)
 
+
+def save_cm_file(layer_name, feature_id, raster_content):
+    storage_instance = storage.create_for_layer_type(path.CM)
+    return _save_raster_file(storage_instance, layer_name, feature_id, raster_content)
+
+
+def _save_raster_file(storage_instance, layer_name, feature_id, raster_content):
     with TemporaryDirectory(prefix=storage_instance.get_tmp_dir()) as tmp_dir:
         tmp_filepath = safe_join(tmp_dir, feature_id)
 
@@ -88,10 +97,20 @@ def save_raster_file(layer_name, feature_id, raster_content):
             )
         except (FileExistsError, OSError):
             print("Raster file already exists")
+            return False
         except Exception as e:
             print(e)
+            return False
 
     return True
+
+
+def delete_all_features(layer_name):
+    storage_instance = storage.create(layer_name)
+
+    with TemporaryDirectory(prefix=storage_instance.get_tmp_dir()) as tmp_dir:
+        os.rename(storage_instance.get_dir(layer_name), tmp_dir)
+        shutil.rmtree(tmp_dir)
 
 
 class Layer(ABC):
@@ -150,11 +169,14 @@ class RasterLayer(Layer):
         currently this approach is quite naive as we read
         from the disk to only extract the projection.
         """
-        return proj4_from_geotiff(
-            self.storage.get_file_path(
-                self.name, self.storage.list_feature_ids(self.name)[0]
+        try:
+            return proj4_from_geotiff(
+                self.storage.get_file_path(
+                    self.name, self.storage.list_feature_ids(self.name)[0]
+                )
             )
-        )
+        except Exception:
+            return None
 
     def as_mapnik_layers(self):
         """Open the geofile as Mapnik layer."""
@@ -170,6 +192,11 @@ class RasterLayer(Layer):
 
             layers.append(layer)
 
+            # For CM results: sets the modification and access times of files to the
+            # current time of day
+            if path.get_type(self.name) == path.CM:
+                Path(layer_path).touch()
+
         return layers
 
     def as_fd(self):
@@ -179,10 +206,6 @@ class RasterLayer(Layer):
         """
         file_descriptor = open(self._get_raster_path(), "rb")
         return file_descriptor, self.MIMETYPE[0]
-
-    # def touch(self):
-    #     """Sets the modification and access times of files to the current time of day"""
-    #     Path(self._get_raster_path()).touch()
 
 
 class VectorLayer(Layer):
@@ -219,7 +242,10 @@ class VectorLayer(Layer):
     @property
     def projection(self):
         """Return the projection of the vector layer."""
-        return proj4_from_shapefile(self.storage.get_dir(self.name))
+        try:
+            return proj4_from_shapefile(self.storage.get_dir(self.name))
+        except Exception:
+            return None
 
     @property
     def is_queryable(self):

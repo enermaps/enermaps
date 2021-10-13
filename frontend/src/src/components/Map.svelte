@@ -1,5 +1,6 @@
 <script>
   import {onMount} from 'svelte';
+
   // Import CSS from Leaflet and plugins.
   import 'leaflet/dist/leaflet.css';
   import 'leaflet.markercluster/dist/MarkerCluster.css';
@@ -21,14 +22,13 @@
   import Layers from './Layers.svelte';
   import CMToggle from './CMToggle.svelte';
   import TopNav from './TopNav.svelte';
-  import {selectionStore, layersStore} from '../stores.js';
+  import {areaSelectionStore, layersStore, areaSelectionLayerStore} from '../stores.js';
   import {INITIAL_MAP_CENTER, INITIAL_ZOOM, BASE_LAYER_URL, BASE_LAYER_PARAMS} from '../settings.js';
   import {WMS_URL} from '../client.js';
+  import {recomputeLayer} from '../layers.js';
 
 
   let map;
-  // let activeOverlayLayers;
-  // let activeCMOutputLayers;
 
   let selection = null;
   const selectionLayers = {};
@@ -62,40 +62,19 @@
     map.addControl(makeLayerListControl());
   });
 
+
   function resizeMap() {
     if (map) {
       map.invalidateSize();
     }
   }
 
-  $: {
-    // activeSelectionLayer = $activeSelectionLayerStore;
-    // activeOverlayLayers = $activeOverlayLayersStore;
-    // activeCMOutputLayers = $activeCMOutputLayersStore;
-    //
-    // syncSelectionLayer();
-    // syncOverlayLayers();
-    // syncCMOutputLayers();
 
-    updateSelectionLayer($selectionStore);
+  $: {
+    updateSelectionLayer($areaSelectionStore);
     updateOverlayLayers($layersStore);
   }
 
-  // function syncOverlayLayers() {
-  //   const overlayToBePruned = new Set(overlaysGroup.getLayers());
-  //   for (const activeOverlayLayer of activeOverlayLayers) {
-  //     if (!overlaysGroup.hasLayer(activeOverlayLayer)) {
-  //       console.log('[Map] Add overlay layer: ' + activeOverlayLayer.name);
-  //       overlaysGroup.addLayer(activeOverlayLayer);
-  //     } else {
-  //       overlayToBePruned.delete(activeOverlayLayer);
-  //     }
-  //   }
-  //   for (const overlay of overlayToBePruned) {
-  //     console.log('[Map] Remove overlay layer: ' + overlay.name);
-  //     overlaysGroup.removeLayer(overlay);
-  //   }
-  // }
 
   function updateSelectionLayer(desiredSelection) {
     if (selection === desiredSelection) {
@@ -135,7 +114,10 @@
       selectionsGroup.clearLayers();
       selectionsGroup.addLayer(layer);
     }
+
+    $areaSelectionLayerStore = layer;
   }
+
 
   function updateOverlayLayers(layers) {
     const layersToBePruned = new Set(overlaysGroup.getLayers());
@@ -147,7 +129,7 @@
         layersToBePruned.delete(layer.leaflet_layer);
       }
 
-      if (layer.visible) {
+      if (layer.visible && (layer.effect !== 'compute')) {
         if (layer.leaflet_layer === null) {
           if (layer.is_raster) {
             layer.leaflet_layer = L.tileLayer.wms(
@@ -168,6 +150,15 @@
                 },
             );
           }
+
+          if (layer.task_id !== null) {
+            layer.leaflet_layer.on(
+                'tileerror',
+                () => {
+                  recomputeLayer(layer, overlaysGroup);
+                },
+            );
+          }
         }
 
         layer.leaflet_layer.setZIndex(layers.length - i);
@@ -176,7 +167,7 @@
           console.log('[Map] Add overlay layer: ' + layer.name);
           overlaysGroup.addLayer(layer.leaflet_layer);
         }
-      } else {
+      } else if (layer.leaflet_layer !== null) {
         if (overlaysGroup.hasLayer(layer.leaflet_layer)) {
           console.log('[Map] Remove overlay layer: ' + layer.name);
           overlaysGroup.removeLayer(layer.leaflet_layer);
@@ -189,21 +180,6 @@
     }
   }
 
-  // function syncCMOutputLayers() {
-  //   const cmOutputsToBePruned = new Set(cmOutputsGroup.getLayers());
-  //   for (const activeCMOutputLayer of activeCMOutputLayers) {
-  //     if (!cmOutputsGroup.hasLayer(activeCMOutputLayer)) {
-  //       console.log('[Map] Add CM output layer: ' + activeCMOutputLayer.id);
-  //       cmOutputsGroup.addLayer(activeCMOutputLayer);
-  //     } else {
-  //       cmOutputsToBePruned.delete(activeCMOutputLayer);
-  //     }
-  //   }
-  //   for (const cmOutput of cmOutputsToBePruned) {
-  //     console.log('[Map] Remove CM output layer: ' + cmOutput.id);
-  //     cmOutputsGroup.removeLayer(cmOutput);
-  //   }
-  // }
 
   /* Area selection panel */
   function makeAreaSelectionControl() {
@@ -220,6 +196,7 @@
     return ctr;
   }
 
+
   /* Datasets selection panel */
   function makeDatasetSelectionControl() {
     const ctr = L.control({position: 'topleft'});
@@ -234,6 +211,7 @@
 
     return ctr;
   }
+
 
   /* Layer list panel */
   function makeLayerListControl() {
@@ -250,6 +228,7 @@
     return ctr;
   }
 
+
   function makeCMToggleControl() {
     const CMToggleControl = L.control({position: 'topright'});
     CMToggleControl.onAdd = (map) => {
@@ -260,6 +239,7 @@
     };
     return CMToggleControl;
   }
+
 
   function makeSearchControl() {
     const searchControl = new L.Control.Search({
@@ -278,6 +258,7 @@
     });
     return searchControl;
   }
+
 
   function disableMapScrolling(element, map) {
     // Disable dragging when user's cursor enters the element

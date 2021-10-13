@@ -1,7 +1,7 @@
 <script>
   import {onMount} from 'svelte';
   import {getAreas} from '../client.js';
-  import {selectionStore} from '../stores.js';
+  import {areaSelectionStore} from '../stores.js';
 
 
   let availableAreas = null;
@@ -20,8 +20,8 @@
 
 
   $: {
-    if ($selectionStore !== undefined) {
-      console.log('Area selection changed to ' + $selectionStore);
+    if ($areaSelectionStore !== undefined) {
+      console.log('Area selection changed to ' + $areaSelectionStore);
     }
   }
 </script>
@@ -76,7 +76,7 @@
     <div id="areas">
       {#each availableAreas as area}
         <label title={area.title}>
-          <input type=radio bind:group={$selectionStore} value={area.id}>
+          <input type=radio bind:group={$areaSelectionStore} value={area.id}>
           {area.title}
         </label>
       {/each}
