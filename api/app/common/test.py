@@ -11,7 +11,6 @@ import unittest
 
 import requests
 import urllib3
-
 from app import create_app
 from app.common import filepath
 
@@ -77,7 +76,7 @@ class BaseApiTest(unittest.TestCase):
 def labeledTest(*labels):
     """This decorator mark a class as an integrationTest
     this is used in the test call for filtering integrationTest
-    and unnittest.
+    and unittest.
     We mark the difference by the usage of service dependency:
     * An unittest can run without additional services.
     * An integration test need additional services (such as
@@ -86,7 +85,7 @@ def labeledTest(*labels):
     Usage:
 
         @labeledTest("integration")
-        class FakeOuputTest(BaseApiTest):
+        class FakeOutputTest(BaseApiTest):
             pass
     """
 

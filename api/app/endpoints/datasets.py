@@ -4,11 +4,10 @@
 import base64
 import hashlib
 
-from flask import Response
-from flask_restx import Namespace, Resource, abort
-
 from app.common import path
 from app.data_integration import enermaps_server as client
+from flask import Response
+from flask_restx import Namespace, Resource, abort
 
 api = Namespace("datasets", description="Datasets related endpoints")
 
@@ -71,7 +70,9 @@ class VectorLayerName(Resource):
         else:
             variable = None
 
-        layer_name = path.make_unique_layer_name(path.VECTOR, id, variable, time_period)
+        layer_name = path.make_unique_layer_name(
+            path.VECTOR, id, variable=variable, time_period=time_period
+        )
 
         return Response(layer_name, mimetype="text/plain")
 
@@ -95,7 +96,9 @@ class RasterLayerName(Resource):
         else:
             variable = None
 
-        layer_name = path.make_unique_layer_name(path.RASTER, id, variable, time_period)
+        layer_name = path.make_unique_layer_name(
+            path.RASTER, id, variable=variable, time_period=time_period
+        )
 
         return Response(layer_name, mimetype="text/plain")
 

@@ -21,19 +21,19 @@ class TestCreate(BaseApiTest):
         with self.flask_app.app_context():
             storage_instance = storage.create("raster/42")
             self.assertTrue(storage_instance is not None)
-            self.assertTrue(isinstance(storage_instance, storage.GeoDBRasterStorage))
+            self.assertTrue(isinstance(storage_instance, storage.RasterStorage))
 
     def testVector(self):
         with self.flask_app.app_context():
             storage_instance = storage.create("vector/42")
             self.assertTrue(storage_instance is not None)
-            self.assertTrue(isinstance(storage_instance, storage.GeoDBVectorStorage))
+            self.assertTrue(isinstance(storage_instance, storage.VectorStorage))
 
     def testCMOutput(self):
         with self.flask_app.app_context():
             storage_instance = storage.create("cm/blah")
             self.assertTrue(storage_instance is not None)
-            self.assertTrue(isinstance(storage_instance, storage.CMOutputStorage))
+            self.assertTrue(isinstance(storage_instance, storage.CMStorage))
 
     def testUnknown(self):
         with self.flask_app.app_context():
@@ -41,24 +41,24 @@ class TestCreate(BaseApiTest):
             self.assertTrue(storage_instance is None)
 
 
-class TestGeoDBRasterStorage(BaseApiTest):
+class TestRasterStorage(BaseApiTest):
     def testRootDir(self):
         with self.flask_app.app_context():
-            storage_instance = storage.GeoDBRasterStorage()
+            storage_instance = storage.RasterStorage()
             self.assertEquals(
                 storage_instance.get_root_dir(), f"{self.wms_cache_dir}/rasters"
             )
 
     def testTmpDir(self):
         with self.flask_app.app_context():
-            storage_instance = storage.GeoDBRasterStorage()
+            storage_instance = storage.RasterStorage()
             self.assertEquals(
                 storage_instance.get_tmp_dir(), f"{self.wms_cache_dir}/tmp"  # nosec
             )
 
     def testDir(self):
         with self.flask_app.app_context():
-            storage_instance = storage.GeoDBRasterStorage()
+            storage_instance = storage.RasterStorage()
             self.assertEquals(
                 storage_instance.get_dir("raster/10"),
                 f"{self.wms_cache_dir}/rasters/10",
@@ -78,7 +78,7 @@ class TestGeoDBRasterStorage(BaseApiTest):
 
     def testFilePath(self):
         with self.flask_app.app_context():
-            storage_instance = storage.GeoDBRasterStorage()
+            storage_instance = storage.RasterStorage()
             self.assertEquals(
                 storage_instance.get_file_path("raster/10", "layer.tif"),
                 f"{self.wms_cache_dir}/rasters/10/layer.tif",
@@ -102,7 +102,7 @@ class TestGeoDBRasterStorage(BaseApiTest):
 
     def testListFeatureIds(self):
         with self.flask_app.app_context():
-            storage_instance = storage.GeoDBRasterStorage()
+            storage_instance = storage.RasterStorage()
 
             layer_name = "raster/10"
 
@@ -120,7 +120,7 @@ class TestGeoDBRasterStorage(BaseApiTest):
             self.assertTrue("FID2.tif" in features)
 
 
-class TestGeoDBRasterStorageWithoutCache(BaseApiTest):
+class TestRasterStorageWithoutCache(BaseApiTest):
     def setUp(self):
         super().setUp()
         self.raster_cache_dir = tempfile.mkdtemp()
@@ -131,21 +131,21 @@ class TestGeoDBRasterStorageWithoutCache(BaseApiTest):
 
     def testRootDir(self):
         with self.flask_app.app_context():
-            storage_instance = storage.GeoDBRasterStorage()
+            storage_instance = storage.RasterStorage()
             self.assertEquals(
                 storage_instance.get_root_dir(), f"{self.raster_cache_dir}"
             )
 
     def testTmpDir(self):
         with self.flask_app.app_context():
-            storage_instance = storage.GeoDBRasterStorage()
+            storage_instance = storage.RasterStorage()
             self.assertEquals(
                 storage_instance.get_tmp_dir(), f"{self.wms_cache_dir}/tmp"  # nosec
             )
 
     def testDir(self):
         with self.flask_app.app_context():
-            storage_instance = storage.GeoDBRasterStorage()
+            storage_instance = storage.RasterStorage()
             self.assertEquals(
                 storage_instance.get_dir("raster/10"), f"{self.raster_cache_dir}/10"
             )
@@ -164,7 +164,7 @@ class TestGeoDBRasterStorageWithoutCache(BaseApiTest):
 
     def testFilePath(self):
         with self.flask_app.app_context():
-            storage_instance = storage.GeoDBRasterStorage()
+            storage_instance = storage.RasterStorage()
             self.assertEquals(
                 storage_instance.get_file_path("raster/10", "layer.tif"),
                 f"{self.raster_cache_dir}/10/layer.tif",
@@ -187,56 +187,58 @@ class TestGeoDBRasterStorageWithoutCache(BaseApiTest):
             )
 
 
-class TestCMOutputStorage(BaseApiTest):
+class TestCMStorage(BaseApiTest):
     def testRootDir(self):
         with self.flask_app.app_context():
-            storage_instance = storage.CMOutputStorage()
+            storage_instance = storage.CMStorage()
             self.assertEquals(storage_instance.get_root_dir(), f"{self.cm_outputs_dir}")
 
     def testTmpDir(self):
         with self.flask_app.app_context():
-            storage_instance = storage.CMOutputStorage()
+            storage_instance = storage.CMStorage()
             self.assertEquals(
                 storage_instance.get_tmp_dir(), f"{self.cm_outputs_dir}/tmp"  # nosec
             )
 
     def testDir(self):
         with self.flask_app.app_context():
-            storage_instance = storage.CMOutputStorage()
+            storage_instance = storage.CMStorage()
             self.assertEquals(
-                storage_instance.get_dir("cm/some_name_12345678-000000"),
-                f"{self.cm_outputs_dir}/some/name/12/34/56/some_name_12345678-000000",
+                storage_instance.get_dir(
+                    "cm/some_name/01234567-0000-0000-0000-000000000000"
+                ),
+                f"{self.cm_outputs_dir}/some_name/01/23/45/67/01234567-0000-0000-0000-000000000000",
             )
 
     def testFilePath(self):
         with self.flask_app.app_context():
-            storage_instance = storage.CMOutputStorage()
+            storage_instance = storage.CMStorage()
             self.assertEquals(
                 storage_instance.get_file_path(
-                    "cm/some_name_12345678-000000", "result.tif"
+                    "cm/some_name/01234567-0000-0000-0000-000000000000", "result.tif"
                 ),
-                f"{self.cm_outputs_dir}/some/name/12/34/56/some_name_12345678-000000/result.tif",
+                f"{self.cm_outputs_dir}/some_name/01/23/45/67/01234567-0000-0000-0000-000000000000/result.tif",
             )
 
 
-class TestGeoDBVectorStorage(BaseApiTest):
+class TestVectorStorage(BaseApiTest):
     def testRootDir(self):
         with self.flask_app.app_context():
-            storage_instance = storage.GeoDBVectorStorage()
+            storage_instance = storage.VectorStorage()
             self.assertEquals(
                 storage_instance.get_root_dir(), f"{self.wms_cache_dir}/vectors"
             )
 
     def testTmpDir(self):
         with self.flask_app.app_context():
-            storage_instance = storage.GeoDBVectorStorage()
+            storage_instance = storage.VectorStorage()
             self.assertEquals(
                 storage_instance.get_tmp_dir(), f"{self.wms_cache_dir}/tmp"  # nosec
             )
 
     def testDir(self):
         with self.flask_app.app_context():
-            storage_instance = storage.GeoDBVectorStorage()
+            storage_instance = storage.VectorStorage()
             self.assertEquals(
                 storage_instance.get_dir("vector/10"),
                 f"{self.wms_cache_dir}/vectors/10",
@@ -256,7 +258,7 @@ class TestGeoDBVectorStorage(BaseApiTest):
 
     def testFilePath(self):
         with self.flask_app.app_context():
-            storage_instance = storage.GeoDBVectorStorage()
+            storage_instance = storage.VectorStorage()
             self.assertEquals(
                 storage_instance.get_file_path("vector/10", "txt"),
                 f"{self.wms_cache_dir}/vectors/10/data.txt",
@@ -276,7 +278,7 @@ class TestGeoDBVectorStorage(BaseApiTest):
 
     def testGeoJSONFile(self):
         with self.flask_app.app_context():
-            storage_instance = storage.GeoDBVectorStorage()
+            storage_instance = storage.VectorStorage()
             self.assertEquals(
                 storage_instance.get_geojson_file("vector/10"),
                 f"{self.wms_cache_dir}/vectors/10/data.geojson",

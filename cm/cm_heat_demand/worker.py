@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 from os.path import isfile, splitext
 
+from heat_demand import processing
+
 import BaseCM.cm_base as cm_base
 import BaseCM.cm_input as cm_input
-
-from heat_demand import processing
 
 app = cm_base.get_default_app("heat_demand")
 schema_path = cm_base.get_default_schema_path()
@@ -26,7 +26,7 @@ def heat_demand(self, selection: dict, rasters: list, params: dict):
         raise TypeError(f"The file path is not correct: {raster}")
     region = cm_input.merged_polygons(selection=selection)
 
-    result = processing(raster=raster, region=region, parameters=params)
+    result = processing(task=self, raster=raster, region=region, parameters=params)
 
     return result
 

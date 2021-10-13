@@ -1,5 +1,3 @@
-import os
-
 import numpy as np
 
 
@@ -91,9 +89,7 @@ def get_response(
         """
 
         base_dictionary["geofiles"] = dict()
-        base_dictionary["geofiles"]["areas"] = (
-            os.environ.get("API_URL") + "/api/cm_outputs/" + layer_name
-        )
+        base_dictionary["geofiles"]["areas"] = layer_name
 
         return base_dictionary
 

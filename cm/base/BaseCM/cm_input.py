@@ -5,18 +5,23 @@ import geojson
 import pyproj
 import rasterio
 import shapely
-from BaseCM.cm_output import validate
 from rasterstats import zonal_stats
 from shapely.geometry import shape
 from shapely.ops import cascaded_union, transform
+
+from BaseCM.cm_output import validate
 
 GEOJSON_PROJ = "EPSG:4326"
 
 
 def get_raster_path(raster_name):
     """Returns the path to the raster file based on the raster name."""
-    raster_dir = os.path.join(os.environ["WMS_CACHE_DIR"], "raster")
-    raster_path = os.path.join(raster_dir, raster_name, "raster.tiff")
+    if "RASTER_CACHE_DIR" in os.environ:
+        raster_dir = os.environ["RASTER_CACHE_DIR"]
+    else:
+        raster_dir = os.path.join(os.environ["WMS_CACHE_DIR"], "rasters")
+
+    raster_path = os.path.join(raster_dir, raster_name)
     return raster_path
 
 
