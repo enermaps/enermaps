@@ -112,7 +112,7 @@
     <div class="tasks">
       {#each [...tasks].reverse() as task (task.id)}
         {#if (task.cm.name === cm.name) && !task.hidden}
-          <CMTask {task} />
+          <CMTask task={task} />
         {/if}
       {/each}
     </div>

@@ -1,17 +1,21 @@
 <script src="../settings.js">
   import {BASE_URL} from '../settings.js';
   import {deleteTask, cancelTask, PENDING_STATUS, REFRESHING_STATUS, FAILURE_STATUS} from '../tasks.js';
+  import {tasksStore} from '../stores.js';
   import Chart from './Chart.svelte';
   import Value from './Value.svelte';
 
   export let task;
+  export let displayCloseButton = true;
 
+  let displayedTaskId = null;
   let graphs = {};
   let values = [];
   let parameters = [];
   let isTaskPending = true;
   let isTaskFailed = false;
   let activeTab = 'result';
+  let effectTimer = null;
 
 
   function formatTaskID(task) {
@@ -20,7 +24,7 @@
 
 
   $: {
-    if (isTaskPending) {
+    if (isTaskPending || (displayedTaskId !== task.id)) {
       isTaskPending = (task.result.status === PENDING_STATUS) ||
                       (task.result.status === REFRESHING_STATUS);
       isTaskFailed = (task.result.status === FAILURE_STATUS);
@@ -34,8 +38,22 @@
         }
 
         parameters = Object.entries(task.parameters.parameters);
+
+        displayedTaskId = task.id;
       }
     }
+
+    if ((task.effect !== null) && (effectTimer === null)) {
+      effectTimer = window.setTimeout(() => {
+        endEffect(task);
+      }, 500);
+    }
+  }
+
+  function endEffect(task) {
+    effectTimer = null;
+    task.effect = null;
+    $tasksStore = $tasksStore;
   }
 </script>
 
@@ -44,11 +62,18 @@
   .cmresult {
     padding: 5px;
     background-color: #fff;
-    background-color: white;
+  }
+
+  .cmresult.flash {
+    background-color: #ff9933;
   }
 
   .cmresult:not(:last-child) {
     margin-bottom: 5px;
+  }
+
+  .container {
+    background-color: #fff;
   }
 
   img {
@@ -62,6 +87,10 @@
     margin-top: 5px;
     margin-bottom: 6px;
     padding-bottom: 4px;
+  }
+
+  .cmresult.flash div.tabs {
+    background-color: #ff9933;
   }
 
   div.tabs span:not(.close_button) {
@@ -101,7 +130,7 @@
 </style>
 
 
-<div class="cmresult">
+<div class="cmresult" class:flash={task.effect === 'flash'}>
   {#if isTaskPending || isTaskFailed }
     <div>
       <span class="close_button" on:click="{deleteTask(task)}"><img src='{BASE_URL}images/clear-icon.png' alt='close'></span>
@@ -115,30 +144,34 @@
         <dt><strong>error</strong></dt><dd>{task.result.result}</dd>
       {/if}
     </dl>
+
+    <button on:click|once={cancelTask(task)} hidden={!isTaskPending}>Cancel task</button>
   {:else}
-    <div class="tabs">
-      <span class:selected={activeTab === 'parameters'} on:click={() => (activeTab = 'parameters')}>Parameters</span>
-      <span class:selected={activeTab === 'result'} on:click={() => (activeTab = 'result')}>Result</span>
-      <span class="close_button" on:click="{deleteTask(task)}"><img src='{BASE_URL}images/clear-icon.png' alt='close'></span>
+    <div class="container">
+      <div class="tabs">
+        <span class:selected={activeTab === 'parameters'} on:click={() => (activeTab = 'parameters')}>Parameters</span>
+        <span class:selected={activeTab === 'result'} on:click={() => (activeTab = 'result')}>Result</span>
+        {#if displayCloseButton }
+          <span class="close_button" on:click="{deleteTask(task)}"><img src='{BASE_URL}images/clear-icon.png' alt='close'></span>
+        {/if}
+      </div>
+
+      {#if activeTab === 'parameters' }
+        <dl>
+          {#each parameters as parameter}
+            <Value value={parameter}/>
+          {/each}
+        </dl>
+
+      {:else}
+        <dl>
+          {#each values as value}
+            <Value value={value}/>
+          {/each}
+        </dl>
+
+        <Chart datasets={graphs}/>
+      {/if}
     </div>
-
-    {#if activeTab === 'parameters' }
-      <dl>
-        {#each parameters as parameter}
-          <Value value={parameter}/>
-        {/each}
-      </dl>
-
-    {:else}
-      <dl>
-        {#each values as value}
-          <Value value={value}/>
-        {/each}
-      </dl>
-
-      <Chart datasets={graphs}/>
-    {/if}
   {/if}
-
-  <button on:click|once={cancelTask(task)} hidden={!isTaskPending}>Cancel task</button>
 </div>
