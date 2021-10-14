@@ -52,21 +52,21 @@ export async function getDatasetLayerName(datasetId, raster, variable, timePerio
 
   if ((variable != null) && (timePeriod != null)) {
     return fetchText(
-        'api/datasets/' + datasetId + '/layer_name/' + prefix + '/' +
+        'api/datasets/layer_name/' + prefix + '/' + datasetId + '/' +
         btoa(variable) + '/' + timePeriod + '/',
     );
   } else if (variable != null) {
     return fetchText(
-        'api/datasets/' + datasetId + '/layer_name/' + prefix + '/' +
+        'api/datasets/layer_name/' + prefix + '/' + datasetId + '/' +
         btoa(variable) + '/',
     );
   } else if (timePeriod != null) {
     return fetchText(
-        'api/datasets/' + datasetId + '/layer_name/' + prefix + '/-/' +
+        'api/datasets/layer_name/' + prefix + '/-/' + datasetId + '/' +
         timePeriod + '/',
     );
   } else {
-    return fetchText('api/datasets/' + datasetId + '/layer_name/' + prefix + '/');
+    return fetchText('api/datasets/layer_name/' + prefix + '/' + datasetId + '/');
   }
 }
 
