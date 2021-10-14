@@ -35,7 +35,7 @@ def init_enermaps_datasets():
     # Get the ids of the datasets that we want to load from the configuration file
     datasets_ids = data_endpoints.get_ds_ids()
     # To download only a subset of the datasets (!datasets ids must be in the config file!)
-    # datasets_ids = [1,2,3,4,5,6]
+    datasets_ids = [43]
     for dataset_id in datasets_ids:
         try:
             time_started = time.time()
