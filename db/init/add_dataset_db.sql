@@ -12,8 +12,12 @@ ALTER DATABASE :db_db SET search_path = public, postgis;
 \c :db_db;
 CREATE EXTENSION IF NOT EXISTS postgis ;
 
+SET TIMEZONE='Europe/Zurich';
+
+-- Types
 CREATE TYPE levl AS ENUM ('country', 'NUTS1', 'NUTS2', 'NUTS3', 'LAU', 'geometry');
 
+-- Tables
 CREATE TABLE public.datasets
 (
     ds_id int PRIMARY KEY,
@@ -50,10 +54,12 @@ CREATE TABLE public.data
 CREATE TABLE public.visualization
 (
     vis_id uuid PRIMARY KEY,
-    legend jsonb default'{}'::jsonb
+    legend jsonb default'{}'::jsonb,
+    timestamp timestamp with time zone DEFAULT CURRENT_TIMESTAMP
 );
 
 
+-- Foreign keys
 ALTER TABLE spatial
     ADD CONSTRAINT fk_ds_id
     FOREIGN KEY(ds_id)
@@ -75,19 +81,16 @@ ALTER TABLE data
     ON DELETE CASCADE
 ;
 
+-- Indices
+CREATE INDEX on data(ds_id);
+CREATE INDEX on data(israster);
+CREATE INDEX on data(vis_id);
+CREATE INDEX on data(start_at);
+CREATE INDEX on data(vis_id);
+CREATE INDEX on spatial(ds_id);
+CREATE INDEX on spatial(levl_code);
+CREATE INDEX ON spatial USING gist(geometry);
 
+-- Privileges
 GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA public TO :db_user;
 GRANT ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA public TO :db_user;
-
--- POSTGREST
-CREATE ROLE api_anon nologin;
-GRANT usage ON schema public TO api_anon;
-GRANT api_anon TO test;
-
-CREATE ROLE api_user nologin;
-GRANT api_user TO test;
-
-GRANT USAGE ON schema public TO api_user;
-GRANT SELECT ON public.spatial TO api_user;
-GRANT SELECT ON public.data TO api_user;
-GRANT SELECT ON public.datasets TO api_user;
