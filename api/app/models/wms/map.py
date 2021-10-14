@@ -2,6 +2,7 @@
 
 import mapnik
 import seaborn as sns
+
 from app.common import path
 from app.data_integration import data_endpoints
 from app.models import geofile
@@ -53,8 +54,6 @@ def get_mapnik_map(normalized_args):
 
 
 def create_style_from_legend(layer_name, layer, mapnik_layer):
-    # return (None, None)
-
     (type, layer_id, variable, _, _) = path.parse_unique_layer_name(layer_name)
 
     # Get the layer style and type

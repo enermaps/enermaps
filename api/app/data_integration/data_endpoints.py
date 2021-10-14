@@ -184,5 +184,6 @@ def get_legend(dataset_id):
     Return the layer variable used to colorize the layer and the legend style.
     """
     variable = get_legend_variable(dataset_id)
+    layer_type, data_type = get_ds_type(dataset_id)
     style = get_legend_style(dataset_id)
-    return {"variable": variable, "style": style}
+    return {"variable": variable, "style": style, "data_type": data_type}

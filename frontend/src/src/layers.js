@@ -3,6 +3,7 @@
 import {get} from 'svelte/store';
 import {layersStore, tasksStore, selectedLayerStore} from './stores.js';
 import {getTask, refreshTask, SUCCESS_STATUS} from './tasks.js';
+import {getDatasetLayerLegend} from './client.js';
 
 
 // Create a new layer and put it at the top of the stack, so it is displayed last
@@ -24,6 +25,7 @@ export function createLayer(name, labels, title, isRaster, taskId) {
       effect: 'new',
       leaflet_layer: null,
       task_id: taskId,
+      legend_promise: (taskId === null ? getDatasetLayerLegend(name) : null),
     };
 
     layers.unshift(layer);
@@ -92,4 +94,8 @@ export function deleteLayer(layer) {
   const layerIndex = layers.indexOf(layer);
   layers.splice(layerIndex, 1);
   layersStore.set(layers);
+
+  if (get(selectedLayerStore) === layer.name) {
+    selectedLayerStore.set(null);
+  }
 }

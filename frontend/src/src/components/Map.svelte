@@ -17,11 +17,10 @@
   import '../leaflet_components/L.TileLayer.QueryableLayer.js';
   import '../leaflet_components/L.DrawingLayer.js';
 
-  import AreaSelection from './AreaSelection.svelte';
-  import DatasetSelection from './DatasetSelection.svelte';
-  import Layers from './Layers.svelte';
+  import LeftPanel from './LeftPanel.svelte';
   import CMToggle from './CMToggle.svelte';
   import TopNav from './TopNav.svelte';
+
   import {areaSelectionStore, layersStore, areaSelectionLayerStore} from '../stores.js';
   import {INITIAL_MAP_CENTER, INITIAL_ZOOM, BASE_LAYER_URL, BASE_LAYER_PARAMS} from '../settings.js';
   import {WMS_URL} from '../client.js';
@@ -37,6 +36,8 @@
   const overlaysGroup = L.layerGroup();
   const selectionsGroup = L.layerGroup();
   const baseLayersGroup = L.layerGroup();
+
+  let leftPanel = null;
 
 
   onMount(async () => {
@@ -57,9 +58,7 @@
     // Add the map controls
     map.addControl(makeSearchControl()); // Search tools
     map.addControl(makeCMToggleControl()); // Button to open calculation module pane
-    map.addControl(makeAreaSelectionControl());
-    map.addControl(makeDatasetSelectionControl());
-    map.addControl(makeLayerListControl());
+    map.addControl(makeLeftPanel());
   });
 
 
@@ -92,6 +91,7 @@
     if (!(desiredSelection in selectionLayers)) {
       if (desiredSelection == 'selection') {
         selectionLayers[desiredSelection] = new L.DrawingLayer();
+        selectionLayers[desiredSelection].panel = leftPanel;
       } else {
         const layer = L.tileLayer.nutsLayer(
             WMS_URL,
@@ -181,47 +181,13 @@
   }
 
 
-  /* Area selection panel */
-  function makeAreaSelectionControl() {
+  function makeLeftPanel() {
     const ctr = L.control({position: 'topleft'});
 
     ctr.onAdd = (map) => {
       const container = L.DomUtil.create('div' );
-      L.DomUtil.addClass(container, 'testComponent');
-      toolbar = new AreaSelection({target: container});
-      disableMapScrolling(container, map);
-      return container;
-    };
-
-    return ctr;
-  }
-
-
-  /* Datasets selection panel */
-  function makeDatasetSelectionControl() {
-    const ctr = L.control({position: 'topleft'});
-
-    ctr.onAdd = (map) => {
-      const container = L.DomUtil.create('div' );
-      L.DomUtil.addClass(container, 'testComponent');
-      toolbar = new DatasetSelection({target: container});
-      disableMapScrolling(container, map);
-      return container;
-    };
-
-    return ctr;
-  }
-
-
-  /* Layer list panel */
-  function makeLayerListControl() {
-    const ctr = L.control({position: 'topleft'});
-
-    ctr.onAdd = (map) => {
-      const container = L.DomUtil.create('div' );
-      L.DomUtil.addClass(container, 'testComponent');
-      toolbar = new Layers({target: container});
-      disableMapScrolling(container, map);
+      leftPanel = new LeftPanel({target: container});
+      leftPanel.disableMapScrolling(map);
       return container;
     };
 
@@ -257,19 +223,6 @@
       autoResize: false,
     });
     return searchControl;
-  }
-
-
-  function disableMapScrolling(element, map) {
-    // Disable dragging when user's cursor enters the element
-    element.addEventListener('mouseover', function() {
-      map.dragging.disable();
-    });
-
-    // Re-enable dragging when user's cursor leaves the element
-    element.addEventListener('mouseout', function() {
-      map.dragging.enable();
-    });
   }
 </script>
 

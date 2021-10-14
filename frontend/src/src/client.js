@@ -71,31 +71,8 @@ export async function getDatasetLayerName(datasetId, raster, variable, timePerio
 }
 
 
-export async function getLayerType(layerId) {
-  const response = await fetch(BASE_URL + 'api/geofile/' + layerId + '/type/');
-  if (!response.ok) {
-    return {};
-  }
-  const legend = await response.json();
-  return legend;
-}
-
-export async function getLegend(layerId) {
-  const response = await fetch(BASE_URL + 'api/geofile/' + layerId + '/legend/');
-  if (!response.ok) {
-    return {};
-  }
-  const legend = await response.json();
-  return legend;
-}
-
-export async function getOpenairLink(layerId) {
-  const response = await fetch(BASE_URL + 'api/geofile/' + layerId + '/openair/');
-  if (!response.ok) {
-    return {};
-  }
-  const legend = await response.json();
-  return legend;
+export async function getDatasetLayerLegend(layerName) {
+  return fetchJSON('api/datasets/legend/' + layerName + '/', {});
 }
 
 

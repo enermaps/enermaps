@@ -30,6 +30,7 @@ export async function createTask(cm, parameters) {
   task.result = {status: PENDING_STATUS};
   task.hidden = false;
   task.replacement_for = null;
+  task.effect = null;
 
   console.log('[CM ' + cm.name + '] Created task: ' + task.id);
 
@@ -59,6 +60,7 @@ export async function refreshTask(task) {
   newTask.result = {status: REFRESHING_STATUS};
   newTask.hidden = false;
   newTask.replacement_for = task.id;
+  task.effect = null;
 
   console.log('[CM ' + task.cm.name + '] Created task: ' + newTask.id +
               ' to replace ' + task.id);
@@ -108,11 +110,20 @@ export function getTask(id) {
 }
 
 
+// Mark a task as "flashing"
+export function flashTask(task) {
+  task.effect = 'flash';
+
+  const tasks = get(tasksStore);
+  tasksStore.set(tasks);
+}
+
+
 function _deleteTask(task) {
   const tasks = get(tasksStore);
 
   const layer = getLayer(task.parameters.layer);
-  if (layer === null) {
+  if ((layer === null) || (task.result !== SUCCESS_STATUS)) {
     console.log('[CM ' + task.cm.name + '] Deleting task: ' + task.id);
     tasks = tasks.filter((t) => t.id != task.id);
   } else {
@@ -164,7 +175,9 @@ async function _retrieveTaskResult(task) {
 function _addLayer(task) {
   if (Object.keys(task.result.result.geofiles).length > 0) {
     if (task.replacement_for !== null) {
-      const layer = getLayer('cm/' + task.result.cm_name + '/' + task.replacement_for);
+      const previousName = 'cm/' + task.result.cm_name + '/' + task.replacement_for;
+
+      const layer = getLayer(previousName);
 
       layer.name = 'cm/' + task.result.cm_name + '/' + task.result.task_id;
       layer.task_id = task.id;
@@ -172,9 +185,13 @@ function _addLayer(task) {
 
       const layers = get(layersStore);
       layersStore.set(layers);
+
+      if (get(selectedLayerStore) === previousName) {
+        selectedLayerStore.set(layer.name);
+      }
     } else {
       const labels = {
-        primary: task.result.cm_name,
+        primary: task.cm.pretty_name,
         secondary: JSON.stringify(task.parameters.parameters),
         dataset: null,
       };
