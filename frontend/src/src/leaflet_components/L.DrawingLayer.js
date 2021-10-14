@@ -3,9 +3,11 @@ import 'leaflet-draw/dist/leaflet.draw.css';
 
 L.DrawingLayer = L.FeatureGroup.extend({
   onRemove: function(map) {
-    map.removeControl(this.drawControl);
+    this.panel.removeSelectionControls();
+    this.drawControl.remove();
     this.clearLayers();
   },
+
   onAdd: function(map) {
     const drawPluginOptions = {
       // position: 'topleft',
@@ -28,9 +30,12 @@ L.DrawingLayer = L.FeatureGroup.extend({
       },
     };
 
-    // Initialise the draw control and pass it the FeatureGroup of editable layers
+    // Initialise the draw control and send it to the panel that must contain it
     this.drawControl = new L.Control.Draw(drawPluginOptions);
-    map.addControl(this.drawControl);
+
+    const container = this.drawControl.onAdd(map);
+    this.panel.addSelectionControls(container);
+
     map.on(L.Draw.Event.CREATED, L.Util.bind(this.drawCreated, this));
   },
 

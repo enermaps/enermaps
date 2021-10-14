@@ -229,12 +229,17 @@
   }
 
   .scroll {
-    max-height: 300px;
-    overflow-y: auto;
+    max-height: max(calc((100vh - 250px) / 3 - 50px), 200px);
     border : none;
     overflow-y: scroll;
     scrollbar-color: #27275b;
     scrollbar-width: thin;
+  }
+
+  @media (max-height: 1000px) {
+    .scroll {
+      max-height: max(calc((100vh - 250px) / 2 - 50px), 200px);
+    }
   }
 
   .layer {
@@ -344,7 +349,8 @@
 </style>
 
 
-<div id="layers_list" on:click|stopPropagation on:dblclick|stopPropagation on:wheel|stopPropagation>
+<div id="layers_list" on:click|stopPropagation
+     on:dblclick|stopPropagation on:wheel|stopPropagation >
   <h3>Layers</h3>
 
   {#if layers.length == 0}
