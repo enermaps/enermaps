@@ -54,14 +54,14 @@ class DatasetVariables(Resource):
 
 
 @api.route(
-    "/<int:id>/layer_name/vector/", defaults={"variableb64": None, "time_period": None}
+    "/layer_name/vector/<int:id>/", defaults={"variableb64": None, "time_period": None}
 )
-@api.route("/<int:id>/layer_name/vector/<string:variableb64>/<string:time_period>/")
+@api.route("/layer_name/vector/<int:id>/<string:variableb64>/<string:time_period>/")
 @api.route(
-    "/<int:id>/layer_name/vector/<string:variableb64>/", defaults={"time_period": None}
+    "/layer_name/vector/<int:id>/<string:variableb64>/", defaults={"time_period": None}
 )
 @api.route(
-    "/<int:id>/layer_name/vector/-/<string:time_period>/",
+    "/layer_name/vector/<int:id>/-/<string:time_period>/",
     defaults={"variableb64": None},
 )
 class VectorLayerName(Resource):
@@ -80,14 +80,14 @@ class VectorLayerName(Resource):
 
 
 @api.route(
-    "/<int:id>/layer_name/raster/", defaults={"variableb64": None, "time_period": None}
+    "/layer_name/raster/<int:id>/", defaults={"variableb64": None, "time_period": None}
 )
-@api.route("/<int:id>/layer_name/raster/<string:variableb64>/<string:time_period>/")
+@api.route("/layer_name/raster/<int:id>/<string:variableb64>/<string:time_period>/")
 @api.route(
-    "/<int:id>/layer_name/raster/<string:variableb64>/", defaults={"time_period": None}
+    "/layer_name/raster/<int:id>/<string:variableb64>/", defaults={"time_period": None}
 )
 @api.route(
-    "/<int:id>/layer_name/raster/-/<string:time_period>/",
+    "/layer_name/raster/<int:id>/-/<string:time_period>/",
     defaults={"variableb64": None},
 )
 class RasterLayerName(Resource):
