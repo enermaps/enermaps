@@ -67,6 +67,23 @@ Some service will initialize and create their initial state:
 
 To import datasets, check the data-integration directory readme.
 
+## Populating the WMS cache
+
+For the WMS to works, geofiles must be downloaded from the database server:
+
+```
+$ docker-compose exec api /bin/bash -c 'flask update-areas'
+
+$ docker-compose exec api /bin/bash -c 'flask list-datasets'
+- 1: PVGIS: Solar Radiation Data (raster)
+- 2: JRC: Geothermal Power Plant Dataset (vector)
+- 3: JRC: Hydro-power plants database (vector)
+- 4: JRC: Open Power Plants Database (vector)
+...
+
+$ docker-compose exec api /bin/bash -c 'flask update-dataset 3'
+```
+
 ## External API
 
 A PostGRES API is available to give access to the DB to external users, as well as to the OpenAIRE gateway.
