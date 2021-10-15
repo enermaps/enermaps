@@ -7,8 +7,7 @@ import mapnik
 from flask import current_app, request
 from lxml import etree  # nosec
 
-from app.common import path, projection, xml
-from app.data_integration import enermaps_server as client
+from app.common import client, path, projection, xml
 from app.models import geofile
 
 current_file_dir = os.path.dirname(os.path.abspath(__file__))
