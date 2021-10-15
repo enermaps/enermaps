@@ -11,11 +11,20 @@ import unittest
 
 import requests
 import urllib3
+
 from app import create_app
-from app.common import filepath
 
 
-class BaseApiTest(unittest.TestCase):
+class BaseTest(unittest.TestCase):
+    @classmethod
+    def get_testdata_path(cls, filename):
+        """Return the absolute location of the filename in the testdatadir"""
+        current_file_dir = os.path.dirname(os.path.abspath(__file__))
+        testdata_dir = os.path.join(os.path.dirname(current_file_dir), "testdata")
+        return os.path.join(testdata_dir, filename)
+
+
+class BaseApiTest(BaseTest):
     def setUp(self):
         """Before each test:
         * set the TESTING to true
@@ -36,35 +45,17 @@ class BaseApiTest(unittest.TestCase):
         shutil.rmtree(self.flask_app.config["WMS_CACHE_DIR"])
         shutil.rmtree(self.flask_app.config["CM_OUTPUTS_DIR"])
 
-    def get_testformdata(self, testfile, testfile_name=None):
-        """Return the formdata for uploading a new geofile and the content of
-        the testfile given in argument.
-        """
-        with open(filepath.get_testdata_path(testfile), "rb") as f:
-            testfile_content = f.read()
-            testfile_io = io.BytesIO(testfile_content)
-            if not testfile_name:
-                testfile_name = testfile
-            test_data = {"file": (testfile_io, testfile_name)}
-        return test_data, testfile_content
+    def prepare_file_upload(self, filename, dest_filename=None):
+        """Return the data corresponding to a file upload"""
+        with open(self.get_testdata_path(filename), "rb") as f:
+            content = f.read()
+            file_io = io.BytesIO(content)
+            if not dest_filename:
+                dest_filename = filename
 
-    def import_testdata(self, testfile_name):
-        """Helper function that upload the testfile to the api."""
-        form_content, _ = self.get_testformdata(testfile_name)
-        response = self.client.post(
-            "api/geofile/",
-            data=form_content,
-            content_type="multipart/form-data",
-            follow_redirects=True,
-        )
-        self.assertStatusCodeEqual(response, 200)
-        return response
+            test_data = {"file": (file_io, dest_filename)}
 
-    def import_nuts(self):
-        """Upload NUTS(0|1|2|3)"""
-        for nuts_level in range(4):
-            filename = "nuts{!s}.zip".format(nuts_level)
-            self.import_testdata(filename)
+        return test_data, content
 
     def assertStatusCodeEqual(self, response, status_code):
         """Assert that a flask client test status code is
@@ -149,7 +140,7 @@ DEFAULT_API_URL = "http://127.0.0.1:7000"
 
 
 @labeledTest("integration")
-class BaseIntegrationTest(unittest.TestCase):
+class BaseIntegrationTest(BaseTest):
     def wait_for_reachability(self, max_retry=20, wait_time=3):
         """Wait for the api to be reachable by poking its healthz endpoint"""
         retry = 0

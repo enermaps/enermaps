@@ -9,9 +9,8 @@ from flask import Blueprint, Flask
 from flask_restx import Api
 
 from app.commands import cache
-from app.endpoints import calculation_module, datasets, geofile, wms
+from app.endpoints import calculation_module, datasets, wms
 from app.healthz import healthz
-from app.redirect import redirect_to_api
 
 
 class ReverseProxied(object):
@@ -62,12 +61,10 @@ def create_app(environment="production", testing=False, on_startup=False):
 
     api = Api(api_bp)
     api.add_namespace(datasets.api)
-    api.add_namespace(geofile.api)
     api.add_namespace(wms.api)
     api.add_namespace(calculation_module.api)
 
     app.register_blueprint(api_bp)
-    app.register_blueprint(redirect_to_api)
     app.register_blueprint(healthz)
 
     app.cli.add_command(cache.update_all_datasets)
@@ -77,7 +74,7 @@ def create_app(environment="production", testing=False, on_startup=False):
     app.cli.add_command(cache.list_variables)
     app.cli.add_command(cache.get_legend)
 
-    # Install thr WSGI middleware
+    # Install the WSGI middleware
     app.wsgi_app = ReverseProxied(app.wsgi_app)
 
     return app

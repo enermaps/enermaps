@@ -18,7 +18,7 @@ class DatasetsTest(BaseApiTest):
     ]
 
     @patch(
-        "app.data_integration.enermaps_server.get_dataset_list",
+        "app.common.client.get_dataset_list",
         new=Mock(return_value=DATASETS),
     )
     def testGetAllDatasets(self):
@@ -70,11 +70,11 @@ class DatasetsFullTest(BaseApiTest):
     }
 
     @patch(
-        "app.data_integration.enermaps_server.get_dataset_list",
+        "app.common.client.get_dataset_list",
         new=Mock(return_value=DATASETS),
     )
     @patch(
-        "app.data_integration.enermaps_server.get_variables",
+        "app.common.client.get_variables",
         new=Mock(return_value=VARIABLES),
     )
     def testGetAllDatasets(self):
@@ -137,7 +137,7 @@ class DatasetVariablesTest(BaseApiTest):
     }
 
     @patch(
-        "app.data_integration.enermaps_server.get_variables",
+        "app.common.client.get_variables",
         new=Mock(return_value=VARIABLES_FULL),
     )
     def testGetVariablesComplete(self):
@@ -146,7 +146,7 @@ class DatasetVariablesTest(BaseApiTest):
         self.assertEqual(response.json, DatasetVariablesTest.VARIABLES_FULL)
 
     @patch(
-        "app.data_integration.enermaps_server.get_variables",
+        "app.common.client.get_variables",
         new=Mock(return_value=VARIABLES_EMPTY_TIME_PERIODS),
     )
     def testGetVariablesWithoutTimePeriods(self):
@@ -157,7 +157,7 @@ class DatasetVariablesTest(BaseApiTest):
         )
 
     @patch(
-        "app.data_integration.enermaps_server.get_variables",
+        "app.common.client.get_variables",
         new=Mock(return_value=VARIABLES_EMPTY_VARS),
     )
     def testGetVariablesWithoutVariables(self):
@@ -166,7 +166,7 @@ class DatasetVariablesTest(BaseApiTest):
         self.assertEqual(response.json, DatasetVariablesTest.VARIABLES_EMPTY_VARS)
 
     @patch(
-        "app.data_integration.enermaps_server.get_variables",
+        "app.common.client.get_variables",
         new=Mock(return_value=VARIABLES_EMPTY),
     )
     def testGetVariablesWithoutContent(self):
@@ -175,7 +175,7 @@ class DatasetVariablesTest(BaseApiTest):
         self.assertEqual(response.json, DatasetVariablesTest.VARIABLES_EMPTY)
 
     @patch(
-        "app.data_integration.enermaps_server.get_variables",
+        "app.common.client.get_variables",
         new=Mock(return_value=None),
     )
     def testGetVariablesOfUnknownDataset(self):

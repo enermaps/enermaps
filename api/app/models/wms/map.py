@@ -6,8 +6,7 @@ import sys
 import mapnik
 import seaborn as sns
 
-from app.common import path
-from app.data_integration import enermaps_server as client
+from app.common import client, path
 from app.models import geofile
 from app.models.wms import utils
 

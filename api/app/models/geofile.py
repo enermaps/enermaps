@@ -5,11 +5,9 @@ really prevent race condition on list vs delete. We
 also catch those on accessing the layer.
 
 """
-import io
 import json
 import os
 import shutil
-import zipfile
 from abc import ABC, abstractmethod
 from pathlib import Path
 from tempfile import TemporaryDirectory, mkdtemp
@@ -115,25 +113,13 @@ def delete_all_features(layer_name):
 
 
 class Layer(ABC):
-    """This is a baseclass for the layers
+    """This is a base class for the layers.
     Each layer subclass have the set of method declared underneath.
-    Each layer subclass also has a MIMETYPE constant which is a list
-    of string mimetype. The first index of that array is the default
-    mimetype of that layer used upon retrieving that layer.
     """
 
     def __init__(self, layer_name, storage):
         self.name = layer_name
         self.storage = storage
-
-    @abstractmethod
-    def as_fd(self):
-        """Return the Layer as an open file descriptor.
-
-        A warning here, the closing of the file descriptor is left for the
-        callee.
-        """
-        pass
 
     @abstractmethod
     def as_mapnik_layers(self):
@@ -200,32 +186,9 @@ class RasterLayer(Layer):
 
         return layers
 
-    def as_fd(self):
-        """Return a tuple (filedescriptor, mimetype) for the given layer
-        raises:
-            any error that can be raised by the open call.
-        """
-        file_descriptor = open(self._get_raster_path(), "rb")
-        return file_descriptor, self.MIMETYPE[0]
-
 
 class VectorLayer(Layer):
     """Future implementation of a vector layer."""
-
-    MIMETYPE = ["application/zip"]
-
-    def as_fd(self):
-        """For shapefile, rezip the directory and send it.
-        The created zipfile this will use in memory zip."""
-        zipbuffer = io.BytesIO()
-        vector_dir = self._get_vector_dir()
-        with zipfile.ZipFile(zipbuffer, "a") as zip_file:
-            for file_name in os.listdir(vector_dir):
-                file_path = safe_join(vector_dir, file_name)
-                with open(file_path, "rb") as fd:
-                    zip_file.writestr(file_name, fd.read())
-        zipbuffer.seek(0)
-        return zipbuffer, self.MIMETYPE[0]
 
     def as_mapnik_layers(self):
         geojson_file = self.storage.get_geojson_file(self.name)
