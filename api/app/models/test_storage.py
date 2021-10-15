@@ -119,6 +119,31 @@ class TestRasterStorage(BaseApiTest):
             self.assertTrue("FID1.tif" in features)
             self.assertTrue("FID2.tif" in features)
 
+    def testListFeatureIdsWithSubfolders(self):
+        with self.flask_app.app_context():
+            storage_instance = storage.RasterStorage()
+
+            layer_name = "raster/10"
+
+            folder = storage_instance.get_dir(layer_name)
+
+            os.makedirs(os.path.join(folder, "subfolder1"))
+            Path(os.path.join(folder, "subfolder1/FID1.tif")).touch()
+            Path(os.path.join(folder, "subfolder1/FID2.tif")).touch()
+
+            os.makedirs(os.path.join(folder, "subfolder2"))
+            Path(os.path.join(folder, "subfolder2/FID3.tif")).touch()
+            Path(os.path.join(folder, "subfolder2/FID4.tif")).touch()
+
+            features = storage_instance.list_feature_ids(layer_name)
+
+            self.assertTrue(isinstance(features, list))
+            self.assertEqual(len(features), 4)
+            self.assertTrue("subfolder1/FID1.tif" in features)
+            self.assertTrue("subfolder1/FID2.tif" in features)
+            self.assertTrue("subfolder2/FID3.tif" in features)
+            self.assertTrue("subfolder2/FID4.tif" in features)
+
 
 class TestRasterStorageWithoutCache(BaseApiTest):
     def setUp(self):
