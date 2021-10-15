@@ -22,8 +22,6 @@ def heat_learn(self, selection: dict, rasters: list, params: dict):
 
     if not rasters:
         raise ValueError("Raster list must be non-empty.")
-    if len(rasters) > 1:
-        raise ValueError("Please select only one raster for now")
     if "features" not in selection:
         raise ValueError("The selection must be a feature set.")
     if not selection["features"]:
