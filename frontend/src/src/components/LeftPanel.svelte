@@ -16,25 +16,11 @@
   let map = null;
 
 
+  selectedLayerStore.subscribe(displayHideDetails);
+
+
   $: {
-    mustDisplayDetails = false;
-
-    if ($selectedLayerStore !== null) {
-      const layer = getLayer($selectedLayerStore);
-
-      if (layer.task_id !== null) {
-        const task = getTask(layer.task_id);
-        mustDisplayDetails = (task !== null) && (task.result.status == SUCCESS_STATUS) &&
-                             (task.hidden || !$isCMPaneActiveStore);
-
-        if (!mustDisplayDetails && (task !== null)) {
-          flashTask(task);
-        }
-      } else {
-        mustDisplayDetails = true;
-      }
-    }
-
+    // Only executed once, but must wait for all the elements to be in place
     if ((rootElement !== null) && !mapScrollingDisabled && (map !== null)) {
       const children = rootElement.children;
       for (let i = 0; i < children.length; i++) {
@@ -50,6 +36,37 @@
 
         mapScrollingDisabled = true;
       }
+    }
+  }
+
+
+  function onSelectedLayerVisibilityChanged(event) {
+    displayHideDetails($selectedLayerStore);
+  }
+
+
+  function displayHideDetails(selectedLayerName) {
+    mustDisplayDetails = false;
+
+    if (selectedLayerName === null) {
+      return;
+    }
+
+    const layer = getLayer(selectedLayerName);
+    if (!layer.visible) {
+      return;
+    }
+
+    if (layer.task_id !== null) {
+      const task = getTask(layer.task_id);
+      mustDisplayDetails = (task !== null) && (task.result.status == SUCCESS_STATUS) &&
+                           (task.hidden || !$isCMPaneActiveStore);
+
+      if (!mustDisplayDetails && (task !== null)) {
+        flashTask(task);
+      }
+    } else {
+      mustDisplayDetails = true;
     }
   }
 
@@ -117,7 +134,7 @@
   <div class="area"><AreaSelection /></div>
   <div class="selection" bind:this={selectionControls}></div>
   <div class="datasets"><DatasetSelection /></div>
-  <div class="layers"><Layers /></div>
+  <div class="layers"><Layers on:selectedLayerVisibilityChanged={onSelectedLayerVisibilityChanged}/></div>
 
   {#if mustDisplayDetails}
     <div class="details"><Details /></div>
