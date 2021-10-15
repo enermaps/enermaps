@@ -6,11 +6,14 @@
   import {isCMPaneActiveStore} from '../stores.js';
   import CM from './CM.svelte';
 
+
   let cms = [];
+
 
   onMount(async () => {
     cms = await getCMs();
   });
+
 
   function closeCMPanel() {
     isCMPaneActiveStore.update((n) => !n);
@@ -26,20 +29,16 @@
   }
 
   #calculation_modules_pane {
-    float: right;
-    z-index: 1000;
-    position: absolute;
-    top: 0;
-    right: 0;
+    position: relative;
+    top: -10px;
     padding: 5px;
-    margin: 8px;
     border-radius: 0px;
     border: 1px solid #27275b;
     background-color: #eff4fa;
-    width: 30%;
+    width: 30vw;
     min-width: 280px;
     max-width: 500px;
-    max-height: 90%;
+    max-height: calc(100vh - 100px);
     overflow-y: scroll;
   }
 
@@ -53,7 +52,6 @@
     margin: 0px;
     flex-shrink: 0;
     text-align: center;
-    font-size: 20px;
     display: inline-block;
     vertical-align: middle;
   }
@@ -68,8 +66,8 @@
 
   #close_button_cm_list {
     display: inline-block;
-    height: 25px;
-    width: 25px;
+    height: 20px;
+    width: 20px;
     background-repeat: no-repeat;
     background-size: cover;
     box-sizing: border-box;
@@ -81,10 +79,11 @@
     height:auto;
     cursor: pointer;
   }
-  </style>
+</style>
 
 
-<div id="calculation_modules_pane" hidden={!$isCMPaneActiveStore}>
+<div id="calculation_modules_pane" hidden={!$isCMPaneActiveStore}
+     on:click|stopPropagation on:dblclick|stopPropagation on:wheel|stopPropagation>
   <div id="calculation_modules_content">
     <div id="cm_list_header">
       <div id="close_button_cm_list" on:click={closeCMPanel}><img src='{BASE_URL}images/clear-icon.png' alt='close'></div>

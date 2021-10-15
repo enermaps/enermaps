@@ -19,6 +19,7 @@
 
   import LeftPanel from './LeftPanel.svelte';
   import CMToggle from './CMToggle.svelte';
+  import CMList from './CMList.svelte';
   import TopNav from './TopNav.svelte';
 
   import {areaSelectionStore, layersStore, areaSelectionLayerStore} from '../stores.js';
@@ -58,6 +59,7 @@
     // Add the map controls
     map.addControl(makeSearchControl()); // Search tools
     map.addControl(makeCMToggleControl()); // Button to open calculation module pane
+    map.addControl(makeCMListControl());
     map.addControl(makeLeftPanel());
   });
 
@@ -199,8 +201,19 @@
     const CMToggleControl = L.control({position: 'topright'});
     CMToggleControl.onAdd = (map) => {
       const div = L.DomUtil.create('div');
-      L.DomUtil.addClass(div, 'test');
       toolbar = new CMToggle({target: div});
+      return div;
+    };
+    return CMToggleControl;
+  }
+
+
+  function makeCMListControl() {
+    const CMToggleControl = L.control({position: 'topright'});
+    CMToggleControl.onAdd = (map) => {
+      const div = L.DomUtil.create('div');
+      toolbar = new CMList({target: div});
+      disableMapScrolling(div);
       return div;
     };
     return CMToggleControl;
@@ -223,6 +236,19 @@
       autoResize: false,
     });
     return searchControl;
+  }
+
+
+  function disableMapScrolling(element) {
+    // Disable dragging when user's cursor enters the element
+    element.addEventListener('mouseover', function() {
+      map.dragging.disable();
+    });
+
+    // Re-enable dragging when user's cursor leaves the element
+    element.addEventListener('mouseout', function() {
+      map.dragging.enable();
+    });
   }
 </script>
 
