@@ -1,7 +1,8 @@
 import glob
 
-from app.common import path
 from flask import current_app, safe_join
+
+from app.common import path
 
 
 def create(layer_name):
@@ -36,7 +37,10 @@ class BaseRasterStorage(object):
 
     def list_feature_ids(self, layer_name):
         folder = self.get_dir(layer_name)
-        return [x[len(folder) + 1 :] for x in glob.glob(safe_join(folder, "*.tif"))]
+        return [
+            x[len(folder) + 1 :]
+            for x in glob.glob(safe_join(folder, "**/*.tif"), recursive=True)
+        ]
 
 
 class RasterStorage(BaseRasterStorage):
