@@ -140,8 +140,10 @@ def hdd_cdd_stats(
     Graphs​
     ======
     This funtion return the following graphs:
-    * the total annual HDD & CDD for the baseline and the future year with confidence interval;
-    * the total monthly HDD & CDD for the baseline and the future year with confidence interval;
+    * the total annual HDD & CDD for the baseline and the future year
+      with confidence interval;
+    * the total monthly HDD & CDD for the baseline and the future year
+      with confidence interval;
 
     Key Performance Indicator​s (KPIs)
     =================================
@@ -154,9 +156,11 @@ def hdd_cdd_stats(
     """
     # select the right layer and return the results
     # start = time()
-    logging.info(
-        "    » ref. year: {refyear}, crp: {rcp}, Tbh: {t_base_h:.1f}, Tbc: {t_base_c:.1f}"
+    msg = (
+        f"    » ref. year: {refyear},"
+        f" crp: {rcp}, Tbh: {t_base_h:.1f}, Tbc: {t_base_c:.1f}"
     )
+    logging.info(msg)
     # Compute the centroid of the geometry selected by the user
     print(f"CENTROID: {compute_centroid(geojson)}")
     lon, lat = compute_centroid(geojson)
