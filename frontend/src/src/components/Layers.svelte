@@ -1,4 +1,5 @@
 <script>
+  import {createEventDispatcher} from 'svelte';
   import {layersStore, selectedLayerStore} from '../stores.js';
   import {deleteLayer} from '../layers.js';
   import {BASE_URL} from '../settings.js';
@@ -7,6 +8,8 @@
   let layers = null;
   let selection = null;
   const effectTimers = {};
+
+  const dispatch = createEventDispatcher();
 
 
   $: {
@@ -175,6 +178,10 @@
   function changeVisibility(layer) {
     layer.visible = !layer.visible;
     $layersStore = layers;
+
+    if (layer.name === selection) {
+      dispatch('selectedLayerVisibilityChanged', layer.visible);
+    }
   }
 
 
