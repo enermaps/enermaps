@@ -31,6 +31,7 @@ export async function createTask(cm, parameters) {
   task.hidden = false;
   task.replacement_for = null;
   task.effect = null;
+  task.layer = null;
 
   console.log('[CM ' + cm.name + '] Created task: ' + task.id);
 
@@ -60,7 +61,8 @@ export async function refreshTask(task) {
   newTask.result = {status: REFRESHING_STATUS};
   newTask.hidden = false;
   newTask.replacement_for = task.id;
-  task.effect = null;
+  newTask.effect = null;
+  newTask.layer = task.layer;
 
   console.log('[CM ' + task.cm.name + '] Created task: ' + newTask.id +
               ' to replace ' + task.id);
@@ -120,10 +122,16 @@ export function flashTask(task) {
 
 
 function _deleteTask(task) {
-  const tasks = get(tasksStore);
+  let tasks = get(tasksStore);
 
-  const layer = getLayer(task.parameters.layer);
-  if ((layer === null) || (task.result !== SUCCESS_STATUS)) {
+  let mustDelete = (task.layer === null);
+
+  if (!mustDelete) {
+    const layer = getLayer(task.layer);
+    mustDelete = (layer === null) || (task.result.status !== SUCCESS_STATUS);
+  }
+
+  if (mustDelete) {
     console.log('[CM ' + task.cm.name + '] Deleting task: ' + task.id);
     tasks = tasks.filter((t) => t.id != task.id);
   } else {
@@ -189,6 +197,8 @@ function _addLayer(task) {
       if (get(selectedLayerStore) === previousName) {
         selectedLayerStore.set(layer.name);
       }
+
+      task.layer = layer.name;
     } else {
       const labels = {
         primary: task.cm.pretty_name,
@@ -204,10 +214,14 @@ function _addLayer(task) {
         title += '\n\n' + labels.dataset;
       }
 
-      createLayer(
-          'cm/' + task.result.cm_name + '/' + task.result.task_id,
-          labels, title, true, task.id,
-      );
+      const layerName = 'cm/' + task.result.cm_name + '/' + task.result.task_id;
+
+      createLayer(layerName, labels, title, true, task.id);
+
+      task.layer = layerName;
     }
+
+    const tasks = get(tasksStore);
+    tasksStore.set(tasks);
   }
 }
