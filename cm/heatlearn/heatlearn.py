@@ -9,6 +9,7 @@ import jenkspy
 import numpy as np
 import pandas as pd
 import rasterio
+import rasterio.merge as merge
 import requests
 import urllib3
 from BaseCM.cm_output import validate
@@ -259,18 +260,31 @@ def heatlearn(
         raise ValueError("No tiles were created.")
 
     # Prepare raster
-    if len(raster_paths) == 1:
-        raster_path = raster_paths[0]
-    else:
-        raise ValueError("Only a single raster is supported for now.")
-        # TBD: Use Rasterio to merge rasters
+    # if len(raster_paths) == 1:
+    #     raster_path = raster_paths[0]
+    # else:
+    #     raise ValueError("Only a single raster is supported for now.")
+    #     # TBD: Use Rasterio to merge rasters
 
-    with rasterio.open(raster_path) as dataset:
-        raster = dataset.read()
-        meta = dataset.meta
-        raster = replace_with_dict(raster)
-        raster = raster.astype(np.uint16)
+    datasets = []
+    for raster_path in raster_paths:
+        src = rasterio.open(raster_path)
+        datasets.append(src)
 
+    meta = src.meta.copy()
+    raster, out_trans = merge.merge(datasets)
+
+    meta.update(
+        {
+            "driver": "GTiff",
+            "height": raster.shape[1],
+            "width": raster.shape[2],
+            "transform": out_trans,
+        }
+    )
+
+    raster = replace_with_dict(raster)
+    raster = raster.astype(np.uint16)
     # Prepare inputs for the model
     # Initialize variables
     X = np.zeros(
