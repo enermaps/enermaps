@@ -8,7 +8,6 @@ from flask import Response
 from flask_restx import Namespace, Resource, abort
 
 from app.common import path
-from app.data_integration import data_endpoints
 from app.data_integration import enermaps_server as client
 
 api = Namespace("datasets", description="Datasets related endpoints")
@@ -108,8 +107,8 @@ class RasterLayerName(Resource):
 @api.route("/legend/<path:layer_name>/")
 class Legend(Resource):
     def get(self, layer_name):
-        (_, layer_id, _, _, _) = path.parse_unique_layer_name(layer_name)
-        return data_endpoints.get_legend(layer_id)
+        """Return a the legend of the layer"""
+        return client.get_legend(layer_name)
 
 
 @api.route("/areas/")

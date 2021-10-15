@@ -62,7 +62,7 @@ export async function getDatasetLayerName(datasetId, raster, variable, timePerio
     );
   } else if (timePeriod != null) {
     return fetchText(
-        'api/datasets/layer_name/' + prefix + '/-/' + datasetId + '/' +
+        'api/datasets/layer_name/' + prefix + '/' + datasetId + '/-/' +
         timePeriod + '/',
     );
   } else {

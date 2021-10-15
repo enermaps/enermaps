@@ -1,10 +1,13 @@
 """Functions related to the "GetMap" operation of the Web Map Service (WMS)"""
 
+import shutil
+import sys
+
 import mapnik
 import seaborn as sns
 
 from app.common import path
-from app.data_integration import data_endpoints
+from app.data_integration import enermaps_server as client
 from app.models import geofile
 from app.models.wms import utils
 
@@ -20,6 +23,7 @@ def get_mapnik_map(normalized_args):
     # Style for lines
     line_style, line_style_name = make_line_style()
     mp.append_style(line_style_name, line_style)
+    mp.legend_images_folders = []
 
     # Get the list of the layers to display
     layers = utils.parse_layers(normalized_args)
@@ -32,12 +36,18 @@ def get_mapnik_map(normalized_args):
         if (mapnik_layers is None) or (len(mapnik_layers) == 0):
             return None
 
-        if path.get_type(layer_name) in (path.RASTER, path.VECTOR):
-            (legend_style, legend_style_name) = create_style_from_legend(
-                layer_name, layer, mapnik_layers[0]
-            )
-        else:
-            (legend_style, legend_style_name) = create_default_style()
+        legend_style = None
+        legend_style_name = None
+
+        if path.get_type(layer_name) in (path.RASTER, path.VECTOR, path.CM):
+            (
+                legend_style,
+                legend_style_name,
+                legend_images_folder,
+            ) = create_style_from_legend(layer_name, layer, mapnik_layers[0])
+
+            if legend_images_folder is not None:
+                mp.legend_images_folders.append(legend_images_folder)
 
         if legend_style is not None:
             mp.append_style(legend_style_name, legend_style)
@@ -53,15 +63,26 @@ def get_mapnik_map(normalized_args):
     return mp
 
 
+def delete_image_folders(mp):
+    for folder in mp.legend_images_folders:
+        shutil.rmtree(folder)
+
+
 def create_style_from_legend(layer_name, layer, mapnik_layer):
     (type, layer_id, variable, _, _) = path.parse_unique_layer_name(layer_name)
 
     # Get the layer style and type
-    legend_style = data_endpoints.get_legend_style(layer_id)
-    layer_type, data_type = data_endpoints.get_ds_type(layer_id)
+    if type in (path.VECTOR, path.RASTER):
+        legend = client.get_legend(layer_name)
+    else:
+        legend = None
+
+    if (legend is None) or (len(legend["symbology"]) == 0):
+        legend = create_default_legend()
 
     mapnik_style = None
     style_name = None
+    legend_images_folder = None
 
     if type == path.VECTOR:
         if variable is None:
@@ -74,28 +95,20 @@ def create_style_from_legend(layer_name, layer, mapnik_layer):
                 variable = variables[0].replace("__variable__", "")
 
         if mapnik_layer.datasource.geometry_type() is mapnik.DataGeometryType.Polygon:
-            mapnik_style, style_name = make_numerical_polygon_style(
-                variable, legend_style
-            )
+            mapnik_style, style_name = make_polygon_style(variable, legend)
         else:
-            legend_images = layer.get_legend_images(legend_style)
-            mapnik_style, style_name = make_numerical_point_style(
-                variable, legend_style, legend_images
-            )
+            legend_images, legend_images_folder = layer.get_legend_images(legend)
+            mapnik_style, style_name = make_point_style(variable, legend, legend_images)
 
-    elif type == path.RASTER:
-        if data_type == "numerical":
-            mapnik_style, style_name = make_numerical_raster_style(legend_style)
-        elif data_type == "categorical":
-            mapnik_style, style_name = make_categorical_raster_style(legend_style)
+    elif type in (path.RASTER, path.CM):
+        mapnik_style, style_name = make_raster_style(legend)
 
-    return (mapnik_style, style_name)
+    return (mapnik_style, style_name, legend_images_folder)
 
 
-def create_default_style():
-    # Make a default numerical raster layer style (the layer should be a
-    # raster layer produced by a CM)
-    legend_style = []
+def create_default_legend():
+    legend = {"symbology": []}
+
     min_value = 0
     max_value = 255
     color = (1, 0, 0)  # Default red
@@ -111,15 +124,20 @@ def create_default_style():
         for color in color_list
     ]
 
-    for n, color in enumerate(color_list, start=1):
-        min_threshold = min_value + (n - 1) * ((max_value - min_value) / nb_of_colors)
+    for n, color in enumerate(color_list):
+        min_threshold = min_value + n * ((max_value - min_value) / nb_of_colors)
         min_threshold = round(min_threshold, 2)
-        max_threshold = min_value + n * ((max_value - min_value) / nb_of_colors)
-        max_threshold = round(max_threshold, 2)
-        legend_style.append((color, min_threshold, max_threshold))
+        legend["symbology"].append(
+            {
+                "red": color[0],
+                "green": color[1],
+                "blue": color[2],
+                "value": min_threshold,
+                "opacity": 1.0,
+            }
+        )
 
-    mapnik_style, style_name = make_numerical_raster_style(legend_style)
-    return (mapnik_style, style_name)
+    return legend
 
 
 def make_line_style():
@@ -136,7 +154,7 @@ def make_line_style():
     return mapnik_style, "line_style"
 
 
-def make_numerical_raster_style(layer_style):
+def make_raster_style(legend):
     """
     Make a style for colorizing numerical rasters.
     Return the style and the style name.
@@ -149,10 +167,35 @@ def make_numerical_raster_style(layer_style):
     )
 
     # Add a "stop value" and the associated color for each color of the layer
-    for n, (color, min_threshold, max_threshold) in enumerate(layer_style):
-        raster_colorizer.add_stop(
-            max_threshold, mapnik.COLORIZER_LINEAR, mapnik.Color(*color)
+    symbol = legend["symbology"][0]
+
+    if isinstance(symbol["value"], str):
+        for symbol in legend["symbology"]:
+            color = mapnik.Color(
+                symbol["red"],
+                symbol["green"],
+                symbol["blue"],
+            )
+
+            raster_colorizer.add_stop(int(symbol["value"]), color)
+
+    else:
+        color = mapnik.Color(
+            symbol["red"],
+            symbol["green"],
+            symbol["blue"],
         )
+
+        for symbol in legend["symbology"][1:]:
+            raster_colorizer.add_stop(symbol["value"], mapnik.COLORIZER_LINEAR, color)
+
+            color = mapnik.Color(
+                symbol["red"],
+                symbol["green"],
+                symbol["blue"],
+            )
+
+        raster_colorizer.add_stop(sys.float_info.max, mapnik.COLORIZER_LINEAR, color)
 
     raster_symb.colorizer = raster_colorizer
     rule.symbols.append(raster_symb)
@@ -160,71 +203,83 @@ def make_numerical_raster_style(layer_style):
     return mapnik_style, "num_raster_style"
 
 
-def make_categorical_raster_style(layer_style):
-    """
-    Make a style for categorical rasters.
-    """
-    mapnik_style = mapnik.Style()
-    rule = mapnik.Rule()
-
-    raster_symb = mapnik.RasterSymbolizer()
-    raster_symb.colorizer = mapnik.RasterColorizer(
-        mapnik.COLORIZER_LINEAR, mapnik.Color("transparent")
-    )
-
-    for n, (color_id, color) in enumerate(layer_style):
-        raster_symb.colorizer.add_stop(color_id, mapnik.Color(*(color[0])))
-
-    rule.symbols.append(raster_symb)
-    mapnik_style.rules.append(rule)
-    return mapnik_style, "categorical_raster_style"
-
-
-def make_numerical_polygon_style(variable, layer_style):
+def make_polygon_style(variable, legend):
     """
     Make a style for vector polygons
     """
-    mapnik_style = mapnik.Style()
-    nb_of_colors = len(layer_style)
-    for n, (color, min_threshold, max_threshold) in enumerate(layer_style):
-        if n == 0:
-            expression = f"[__variable__{variable}] < {max_threshold}"
-        elif n == nb_of_colors - 1:
-            expression = f"[__variable__{variable}] >= {min_threshold}"
-        else:
-            expression = f"[__variable__{variable}] < {max_threshold} and [__variable__{variable}] >= {min_threshold}"
 
+    def _add_rule(mapnik_style, expression, color, opacity):
         polygon_symb = mapnik.PolygonSymbolizer()
-        polygon_symb.fill = mapnik.Color(*color)
-        polygon_symb.fill_opacity = 0.5
+        polygon_symb.fill = color
+        polygon_symb.fill_opacity = opacity
 
         rule = mapnik.Rule()
         rule.filter = mapnik.Expression(expression)
         rule.symbols.append(polygon_symb)
         mapnik_style.rules.append(rule)
+
+    mapnik_style = mapnik.Style()
+
+    symbol = legend["symbology"][0]
+
+    min_threshold = symbol["value"]
+    opacity = symbol["opacity"]
+
+    color = mapnik.Color(
+        symbol["red"],
+        symbol["green"],
+        symbol["blue"],
+    )
+
+    for symbol in legend["symbology"][1:]:
+        max_threshold = symbol["value"]
+        expression = f"[__variable__{variable}] < {max_threshold} and [__variable__{variable}] >= {min_threshold}"
+
+        _add_rule(mapnik_style, expression, color, opacity)
+
+        min_threshold = max_threshold
+        opacity = symbol["opacity"]
+
+        color = mapnik.Color(
+            symbol["red"],
+            symbol["green"],
+            symbol["blue"],
+        )
+
+    expression = f"[__variable__{variable}] >= {min_threshold}"
+    _add_rule(mapnik_style, expression, color, opacity)
+
     return mapnik_style, "vector_polygon_style"
 
 
-def make_numerical_point_style(variable, layer_style, legend_images):
+def make_point_style(variable, legend, legend_images):
     """
     Make a style for vector points
     """
-    mapnik_style = mapnik.Style()
-    nb_of_colors = len(layer_style)
-    for n, (color, min_threshold, max_threshold) in enumerate(layer_style):
-        if n == 0:
-            expression = f"[__variable__{variable}] < {max_threshold}"
-        elif n == nb_of_colors - 1:
-            expression = f"[__variable__{variable}] >= {min_threshold}"
-        else:
-            expression = f"[__variable__{variable}] < {max_threshold} and [__variable__{variable}] >= {min_threshold}"
 
+    def _add_rule(mapnik_style, expression, index):
         pt_symbolizer = mapnik.PointSymbolizer()
-        pt_symbolizer.file = legend_images[n]
+        pt_symbolizer.file = legend_images[index]
 
         rule = mapnik.Rule()
         rule.filter = mapnik.Expression(expression)
         rule.symbols.append(pt_symbolizer)
         mapnik_style.rules.append(rule)
+
+    mapnik_style = mapnik.Style()
+
+    symbol = legend["symbology"][0]
+    min_threshold = symbol["value"]
+
+    for index, symbol in enumerate(legend["symbology"][1:]):
+        max_threshold = symbol["value"]
+        expression = f"[__variable__{variable}] < {max_threshold} and [__variable__{variable}] >= {min_threshold}"
+
+        _add_rule(mapnik_style, expression, index)
+
+        min_threshold = max_threshold
+
+    expression = f"[__variable__{variable}] >= {min_threshold}"
+    _add_rule(mapnik_style, expression, len(legend["symbology"]) - 1)
 
     return mapnik_style, "vector_point_style"

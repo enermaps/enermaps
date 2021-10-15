@@ -129,18 +129,7 @@ def get_geojson(layer_name):
     """
     Fetch a geojson dataset layer from the enermaps server with a given id.
     """
-    (type, id, variable, time_period) = path.parse_unique_layer_name(layer_name)
-
-    parameters = {
-        "data.ds_id": id,
-    }
-
-    if variable is not None:
-        parameters["variable"] = f"'{variable}'"
-
-    if time_period is not None:
-        parameters["start_at"] = f"'{time_period}-01-01'"
-
+    parameters = _parameters_from_layer_name(layer_name)
     return _get_geojson(parameters)
 
 
@@ -153,6 +142,31 @@ def get_raster_file(dataset_id, feature_id):
     except Exception as ex:
         logging.error(
             f"Failed to retrieve the raster file <{feature_id}> of dataset <{dataset_id}>: {repr(ex)}"
+        )
+
+    return None
+
+
+def get_legend(layer_name):
+    """
+    Fetch a geojson dataset layer from the enermaps server with a given id.
+    """
+    url = DATASETS_SERVER_URL + "rpc/enermaps_get_legend"
+
+    parameters = _parameters_from_layer_name(layer_name)
+
+    headers = {"Authorization": "Bearer {}".format(DATASETS_SERVER_API_KEY)}
+
+    try:
+        params = {
+            "parameters": json.dumps(parameters),
+        }
+
+        with requests.get(url, headers=headers, params=params) as resp:
+            return resp.json()
+    except Exception as ex:
+        logging.error(
+            f"Failed to retrieve the legend of layer <{layer_name}>: {repr(ex)}"
         )
 
     return None
@@ -213,6 +227,22 @@ def _get_geojson(parameters):
         return None
 
     return all_data
+
+
+def _parameters_from_layer_name(layer_name):
+    (type, id, variable, time_period, _) = path.parse_unique_layer_name(layer_name)
+
+    parameters = {
+        "data.ds_id": id,
+    }
+
+    if variable is not None:
+        parameters["variable"] = f"'{variable}'"
+
+    if time_period is not None:
+        parameters["start_at"] = f"'{time_period}-01-01'"
+
+    return parameters
 
 
 def get_dataset(dataset_id):

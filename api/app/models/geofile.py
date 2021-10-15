@@ -12,14 +12,15 @@ import shutil
 import zipfile
 from abc import ABC, abstractmethod
 from pathlib import Path
-from tempfile import TemporaryDirectory
+from tempfile import TemporaryDirectory, mkdtemp
 
 import mapnik
+from flask import safe_join
+from PIL import Image
+
 from app.common import path
 from app.common.projection import proj4_from_geotiff  # epsg_to_proj4,
 from app.common.projection import epsg_to_wkt, proj4_from_shapefile
-from flask import safe_join
-from PIL import Image
 
 from . import storage
 
@@ -254,21 +255,26 @@ class VectorLayer(Layer):
         """
         return True
 
-    def get_legend_images(self, legend_style):
-        """Returns a list of the images corresponding to the colors needed by the
-        legend. If the images don't exists, create them.
+    def get_legend_images(self, legend):
+        """Create images containing the colors defined in the legend. The caller is
+        responsible to delete the folder when the images aren't needed anymore.
         """
-        images_folder = safe_join(self.storage.get_dir(self.name), "legend")
-        if not os.path.exists(images_folder):
-            os.makedirs(images_folder)
+        images_folder = mkdtemp(prefix=self.storage.get_tmp_dir())
 
         images = []
-        for n, (color, min_threshold, max_threshold) in enumerate(legend_style):
-            filename = safe_join(images_folder, f"{n:02}.png")
-            if not os.path.exists(filename):
-                img = Image.new("RGB", (4, 4), color=color)
-                img.save(filename)
+        for index, symbol in enumerate(legend["symbology"]):
+            color = (
+                symbol["red"],
+                symbol["green"],
+                symbol["blue"],
+                int(symbol["opacity"] * 255),
+            )
+
+            filename = safe_join(images_folder, f"{index:02}.png")
+
+            img = Image.new("RGBA", (4, 4), color=color)
+            img.save(filename)
 
             images.append(filename)
 
-        return images
+        return (images, images_folder)
