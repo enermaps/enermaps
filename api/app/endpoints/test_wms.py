@@ -1,6 +1,7 @@
 import io
 import os
 import shutil
+from unittest.mock import Mock, patch
 
 import lxml  # nosec
 from lxml import etree  # nosec
@@ -146,6 +147,10 @@ class WMSGetMapTest(BaseApiTest):
                 storage_instance.get_file_path(layer_name, "FID.tif"),
             )
 
+    @patch(
+        "app.data_integration.enermaps_server.get_legend",
+        new=Mock(return_value=None),
+    )
     def testVectorTileWorkflow(self):
         """Retrieve a vector layer as image from WMS endpoint,
         check if the image has the right size  without being empty.
@@ -162,6 +167,10 @@ class WMSGetMapTest(BaseApiTest):
         self.assertEqual(image.size, self.TILE_SIZE)
         self.assertEqual(image.format, "PNG")
 
+    @patch(
+        "app.data_integration.enermaps_server.get_legend",
+        new=Mock(return_value=None),
+    )
     def testRasterTileWorkflow(self):
         """Retrieve a raster layer as image from WMS endpoint,
         then check that the tile request is not empty"""

@@ -5,12 +5,13 @@ mode and the initialisation of the applicaton.
 import logging
 import os
 
+from flask import Blueprint, Flask
+from flask_restx import Api
+
 from app.commands import cache
 from app.endpoints import calculation_module, datasets, geofile, wms
 from app.healthz import healthz
 from app.redirect import redirect_to_api
-from flask import Blueprint, Flask
-from flask_restx import Api
 
 
 class ReverseProxied(object):
@@ -74,6 +75,7 @@ def create_app(environment="production", testing=False, on_startup=False):
     app.cli.add_command(cache.update_areas)
     app.cli.add_command(cache.list_datasets)
     app.cli.add_command(cache.list_variables)
+    app.cli.add_command(cache.get_legend)
 
     # Install thr WSGI middleware
     app.wsgi_app = ReverseProxied(app.wsgi_app)

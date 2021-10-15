@@ -1,4 +1,5 @@
 import itertools
+import json
 import time
 
 import click
@@ -78,6 +79,37 @@ def list_variables(ds_id):
 
         if result == "\n":
             result += "No variable nor time period"
+
+        current_app.logger.info(result)
+
+
+@click.command("get-legend")
+@click.argument("ds_id")
+@click.argument("variable")
+@click.argument("time_period")
+@with_appcontext
+def get_legend(ds_id, variable, time_period):
+    if variable == "-":
+        variable = None
+
+    if time_period == "-":
+        time_period = None
+
+    datasets = client.get_dataset_list(disable_filtering=True)
+    datasets = [x for x in datasets if x["ds_id"] == int(ds_id)]
+
+    if len(datasets) == 1:
+        dataset = datasets[0]
+
+        type = "raster" if dataset["is_raster"] else "vector"
+        layer_name = path.make_unique_layer_name(
+            type, ds_id, variable=variable, time_period=time_period
+        )
+
+        legend = client.get_legend(layer_name)
+
+        result = "\n"
+        result += json.dumps(legend, indent=4)
 
         current_app.logger.info(result)
 

@@ -389,6 +389,51 @@ GRANT SELECT, UPDATE ON public.data TO legend_editor;
 GRANT SELECT, INSERT ON public.visualization TO legend_editor;
 
 
+-- Returns the legend of the data corresponding to the parameters
+DROP FUNCTION IF EXISTS enermaps_get_legend(parameters text);
+CREATE OR REPLACE FUNCTION enermaps_get_legend(parameters text)
+  RETURNS jsonb
+  AS $$
+  DECLARE
+      -- where string
+      where_string text := 'WHERE ';
+      -- variables to loop on the json input
+      _key text;
+      _value text;
+      counter int := 0;
+      -- output
+      out_jsonb jsonb;
+  BEGIN
+      FOR _key, _value IN
+         SELECT * FROM json_each_text(parameters::json)
+          LOOP
+          IF _key = 'level' THEN
+              where_string := where_string || 'spatial.levl_code = ANY(''' || _value || '''::levl[])';
+          ELSIF _key = 'intersecting' THEN
+              where_string := where_string || 'ST_intersects(spatial.geometry,ST_TRANSFORM(ST_GeometryFromText(''' || _value || ''',4326),3035))';
+          ELSIF is_json_object(_value) THEN
+              where_string :=  where_string || create_json_where(_key, _value::json);
+          ELSE
+              where_string := where_string || _key || ' = ' || _value;
+          END IF;
+          counter := counter + 1;
+          IF counter < count(*) FROM json_object_keys(parameters::json) THEN
+              where_string := where_string || ' AND ';
+          END IF;
+      END LOOP;
+      EXECUTE format('
+        SELECT legend FROM visualization WHERE vis_id = (
+          SELECT vis_id FROM data %s LIMIT 1
+        ) LIMIT 1;', where_string)
+      INTO out_jsonb;
+      RETURN out_jsonb;
+  END;
+  $$
+  LANGUAGE plpgsql
+  IMMUTABLE;
+GRANT EXECUTE ON FUNCTION enermaps_get_legend(parameters text) to api_user;
+
+
 -- Returns a list of all the datasets, with the data needed by the web app
 DROP VIEW IF EXISTS dataset_list;
 CREATE OR REPLACE VIEW dataset_list AS

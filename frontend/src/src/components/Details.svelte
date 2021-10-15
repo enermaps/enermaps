@@ -91,15 +91,10 @@
 
       {:then legend}
         <div class="scroll">
-          {#each legend.style as color}
+          {#each legend.symbology as symbol}
             <div>
-              {#if legend.data_type == 'categorical'}
-                <div class='box' style="background-color: rgb( {color[1][0][0]}, {color[1][0][1]}, {color[1][0][2]} )"> </div>
-                <div style="display: inline-block;">{color[1][1]}</div><br>
-              {:else}
-                <div class='box' style="background-color: rgb( {color[0][0]}, {color[0][1]}, {color[0][2]} )"> </div>
-                <div style="display: inline-block;">{color[1].toFixed(2)} to {color[2].toFixed(2)} {legend.variable.units}</div><br>
-              {/if}
+              <div class='box' style="background-color: rgb( {symbol.red}, {symbol.green}, {symbol.blue} )"> </div>
+              <div style="display: inline-block;">{symbol.label}</div><br>
             </div>
           {/each}
         </div>
