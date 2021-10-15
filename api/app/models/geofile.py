@@ -82,12 +82,19 @@ def save_cm_file(layer_name, feature_id, raster_content):
 
 def _save_raster_file(storage_instance, layer_name, feature_id, raster_content):
     with TemporaryDirectory(prefix=storage_instance.get_tmp_dir()) as tmp_dir:
+        subfolder = os.path.dirname(feature_id)
+        if len(subfolder) > 0:
+            os.makedirs(safe_join(tmp_dir, subfolder), exist_ok=True)
+
         tmp_filepath = safe_join(tmp_dir, feature_id)
 
         with open(tmp_filepath, "wb") as f:
             f.write(raster_content)
 
         target_folder = storage_instance.get_dir(layer_name)
+        if len(subfolder) > 0:
+            target_folder = safe_join(target_folder, subfolder)
+
         os.makedirs(target_folder, exist_ok=True)
 
         try:
