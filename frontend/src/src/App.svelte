@@ -1,5 +1,4 @@
 <script>
-  import CMList from './components/CMList.svelte';
   import Map from './components/Map.svelte';
 </script>
 
@@ -29,5 +28,4 @@
 
 <div id="main">
   <Map/>
-  <CMList/>
 </div>

@@ -86,7 +86,6 @@
     padding : 8px;
     border-radius: 4px;
     width: inherit;
-    font-size: 0.8em;
   }
 
   h3 {
