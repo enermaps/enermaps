@@ -70,9 +70,9 @@ LEGENDS = {
                     "label": "Non-built area - Green ndvix",
                 },
                 {
-                    "red": 102,
-                    "green": 102,
-                    "blue": 102,
+                    "red": 225,
+                    "green": 225,
+                    "blue": 225,
                     "opacity": 1.0,
                     "value": "30",
                     "label": "Built area - Open space",
