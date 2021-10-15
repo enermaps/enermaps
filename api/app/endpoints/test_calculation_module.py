@@ -125,7 +125,8 @@ class CMTaskCreatorTest(BaseApiTest):
         args = CMTaskCreatorTest.CM.called_with_args
         self.assertEqual(len(args), 3)
         self.assertEqual(args[0], parameters["selection"])
-        self.assertEqual(args[1], ["42/FID1.tif", "42/FID2.tif"])
+        self.assertTrue("42/FID1.tif" in args[1])
+        self.assertTrue("42/FID2.tif" in args[1])
         self.assertEqual(args[2], parameters["parameters"])
 
     def testGetNotAllowed(self):
