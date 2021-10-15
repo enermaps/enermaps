@@ -9,7 +9,7 @@ from owslib.wms import WebMapService
 from PIL import Image
 
 import app.common.xml as xml
-from app.common import filepath, path
+from app.common import path
 from app.common.projection import epsg_to_wkt
 from app.common.test import BaseApiTest, BaseIntegrationTest
 from app.models import storage
@@ -31,12 +31,14 @@ class WMSGetCapabilitiesTest(BaseApiTest):
     @classmethod
     def setUpClass(cl):
         """Create the xml schema validator."""
-        schema_path = filepath.get_testdata_path("WMS_MS_Capabilities_1.3.0.xsd")
+        schema_path = WMSGetCapabilitiesTest.get_testdata_path(
+            "WMS_MS_Capabilities_1.3.0.xsd"
+        )
         # load additonal schemas
         with open(schema_path, "rb") as schema_fd:
             xmlschema = xml.etree_fromstring(schema_fd.read())
 
-        schema_path = filepath.get_testdata_path("xml.xsd")
+        schema_path = WMSGetCapabilitiesTest.get_testdata_path("xml.xsd")
         newimport = lxml.etree.Element(
             "{http://www.w3.org/2001/XMLSchema}import",
             namespace="http://www.w3.org/2001/xml.xsd",
@@ -44,7 +46,7 @@ class WMSGetCapabilitiesTest(BaseApiTest):
         )
         xmlschema.insert(0, newimport)
 
-        schema_path = filepath.get_testdata_path("xlink.xsd")
+        schema_path = WMSGetCapabilitiesTest.get_testdata_path("xlink.xsd")
         newimport = lxml.etree.Element(
             "{http://www.w3.org/2001/XMLSchema}import",
             namespace="http://www.w3.org/1999/xlink.xsd",
@@ -128,7 +130,7 @@ class WMSGetMapTest(BaseApiTest):
             os.makedirs(storage_instance.get_dir(layer_name))
 
             shutil.copy(
-                filepath.get_testdata_path("example.geojson"),
+                self.get_testdata_path("example.geojson"),
                 storage_instance.get_geojson_file(layer_name),
             )
 
@@ -143,12 +145,12 @@ class WMSGetMapTest(BaseApiTest):
             os.makedirs(storage_instance.get_dir(layer_name))
 
             shutil.copy(
-                filepath.get_testdata_path("hotmaps-cdd_curr_adapted.tif"),
+                self.get_testdata_path("hotmaps-cdd_curr_adapted.tif"),
                 storage_instance.get_file_path(layer_name, "FID.tif"),
             )
 
     @patch(
-        "app.data_integration.enermaps_server.get_legend",
+        "app.common.client.get_legend",
         new=Mock(return_value=None),
     )
     def testVectorTileWorkflow(self):
@@ -168,7 +170,7 @@ class WMSGetMapTest(BaseApiTest):
         self.assertEqual(image.format, "PNG")
 
     @patch(
-        "app.data_integration.enermaps_server.get_legend",
+        "app.common.client.get_legend",
         new=Mock(return_value=None),
     )
     def testRasterTileWorkflow(self):

@@ -7,8 +7,7 @@ import hashlib
 from flask import Response
 from flask_restx import Namespace, Resource, abort
 
-from app.common import path
-from app.data_integration import enermaps_server as client
+from app.common import client, path
 
 api = Namespace("datasets", description="Datasets related endpoints")
 

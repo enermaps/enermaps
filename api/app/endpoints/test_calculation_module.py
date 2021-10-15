@@ -6,8 +6,8 @@ import shutil
 from unittest.mock import Mock, patch
 from urllib.parse import urlparse
 
-import app.common.filepath as filepath
 import requests
+
 from app.common import path
 from app.common.test import BaseApiTest, BaseIntegrationTest
 from app.models import storage
@@ -95,12 +95,12 @@ class CMTaskCreatorTest(BaseApiTest):
             os.makedirs(storage_instance.get_dir(layer_name))
 
             shutil.copy(
-                filepath.get_testdata_path("hotmaps-cdd_curr_adapted.tif"),
+                self.get_testdata_path("hotmaps-cdd_curr_adapted.tif"),
                 storage_instance.get_file_path(layer_name, "FID1.tif"),
             )
 
             shutil.copy(
-                filepath.get_testdata_path("hotmaps-cdd_curr_adapted.tif"),
+                self.get_testdata_path("hotmaps-cdd_curr_adapted.tif"),
                 storage_instance.get_file_path(layer_name, "FID2.tif"),
             )
 
@@ -261,7 +261,7 @@ class CMTaskTest(BaseApiTest):
 class CMTaskGeoJSONTest(BaseApiTest):
     def testUploadTIFF(self):
         tiff_file = "hotmaps-cdd_curr_adapted.tif"
-        files, _ = self.get_testformdata(tiff_file)
+        files, _ = self.prepare_file_upload(tiff_file)
 
         response = self.client.post(
             "api/cm/mock_cm/task/01234567-0000-0000-0000-000000000000/geofile/",
@@ -279,8 +279,8 @@ class CMTaskGeoJSONTest(BaseApiTest):
 
     def testUploadTIFFWithTwoFs(self):
         tiff_file = "hotmaps-cdd_curr_adapted.tif"
-        files, _ = self.get_testformdata(
-            tiff_file, testfile_name="hotmaps-cdd_curr_adapted.tiff"
+        files, _ = self.prepare_file_upload(
+            tiff_file, dest_filename="hotmaps-cdd_curr_adapted.tiff"
         )
 
         response = self.client.post(
@@ -299,7 +299,7 @@ class CMTaskGeoJSONTest(BaseApiTest):
 
     def testUploadTIFFWithUnicode(self):
         tiff_file = "hotmaps-cdd_curr_adapted.tif"
-        files, _ = self.get_testformdata(tiff_file, testfile_name="hotmaps⎈.tif")
+        files, _ = self.prepare_file_upload(tiff_file, dest_filename="hotmaps⎈.tif")
 
         response = self.client.post(
             "api/cm/mock_cm/task/01234567-0000-0000-0000-000000000000/geofile/",
@@ -317,8 +317,8 @@ class CMTaskGeoJSONTest(BaseApiTest):
 
     def testUploadTIFFWithFolder(self):
         tiff_file = "hotmaps-cdd_curr_adapted.tif"
-        files, _ = self.get_testformdata(
-            tiff_file, testfile_name="subfolder/hotmaps.tif"
+        files, _ = self.prepare_file_upload(
+            tiff_file, dest_filename="subfolder/hotmaps.tif"
         )
 
         response = self.client.post(
@@ -337,7 +337,7 @@ class CMTaskGeoJSONTest(BaseApiTest):
 
     def testUploadTIFFWithUpperFolder(self):
         tiff_file = "hotmaps-cdd_curr_adapted.tif"
-        files, _ = self.get_testformdata(tiff_file, testfile_name="../hotmaps.tif")
+        files, _ = self.prepare_file_upload(tiff_file, dest_filename="../hotmaps.tif")
 
         response = self.client.post(
             "api/cm/mock_cm/task/01234567-0000-0000-0000-000000000000/geofile/",
@@ -355,7 +355,7 @@ class CMTaskGeoJSONTest(BaseApiTest):
 
     def testUploadTIFFWithHiddenFileName(self):
         tiff_file = "hotmaps-cdd_curr_adapted.tif"
-        files, _ = self.get_testformdata(tiff_file, testfile_name=".hotmaps.tif")
+        files, _ = self.prepare_file_upload(tiff_file, dest_filename=".hotmaps.tif")
 
         response = self.client.post(
             "api/cm/mock_cm/task/01234567-0000-0000-0000-000000000000/geofile/",
@@ -373,7 +373,7 @@ class CMTaskGeoJSONTest(BaseApiTest):
 
     def testUploadTIFFWithoutProjection(self):
         tiff_file = "no_projection.tif"
-        files, _ = self.get_testformdata(tiff_file)
+        files, _ = self.prepare_file_upload(tiff_file)
 
         response = self.client.post(
             "api/cm/mock_cm/task/01234567-0000-0000-0000-000000000000/geofile/",
@@ -447,7 +447,7 @@ class FakeOutputTest(BaseIntegrationTest):
 
         # Call the calculation module with a simplified
         # bounding box, a rectangle around switzerland
-        with open(filepath.get_testdata_path("example.geojson"), "rb") as fd:
+        with open(self.get_testdata_path("example.geojson"), "rb") as fd:
             selection = json.load(fd)
         cm_task_parameters = {}
 
