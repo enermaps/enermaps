@@ -20,7 +20,7 @@ from flask_restx import Namespace, Resource
 from app.models import geofile
 from app.models.wms import utils
 from app.models.wms.capabilities import get_capabilities
-from app.models.wms.map import get_mapnik_map
+from app.models.wms.map import delete_image_folders, get_mapnik_map
 
 api = Namespace("wms", "WMS compatible endpoint")
 
@@ -68,6 +68,8 @@ class WMS(Resource):
 
         image = mapnik.Image(size.width, size.height)
         mapnik.render(mp, image)
+
+        delete_image_folders(mp)
 
         return Response(image.tostring(mapnik_format), mimetype=mime_format)
 

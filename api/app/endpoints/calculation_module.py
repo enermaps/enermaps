@@ -7,12 +7,13 @@ import os
 import re
 import unicodedata
 
-from app.common import path
-from app.models import calculation_module as CM
-from app.models import geofile, storage
 from flask import Response, abort, redirect, request, url_for
 from flask_restx import Namespace, Resource
 from werkzeug.datastructures import FileStorage
+
+from app.common import path
+from app.models import calculation_module as CM
+from app.models import geofile, storage
 
 api = Namespace("cm", "Calculation module endpoint")
 current_file_dir = os.path.dirname(os.path.abspath(__file__))
@@ -138,7 +139,6 @@ class CMTaskGeofile(Resource):
 
         # Check that the file contains a projection
         layer = geofile.load(layer_name)
-        print(layer.storage.list_feature_ids(layer_name))
         if not layer.projection:
             geofile.delete_all_features(layer_name)
             abort(400, "The uploaded file didn't contain a projection")
