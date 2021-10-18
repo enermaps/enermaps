@@ -72,7 +72,7 @@ def create_style_from_legend(layer_name, layer, mapnik_layer):
 
     # Get the layer style and type
     if type in (path.VECTOR, path.RASTER):
-        legend = client.get_legend(layer_name)
+        legend = client.get_legend(layer_name, ttl_hash=client.get_ttl_hash(10))
     else:
         legend = None
 
