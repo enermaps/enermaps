@@ -262,10 +262,6 @@ cm-new_cm:
   build:
     context: ./cm
     dockerfile: new_cm/Dockerfile
-  environment:
-    WMS_CACHE_DIR: /wms_cache
-  volumes:
-    - wms_cache:/wms_cache
   env_file:
     .env
 ```

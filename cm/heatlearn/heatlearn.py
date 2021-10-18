@@ -3,7 +3,6 @@ import logging
 import os
 import subprocess  # nosec
 from time import sleep, time
-from uuid import uuid1
 
 import geopandas as gpd
 import numpy as np
@@ -11,7 +10,6 @@ import pandas as pd
 import rasterio
 import requests
 import urllib3
-from BaseCM.cm_output import output_raster as post_raster
 from BaseCM.cm_output import validate
 from geocube.api.core import make_geocube
 from rasterio.mask import mask
@@ -183,12 +181,12 @@ def checkTile(matrix, tile_size):
 
 
 def heatlearn(
+    task,
     geojson,
     raster_paths,
     tile_size=500,
     year=2020,
     to_colorize=False,
-    api_base_url="http://api",
 ):
     """Get heating demand from HeatLearn Model."""
     start = time()
@@ -320,19 +318,15 @@ def heatlearn(
     else:
         dst_raster = "tmp/tmp.tif"
 
+    raster_name = "result.tif"
     with open(dst_raster, mode="rb") as raster_fd:
-        session = requests.Session()
-        raster_name = "heat_learn_" + str(uuid1()) + ".tiff"
-        if not wait_for_reachability(session, api_base_url):
-            logging.error("API is not reachable after max retries")
-        else:
-            post_raster(raster_name=raster_name, raster_fd=raster_fd)
+        task.post_raster(raster_name=raster_name, raster_fd=raster_fd)
 
     # Dict return response
     ret = dict()
     ret["graphs"] = {}
 
-    ret["geofiles"] = {"file": api_base_url + "/api/cm_outputs/" + raster_name}
+    ret["geofiles"] = {"file": raster_name}
     ret["values"] = {
         "Annual heating demand [GWh]": int(np.round(np.sum(preds) / 1000, 0)),
         "Heating density [MWh/ha]": int(
