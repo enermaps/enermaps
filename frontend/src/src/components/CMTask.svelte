@@ -11,6 +11,7 @@
   let displayedTaskId = null;
   let graphs = {};
   let values = [];
+  let legend = {};
   let parameters = [];
   let isTaskPending = true;
   let isTaskFailed = false;
@@ -35,6 +36,8 @@
         } else {
           graphs = task.result.result.graphs;
           values = Object.entries(task.result.result.values);
+          legend = task.result.result.legend;
+          console.log(legend);
         }
 
         parameters = Object.entries(task.parameters.parameters);
@@ -62,6 +65,7 @@
   .cmresult {
     padding: 5px;
     background-color: #fff;
+    line-height: normal;
   }
 
   .cmresult.flash {
@@ -127,6 +131,13 @@
     right: 0;
     padding-top: 0px;
   }
+
+  .box {
+    height: 10px;
+    width: 10px;
+    border: 1px solid black;
+    display: inline-block;
+  }
 </style>
 
 
@@ -151,19 +162,22 @@
       <div class="tabs">
         <span class:selected={activeTab === 'parameters'} on:click={() => (activeTab = 'parameters')}>Parameters</span>
         <span class:selected={activeTab === 'result'} on:click={() => (activeTab = 'result')}>Result</span>
+        {#if legend}
+          <span class:selected={activeTab === 'legend'} on:click={() => (activeTab = 'legend')}>Legend</span>
+        {/if}
         {#if displayCloseButton }
           <span class="close_button" on:click="{deleteTask(task)}"><img src='{BASE_URL}images/clear-icon.png' alt='close'></span>
         {/if}
       </div>
 
-      {#if activeTab === 'parameters' }
+      {#if activeTab === 'parameters'}
         <dl>
           {#each parameters as parameter}
             <Value value={parameter}/>
           {/each}
         </dl>
 
-      {:else}
+      {:else if activeTab === 'result'}
         <dl>
           {#each values as value}
             <Value value={value}/>
@@ -171,6 +185,18 @@
         </dl>
 
         <Chart datasets={graphs}/>
+
+      {:else if activeTab === 'legend'}
+        <dl>
+          <div class="scroll">
+            {#each legend.symbology as symbol}
+              <div>
+                <div class='box' style="background-color: rgb( {symbol.red}, {symbol.green}, {symbol.blue} )"> </div>
+                <div style="display: inline-block;">{symbol.label}</div><br>
+              </div>
+            {/each}
+          </div>
+        </dl>
       {/if}
     </div>
   {/if}
