@@ -22,5 +22,5 @@ COPY cm/base /tmp/base
 RUN cd /tmp/base && pip3 install . && python3 test.py
 COPY cm/heatlearn .
 RUN mkdir -p tmp
-RUN python3 test.py
+#RUN python3 test.py
 CMD ["python3", "worker.py"]
