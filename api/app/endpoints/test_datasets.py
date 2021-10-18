@@ -67,6 +67,10 @@ class DatasetsFullTest(BaseApiTest):
     VARIABLES = {
         "variables": ["var1", "var2"],
         "time_periods": [2000],
+        "temporal_granularity": "custom",
+        "start_at": "2000-01-01 00:00",
+        "end_at": None,
+        "default_parameters": {},
     }
 
     @patch(
@@ -74,7 +78,7 @@ class DatasetsFullTest(BaseApiTest):
         new=Mock(return_value=DATASETS),
     )
     @patch(
-        "app.common.client.get_variables",
+        "app.common.client.get_parameters",
         new=Mock(return_value=VARIABLES),
     )
     def testGetAllDatasets(self):
@@ -114,84 +118,100 @@ class DatasetsFullTest(BaseApiTest):
         self.assertEqual(response.status_code, 405)
 
 
-class DatasetVariablesTest(BaseApiTest):
+class DatasetParametersTest(BaseApiTest):
 
-    VARIABLES_FULL = {
+    PARAMETERS_FULL = {
         "variables": ["var1", "var2"],
         "time_periods": [2000],
+        "temporal_granularity": "custom",
+        "start_at": "2000-01-01 00:00",
+        "end_at": None,
+        "default_parameters": {},
     }
 
-    VARIABLES_EMPTY_TIME_PERIODS = {
+    PARAMETERS_EMPTY_TIME_PERIODS = {
         "variables": ["var1", "var2"],
         "time_periods": [],
+        "temporal_granularity": "custom",
+        "start_at": "2000-01-01 00:00",
+        "end_at": None,
+        "default_parameters": {},
     }
 
-    VARIABLES_EMPTY_VARS = {
+    PARAMETERS_EMPTY_VARS = {
         "variables": [],
         "time_periods": [2000],
+        "temporal_granularity": "custom",
+        "start_at": "2000-01-01 00:00",
+        "end_at": None,
+        "default_parameters": {},
     }
 
-    VARIABLES_EMPTY = {
+    PARAMETERS_EMPTY = {
         "variables": [],
         "time_periods": [],
+        "temporal_granularity": "custom",
+        "start_at": "2000-01-01 00:00",
+        "end_at": None,
+        "default_parameters": {},
     }
 
     @patch(
-        "app.common.client.get_variables",
-        new=Mock(return_value=VARIABLES_FULL),
+        "app.common.client.get_parameters",
+        new=Mock(return_value=PARAMETERS_FULL),
     )
-    def testGetVariablesComplete(self):
-        response = self.client.get("api/datasets/1/variables/")
+    def testGetParametersComplete(self):
+        response = self.client.get("api/datasets/1/parameters/")
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.json, DatasetVariablesTest.VARIABLES_FULL)
+        self.assertEqual(response.json, DatasetParametersTest.PARAMETERS_FULL)
 
     @patch(
-        "app.common.client.get_variables",
-        new=Mock(return_value=VARIABLES_EMPTY_TIME_PERIODS),
+        "app.common.client.get_parameters",
+        new=Mock(return_value=PARAMETERS_EMPTY_TIME_PERIODS),
     )
-    def testGetVariablesWithoutTimePeriods(self):
-        response = self.client.get("api/datasets/1/variables/")
+    def testGetParametersWithoutTimePeriods(self):
+        response = self.client.get("api/datasets/1/parameters/")
         self.assertEqual(response.status_code, 200)
         self.assertEqual(
-            response.json, DatasetVariablesTest.VARIABLES_EMPTY_TIME_PERIODS
+            response.json, DatasetParametersTest.PARAMETERS_EMPTY_TIME_PERIODS
         )
 
     @patch(
-        "app.common.client.get_variables",
-        new=Mock(return_value=VARIABLES_EMPTY_VARS),
+        "app.common.client.get_parameters",
+        new=Mock(return_value=PARAMETERS_EMPTY_VARS),
     )
-    def testGetVariablesWithoutVariables(self):
-        response = self.client.get("api/datasets/1/variables/")
+    def testGetVParametersWithoutVariables(self):
+        response = self.client.get("api/datasets/1/parameters/")
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.json, DatasetVariablesTest.VARIABLES_EMPTY_VARS)
+        self.assertEqual(response.json, DatasetParametersTest.PARAMETERS_EMPTY_VARS)
 
     @patch(
-        "app.common.client.get_variables",
-        new=Mock(return_value=VARIABLES_EMPTY),
+        "app.common.client.get_parameters",
+        new=Mock(return_value=PARAMETERS_EMPTY),
     )
-    def testGetVariablesWithoutContent(self):
-        response = self.client.get("api/datasets/1/variables/")
+    def testGetParametersWithoutContent(self):
+        response = self.client.get("api/datasets/1/parameters/")
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.json, DatasetVariablesTest.VARIABLES_EMPTY)
+        self.assertEqual(response.json, DatasetParametersTest.PARAMETERS_EMPTY)
 
     @patch(
-        "app.common.client.get_variables",
+        "app.common.client.get_parameters",
         new=Mock(return_value=None),
     )
-    def testGetVariablesOfUnknownDataset(self):
-        response = self.client.get("api/datasets/1/variables/")
+    def testGetParametersOfUnknownDataset(self):
+        response = self.client.get("api/datasets/1/parameters/")
         self.assertEqual(response.status_code, 404)
 
     def testPostNotAllowed(self):
-        response = self.client.post("api/datasets/1/variables/")
+        response = self.client.post("api/datasets/1/parameters/")
         self.assertEqual(response.status_code, 405)
 
     def testPutNotAllowed(self):
-        response = self.client.put("api/datasets/1/variables/")
+        response = self.client.put("api/datasets/1/parameters/")
         self.assertEqual(response.status_code, 405)
 
     def testDeleteNotAllowed(self):
-        response = self.client.delete("api/datasets/1/variables/")
+        response = self.client.delete("api/datasets/1/parameters/")
         self.assertEqual(response.status_code, 405)
 
 

@@ -88,7 +88,9 @@ CREATE OR REPLACE FUNCTION enermaps_query_geojson(parameters text,
             ELSIF _key = 'intersecting' THEN
                 where_string := where_string || 'ST_intersects(spatial.geometry,ST_TRANSFORM(ST_GeometryFromText(''' || _value || ''',4326),3035))';
             ELSIF is_json_object(_value) THEN
-                where_string :=  where_string ||  create_json_where(_key, _value::json);
+                where_string := where_string ||  create_json_where(_key, _value::json);
+            ELSIF _value is null THEN
+                where_string := where_string || _key || ' IS NULL ';
             ELSE
                 where_string := where_string || _key || ' = ' || _value;
             END IF;
@@ -164,7 +166,9 @@ CREATE OR REPLACE FUNCTION enermaps_query_table(parameters text,
             ELSIF _key = 'intersecting' THEN
                 where_string := where_string || 'ST_intersects(spatial.geometry,ST_TRANSFORM(ST_GeometryFromText(''' || _value || ''',4326),3035))';
             ELSIF is_json_object(_value) THEN
-                where_string :=  where_string || create_json_where(_key, _value::json);
+                where_string := where_string || create_json_where(_key, _value::json);
+            ELSIF _value is null THEN
+                where_string := where_string || _key || ' IS NULL ';
             ELSE
                 where_string := where_string || _key || ' = ' || _value;
             END IF;
@@ -368,7 +372,9 @@ CREATE OR REPLACE FUNCTION enermaps_set_legend(parameters text, legend text)
             ELSIF _key = 'intersecting' THEN
                 where_string := where_string || 'ST_intersects(spatial.geometry,ST_TRANSFORM(ST_GeometryFromText(''' || _value || ''',4326),3035))';
             ELSIF is_json_object(_value) THEN
-                where_string :=  where_string || create_json_where(_key, _value::json);
+                where_string := where_string || create_json_where(_key, _value::json);
+            ELSIF _value is null THEN
+                where_string := where_string || _key || ' IS NULL ';
             ELSE
                 where_string := where_string || _key || ' = ' || _value;
             END IF;
@@ -407,18 +413,18 @@ CREATE OR REPLACE FUNCTION enermaps_get_legend(parameters text)
       FOR _key, _value IN
          SELECT * FROM json_each_text(parameters::json)
           LOOP
-          IF _key = 'level' THEN
-              where_string := where_string || 'spatial.levl_code = ANY(''' || _value || '''::levl[])';
-          ELSIF _key = 'intersecting' THEN
-              where_string := where_string || 'ST_intersects(spatial.geometry,ST_TRANSFORM(ST_GeometryFromText(''' || _value || ''',4326),3035))';
-          ELSIF is_json_object(_value) THEN
-              where_string :=  where_string || create_json_where(_key, _value::json);
-          ELSE
-              where_string := where_string || _key || ' = ' || _value;
-          END IF;
-          counter := counter + 1;
-          IF counter < count(*) FROM json_object_keys(parameters::json) THEN
-              where_string := where_string || ' AND ';
+          IF (_key != 'level') AND (_key != 'intersecting') THEN
+            IF counter > 0 THEN
+                where_string := where_string || ' AND ';
+            END IF;
+            IF is_json_object(_value) THEN
+                where_string := where_string || create_json_where(_key, _value::json);
+            ELSIF _value is null THEN
+                where_string := where_string || _key || ' IS NULL ';
+            ELSE
+                where_string := where_string || _key || ' = ' || _value;
+            END IF;
+            counter := counter + 1;
           END IF;
       END LOOP;
       EXECUTE format('
@@ -448,19 +454,20 @@ SELECT  datasets.ds_id::int as ds_id,
 GRANT SELECT ON public.dataset_list to api_anon;
 
 
--- Returns a list of all the variables and time periods available in a given dataset
-DROP FUNCTION IF EXISTS enermaps_get_variables(id integer);
-CREATE OR REPLACE FUNCTION enermaps_get_variables(id integer)
+-- Returns the parameters applicable to a given dataset
+DROP FUNCTION IF EXISTS enermaps_get_parameters(id integer);
+CREATE OR REPLACE FUNCTION enermaps_get_parameters(id integer)
   RETURNS jsonb
   AS $$
     SELECT
       jsonb_build_object(
-        'variables', ((metadata ->> 'parameters')::jsonb ->> 'variables')::jsonb,
-        'time_periods', ((metadata ->> 'parameters')::jsonb ->> 'time_periods')::jsonb
+        'parameters', (metadata ->> 'parameters')::jsonb,
+        'default_parameters', (metadata ->> 'default_parameters')::jsonb,
+        'end_at', (metadata ->> 'end_at')
       )
     FROM datasets
     WHERE ds_id=id
   $$
   LANGUAGE SQL
   IMMUTABLE;
-GRANT EXECUTE ON FUNCTION enermaps_get_variables(id integer) to api_user;
+GRANT EXECUTE ON FUNCTION enermaps_get_parameters(id integer) to api_user;

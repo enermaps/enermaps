@@ -2,11 +2,12 @@
 import json
 import logging
 import os
+from datetime import datetime
 
 import requests
 from flask import current_app
 
-from app.common import path
+from app.common import datasets, path
 from app.models import storage
 
 DATASETS_SERVER_URL = os.environ.get("DATASETS_SERVER_URL", "")
@@ -14,19 +15,15 @@ DATASETS_SERVER_API_KEY = os.environ.get("DATASETS_SERVER_API_KEY", "")
 RASTER_SERVER_URL = os.environ.get("RASTER_SERVER_URL", "")
 
 
-def _dataset_is_on_disk(dataset):
-    type = path.RASTER if dataset["is_raster"] else path.VECTOR
-    dataset_name = path.make_unique_layer_name(type, dataset["ds_id"])
-    storage_instance = storage.create_for_layer_type(type)
-    return os.path.exists(storage_instance.get_dir(dataset_name))
-
-
-def get_dataset_list(disable_filtering=False):
+def get_dataset_list(disable_filtering=False, pretty_print=False):
     """Retrieve the list of all available datasets on the enermaps server"""
     url = DATASETS_SERVER_URL + "dataset_list"
 
     try:
         with requests.get(url) as resp:
+            if pretty_print:
+                _pretty_print_request(resp)
+
             datasets = resp.json()
 
         # If necessary: filter out datasets that don't exist in the cache
@@ -40,8 +37,8 @@ def get_dataset_list(disable_filtering=False):
         return []
 
 
-def get_variables(dataset_id):
-    url = DATASETS_SERVER_URL + "rpc/enermaps_get_variables"
+def get_parameters(dataset_id, pretty_print=False):
+    url = DATASETS_SERVER_URL + "rpc/enermaps_get_parameters"
 
     params = {
         "id": dataset_id,
@@ -51,16 +48,12 @@ def get_variables(dataset_id):
 
     try:
         with requests.get(url, headers=headers, params=params) as resp:
-            variables = resp.json()
+            if pretty_print:
+                _pretty_print_request(resp)
 
-        # Ensure all fields have the format we want
-        if ("variables" not in variables) or (variables["variables"] is None):
-            variables["variables"] = []
+            parameters = resp.json()
 
-        if ("time_periods" not in variables) or (variables["time_periods"] is None):
-            variables["time_periods"] = []
-
-        return variables
+        return datasets.convert(parameters)
 
     except Exception as ex:
         logging.error(
@@ -95,12 +88,12 @@ def get_areas():
     ]
 
 
-def get_geojson(layer_name):
+def get_geojson(layer_name, pretty_print=False):
     """
     Fetch a geojson dataset layer from the enermaps server with a given id.
     """
     parameters = _parameters_from_layer_name(layer_name)
-    return _get_geojson(parameters)
+    return _get_geojson(parameters, pretty_print)
 
 
 def get_raster_file(dataset_id, feature_id):
@@ -117,7 +110,7 @@ def get_raster_file(dataset_id, feature_id):
     return None
 
 
-def get_legend(layer_name):
+def get_legend(layer_name, pretty_print=False):
     """
     Fetch a geojson dataset layer from the enermaps server with a given id.
     """
@@ -133,6 +126,9 @@ def get_legend(layer_name):
         }
 
         with requests.get(url, headers=headers, params=params) as resp:
+            if pretty_print:
+                _pretty_print_request(resp)
+
             return resp.json()
     except Exception as ex:
         logging.error(
@@ -142,7 +138,7 @@ def get_legend(layer_name):
     return None
 
 
-def get_area(id):
+def get_area(id, pretty_print=False):
     """
     Fetch a geofile (geojson or raster) dataset layer from the enermaps server
     with a given Id.
@@ -152,10 +148,10 @@ def get_area(id):
         "level": "{" + "{}".format(id) + "}",
     }
 
-    return _get_geojson(parameters)
+    return _get_geojson(parameters, pretty_print=pretty_print)
 
 
-def _get_geojson(parameters):
+def _get_geojson(parameters, pretty_print=False):
     """
     Fetch a geofile (geojson or raster) dataset layer from the enermaps server
     with a given Id.
@@ -177,9 +173,12 @@ def _get_geojson(parameters):
             }
 
             with requests.get(url, headers=headers, params=params) as resp:
+                if pretty_print:
+                    _pretty_print_request(resp)
+
                 data = resp.json()
 
-            if data["features"] is None:
+            if ("features" not in data) or (data["features"] is None):
                 break
 
             if all_data is not None:
@@ -206,10 +205,51 @@ def _parameters_from_layer_name(layer_name):
         "data.ds_id": id,
     }
 
+    dataset_parameters = get_parameters(id)
+    datasets.process_parameters(dataset_parameters)
+
     if variable is not None:
         parameters["variable"] = f"'{variable}'"
 
     if time_period is not None:
-        parameters["start_at"] = f"'{time_period}-01-01'"
+        if time_period == str(None):
+            parameters["start_at"] = None
+        elif time_period.find("-") > 0:
+            parameters["start_at"] = f"'{time_period}-01'"
+        elif len(time_period) == 4:
+            parameters["start_at"] = f"'{time_period}-01-01'"
+        else:
+            start = datetime.strptime(dataset_parameters["start_at"], "%Y-%m-%d %H:%M")
+            parameters["start_at"] = f"'{start.year:04d}-{time_period}-01'"
+
+    for k, v in dataset_parameters["default_parameters"].items():
+        if k not in parameters:
+            if k in ("fields", "intersecting"):
+                parameters[k] = v
+            elif k == "level":
+                parameters[k] = f"{v}"
+            else:
+                parameters[k] = f"'{v}'"
 
     return parameters
+
+
+def _dataset_is_on_disk(dataset):
+    type = path.RASTER if dataset["is_raster"] else path.VECTOR
+    dataset_name = path.make_unique_layer_name(type, dataset["ds_id"])
+    storage_instance = storage.create_for_layer_type(type)
+    return os.path.exists(storage_instance.get_dir(dataset_name))
+
+
+def _pretty_print_request(response):
+    print(
+        "\n{}\n{}\n{}\n\n{}\n{}\n".format(
+            "== Request ==========================",
+            response.request.method + " " + response.request.url,
+            "\r\n".join(
+                "{}: {}".format(k, v) for k, v in response.request.headers.items()
+            ),
+            response.request.body,
+            "=====================================",
+        )
+    )

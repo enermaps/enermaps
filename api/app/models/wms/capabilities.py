@@ -71,11 +71,11 @@ def get_capabilities():
             crs_node.text = crs.upper()
             layer_node.append(crs_node)
 
-        variables = client.get_variables(dataset["ds_id"])
+        parameters = client.get_parameters(dataset["ds_id"])
 
-        if (len(variables["variables"]) > 0) and (len(variables["time_periods"]) > 0):
+        if (len(parameters["variables"]) > 0) and (len(parameters["time_periods"]) > 0):
             for variable, time_period in itertools.product(
-                variables["variables"], variables["time_periods"]
+                parameters["variables"], parameters["time_periods"]
             ):
                 get_layer_capabilities(
                     layer_node,
@@ -85,13 +85,13 @@ def get_capabilities():
                     variable=variable,
                     time_period=time_period,
                 )
-        elif len(variables["variables"]) > 0:
-            for variable in variables["variables"]:
+        elif len(parameters["variables"]) > 0:
+            for variable in parameters["variables"]:
                 get_layer_capabilities(
                     layer_node, dataset, type, dataset["ds_id"], variable=variable
                 )
-        elif len(variables["time_periods"]) > 0:
-            for time_period in variables["time_periods"]:
+        elif len(parameters["time_periods"]) > 0:
+            for time_period in parameters["time_periods"]:
                 get_layer_capabilities(
                     layer_node, dataset, type, dataset["ds_id"], time_period=time_period
                 )

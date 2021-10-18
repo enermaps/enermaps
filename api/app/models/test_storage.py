@@ -68,8 +68,24 @@ class TestRasterStorage(BaseApiTest):
                 f"{self.wms_cache_dir}/rasters/10/2015",
             )
             self.assertEquals(
+                storage_instance.get_dir("raster/10/2015-01"),
+                f"{self.wms_cache_dir}/rasters/10/2015-01",
+            )
+            self.assertEquals(
+                storage_instance.get_dir("raster/10/None"),
+                f"{self.wms_cache_dir}/rasters/10/None",
+            )
+            self.assertEquals(
                 storage_instance.get_dir(f"raster/10/2015/{ENCODED_VAR}"),
                 f"{self.wms_cache_dir}/rasters/10/2015/{ENCODED_VAR}",
+            )
+            self.assertEquals(
+                storage_instance.get_dir(f"raster/10/2015-01/{ENCODED_VAR}"),
+                f"{self.wms_cache_dir}/rasters/10/2015-01/{ENCODED_VAR}",
+            )
+            self.assertEquals(
+                storage_instance.get_dir(f"raster/10/None/{ENCODED_VAR}"),
+                f"{self.wms_cache_dir}/rasters/10/None/{ENCODED_VAR}",
             )
             self.assertEquals(
                 storage_instance.get_dir(f"raster/10//{ENCODED_VAR}"),
@@ -88,10 +104,30 @@ class TestRasterStorage(BaseApiTest):
                 f"{self.wms_cache_dir}/rasters/10/2015/layer.tif",
             )
             self.assertEquals(
+                storage_instance.get_file_path("raster/10/2015-01", "layer.tif"),
+                f"{self.wms_cache_dir}/rasters/10/2015-01/layer.tif",
+            )
+            self.assertEquals(
+                storage_instance.get_file_path("raster/10/None", "layer.tif"),
+                f"{self.wms_cache_dir}/rasters/10/None/layer.tif",
+            )
+            self.assertEquals(
                 storage_instance.get_file_path(
                     f"raster/10/2015/{ENCODED_VAR}", "layer.tif"
                 ),
                 f"{self.wms_cache_dir}/rasters/10/2015/{ENCODED_VAR}/layer.tif",
+            )
+            self.assertEquals(
+                storage_instance.get_file_path(
+                    f"raster/10/2015-01/{ENCODED_VAR}", "layer.tif"
+                ),
+                f"{self.wms_cache_dir}/rasters/10/2015-01/{ENCODED_VAR}/layer.tif",
+            )
+            self.assertEquals(
+                storage_instance.get_file_path(
+                    f"raster/10/None/{ENCODED_VAR}", "layer.tif"
+                ),
+                f"{self.wms_cache_dir}/rasters/10/None/{ENCODED_VAR}/layer.tif",
             )
             self.assertEquals(
                 storage_instance.get_file_path(
@@ -179,7 +215,23 @@ class TestRasterStorageWithoutCache(BaseApiTest):
                 f"{self.raster_cache_dir}/10",
             )
             self.assertEquals(
+                storage_instance.get_dir("raster/10/2015-01"),
+                f"{self.raster_cache_dir}/10",
+            )
+            self.assertEquals(
+                storage_instance.get_dir("raster/10/None"),
+                f"{self.raster_cache_dir}/10",
+            )
+            self.assertEquals(
                 storage_instance.get_dir(f"raster/10/2015/{ENCODED_VAR}"),
+                f"{self.raster_cache_dir}/10",
+            )
+            self.assertEquals(
+                storage_instance.get_dir(f"raster/10/2015-01/{ENCODED_VAR}"),
+                f"{self.raster_cache_dir}/10",
+            )
+            self.assertEquals(
+                storage_instance.get_dir(f"raster/10/None/{ENCODED_VAR}"),
                 f"{self.raster_cache_dir}/10",
             )
             self.assertEquals(
@@ -199,8 +251,28 @@ class TestRasterStorageWithoutCache(BaseApiTest):
                 f"{self.raster_cache_dir}/10/layer.tif",
             )
             self.assertEquals(
+                storage_instance.get_file_path("raster/10/2015-01", "layer.tif"),
+                f"{self.raster_cache_dir}/10/layer.tif",
+            )
+            self.assertEquals(
+                storage_instance.get_file_path("raster/10/None", "layer.tif"),
+                f"{self.raster_cache_dir}/10/layer.tif",
+            )
+            self.assertEquals(
                 storage_instance.get_file_path(
                     f"raster/10/2015/{ENCODED_VAR}", "layer.tif"
+                ),
+                f"{self.raster_cache_dir}/10/layer.tif",
+            )
+            self.assertEquals(
+                storage_instance.get_file_path(
+                    f"raster/10/2015-01/{ENCODED_VAR}", "layer.tif"
+                ),
+                f"{self.raster_cache_dir}/10/layer.tif",
+            )
+            self.assertEquals(
+                storage_instance.get_file_path(
+                    f"raster/10/None/{ENCODED_VAR}", "layer.tif"
                 ),
                 f"{self.raster_cache_dir}/10/layer.tif",
             )
@@ -273,8 +345,24 @@ class TestVectorStorage(BaseApiTest):
                 f"{self.wms_cache_dir}/vectors/10/2015",
             )
             self.assertEquals(
+                storage_instance.get_dir("vector/10/2015-01"),
+                f"{self.wms_cache_dir}/vectors/10/2015-01",
+            )
+            self.assertEquals(
+                storage_instance.get_dir("vector/10/None"),
+                f"{self.wms_cache_dir}/vectors/10/None",
+            )
+            self.assertEquals(
                 storage_instance.get_dir(f"vector/10/2015/{ENCODED_VAR}"),
                 f"{self.wms_cache_dir}/vectors/10/2015",
+            )
+            self.assertEquals(
+                storage_instance.get_dir(f"vector/10/2015-01/{ENCODED_VAR}"),
+                f"{self.wms_cache_dir}/vectors/10/2015-01",
+            )
+            self.assertEquals(
+                storage_instance.get_dir(f"vector/10/None/{ENCODED_VAR}"),
+                f"{self.wms_cache_dir}/vectors/10/None",
             )
             self.assertEquals(
                 storage_instance.get_dir(f"vector/10//{ENCODED_VAR}"),
@@ -293,8 +381,26 @@ class TestVectorStorage(BaseApiTest):
                 f"{self.wms_cache_dir}/vectors/10/2015/data.txt",
             )
             self.assertEquals(
+                storage_instance.get_file_path("vector/10/2015-01", "txt"),
+                f"{self.wms_cache_dir}/vectors/10/2015-01/data.txt",
+            )
+            self.assertEquals(
+                storage_instance.get_file_path("vector/10/None", "txt"),
+                f"{self.wms_cache_dir}/vectors/10/None/data.txt",
+            )
+            self.assertEquals(
                 storage_instance.get_file_path(f"vector/10/2015/{ENCODED_VAR}", "txt"),
                 f"{self.wms_cache_dir}/vectors/10/2015/data.txt",
+            )
+            self.assertEquals(
+                storage_instance.get_file_path(
+                    f"vector/10/2015-01/{ENCODED_VAR}", "txt"
+                ),
+                f"{self.wms_cache_dir}/vectors/10/2015-01/data.txt",
+            )
+            self.assertEquals(
+                storage_instance.get_file_path(f"vector/10/None/{ENCODED_VAR}", "txt"),
+                f"{self.wms_cache_dir}/vectors/10/None/data.txt",
             )
             self.assertEquals(
                 storage_instance.get_file_path(f"vector/10//{ENCODED_VAR}", "txt"),
@@ -313,8 +419,24 @@ class TestVectorStorage(BaseApiTest):
                 f"{self.wms_cache_dir}/vectors/10/2015/data.geojson",
             )
             self.assertEquals(
+                storage_instance.get_geojson_file("vector/10/2015-01"),
+                f"{self.wms_cache_dir}/vectors/10/2015-01/data.geojson",
+            )
+            self.assertEquals(
+                storage_instance.get_geojson_file("vector/10/None"),
+                f"{self.wms_cache_dir}/vectors/10/None/data.geojson",
+            )
+            self.assertEquals(
                 storage_instance.get_geojson_file(f"vector/10/2015/{ENCODED_VAR}"),
                 f"{self.wms_cache_dir}/vectors/10/2015/data.geojson",
+            )
+            self.assertEquals(
+                storage_instance.get_geojson_file(f"vector/10/2015-01/{ENCODED_VAR}"),
+                f"{self.wms_cache_dir}/vectors/10/2015-01/data.geojson",
+            )
+            self.assertEquals(
+                storage_instance.get_geojson_file(f"vector/10/None/{ENCODED_VAR}"),
+                f"{self.wms_cache_dir}/vectors/10/None/data.geojson",
             )
             self.assertEquals(
                 storage_instance.get_geojson_file(f"vector/10//{ENCODED_VAR}"),

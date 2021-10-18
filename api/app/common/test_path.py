@@ -24,7 +24,7 @@ class MakePathTest(BaseApiTest):
         self.assertEqual(name, "area/NUTS2")
 
     def testAreaLayerWithTimePeriod(self):
-        name = path.make_unique_layer_name(path.AREA, "NUTS2", time_period=2015)
+        name = path.make_unique_layer_name(path.AREA, "NUTS2", time_period="2015")
         self.assertEqual(name, "area/NUTS2")
 
     def testAreaLayerWithVariableAndTimePeriod(self):
@@ -47,15 +47,35 @@ class MakePathTest(BaseApiTest):
         name = path.make_unique_layer_name(path.VECTOR, 42, variable="var")
         self.assertEqual(name, f"vector/42//{ENCODED_VAR}")
 
-    def testVectorLayerWithTimePeriod(self):
-        name = path.make_unique_layer_name(path.VECTOR, 42, time_period=2015)
+    def testVectorLayerWithTimePeriodYear(self):
+        name = path.make_unique_layer_name(path.VECTOR, 42, time_period="2015")
         self.assertEqual(name, "vector/42/2015")
 
-    def testVectorLayerWithVariableAndTimePeriod(self):
+    def testVectorLayerWithTimePeriodYearMonth(self):
+        name = path.make_unique_layer_name(path.VECTOR, 42, time_period="2015-01")
+        self.assertEqual(name, "vector/42/2015-01")
+
+    def testVectorLayerWithNullTimePeriod(self):
+        name = path.make_unique_layer_name(path.VECTOR, 42, time_period="None")
+        self.assertEqual(name, "vector/42/None")
+
+    def testVectorLayerWithVariableAndTimePeriodYear(self):
         name = path.make_unique_layer_name(
-            path.VECTOR, 42, variable="var", time_period=2015
+            path.VECTOR, 42, variable="var", time_period="2015"
         )
         self.assertEqual(name, f"vector/42/2015/{ENCODED_VAR}")
+
+    def testVectorLayerWithVariableAndTimePeriodYearMonth(self):
+        name = path.make_unique_layer_name(
+            path.VECTOR, 42, variable="var", time_period="2015-01"
+        )
+        self.assertEqual(name, f"vector/42/2015-01/{ENCODED_VAR}")
+
+    def testVectorLayerWithVariableAndNullTimePeriod(self):
+        name = path.make_unique_layer_name(
+            path.VECTOR, 42, variable="var", time_period="None"
+        )
+        self.assertEqual(name, f"vector/42/None/{ENCODED_VAR}")
 
     def testVectorLayerWithTaskId(self):
         name = path.make_unique_layer_name(
@@ -71,15 +91,35 @@ class MakePathTest(BaseApiTest):
         name = path.make_unique_layer_name(path.RASTER, 42, variable="var")
         self.assertEqual(name, f"raster/42//{ENCODED_VAR}")
 
-    def testRasterLayerWithTimePeriod(self):
-        name = path.make_unique_layer_name(path.RASTER, 42, time_period=2015)
+    def testRasterLayerWithTimePeriodYear(self):
+        name = path.make_unique_layer_name(path.RASTER, 42, time_period="2015")
         self.assertEqual(name, "raster/42/2015")
 
-    def testRasterLayerWithVariableAndTimePeriod(self):
+    def testRasterLayerWithTimePeriodYearMonth(self):
+        name = path.make_unique_layer_name(path.RASTER, 42, time_period="2015-01")
+        self.assertEqual(name, "raster/42/2015-01")
+
+    def testRasterLayerWithNullTimePeriod(self):
+        name = path.make_unique_layer_name(path.RASTER, 42, time_period="None")
+        self.assertEqual(name, "raster/42/None")
+
+    def testRasterLayerWithVariableAndTimePeriodYear(self):
         name = path.make_unique_layer_name(
-            path.RASTER, 42, variable="var", time_period=2015
+            path.RASTER, 42, variable="var", time_period="2015"
         )
         self.assertEqual(name, f"raster/42/2015/{ENCODED_VAR}")
+
+    def testRasterLayerWithVariableAndTimePeriodYearMonth(self):
+        name = path.make_unique_layer_name(
+            path.RASTER, 42, variable="var", time_period="2015-01"
+        )
+        self.assertEqual(name, f"raster/42/2015-01/{ENCODED_VAR}")
+
+    def testRasterLayerWithVariableAndNullTimePeriod(self):
+        name = path.make_unique_layer_name(
+            path.RASTER, 42, variable="var", time_period="None"
+        )
+        self.assertEqual(name, f"raster/42/None/{ENCODED_VAR}")
 
     def testRasterLayerWithTaskId(self):
         name = path.make_unique_layer_name(
@@ -125,6 +165,41 @@ class MakePathTest(BaseApiTest):
         )
         self.assertEqual(name, "cm/heat_demand/01234567-0000-0000-0000-000000000000")
 
+    def testVectorLayerWithInvalidTimePeriod1(self):
+        self.assertFalse(
+            path.make_unique_layer_name(path.VECTOR, 42, time_period="abcd")
+        )
+
+    def testVectorLayerWithInvalidTimePeriod2(self):
+        self.assertFalse(
+            path.make_unique_layer_name(path.VECTOR, 42, time_period="2015-0a")
+        )
+
+    def testVectorLayerWithInvalidTimePeriod3(self):
+        self.assertFalse(
+            path.make_unique_layer_name(path.VECTOR, 42, time_period="20a5")
+        )
+
+    def testVectorLayerWithInvalidTimePeriod4(self):
+        self.assertFalse(
+            path.make_unique_layer_name(path.VECTOR, 42, time_period="201")
+        )
+
+    def testVectorLayerWithInvalidTimePeriod5(self):
+        self.assertFalse(
+            path.make_unique_layer_name(path.VECTOR, 42, time_period="20150")
+        )
+
+    def testVectorLayerWithInvalidTimePeriod6(self):
+        self.assertFalse(
+            path.make_unique_layer_name(path.VECTOR, 42, time_period="2015-001")
+        )
+
+    def testVectorLayerWithInvalidTimePeriod7(self):
+        self.assertFalse(
+            path.make_unique_layer_name(path.VECTOR, 42, time_period="2015-01-01")
+        )
+
 
 class ParsePathTest(BaseApiTest):
     def testAreaLayer(self):
@@ -157,24 +232,64 @@ class ParsePathTest(BaseApiTest):
         self.assertTrue(time_period is None)
         self.assertTrue(task_id is None)
 
-    def testVectorLayerWithTimePeriod(self):
+    def testVectorLayerWithTimePeriodYearOnly(self):
         (type, id, variable, time_period, task_id) = path.parse_unique_layer_name(
             "vector/42/2015"
         )
         self.assertEqual(type, path.VECTOR)
         self.assertEqual(id, 42)
         self.assertTrue(variable is None)
-        self.assertEqual(time_period, 2015)
+        self.assertEqual(time_period, "2015")
         self.assertTrue(task_id is None)
 
-    def testVectorLayerWithVariableAndTimePeriod(self):
+    def testVectorLayerWithTimePeriodYearMonth(self):
+        (type, id, variable, time_period, task_id) = path.parse_unique_layer_name(
+            "vector/42/2015-01"
+        )
+        self.assertEqual(type, path.VECTOR)
+        self.assertEqual(id, 42)
+        self.assertTrue(variable is None)
+        self.assertEqual(time_period, "2015-01")
+        self.assertTrue(task_id is None)
+
+    def testVectorLayerWithNullTimePeriod(self):
+        (type, id, variable, time_period, task_id) = path.parse_unique_layer_name(
+            "vector/42/None"
+        )
+        self.assertEqual(type, path.VECTOR)
+        self.assertEqual(id, 42)
+        self.assertTrue(variable is None)
+        self.assertEqual(time_period, "None")
+        self.assertTrue(task_id is None)
+
+    def testVectorLayerWithVariableAndTimePeriodYear(self):
         (type, id, variable, time_period, task_id) = path.parse_unique_layer_name(
             f"vector/42/2015/{ENCODED_VAR}"
         )
         self.assertEqual(type, path.VECTOR)
         self.assertEqual(id, 42)
         self.assertEqual(variable, "var")
-        self.assertEqual(time_period, 2015)
+        self.assertEqual(time_period, "2015")
+        self.assertTrue(task_id is None)
+
+    def testVectorLayerWithVariableAndTimePeriodYearMonth(self):
+        (type, id, variable, time_period, task_id) = path.parse_unique_layer_name(
+            f"vector/42/2015-01/{ENCODED_VAR}"
+        )
+        self.assertEqual(type, path.VECTOR)
+        self.assertEqual(id, 42)
+        self.assertEqual(variable, "var")
+        self.assertEqual(time_period, "2015-01")
+        self.assertTrue(task_id is None)
+
+    def testVectorLayerWithVariableAndNullTimePeriod(self):
+        (type, id, variable, time_period, task_id) = path.parse_unique_layer_name(
+            f"vector/42/None/{ENCODED_VAR}"
+        )
+        self.assertEqual(type, path.VECTOR)
+        self.assertEqual(id, 42)
+        self.assertEqual(variable, "var")
+        self.assertEqual(time_period, "None")
         self.assertTrue(task_id is None)
 
     def testRasterLayer(self):
@@ -197,14 +312,34 @@ class ParsePathTest(BaseApiTest):
         self.assertTrue(time_period is None)
         self.assertTrue(task_id is None)
 
-    def testRasterLayerWithTimePeriod(self):
+    def testRasterLayerWithTimePeriodYear(self):
         (type, id, variable, time_period, task_id) = path.parse_unique_layer_name(
             "raster/42/2015"
         )
         self.assertEqual(type, path.RASTER)
         self.assertEqual(id, 42)
         self.assertTrue(variable is None)
-        self.assertEqual(time_period, 2015)
+        self.assertEqual(time_period, "2015")
+        self.assertTrue(task_id is None)
+
+    def testRasterLayerWithTimePeriodYearMonth(self):
+        (type, id, variable, time_period, task_id) = path.parse_unique_layer_name(
+            "raster/42/2015-01"
+        )
+        self.assertEqual(type, path.RASTER)
+        self.assertEqual(id, 42)
+        self.assertTrue(variable is None)
+        self.assertEqual(time_period, "2015-01")
+        self.assertTrue(task_id is None)
+
+    def testRasterLayerWithNullTimePeriod(self):
+        (type, id, variable, time_period, task_id) = path.parse_unique_layer_name(
+            "raster/42/None"
+        )
+        self.assertEqual(type, path.RASTER)
+        self.assertEqual(id, 42)
+        self.assertTrue(variable is None)
+        self.assertEqual(time_period, "None")
         self.assertTrue(task_id is None)
 
     def testRasterLayerWithVariableAndTimePeriod(self):
@@ -214,7 +349,7 @@ class ParsePathTest(BaseApiTest):
         self.assertEqual(type, path.RASTER)
         self.assertEqual(id, 42)
         self.assertEqual(variable, "var")
-        self.assertEqual(time_period, 2015)
+        self.assertEqual(time_period, "2015")
         self.assertTrue(task_id is None)
 
     def testCMLayer(self):
@@ -251,12 +386,28 @@ class GetTypeTest(BaseApiTest):
         type = path.get_type(f"vector/42//{ENCODED_VAR}")
         self.assertEqual(type, path.VECTOR)
 
-    def testVectorLayerWithTimePeriod(self):
+    def testVectorLayerWithTimePeriodYear(self):
         type = path.get_type("vector/42/2015")
         self.assertEqual(type, path.VECTOR)
 
-    def testVectorLayerWithVariableAndTimePeriod(self):
+    def testVectorLayerWithTimePeriodYearMonth(self):
+        type = path.get_type("vector/42/2015-01")
+        self.assertEqual(type, path.VECTOR)
+
+    def testVectorLayerWithNullTimePeriod(self):
+        type = path.get_type("vector/42/None")
+        self.assertEqual(type, path.VECTOR)
+
+    def testVectorLayerWithVariableAndTimePeriodYear(self):
         type = path.get_type(f"vector/42/2015/{ENCODED_VAR}")
+        self.assertEqual(type, path.VECTOR)
+
+    def testVectorLayerWithVariableAndTimePeriodYearMonth(self):
+        type = path.get_type(f"vector/42/2015-01/{ENCODED_VAR}")
+        self.assertEqual(type, path.VECTOR)
+
+    def testVectorLayerWithVariableAndNullTimePeriod(self):
+        type = path.get_type(f"vector/42/None/{ENCODED_VAR}")
         self.assertEqual(type, path.VECTOR)
 
     def testRasterLayer(self):
@@ -267,12 +418,28 @@ class GetTypeTest(BaseApiTest):
         type = path.get_type(f"raster/42//{ENCODED_VAR}")
         self.assertEqual(type, path.RASTER)
 
-    def testRasterLayerWithTimePeriod(self):
+    def testRasterLayerWithTimePeriodYear(self):
         type = path.get_type("raster/42/2015")
         self.assertEqual(type, path.RASTER)
 
-    def testRasterLayerWithVariableAndTimePeriod(self):
+    def testRasterLayerWithTimePeriodYearMonth(self):
+        type = path.get_type("raster/42/2015-01")
+        self.assertEqual(type, path.RASTER)
+
+    def testRasterLayerWithNullTimePeriod(self):
+        type = path.get_type("raster/42/None")
+        self.assertEqual(type, path.RASTER)
+
+    def testRasterLayerWithVariableAndTimePeriodYear(self):
         type = path.get_type(f"raster/42/2015/{ENCODED_VAR}")
+        self.assertEqual(type, path.RASTER)
+
+    def testRasterLayerWithVariableAndTimePeriodYearMonth(self):
+        type = path.get_type(f"raster/42/2015-01/{ENCODED_VAR}")
+        self.assertEqual(type, path.RASTER)
+
+    def testRasterLayerWithVariableAndNullTimePeriod(self):
+        type = path.get_type(f"raster/42/None/{ENCODED_VAR}")
         self.assertEqual(type, path.RASTER)
 
     def testCMLayer(self):
@@ -293,13 +460,29 @@ class ToFolderPathTest(BaseApiTest):
         folder_path = path.to_folder_path(f"vector/42//{ENCODED_VAR}")
         self.assertEqual(folder_path, "42")
 
-    def testVectorLayerWithTimePeriod(self):
+    def testVectorLayerWithTimePeriodYear(self):
         folder_path = path.to_folder_path("vector/42/2015")
         self.assertEqual(folder_path, "42/2015")
 
-    def testVectorLayerWithVariableAndTimePeriod(self):
+    def testVectorLayerWithTimePeriodYearMonth(self):
+        folder_path = path.to_folder_path("vector/42/2015-01")
+        self.assertEqual(folder_path, "42/2015-01")
+
+    def testVectorLayerWithNullTimePeriod(self):
+        folder_path = path.to_folder_path("vector/42/None")
+        self.assertEqual(folder_path, "42/None")
+
+    def testVectorLayerWithVariableAndTimePeriodYear(self):
         folder_path = path.to_folder_path(f"vector/42/2015/{ENCODED_VAR}")
         self.assertEqual(folder_path, "42/2015")
+
+    def testVectorLayerWithVariableAndTimePeriodYearMonth(self):
+        folder_path = path.to_folder_path(f"vector/42/2015-01/{ENCODED_VAR}")
+        self.assertEqual(folder_path, "42/2015-01")
+
+    def testVectorLayerWithVariableAndNullTimePeriod(self):
+        folder_path = path.to_folder_path(f"vector/42/None/{ENCODED_VAR}")
+        self.assertEqual(folder_path, "42/None")
 
     def testRasterLayer(self):
         folder_path = path.to_folder_path("raster/42")
@@ -309,13 +492,29 @@ class ToFolderPathTest(BaseApiTest):
         folder_path = path.to_folder_path(f"raster/42//{ENCODED_VAR}")
         self.assertEqual(folder_path, f"42/{ENCODED_VAR}")
 
-    def testRasterLayerWithTimePeriod(self):
+    def testRasterLayerWithTimePeriodYear(self):
         folder_path = path.to_folder_path("raster/42/2015")
         self.assertEqual(folder_path, "42/2015")
 
-    def testRasterLayerWithVariableAndTimePeriod(self):
+    def testRasterLayerWithTimePeriodYearMonth(self):
+        folder_path = path.to_folder_path("raster/42/2015-01")
+        self.assertEqual(folder_path, "42/2015-01")
+
+    def testRasterLayerWithNullTimePeriod(self):
+        folder_path = path.to_folder_path("raster/42/None")
+        self.assertEqual(folder_path, "42/None")
+
+    def testRasterLayerWithVariableAndTimePeriodYear(self):
         folder_path = path.to_folder_path(f"raster/42/2015/{ENCODED_VAR}")
         self.assertEqual(folder_path, f"42/2015/{ENCODED_VAR}")
+
+    def testRasterLayerWithVariableAndTimePeriodYearMonth(self):
+        folder_path = path.to_folder_path(f"raster/42/2015-01/{ENCODED_VAR}")
+        self.assertEqual(folder_path, f"42/2015-01/{ENCODED_VAR}")
+
+    def testRasterLayerWithVariableAndNullTimePeriod(self):
+        folder_path = path.to_folder_path(f"raster/42/None/{ENCODED_VAR}")
+        self.assertEqual(folder_path, f"42/None/{ENCODED_VAR}")
 
     def testCMLayer(self):
         folder_path = path.to_folder_path(
