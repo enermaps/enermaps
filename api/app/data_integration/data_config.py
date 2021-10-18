@@ -356,8 +356,8 @@ DATASETS_DIC = {
                 }
             },
             "legend_variable": {
-                "variable": "undefined",
-                "units": "undefined",
+                "variable": "Elevation",
+                "units": "m",
                 "min": 21.7069,
                 "max": 165.7,
             },
@@ -578,8 +578,8 @@ DATASETS_DIC = {
                 }
             },
             "legend_variable": {
-                "variable": "undefined",
-                "units": "undefined",
+                "variable": "Building height",
+                "units": "m",
                 "min": 0,
                 "max": 324,
             },
@@ -602,15 +602,25 @@ DATASETS_DIC = {
             "style": {
                 "colors": {
                     "color": (1, 0, 0),
-                    "color_palet": "Greys_r",
-                    "nb_of_colors": 12,
-                }
+                    "color_palet": "flare",
+                    "nb_of_colors": 8,
+                },
+                "classes": {
+                    1: [(112, 162, 255), "Water"],
+                    2: [(102, 102, 102), "Railways"],
+                    10: [(242, 242, 242), "Non-built area - Open Space"],
+                    20: [(221, 230, 207), "Non-built area - Green ndvix"],
+                    30: [(102, 102, 102), "Built area - Open space"],
+                    40: [(181, 204, 142), "Built area - Green ndvix"],
+                    41: [(200, 230, 161), "Built area - Green Urban Atlas"],
+                    50: [(128, 125, 121), "Built area - Built up"],
+                },
             },
             "legend_variable": {
-                "variable": "undefined",
-                "units": "undefined",
-                "min": 30,
-                "max": 50,
+                "variable": "Land use",
+                "units": "-",
+                "min": None,
+                "max": None,
             },
         },
         "title": "European Settlement Map",
