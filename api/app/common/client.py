@@ -2,7 +2,9 @@
 import json
 import logging
 import os
+import time
 from datetime import datetime
+from functools import lru_cache
 
 import requests
 from flask import current_app
@@ -13,6 +15,11 @@ from app.models import storage
 DATASETS_SERVER_URL = os.environ.get("DATASETS_SERVER_URL", "")
 DATASETS_SERVER_API_KEY = os.environ.get("DATASETS_SERVER_API_KEY", "")
 RASTER_SERVER_URL = os.environ.get("RASTER_SERVER_URL", "")
+
+
+def get_ttl_hash(seconds=10):
+    """Return the same value within `seconds` time period"""
+    return round(time.time() / seconds)
 
 
 def get_dataset_list(disable_filtering=False, pretty_print=False):
@@ -110,10 +117,15 @@ def get_raster_file(dataset_id, feature_id):
     return None
 
 
-def get_legend(layer_name, pretty_print=False):
+@lru_cache(maxsize=10)
+def get_legend(layer_name, pretty_print=False, ttl_hash=None):
     """
     Fetch a geojson dataset layer from the enermaps server with a given id.
     """
+    del ttl_hash
+
+    print("GET_LEGEND", int(round(time.time() / 10)))
+
     url = DATASETS_SERVER_URL + "rpc/enermaps_get_legend"
 
     parameters = _parameters_from_layer_name(layer_name)
