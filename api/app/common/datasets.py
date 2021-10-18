@@ -9,7 +9,7 @@ def convert(parameters):
         if (field not in params) or (params[field] is None):
             params[field] = []
 
-    for field in "fields":
+    for field in ("fields",):
         if (field not in params) or (params[field] is None):
             params[field] = {}
 
