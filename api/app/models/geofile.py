@@ -61,7 +61,7 @@ def save_vector_geojson(layer_name, geojson):
         os.makedirs(os.path.dirname(target_folder), exist_ok=True)
 
         try:
-            os.replace(tmp_dir, storage_instance.get_dir(layer_name))
+            os.replace(tmp_dir, target_folder)
         except (FileExistsError, OSError):
             print("Geofile already exists")
         except Exception as e:
@@ -114,8 +114,12 @@ def _save_raster_file(storage_instance, layer_name, feature_id, raster_content):
 def delete_all_features(layer_name):
     storage_instance = storage.create(layer_name)
 
+    folder = storage_instance.get_dir(layer_name)
+    if not os.path.exists(folder):
+        return
+
     with TemporaryDirectory(prefix=storage_instance.get_tmp_dir()) as tmp_dir:
-        os.rename(storage_instance.get_dir(layer_name), tmp_dir)
+        os.rename(folder, tmp_dir)
         shutil.rmtree(tmp_dir)
 
 

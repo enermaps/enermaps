@@ -71,7 +71,7 @@ def create_app(environment="production", testing=False, on_startup=False):
     app.cli.add_command(cache.update_dataset)
     app.cli.add_command(cache.update_areas)
     app.cli.add_command(cache.list_datasets)
-    app.cli.add_command(cache.list_variables)
+    app.cli.add_command(cache.get_parameters)
     app.cli.add_command(cache.get_legend)
 
     # Install the WSGI middleware

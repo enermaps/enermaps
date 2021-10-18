@@ -7,7 +7,9 @@ import hashlib
 from flask import Response
 from flask_restx import Namespace, Resource, abort
 
-from app.common import client, path
+from app.common import client
+from app.common import datasets as datasets_fcts
+from app.common import path
 
 api = Namespace("datasets", description="Datasets related endpoints")
 
@@ -31,24 +33,28 @@ class DatasetsFull(Resource):
         datasets = client.get_dataset_list()
 
         for dataset in datasets:
-            dataset["info"] = client.get_variables(dataset["ds_id"])
+            dataset["info"] = client.get_parameters(dataset["ds_id"])
             if dataset["info"] is None:
                 abort(404)
+
+            datasets_fcts.process_parameters(dataset["info"])
 
         add_openaire_links(datasets)
 
         return datasets
 
 
-@api.route("/<int:id>/variables/")
-class DatasetVariables(Resource):
+@api.route("/<int:id>/parameters/")
+class DatasetParameters(Resource):
     def get(self, id):
         """Return the variables and time periods available in a dataset"""
-        variables = client.get_variables(id)
-        if variables is None:
+        parameters = client.get_parameters(id)
+        if parameters is None:
             abort(404)
 
-        return variables
+        datasets_fcts.process_parameters(parameters)
+
+        return parameters
 
 
 @api.route(
