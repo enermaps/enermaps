@@ -62,7 +62,7 @@ class CMTaskCreator(Resource):
 
         # Retrieve the list of TIFF files associated with the layer
         layers = []
-        if layer_name is not None:
+        if (layer_name is not None) and (path.get_type(layer_name) == path.RASTER):
             storage_instance = storage.create(layer_name)
             root_dir = storage_instance.get_root_dir()
             for feature_id in storage_instance.list_feature_ids(layer_name):
