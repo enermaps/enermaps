@@ -68,6 +68,22 @@ class CMOutput(Schema):
         ),
         required=True,
     )
+    legend = fields.Dict(
+        name=fields.Str(required=False),
+        type=fields.Str(required=False),
+        symbology=fields.List(
+            fields.Dict(
+                red=fields.Number(),
+                green=fields.Number(),
+                blue=fields.Number(),
+                label=fields.Str(),
+                value=fields.Number(),
+                opacity=fields.Number(),
+            ),
+            required=True,
+        ),
+        required=False,
+    )
 
 
 def validate(output: Dict) -> Dict:
