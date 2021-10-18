@@ -34,7 +34,6 @@ with open(env_db_server, "r") as f:
         if line.startswith("DATASETS_SERVER_URL"):
             POSTGREST_URL = line.split("=")[-1]
 POSTGREST_ENDPOINT = "rpc/enermaps_query_table"
-API_URL = os.environ.get("API_BASE_URL")
 HEADERS = {"Authorization": "Bearer {}".format(API_KEY)}
 
 CURRENT_FILE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -62,28 +61,22 @@ def createLegend(
     preds: np.array, name: str = "Heating density", unit: str = "MWh"
 ) -> dict:
     """Prepare a legend dict in HotMaps format"""
-    # Process color_scale
-    # color_scale = pd.read_csv("colors.txt",delim_whitespace=True,index_col=[0],header=None)
-    # color_scale.columns = ["R","G","B","alpha"]
-    # color_scale = color_scale.loc[color_scale.index != "nv",:]
-    # if len(color_scale) >= preds:
-    #     color_scale = color_scale.iloc[::2, :]
     color_scale = cm.get_cmap(
         "plasma", min([10, preds[~np.isnan(preds)].shape[0] - 1])
     ).colors
     color_scale[:, :-1] = color_scale[:, :-1] / 255
 
-    breaks = jenkspy.jenks_breaks(preds[~np.isnan(preds)], nb_class=3)
+    breaks = jenkspy.jenks_breaks(preds[~np.isnan(preds)], nb_class=5)
 
-    legend = {"legend": {"name": name, "type": "custom", "symbology": []}}
+    legend = {"name": name, "type": "custom", "symbology": []}
     for i in range(len(breaks)):
         legend["symbology"].append(
             {
-                "red": color_scale["R"].iloc[i],
-                "green": color_scale["G"].iloc[i],
-                "blue": color_scale["B"].iloc[i],
-                "opacity": color_scale["alpha"].iloc[i],
-                "value": preds[i],
+                "red": float(color_scale[i, 0]),
+                "green": float(color_scale[i, 1]),
+                "blue": float(color_scale[i, 2]),
+                "opacity": float(color_scale[i, 3]),
+                "value": float(preds[i]),
                 "label": "≥" + str(preds[i]) + unit,
             }
         )
@@ -164,6 +157,7 @@ def getHDD(polygon, year=2020):
                     "data.ds_id": 9,
                     "start_at": "'{}-{}-01'".format(year, str(month).zfill(2)),
                     "intersecting": "{}".format(polygon.wkt),
+                    "variable": "'Heating degree days'",
                     "level": "{NUTS3}",
                 }
             },
@@ -260,12 +254,6 @@ def heatlearn(
         raise ValueError("No tiles were created.")
 
     # Prepare raster
-    # if len(raster_paths) == 1:
-    #     raster_path = raster_paths[0]
-    # else:
-    #     raise ValueError("Only a single raster is supported for now.")
-    #     # TBD: Use Rasterio to merge rasters
-
     datasets = []
     for raster_path in raster_paths:
         src = rasterio.open(raster_path)
@@ -374,7 +362,7 @@ def heatlearn(
     ret = dict()
     ret["graphs"] = {}
     ret["geofiles"] = {"file": raster_name}
-    # ret["legend"] = createLegend(preds)
+    ret["legend"] = createLegend(preds)
     ret["values"] = {
         "Annual heating demand [GWh]": int(np.round(np.sum(preds) / 1000, 0)),
         "Heating density [MWh/ha]": int(
