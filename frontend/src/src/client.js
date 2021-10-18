@@ -42,8 +42,8 @@ export async function getDatasetsWithVariables() {
 }
 
 
-export async function getDatasetVariables(datasetId) {
-  return fetchJSON('api/datasets/' + datasetId + '/variables/', {});
+export async function getDatasetParameters(datasetId) {
+  return fetchJSON('api/datasets/' + datasetId + '/parameters/', {});
 }
 
 

@@ -1,4 +1,5 @@
 import base64
+import re
 
 AREA = "area"
 VECTOR = "vector"
@@ -20,6 +21,15 @@ def make_unique_layer_name(type, id, variable=None, time_period=None, task_id=No
     name = f"{type}/{id}"
 
     if type in (VECTOR, RASTER):
+        if time_period is not None:
+            time_period = str(time_period)
+
+        if (time_period is not None) and (
+            re.match(r"(^\d{4}$)|(^\d{4}\-\d{2}$)|(^\d{2}$)|(None)", time_period)
+            is None
+        ):
+            return None
+
         if (time_period is not None) and (variable is not None):
             name += f"/{time_period}/{encode(variable)}"
         elif variable is not None:
@@ -60,9 +70,6 @@ def parse_unique_layer_name(name):
             return (None, None, None, None, None)
 
         task_id = parts[0]
-
-    if time_period is not None:
-        time_period = int(time_period)
 
     if variable is not None:
         variable = decode(variable)
