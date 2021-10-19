@@ -157,6 +157,10 @@ def get_legend(ds_id, variable, time_period, prettyprint):
 def process_dataset(dataset, pretty_print=False):
     type = path.RASTER if dataset["is_raster"] else path.VECTOR
 
+    # Don't download raster files if we have directly access to them
+    if (type == path.RASTER) and (current_app.config["RASTER_CACHE_DIR"] is not None):
+        return
+
     # Retrieve the variables of the dataset
     parameters = client.get_parameters(dataset["ds_id"])
     datasets_fcts.process_parameters(parameters)
