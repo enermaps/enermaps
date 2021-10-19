@@ -10,7 +10,7 @@ import requests
 
 from app.common import path
 from app.common.test import BaseApiTest, BaseIntegrationTest
-from app.models import storage
+from app.models import geofile, storage
 
 
 class MockCM:
@@ -166,18 +166,56 @@ class CMTaskTest(BaseApiTest):
             return_value=MockCM(status="SUCCESS", result={"value1": 10, "value2": 20})
         ),
     )
-    def testGetSuccessfulTask(self):
-        response = self.client.get(
-            "api/cm/mock_cm/task/01234567-0000-0000-0000-000000000000/"
-        )
-        self.assertEqual(response.status_code, 200)
+    def testGetSuccessfulTaskWithoutLegend(self):
+        with self.flask_app.app_context():
+            response = self.client.get(
+                "api/cm/mock_cm/task/01234567-0000-0000-0000-000000000000/"
+            )
+            self.assertEqual(response.status_code, 200)
 
-        data = response.json
+            data = response.json
 
-        self.assertEqual(data["cm_name"], "mock_cm")
-        self.assertEqual(data["task_id"], "01234567-0000-0000-0000-000000000000")
-        self.assertEqual(data["status"], "SUCCESS")
-        self.assertEqual(data["result"], {"value1": 10, "value2": 20})
+            self.assertEqual(data["cm_name"], "mock_cm")
+            self.assertEqual(data["task_id"], "01234567-0000-0000-0000-000000000000")
+            self.assertEqual(data["status"], "SUCCESS")
+            self.assertEqual(data["result"], {"value1": 10, "value2": 20})
+
+            legend = geofile.get_cm_legend(
+                "cm/mock_cm/01234567-0000-0000-0000-000000000000"
+            )
+            self.assertTrue(legend is None)
+
+    @patch(
+        "app.models.calculation_module.task_by_id",
+        new=Mock(
+            return_value=MockCM(
+                status="SUCCESS",
+                result={"value1": 10, "value2": 20, "legend": {"symbology": []}},
+            )
+        ),
+    )
+    def testGetSuccessfulTaskWithLegend(self):
+        with self.flask_app.app_context():
+            response = self.client.get(
+                "api/cm/mock_cm/task/01234567-0000-0000-0000-000000000000/"
+            )
+            self.assertEqual(response.status_code, 200)
+
+            data = response.json
+
+            self.assertEqual(data["cm_name"], "mock_cm")
+            self.assertEqual(data["task_id"], "01234567-0000-0000-0000-000000000000")
+            self.assertEqual(data["status"], "SUCCESS")
+            self.assertEqual(
+                data["result"],
+                {"value1": 10, "value2": 20, "legend": {"symbology": []}},
+            )
+
+            legend = geofile.get_cm_legend(
+                "cm/mock_cm/01234567-0000-0000-0000-000000000000"
+            )
+            self.assertTrue(legend is not None)
+            self.assertEqual(legend, {"symbology": []})
 
     @patch(
         "app.models.calculation_module.task_by_id",
@@ -460,7 +498,7 @@ class FakeOutputTest(BaseIntegrationTest):
         resp = requests.post(self.url, json=cm_task_parameters)
         dict_resp = self.getJSONFromRequestResponse(resp)
         self.assertGreater(
-            len(dict_resp), 0, msg="Answer from creating a task" " was " + resp.text
+            len(dict_resp), 0, msg="Answer from creating a task was " + resp.text
         )
         # TODO here the format of the answer is still a work in progress,
         # so we don't check anything yet.
