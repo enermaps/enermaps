@@ -1,7 +1,6 @@
 """Functions related to the "GetMap" operation of the Web Map Service (WMS)"""
 
 import shutil
-import sys
 
 import mapnik
 import seaborn as sns
@@ -79,7 +78,7 @@ def create_style_from_legend(layer_name, layer, mapnik_layer):
         legend = None
 
     if (legend is None) or (len(legend["symbology"]) == 0):
-        legend = create_default_legend()
+        legend = create_default_legend(type)
 
     mapnik_style = None
     style_name = None
@@ -107,10 +106,10 @@ def create_style_from_legend(layer_name, layer, mapnik_layer):
     return (mapnik_style, style_name, legend_images_folder)
 
 
-def create_default_legend():
+def create_default_legend(type):
     legend = {"symbology": []}
 
-    min_value = 0
+    min_value = 1 if type in (path.RASTER, path.CM) else 0
     max_value = 255
     color = (1, 0, 0)  # Default red
     nb_of_colors = 8
@@ -181,22 +180,14 @@ def make_raster_style(legend):
             raster_colorizer.add_stop(int(symbol["value"]), color)
 
     else:
-        color = mapnik.Color(
-            int(symbol["red"]),
-            int(symbol["green"]),
-            int(symbol["blue"]),
-        )
-
-        for symbol in legend["symbology"][1:]:
-            raster_colorizer.add_stop(symbol["value"], mapnik.COLORIZER_LINEAR, color)
-
+        for symbol in legend["symbology"]:
             color = mapnik.Color(
                 int(symbol["red"]),
                 int(symbol["green"]),
                 int(symbol["blue"]),
             )
 
-        raster_colorizer.add_stop(sys.float_info.max, mapnik.COLORIZER_LINEAR, color)
+            raster_colorizer.add_stop(symbol["value"], mapnik.COLORIZER_LINEAR, color)
 
     raster_symb.colorizer = raster_colorizer
     rule.symbols.append(raster_symb)
