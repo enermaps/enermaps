@@ -8,10 +8,9 @@ import os
 from flask import Blueprint, Flask
 from flask_restx import Api
 
-from app.data_integration import data_controller
-from app.endpoints import calculation_module, cm_outputs, geofile, wms
+from app.commands import cache
+from app.endpoints import calculation_module, datasets, wms
 from app.healthz import healthz
-from app.redirect import redirect_to_api
 
 
 class ReverseProxied(object):
@@ -45,8 +44,10 @@ def create_app(environment="production", testing=False, on_startup=False):
     app.config["TESTING"] = testing
     app.config["MAX_CONTENT_LENGTH"] = 16 * 1024 * 1024
     app.config["MAX_PROJECTION_LENGTH"] = 1024
-    app.config["GEODB_DIR"] = "geodb"
+    app.config["RASTER_CACHE_DIR"] = None
+    app.config["WMS_CACHE_DIR"] = "wms_cache"
     app.config["CM_OUTPUTS_DIR"] = "cm_outputs"
+    app.config["FILTER_DATASETS"] = False
     app.config["WMS"] = {}
     app.config["WMS"]["ALLOWED_PROJECTIONS"] = ["EPSG:3857"]
     app.config["WMS"]["MAX_SIZE"] = 2048 ** 2
@@ -57,21 +58,23 @@ def create_app(environment="production", testing=False, on_startup=False):
         app.config[k] = os.environ.get(k, v)
 
     api_bp = Blueprint("api", "api", url_prefix="/api")
+
     api = Api(api_bp)
-    api.add_namespace(geofile.api)
-    api.add_namespace(cm_outputs.api)
+    api.add_namespace(datasets.api)
     api.add_namespace(wms.api)
     api.add_namespace(calculation_module.api)
+
     app.register_blueprint(api_bp)
-    app.register_blueprint(redirect_to_api)
     app.register_blueprint(healthz)
 
-    with app.app_context():
-        if on_startup:
-            # we want to initalize enermaps datasets only at startup
-            data_controller.init_enermaps_datasets()
+    app.cli.add_command(cache.update_all_datasets)
+    app.cli.add_command(cache.update_dataset)
+    app.cli.add_command(cache.update_areas)
+    app.cli.add_command(cache.list_datasets)
+    app.cli.add_command(cache.get_parameters)
+    app.cli.add_command(cache.get_legend)
 
-    # Install thr WSGI middleware
+    # Install the WSGI middleware
     app.wsgi_app = ReverseProxied(app.wsgi_app)
 
     return app

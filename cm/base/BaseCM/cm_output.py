@@ -1,11 +1,8 @@
-import logging
 import os
 from typing import Dict
 
-import requests
 from marshmallow import Schema, fields
 from marshmallow_union import Union
-from requests.exceptions import ConnectionError
 
 API_URL = os.environ.get("API_URL")
 
@@ -71,6 +68,22 @@ class CMOutput(Schema):
         ),
         required=True,
     )
+    legend = fields.Dict(
+        name=fields.Str(required=False),
+        type=fields.Str(required=False),
+        symbology=fields.List(
+            fields.Dict(
+                red=fields.Number(),
+                green=fields.Number(),
+                blue=fields.Number(),
+                label=fields.Str(),
+                value=fields.Number(),
+                opacity=fields.Number(),
+            ),
+            required=True,
+        ),
+        required=False,
+    )
 
 
 def validate(output: Dict) -> Dict:
@@ -79,14 +92,3 @@ def validate(output: Dict) -> Dict:
     # validates and deserializes an input dictionary to an application-level
     # data structure
     return output_schema.load(data=output)
-
-
-def output_raster(raster_name, raster_fd):
-    """Add a raster to the api."""
-    files = {"file": (raster_name, raster_fd, "image/tiff")}
-    try:
-        resp = requests.post(API_URL + "/cm_outputs/", files=files)
-        return resp.status_code
-    except ConnectionError as error:
-        logging.error("Error during the post of the file.")
-        raise ConnectionError(error)

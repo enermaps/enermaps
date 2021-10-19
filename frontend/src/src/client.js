@@ -2,33 +2,81 @@ import {BASE_URL} from './settings.js';
 
 export const WMS_URL = BASE_URL + 'api/wms?';
 
-export async function getLayerType(layerId) {
-  const response = await fetch(BASE_URL + 'api/geofile/' + layerId + '/type/');
+
+async function fetchJSON(endpoint, defaultValue) {
+  const response = await fetch(BASE_URL + endpoint);
+
   if (!response.ok) {
-    return {};
+    return defaultValue;
   }
-  const legend = await response.json();
-  return legend;
+
+  return await response.json();
 }
 
-export async function getLegend(layerId) {
-  const response = await fetch(BASE_URL + 'api/geofile/' + layerId + '/legend/');
+
+async function fetchText(endpoint, defaultValue) {
+  const response = await fetch(BASE_URL + endpoint);
+
   if (!response.ok) {
-    return {};
+    return defaultValue;
   }
-  const legend = await response.json();
-  return legend;
+
+  return response.text();
 }
 
-export async function getOpenairLink(layerId) {
-  const response = await fetch(BASE_URL + 'api/geofile/' + layerId + '/openair/');
-  if (!response.ok) {
-    return {};
-  }
-  const legend = await response.json();
-  return legend;
+
+// Datasets-related endpoints --------------------------------------------------
+
+export async function getAreas() {
+  return fetchJSON('api/datasets/areas/', []);
 }
 
+
+export async function getDatasets() {
+  return fetchJSON('api/datasets/', []);
+}
+
+
+export async function getDatasetsWithVariables() {
+  return fetchJSON('api/datasets/full/', []);
+}
+
+
+export async function getDatasetParameters(datasetId) {
+  return fetchJSON('api/datasets/' + datasetId + '/parameters/', {});
+}
+
+
+export async function getDatasetLayerName(datasetId, raster, variable, timePeriod) {
+  const prefix = raster ? 'raster' : 'vector';
+
+  if ((variable != null) && (timePeriod != null)) {
+    return fetchText(
+        'api/datasets/layer_name/' + prefix + '/' + datasetId + '/' +
+        btoa(variable) + '/' + timePeriod + '/',
+    );
+  } else if (variable != null) {
+    return fetchText(
+        'api/datasets/layer_name/' + prefix + '/' + datasetId + '/' +
+        btoa(variable) + '/',
+    );
+  } else if (timePeriod != null) {
+    return fetchText(
+        'api/datasets/layer_name/' + prefix + '/' + datasetId + '/-/' +
+        timePeriod + '/',
+    );
+  } else {
+    return fetchText('api/datasets/layer_name/' + prefix + '/' + datasetId + '/');
+  }
+}
+
+
+export async function getDatasetLayerLegend(layerName) {
+  return fetchJSON('api/datasets/legend/' + layerName + '/', {});
+}
+
+
+// Calculation modules-related endpoints ---------------------------------------
 
 export async function getCMs() {
   const response = await fetch(BASE_URL + 'api/cm/');
@@ -36,17 +84,9 @@ export async function getCMs() {
     return [];
   }
   const cmsResponse = await response.json();
-  return cmsResponse.cms;
+  return cmsResponse;
 }
 
-export async function getGeofiles() {
-  const response = await fetch(BASE_URL + 'api/geofile/');
-  if (!response.ok) {
-    return [];
-  }
-  const layersResponse = await response.json();
-  return layersResponse;
-}
 
 export async function postCMTask(cm, parameters) {
   const response = await fetch(BASE_URL + 'api/cm/' + cm.name + '/task/', {
@@ -60,16 +100,18 @@ export async function postCMTask(cm, parameters) {
   return {'cm': cm, 'id': task.task_id, 'parameters': parameters};
 }
 
-export async function getTaskResult(cm, task) {
+
+export async function getTaskResult(task) {
   const taskResponse = await fetch(
-      BASE_URL + 'api/cm/' + cm.name + '/task/' + task.id + '/',
+      BASE_URL + 'api/cm/' + task.cm.name + '/task/' + task.id + '/',
   );
   return await taskResponse.json();
 }
 
-export async function deleteTaskResult(cm, task) {
+
+export async function deleteTaskResult(task) {
   const taskResponse = await fetch(
-      BASE_URL + 'api/cm/' + cm.name + '/task/' + task.id + '/',
+      BASE_URL + 'api/cm/' + task.cm.name + '/task/' + task.id + '/',
       {
         method: 'DELETE',
       });

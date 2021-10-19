@@ -1,9 +1,10 @@
 <script>
   import {onMount} from 'svelte';
-  import {postCMTask} from '../client.js';
+  import {createTask} from '../tasks.js';
   import CMTask from './CMTask.svelte';
-  import {activeOverlayLayersStore, activeSelectionLayerStore} from '../stores.js';
+  import {areaSelectionLayerStore, selectedLayerStore, tasksStore} from '../stores.js';
   import 'brutusin-json-forms';
+
 
   const BrutusinForms = brutusin['json-forms'];
 
@@ -15,68 +16,33 @@
   let callCMTooltip = 'brutison is a brutison';
   let isCollapsed = false;
 
-  async function callCM() {
-    const newTaskParams = {};
-    newTaskParams['selection'] = $activeSelectionLayerStore.getSelection();
-    newTaskParams['layers'] = $activeOverlayLayersStore.map((layer)=>layer.name);
-    newTaskParams['parameters'] = form.getData();
-
-    console.log(
-        '[CM ' + cm.name + '] Creating new task with parameters:',
-        newTaskParams.parameters,
-    );
-
-    const task = await postCMTask(cm, newTaskParams);
-    console.log('[CM ' + cm.name + '] Created task: ' + task.id);
-
-    tasks.push(task);
-    console.log('[CM ' + cm.name + '] Active tasks:', tasks.map((x) => x.id));
-
-    tasks = tasks;
-  }
-
-
-  async function refreshTask(task) {
-    console.log('[CM ' + cm.name + '] Refreshing task ' + task.id +
-                ' with parameters:', task.parameters.parameters);
-
-    const newTask = await postCMTask(cm, task.parameters);
-    console.log('[CM ' + cm.name + '] Created task: ' + newTask.id +
-                ' to replace ' + task.id);
-
-    const index = tasks.indexOf(task);
-    tasks.splice(index, 1, newTask);
-    console.log('[CM ' + cm.name + '] Active tasks:', tasks.map((x) => x.id));
-
-    tasks = tasks;
-  }
-
 
   onMount(() => {
     form = BrutusinForms.create(cm.schema);
     form.render(formElement);
   });
 
+
   $: {
-    if (!$activeOverlayLayersStore.length) {
-      callCMTooltip = 'An overlay layer needs to be selected first';
-    } else if (!$activeSelectionLayerStore !== undefined) {
-      callCMTooltip = 'A selection layer needs to be selected first';
+    tasks = $tasksStore;
+
+    if ($selectedLayerStore === null) {
+      callCMTooltip = 'A layer needs to be selected first';
+    } else if ($areaSelectionLayerStore !== null) {
+      callCMTooltip = 'An area needs to be selected first';
     } else {
       callCMTooltip = 'Call the CM ' + cm.pretty_name;
     }
-    const isEnabled = $activeOverlayLayersStore.length &&
-                      $activeSelectionLayerStore !== undefined;
+
+    const isEnabled = ($selectedLayerStore != null) &&
+                      ($areaSelectionLayerStore != null);
+
     isDisabled = !isEnabled;
   }
 
+
   function toggleCollapse() {
     isCollapsed = !isCollapsed;
-  }
-
-  function deleteCMTask(taskToDelete) {
-    console.log('[CM ' + cm.name + '] Deleting task: ' + taskToDelete.id);
-    tasks = tasks.filter((task)=> taskToDelete.id != task.id);
   }
 </script>
 
@@ -120,7 +86,6 @@
     padding : 8px;
     border-radius: 4px;
     width: inherit;
-    font-size: 0.8em;
   }
 
   h3 {
@@ -136,7 +101,7 @@
       <div style="float: right;" class="cm_run">
         <div class="cm_run" style="cursor: pointer;" class:open_menu="{isCollapsed}" class:close_menu="{!isCollapsed}" on:click="{toggleCollapse}"></div>
         <span class="cm_run"></span>
-        <button class="cm_run" type=submit on:click={() => callCM(cm)} disabled={isDisabled} title={callCMTooltip}>Run CM</button>
+        <button class="cm_run" type=submit on:click={() => createTask(cm, form.getData())} disabled={isDisabled} title={callCMTooltip}>Run CM</button>
       </div>
     </div>
   </div>
@@ -145,7 +110,9 @@
     <div class="cm_params" bind:this={formElement} />
     <div class="tasks">
       {#each [...tasks].reverse() as task (task.id)}
-        <CMTask {cm} {task} on:delete="{() => deleteCMTask(task)}" on:refresh="{() => refreshTask(task)}" />
+        {#if (task.cm.name === cm.name) && !task.hidden}
+          <CMTask task={task} />
+        {/if}
       {/each}
     </div>
   </div>

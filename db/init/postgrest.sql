@@ -88,7 +88,9 @@ CREATE OR REPLACE FUNCTION enermaps_query_geojson(parameters text,
             ELSIF _key = 'intersecting' THEN
                 where_string := where_string || 'ST_intersects(spatial.geometry,ST_TRANSFORM(ST_GeometryFromText(''' || _value || ''',4326),3035))';
             ELSIF is_json_object(_value) THEN
-                where_string :=  where_string ||  create_json_where(_key, _value::json);
+                where_string := where_string ||  create_json_where(_key, _value::json);
+            ELSIF _value is null THEN
+                where_string := where_string || _key || ' IS NULL ';
             ELSE
                 where_string := where_string || _key || ' = ' || _value;
             END IF;
@@ -164,7 +166,9 @@ CREATE OR REPLACE FUNCTION enermaps_query_table(parameters text,
             ELSIF _key = 'intersecting' THEN
                 where_string := where_string || 'ST_intersects(spatial.geometry,ST_TRANSFORM(ST_GeometryFromText(''' || _value || ''',4326),3035))';
             ELSIF is_json_object(_value) THEN
-                where_string :=  where_string || create_json_where(_key, _value::json);
+                where_string := where_string || create_json_where(_key, _value::json);
+            ELSIF _value is null THEN
+                where_string := where_string || _key || ' IS NULL ';
             ELSE
                 where_string := where_string || _key || ' = ' || _value;
             END IF;
@@ -368,7 +372,9 @@ CREATE OR REPLACE FUNCTION enermaps_set_legend(parameters text, legend text)
             ELSIF _key = 'intersecting' THEN
                 where_string := where_string || 'ST_intersects(spatial.geometry,ST_TRANSFORM(ST_GeometryFromText(''' || _value || ''',4326),3035))';
             ELSIF is_json_object(_value) THEN
-                where_string :=  where_string || create_json_where(_key, _value::json);
+                where_string := where_string || create_json_where(_key, _value::json);
+            ELSIF _value is null THEN
+                where_string := where_string || _key || ' IS NULL ';
             ELSE
                 where_string := where_string || _key || ' = ' || _value;
             END IF;
@@ -387,3 +393,81 @@ CREATE OR REPLACE FUNCTION enermaps_set_legend(parameters text, legend text)
 GRANT EXECUTE ON FUNCTION enermaps_set_legend(parameters text, legend text) to legend_editor;
 GRANT SELECT, UPDATE ON public.data TO legend_editor;
 GRANT SELECT, INSERT ON public.visualization TO legend_editor;
+
+
+-- Returns the legend of the data corresponding to the parameters
+DROP FUNCTION IF EXISTS enermaps_get_legend(parameters text);
+CREATE OR REPLACE FUNCTION enermaps_get_legend(parameters text)
+  RETURNS jsonb
+  AS $$
+  DECLARE
+      -- where string
+      where_string text := 'WHERE ';
+      -- variables to loop on the json input
+      _key text;
+      _value text;
+      counter int := 0;
+      -- output
+      out_jsonb jsonb;
+  BEGIN
+      FOR _key, _value IN
+         SELECT * FROM json_each_text(parameters::json)
+          LOOP
+          IF (_key != 'level') AND (_key != 'intersecting') THEN
+            IF counter > 0 THEN
+                where_string := where_string || ' AND ';
+            END IF;
+            IF is_json_object(_value) THEN
+                where_string := where_string || create_json_where(_key, _value::json);
+            ELSIF _value is null THEN
+                where_string := where_string || _key || ' IS NULL ';
+            ELSE
+                where_string := where_string || _key || ' = ' || _value;
+            END IF;
+            counter := counter + 1;
+          END IF;
+      END LOOP;
+      EXECUTE format('
+        SELECT legend FROM visualization WHERE vis_id = (
+          SELECT vis_id FROM data %s LIMIT 1
+        ) LIMIT 1;', where_string)
+      INTO out_jsonb;
+      RETURN out_jsonb;
+  END;
+  $$
+  LANGUAGE plpgsql
+  IMMUTABLE;
+GRANT EXECUTE ON FUNCTION enermaps_get_legend(parameters text) to api_user;
+
+
+-- Returns a list of all the datasets, with the data needed by the web app
+DROP VIEW IF EXISTS dataset_list;
+CREATE OR REPLACE VIEW dataset_list AS
+SELECT  datasets.ds_id::int as ds_id,
+        (datasets.metadata ->> 'Title (with Hyperlink)') as title,
+        COALESCE(((datasets.metadata ->> 'parameters')::jsonb ->> 'is_raster')::bool, true) as is_raster,
+        datasets_full.shared_id as shared_id
+        FROM datasets
+        INNER JOIN datasets_full ON datasets.ds_id = datasets_full.ds_id
+        WHERE (datasets.metadata ->> 'Title (with Hyperlink)') <> ''
+        ORDER BY ds_id;
+GRANT SELECT ON public.dataset_list to api_anon;
+
+
+-- Returns the parameters applicable to a given dataset
+DROP FUNCTION IF EXISTS enermaps_get_parameters(id integer);
+CREATE OR REPLACE FUNCTION enermaps_get_parameters(id integer)
+  RETURNS jsonb
+  AS $$
+    SELECT
+      jsonb_build_object(
+        'parameters', (metadata ->> 'parameters')::jsonb,
+        'default_parameters', (metadata ->> 'default_parameters')::jsonb,
+        'end_at', (metadata ->> 'end_at')
+      )
+    FROM datasets
+    WHERE ds_id=id
+  $$
+  LANGUAGE SQL
+  IMMUTABLE;
+GRANT EXECUTE ON FUNCTION enermaps_get_parameters(id integer) to api_user;
