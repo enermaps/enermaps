@@ -80,7 +80,7 @@
   }
 
   .cm_container {
-    background-color : #4d88c7;
+    background-color : #6da8d7;
     margin-top: 8px;
     margin-bottom: 8px;
     padding : 8px;

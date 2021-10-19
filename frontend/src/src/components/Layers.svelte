@@ -279,7 +279,7 @@
   }
 
   div :global(.layer.selected) {
-    background-color: #5d98d7;
+    background-color: #6da8d7;
   }
 
   div :global(.layer.new) {
