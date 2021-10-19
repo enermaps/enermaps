@@ -73,6 +73,8 @@ def create_style_from_legend(layer_name, layer, mapnik_layer):
     # Get the layer style and type
     if type in (path.VECTOR, path.RASTER):
         legend = client.get_legend(layer_name, ttl_hash=client.get_ttl_hash(10))
+    elif type == path.CM:
+        legend = geofile.get_cm_legend(layer_name)
     else:
         legend = None
 
@@ -171,27 +173,27 @@ def make_raster_style(legend):
     if isinstance(symbol["value"], str):
         for symbol in legend["symbology"]:
             color = mapnik.Color(
-                symbol["red"],
-                symbol["green"],
-                symbol["blue"],
+                int(symbol["red"]),
+                int(symbol["green"]),
+                int(symbol["blue"]),
             )
 
             raster_colorizer.add_stop(int(symbol["value"]), color)
 
     else:
         color = mapnik.Color(
-            symbol["red"],
-            symbol["green"],
-            symbol["blue"],
+            int(symbol["red"]),
+            int(symbol["green"]),
+            int(symbol["blue"]),
         )
 
         for symbol in legend["symbology"][1:]:
             raster_colorizer.add_stop(symbol["value"], mapnik.COLORIZER_LINEAR, color)
 
             color = mapnik.Color(
-                symbol["red"],
-                symbol["green"],
-                symbol["blue"],
+                int(symbol["red"]),
+                int(symbol["green"]),
+                int(symbol["blue"]),
             )
 
         raster_colorizer.add_stop(sys.float_info.max, mapnik.COLORIZER_LINEAR, color)
@@ -225,14 +227,17 @@ def make_polygon_style(variable, legend):
     opacity = symbol["opacity"]
 
     color = mapnik.Color(
-        symbol["red"],
-        symbol["green"],
-        symbol["blue"],
+        int(symbol["red"]),
+        int(symbol["green"]),
+        int(symbol["blue"]),
     )
 
     for symbol in legend["symbology"][1:]:
         max_threshold = symbol["value"]
-        expression = f"[__variable__{variable}] < {max_threshold} and [__variable__{variable}] >= {min_threshold}"
+        expression = (
+            f"[__variable__{variable}] < {max_threshold} and [__variable__{variable}]"
+            f" >= {min_threshold}"
+        )
 
         _add_rule(mapnik_style, expression, color, opacity)
 
@@ -240,9 +245,9 @@ def make_polygon_style(variable, legend):
         opacity = symbol["opacity"]
 
         color = mapnik.Color(
-            symbol["red"],
-            symbol["green"],
-            symbol["blue"],
+            int(symbol["red"]),
+            int(symbol["green"]),
+            int(symbol["blue"]),
         )
 
     expression = f"[__variable__{variable}] >= {min_threshold}"
@@ -272,7 +277,10 @@ def make_point_style(variable, legend, legend_images):
 
     for index, symbol in enumerate(legend["symbology"][1:]):
         max_threshold = symbol["value"]
-        expression = f"[__variable__{variable}] < {max_threshold} and [__variable__{variable}] >= {min_threshold}"
+        expression = (
+            f"[__variable__{variable}] < {max_threshold} and [__variable__{variable}]"
+            f" >= {min_threshold}"
+        )
 
         _add_rule(mapnik_style, expression, index)
 
