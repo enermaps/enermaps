@@ -127,9 +127,9 @@ def prepareRaster(
                 # Translating to make sure that the raster settings are consistent for each band
                 logging.info("Translating band {}".format(b))
                 os.system(  # nosec
-                    "gdal_translate {filename} {dest_filename}.tif -b {b} -of GTIFF --config GDAL_PAM_ENABLED NO -co COMPRESS=DEFLATE -co BIGTIFF=YES".format(
-                        filename=filename, dest_filename=dest_filename, b=b
-                    )
+                    "gdal_translate {filename} {dest_filename}.tif -b {b} -of GTIFF"
+                    " --config GDAL_PAM_ENABLED NO -co COMPRESS=DEFLATE -co BIGTIFF=YES"
+                    .format(filename=filename, dest_filename=dest_filename, b=b)
                 )
 
                 # Reprojecting if needed
@@ -143,7 +143,9 @@ def prepareRaster(
                     warped = dest_filename + "_warped.tif"
                     dest_filename += "_{}".format(crs.to_epsg())
                     os.system(  # nosec
-                        "gdalwarp {source} {dest} -of GTIFF -s_srs {sourceSRS} -t_srs {outputSRS} --config GDAL_PAM_ENABLED NO -co COMPRESS=DEFLATE -co BIGTIFF=YES".format(
+                        "gdalwarp {source} {dest} -of GTIFF -s_srs {sourceSRS} -t_srs"
+                        " {outputSRS} --config GDAL_PAM_ENABLED NO -co COMPRESS=DEFLATE"
+                        " -co BIGTIFF=YES".format(
                             source=translated,
                             dest=warped,
                             outputSRS=crs.to_string(),
@@ -159,7 +161,8 @@ def prepareRaster(
                         # Offset and scale are not handled by gdalwarp https://gis.stackexchange.com/a/229954
                         offset, scale = metadata["offset"], metadata["scale"]
                         os.system(  # nosec
-                            "{python_dir}/gdal_calc.py -A {source} --outfile={dest}.tif --type='Float32' --calc=\"A*{scale}+{offset}\"".format(
+                            "{python_dir}/gdal_calc.py -A {source} --outfile={dest}.tif"
+                            " --type='Float32' --calc=\"A*{scale}+{offset}\"".format(
                                 python_dir=os.path.dirname(sys.executable),
                                 source=warped,
                                 dest=dest_filename,
@@ -246,7 +249,9 @@ def toPostGIS(
 
 
 def datasetExists(
-    ds_id, dbURL=DB_URL, tables=["datasets", "spatial", "data"],
+    ds_id,
+    dbURL=DB_URL,
+    tables=["datasets", "spatial", "data"],
 ):
     """
     Check whether the dataset exist in any table.
@@ -296,7 +301,8 @@ def removeDataset(ds_id, dbURL=DB_URL):
     engine = sqla.create_engine(dbURL)
     with engine.connect() as con:
         con.execute(
-            "DELETE FROM datasets WHERE ds_id = %(ds_id)s;", {"ds_id": ds_id},
+            "DELETE FROM datasets WHERE ds_id = %(ds_id)s;",
+            {"ds_id": ds_id},
         )
 
 
@@ -380,11 +386,14 @@ def getGitHub(user: str, repo: str, request="content", path="", branch="master")
     -------
     str
     """
-    raw_content = "https://raw.githubusercontent.com/{user}/{repo}/{branch}/{path}".format(
-        user=user, repo=repo, branch=branch, path=path
+    raw_content = (
+        "https://raw.githubusercontent.com/{user}/{repo}/{branch}/{path}".format(
+            user=user, repo=repo, branch=branch, path=path
+        )
     )
-    api = "https://api.github.com/repos/{user}/{repo}/commits?sha=master&path={path}".format(
-        user=user, repo=repo, path=path
+    api = (
+        "https://api.github.com/repos/{user}/{repo}/commits?sha=master&path={path}"
+        .format(user=user, repo=repo, path=path)
     )
     commits = requests.get(api).json()
     if request == "content":
@@ -574,6 +583,6 @@ def get_query_metadata(
             default_parameters["fields"] = default_fields
     if not data["start_at"].isnull().any():
         default_parameters["start_at"] = data["start_at"].iloc[0].strftime(DT_FORMAT)
-    default_parameters["variables"] = data["variable"].iloc[0]
+    default_parameters["variable"] = data["variable"].iloc[0]
 
     return parameters, default_parameters
