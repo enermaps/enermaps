@@ -80,6 +80,45 @@ def save_cm_file(layer_name, feature_id, raster_content):
     return _save_raster_file(storage_instance, layer_name, feature_id, raster_content)
 
 
+def save_cm_result(layer_name, result):
+    storage_instance = storage.create_for_layer_type(path.CM)
+
+    with TemporaryDirectory(prefix=storage_instance.get_tmp_dir()) as tmp_dir:
+        tmp_filepath = safe_join(tmp_dir, "result.json")
+
+        with open(tmp_filepath, "w") as f:
+            json.dump(result, f)
+
+        target_folder = storage_instance.get_dir(layer_name)
+        os.makedirs(target_folder, exist_ok=True)
+
+        try:
+            os.replace(
+                tmp_filepath, storage_instance.get_file_path(layer_name, "result.json")
+            )
+        except Exception as e:
+            print(e)
+            return False
+
+    return True
+
+
+def get_cm_legend(layer_name):
+    storage_instance = storage.create_for_layer_type(path.CM)
+
+    filename = storage_instance.get_file_path(layer_name, "result.json")
+    if not os.path.exists(filename):
+        return None
+
+    with open(filename, "r") as f:
+        result = json.load(f)
+
+    if "legend" in result:
+        return result["legend"]
+
+    return None
+
+
 def _save_raster_file(storage_instance, layer_name, feature_id, raster_content):
     with TemporaryDirectory(prefix=storage_instance.get_tmp_dir()) as tmp_dir:
         subfolder = os.path.dirname(feature_id)
@@ -238,9 +277,9 @@ class VectorLayer(Layer):
         images = []
         for index, symbol in enumerate(legend["symbology"]):
             color = (
-                symbol["red"],
-                symbol["green"],
-                symbol["blue"],
+                int(symbol["red"]),
+                int(symbol["green"]),
+                int(symbol["blue"]),
                 int(symbol["opacity"] * 255),
             )
 
