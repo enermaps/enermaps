@@ -64,7 +64,7 @@ def createLegend(
     color_scale = cm.get_cmap(
         "plasma", min([10, preds[~np.isnan(preds)].shape[0] - 1])
     ).colors
-    color_scale[:, :-1] = color_scale[:, :-1] / 255
+    color_scale[:, :-1] = color_scale[:, :-1] * 255
 
     breaks = jenkspy.jenks_breaks(preds[~np.isnan(preds)], nb_class=5)
 
