@@ -126,8 +126,6 @@ def get_legend(layer_name, pretty_print=False, ttl_hash=None):
     """
     del ttl_hash
 
-    print("GET_LEGEND", int(round(time.time() / 10)))
-
     url = DATASETS_SERVER_URL + "rpc/enermaps_get_legend"
 
     parameters = _parameters_from_layer_name(layer_name)
