@@ -8,8 +8,7 @@ RUN chmod 1777 /tmp && \
     python3-gunicorn \
     gunicorn \
     libpq-dev \
-    python3-gdal \
-    cron && \
+    python3-gdal && \
     rm -rf /var/cache/apt/archives/
 
 WORKDIR /api
@@ -21,4 +20,4 @@ COPY . .
 RUN python3 test.py
 
 EXPOSE 80
-ENTRYPOINT scripts/entrypoint.sh
+CMD ["gunicorn", "--config", "gunicorn.py", "--bind", "0.0.0.0:80", "wsgi:app"]

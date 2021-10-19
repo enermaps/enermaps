@@ -6,4 +6,7 @@ SHELL=/bin/bash
 # Hourly parsing of db logs
 5 * * * * root source /etc/enermaps/config; cd $ENERMAPS_ROOT/cron && ./db-stats.sh  >> enermaps_db-stats.log 2>&1
 
+# Regular cleaning of unused raster files produced by the CMs
+*/5 * * * * root source /etc/enermaps/config; cd $ENERMAPS_ROOT/cron && ./clean-cm-outputs.sh  >> enermaps_cleaning.log 2>&1
+
 # An empty line is required at the end of this file for a valid cron file.
