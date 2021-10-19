@@ -61,3 +61,44 @@ class TestSaveRasterFile(BaseApiTest):
                     storage_instance.get_file_path("raster/42", "subfolder/file.txt")
                 )
             )
+
+
+class TestSaveCMFile(BaseApiTest):
+    def testSave(self):
+        with self.flask_app.app_context():
+            layer_name = "cm/some_name/01234567-0000-0000-0000-000000000000"
+
+            self.assertTrue(
+                geofile.save_cm_file(layer_name, "file.txt", b"Hello world")
+            )
+
+            storage_instance = storage.create(layer_name)
+            self.assertTrue(
+                os.path.exists(storage_instance.get_file_path(layer_name, "file.txt"))
+            )
+
+
+class TestSaveCMResult(BaseApiTest):
+    RESULT = {
+        "legend": {
+            "symbology": [],
+        }
+    }
+
+    def testSaveResult(self):
+        with self.flask_app.app_context():
+            layer_name = "cm/some_name/01234567-0000-0000-0000-000000000000"
+
+            self.assertTrue(geofile.save_cm_result(layer_name, TestSaveCMResult.RESULT))
+
+            storage_instance = storage.create(layer_name)
+            self.assertTrue(
+                os.path.exists(
+                    storage_instance.get_file_path(layer_name, "result.json")
+                )
+            )
+
+            legend = geofile.get_cm_legend(layer_name)
+
+            self.assertTrue(legend is not None)
+            self.assertEqual(legend, TestSaveCMResult.RESULT["legend"])

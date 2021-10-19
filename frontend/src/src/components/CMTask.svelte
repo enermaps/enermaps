@@ -37,7 +37,6 @@
           graphs = task.result.result.graphs;
           values = Object.entries(task.result.result.values);
           legend = task.result.result.legend;
-          console.log(legend);
         }
 
         parameters = Object.entries(task.parameters.parameters);

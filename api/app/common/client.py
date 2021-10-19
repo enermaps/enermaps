@@ -64,7 +64,8 @@ def get_parameters(dataset_id, pretty_print=False):
 
     except Exception as ex:
         logging.error(
-            f"Failed to retrieve the variables of the dataset <{dataset_id}>: {repr(ex)}"
+            f"Failed to retrieve the variables of the dataset <{dataset_id}>:"
+            f" {repr(ex)}"
         )
         return None
 
@@ -111,7 +112,8 @@ def get_raster_file(dataset_id, feature_id):
             return resp.content
     except Exception as ex:
         logging.error(
-            f"Failed to retrieve the raster file <{feature_id}> of dataset <{dataset_id}>: {repr(ex)}"
+            f"Failed to retrieve the raster file <{feature_id}> of dataset"
+            f" <{dataset_id}>: {repr(ex)}"
         )
 
     return None
@@ -123,8 +125,6 @@ def get_legend(layer_name, pretty_print=False, ttl_hash=None):
     Fetch a geojson dataset layer from the enermaps server with a given id.
     """
     del ttl_hash
-
-    print("GET_LEGEND", int(round(time.time() / 10)))
 
     url = DATASETS_SERVER_URL + "rpc/enermaps_get_legend"
 
@@ -236,7 +236,9 @@ def _parameters_from_layer_name(layer_name):
 
     for k, v in dataset_parameters["default_parameters"].items():
         if k not in parameters:
-            if k in ("fields", "intersecting"):
+            if k == "intersecting":
+                parameters[k] = v
+            elif (k == "fields") and (len(v) > 0):
                 parameters[k] = v
             elif k == "level":
                 parameters[k] = f"{v}"

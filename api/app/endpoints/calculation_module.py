@@ -108,6 +108,8 @@ class CMTask(Resource):
                 task_status["result"] = "An unexpected error happened: " + str(e)
         else:
             task_status["result"] = result
+            layer_name = path.make_unique_layer_name(path.CM, cm_name, task_id=task_id)
+            geofile.save_cm_result(layer_name, result)
 
         return task_status
 

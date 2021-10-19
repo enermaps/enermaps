@@ -17,8 +17,11 @@ def convert(parameters):
         if field not in params:
             params[field] = None
 
-    for field in ("end_at",):
-        if field not in params:
+    field = "end_at"
+    if field not in params:
+        if field in parameters:
+            params[field] = parameters[field]
+        else:
             params[field] = None
 
     for field in ("default_parameters",):
@@ -32,7 +35,7 @@ def convert(parameters):
         "levels": params["levels"],
         "temporal_granularity": params["temporal_granularity"],
         "start_at": params["start_at"],
-        "end_at": parameters["end_at"],
+        "end_at": params["end_at"],
         "default_parameters": parameters["default_parameters"],
     }
 

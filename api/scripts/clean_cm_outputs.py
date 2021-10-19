@@ -39,4 +39,5 @@ for filename in files_to_delete:
     os.remove(filename)
 
 for path in folders_to_delete:
-    os.removedirs(path)
+    if os.path.exists(path):
+        os.removedirs(path)

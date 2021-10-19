@@ -202,16 +202,25 @@ function _addLayer(task) {
     } else {
       const labels = {
         primary: task.cm.pretty_name,
-        secondary: JSON.stringify(task.parameters.parameters),
+        secondary: Object.values(task.parameters.parameters).join(', '),
         dataset: null,
       };
 
-      let title = labels.primary + '\n\n' + labels.secondary;
+      let title = labels.primary + '\n\n';
+
+      for (const key of Object.keys(task.parameters.parameters)) {
+        title += key + ': ' + task.parameters.parameters[key] + '\n';
+      }
 
       const refLayer = getLayer(task.parameters.layer);
       if (refLayer != null) {
-        labels.dataset = refLayer.labels.dataset;
-        title += '\n\n' + labels.dataset;
+        if (refLayer.labels.dataset !== null) {
+          labels.dataset = refLayer.labels.dataset;
+        } else {
+          labels.dataset = refLayer.labels.primary;
+        }
+
+        title += '\n' + labels.dataset;
       }
 
       const layerName = 'cm/' + task.result.cm_name + '/' + task.result.task_id;
