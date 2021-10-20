@@ -287,7 +287,7 @@
       <table id="datasets" style="margin-top: 6px;">
         <tbody>
           {#each filteredDatasets as dataset (dataset.ds_id)}
-            <tr class="dataset" title={dataset.title} on:click={toggleDataset(dataset)} class:open={dataset.open}>
+            <tr class="dataset" title={dataset.title} on:click={() => toggleDataset(dataset)} class:open={dataset.open}>
               <td class="arrow"><span>►</span></td>
               <td class="title" colspan="3">{dataset.title}</td>
               <td class="openair">
@@ -298,7 +298,7 @@
             {#if dataset.open}
               {#if dataset.info.both}
                 {#each dataset.info.variables as variable}
-                  <tr class="layer intermediate" title={variable} on:click={toggleIntermediateLayer(dataset, variable)} class:open={isIntermediateLayerOpen(dataset, variable)}>
+                  <tr class="layer intermediate" title={variable} on:click={() => toggleIntermediateLayer(dataset, variable)} class:open={isIntermediateLayerOpen(dataset, variable)}>
                     <td></td>
                     <td class="arrow"><span>►</span></td>
                     <td colspan="2">{variable}</td>
@@ -308,7 +308,7 @@
                   {#if isIntermediateLayerOpen(dataset, variable)}
                     {#each dataset.info.time_periods as timePeriod}
                       {#if isCombinationValid(dataset, variable, timePeriod)}
-                        <tr class="layer final" title={timePeriod} on:click={addLayer(dataset.ds_id, variable, timePeriod)}>
+                        <tr class="layer final" title={timePeriod} on:click={() => addLayer(dataset.ds_id, variable, timePeriod)}>
                           <td></td>
                           <td class="bullet"></td>
                           <td class="bullet">◦</td>
@@ -321,7 +321,7 @@
                 {/each}
               {:else if dataset.info.variables_only}
                 {#each dataset.info.variables as variable}
-                  <tr class="layer final" title={variable} on:click={addLayer(dataset.ds_id, variable, dataset.info.const_time_period)}>
+                  <tr class="layer final" title={variable} on:click={() => addLayer(dataset.ds_id, variable, dataset.info.const_time_period)}>
                     <td></td>
                     <td class="bullet">◦</td>
                     <td colspan="2">{variable}</td>
@@ -330,7 +330,7 @@
                 {/each}
               {:else if dataset.info.time_period_only}
                 {#each dataset.info.time_periods as timePeriod}
-                  <tr class="layer final" title={timePeriod} on:click={addLayer(dataset.ds_id, dataset.info.const_variable, timePeriod)}>
+                  <tr class="layer final" title={timePeriod} on:click={() => addLayer(dataset.ds_id, dataset.info.const_variable, timePeriod)}>
                     <td></td>
                     <td class="bullet">◦</td>
                     <td colspan="2">{timePeriod}</td>
@@ -338,7 +338,7 @@
                   </tr>
                 {/each}
               {:else}
-                <tr class="layer final" title={dataset.title} on:click={addLayer(dataset.ds_id, dataset.info.const_variable, dataset.info.const_time_period)}>
+                <tr class="layer final" title={dataset.title} on:click={() => addLayer(dataset.ds_id, dataset.info.const_variable, dataset.info.const_time_period)}>
                   <td></td>
                   <td class="bullet">◦</td>
                   {#if dataset.info.const_variable !== null}
