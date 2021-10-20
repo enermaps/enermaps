@@ -1,10 +1,12 @@
 <script>
-  import {onMount} from 'svelte';
+  import {onMount, createEventDispatcher, afterUpdate} from 'svelte';
   import {getAreas} from '../client.js';
   import {areaSelectionStore} from '../stores.js';
 
 
   let availableAreas = null;
+
+  const dispatch = createEventDispatcher();
 
 
   onMount(async () => {
@@ -24,6 +26,11 @@
       console.log('Area selection changed to ' + $areaSelectionStore);
     }
   }
+
+
+  afterUpdate(() => {
+    dispatch('layout', '');
+  });
 </script>
 
 
