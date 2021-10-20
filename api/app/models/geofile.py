@@ -97,26 +97,11 @@ def save_cm_file(layer_name, feature_id, raster_content):
 
 
 def save_cm_result(layer_name, result):
-    storage_instance = storage.create_for_layer_type(path.CM)
+    return _save_cm_json(layer_name, "result.json", result)
 
-    with TemporaryDirectory(prefix=storage_instance.get_tmp_dir()) as tmp_dir:
-        tmp_filepath = safe_join(tmp_dir, "result.json")
 
-        with open(tmp_filepath, "w") as f:
-            json.dump(result, f)
-
-        target_folder = storage_instance.get_dir(layer_name)
-        os.makedirs(target_folder, exist_ok=True)
-
-        try:
-            os.replace(
-                tmp_filepath, storage_instance.get_file_path(layer_name, "result.json")
-            )
-        except Exception as e:
-            print(e)
-            return False
-
-    return True
+def save_cm_parameters(layer_name, parameters):
+    return _save_cm_json(layer_name, "parameters.json", parameters)
 
 
 def get_cm_legend(layer_name):
@@ -159,6 +144,29 @@ def _save_raster_file(storage_instance, layer_name, feature_id, raster_content):
         except (FileExistsError, OSError):
             print("Raster file already exists")
             return False
+        except Exception as e:
+            print(e)
+            return False
+
+    return True
+
+
+def _save_cm_json(layer_name, filename, data):
+    storage_instance = storage.create_for_layer_type(path.CM)
+
+    with TemporaryDirectory(prefix=storage_instance.get_tmp_dir()) as tmp_dir:
+        tmp_filepath = safe_join(tmp_dir, filename)
+
+        with open(tmp_filepath, "w") as f:
+            json.dump(data, f)
+
+        target_folder = storage_instance.get_dir(layer_name)
+        os.makedirs(target_folder, exist_ok=True)
+
+        try:
+            os.replace(
+                tmp_filepath, storage_instance.get_file_path(layer_name, filename)
+            )
         except Exception as e:
             print(e)
             return False

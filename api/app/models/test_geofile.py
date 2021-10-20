@@ -1,3 +1,4 @@
+import json
 import os
 
 from app.common.test import BaseApiTest
@@ -102,3 +103,29 @@ class TestSaveCMResult(BaseApiTest):
 
             self.assertTrue(legend is not None)
             self.assertEqual(legend, TestSaveCMResult.RESULT["legend"])
+
+
+class TestSaveCMParameters(BaseApiTest):
+    PARAMETERS = {
+        "selection": {},
+        "layer": "raster/42/file.tif",
+        "parameters": {},
+    }
+
+    def testSaveParameters(self):
+        with self.flask_app.app_context():
+            layer_name = "cm/some_name/01234567-0000-0000-0000-000000000000"
+
+            self.assertTrue(
+                geofile.save_cm_parameters(layer_name, TestSaveCMParameters.PARAMETERS)
+            )
+
+            storage_instance = storage.create(layer_name)
+            filename = storage_instance.get_file_path(layer_name, "parameters.json")
+
+            self.assertTrue(os.path.exists(filename))
+
+            with open(filename, "r") as f:
+                data = json.load(f)
+
+            self.assertEqual(data, TestSaveCMParameters.PARAMETERS)

@@ -19,15 +19,19 @@ folders_to_delete = []
 
 for root, dirs, files in os.walk(cm_outputs_dir):
     if files:
+        must_delete = True
+
         for filename in files:
             fullpath = os.path.join(root, filename)
             access_time = datetime.utcfromtimestamp(os.path.getatime(fullpath))
 
-            if (now - access_time) > max_age:
-                files_to_delete.append(
-                    fullpath.replace(cm_outputs_dir + os.path.sep, "")
-                )
-                folders_to_delete.append(root.replace(cm_outputs_dir + os.path.sep, ""))
+            if (now - access_time) < max_age:
+                must_delete = False
+                break
+
+        if must_delete:
+            files_to_delete.append(fullpath.replace(cm_outputs_dir + os.path.sep, ""))
+            folders_to_delete.append(root.replace(cm_outputs_dir + os.path.sep, ""))
     elif not dirs:
         folders_to_delete.append(root.replace(cm_outputs_dir + os.path.sep, ""))
 
