@@ -40,22 +40,38 @@ def save_vector_geojson(layer_name, geojson):
     type = path.get_type(layer_name)
     storage_instance = storage.create_for_layer_type(type)
 
-    # Add the variable names as keys accessible by mapnik
-    for i in range(len(geojson["features"])):
-        for variable, value in geojson["features"][i]["properties"][
-            "variables"
-        ].items():
-            geojson["features"][i]["properties"][f"__variable__{variable}"] = value
+    # Processing
+    valid_variables = []
 
+    for i in range(len(geojson["features"])):
+        properties = geojson["features"][i]["properties"]
+
+        # Retrieve the list of variable names
+        for variable, value in properties["variables"].items():
+            if (variable not in valid_variables) and (value is not None):
+                valid_variables.append(variable)
+
+        # Delete the legend (we don't need it)
+        del properties["legend"]
+
+        # Add the variable values as keys accessible by mapnik
+        for variable, value in properties["variables"].items():
+            properties[f"__variable__{variable}"] = value
+
+    # Save the files
     with TemporaryDirectory(prefix=storage_instance.get_tmp_dir()) as tmp_dir:
         tmp_filepath = safe_join(tmp_dir, "data.geojson")
         proj_filepath = safe_join(tmp_dir, "data.prj")
+        variables_filepath = safe_join(tmp_dir, "variables.json")
 
         with open(tmp_filepath, "w") as f:
             f.write(json.dumps(geojson))
 
         with open(proj_filepath, "w") as fd:
             fd.write(epsg_to_wkt(4326))
+
+        with open(variables_filepath, "w") as f:
+            f.write(json.dumps(valid_variables))
 
         target_folder = storage_instance.get_dir(layer_name)
         os.makedirs(os.path.dirname(target_folder), exist_ok=True)
@@ -67,7 +83,7 @@ def save_vector_geojson(layer_name, geojson):
         except Exception as e:
             print(e)
 
-    return True
+    return valid_variables
 
 
 def save_raster_file(layer_name, feature_id, raster_content):
