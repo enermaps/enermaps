@@ -90,14 +90,18 @@
         <div>...waiting for legend</div>
 
       {:then legend}
-        <div class="scroll">
-          {#each legend.symbology as symbol}
-            <div>
-              <div class='box' style="background-color: rgb( {symbol.red}, {symbol.green}, {symbol.blue} )"> </div>
-              <div style="display: inline-block;">{symbol.label}</div><br>
-            </div>
-          {/each}
-        </div>
+        {#if legend}
+          <div class="scroll">
+            {#each legend.symbology as symbol}
+              <div>
+                <div class='box' style="background-color: rgb( {symbol.red}, {symbol.green}, {symbol.blue} )"> </div>
+                <div style="display: inline-block;">{symbol.label}</div><br>
+              </div>
+            {/each}
+          </div>
+        {:else}
+          <div style="color: red">No legend found</div>
+        {/if}
 
       {:catch error}
         <div style="color: red">{error.message}</div>
