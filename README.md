@@ -4,6 +4,7 @@ EnerMaps is a rewrite of Hotmaps Horizon 2020 project.
 
 # Development
 First you need to have docker installed on your machine.
+Clone this repository.
 
 Then run
 
@@ -58,7 +59,7 @@ docker-compose --file docker-compose-db.yml up --build -d
 
 for the db.
 
-Some service will initialize and create their initial state:
+Some services will initialize and create their initial state:
 
 * the api will fetch an initial dataset
 * the db will create its initial schema
@@ -69,7 +70,7 @@ To import datasets, check the data-integration directory readme.
 
 ## Populating the WMS cache
 
-For the WMS to works, geofiles must be downloaded from the database server:
+For the WMS to work, geofiles must be downloaded from the database server:
 
 ```
 $ docker-compose exec api /bin/bash -c 'flask update-areas'
@@ -86,9 +87,9 @@ $ docker-compose exec api /bin/bash -c 'flask update-dataset 3'
 
 ## External API
 
-A PostGRES API is available to give access to the DB to external users, as well as to the OpenAIRE gateway.
+A PostGREST API is available to give access to the DB to external users, as well as to the OpenAIRE gateway.
 
-Check the the postgrest directory readme.
+Check the the PostGREST directory readme.
 
 ### Nginx server
 
@@ -174,9 +175,9 @@ npm install eslint-plugin-svelte3
 pre-commit install
 ```
 
-Work in that environment following this procedure:
+Work in your environment following this procedure:
 
- - When a git commit is done your code gets automatically re-formatted
+ - When a git commit is done, your code gets automatically re-formatted
  - You will have to check the proposed modifications and re-add them in a continuous process of `git add`/`git commit`
  - When your code passes the pre-commit checks, you will be able to finally commit your code and push to GitHub
  - Various imports are automatically sorted for you
