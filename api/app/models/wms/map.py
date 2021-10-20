@@ -18,14 +18,11 @@ def get_mapnik_map(normalized_args):
     size = utils.parse_size(normalized_args)
     mp = mapnik.Map(size.width, size.height, "+init=" + projection)
 
-    # Style for lines
-    line_style, line_style_name = make_line_style()
-    mp.append_style(line_style_name, line_style)
     mp.legend_images_folders = []
 
     # Get the list of the layers to display
     layers = utils.parse_layers(normalized_args)
-    for layer_name in layers:
+    for index, layer_name in enumerate(layers):
         layer = geofile.load(layer_name)
         if layer is None:
             return None
@@ -34,6 +31,22 @@ def get_mapnik_map(normalized_args):
         if (mapnik_layers is None) or (len(mapnik_layers) == 0):
             return None
 
+        # Create the style for the lines (if necessary)
+        (type, _, variable, _, _) = path.parse_unique_layer_name(layer_name)
+
+        line_style = None
+        line_style_name = None
+
+        if type == path.VECTOR:
+            line_style, line_style_name = make_line_style(variable)
+        elif type == path.AREA:
+            line_style, line_style_name = make_line_style(None)
+
+        if line_style is not None:
+            line_style_name += f"_{index}"
+            mp.append_style(line_style_name, line_style)
+
+        # Create the style for the legend (if necessary)
         legend_style = None
         legend_style_name = None
 
@@ -48,10 +61,13 @@ def get_mapnik_map(normalized_args):
                 mp.legend_images_folders.append(legend_images_folder)
 
         if legend_style is not None:
+            legend_style_name += f"_{index}"
             mp.append_style(legend_style_name, legend_style)
 
+        # Apply the styles to the layer
         for mapnik_layer in mapnik_layers:
-            mapnik_layer.styles.append(line_style_name)
+            if line_style is not None:
+                mapnik_layer.styles.append(line_style_name)
 
             if legend_style is not None:
                 mapnik_layer.styles.append(legend_style_name)
@@ -140,17 +156,23 @@ def create_default_legend(type):
     return legend
 
 
-def make_line_style():
+def make_line_style(variable):
     """
     Add a black line style for contours of polygon layers
     """
     mapnik_style = mapnik.Style()
     rule = mapnik.Rule()
+
+    if variable is not None:
+        rule.filter = mapnik.Filter(f"[__variable__{variable}] != null")
+
     line_symbolizer = mapnik.LineSymbolizer()
     line_symbolizer.stroke = mapnik.Color("black")
     line_symbolizer.stroke_width = 1.0
     rule.symbols.append(line_symbolizer)
+
     mapnik_style.rules.append(rule)
+
     return mapnik_style, "line_style"
 
 
