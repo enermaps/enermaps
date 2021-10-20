@@ -54,11 +54,11 @@ class CMTaskCreator(Resource):
         except CM.UnexistantCalculationModule as err:
             abort(404, description=str(err))
 
-        create_task_parameters = request.get_json()
+        input_parameters = request.get_json()
 
-        selection = create_task_parameters.get("selection", {})
-        layer_name = create_task_parameters.get("layer", None)
-        parameters = create_task_parameters.get("parameters", {})
+        selection = input_parameters.get("selection", {})
+        layer_name = input_parameters.get("layer", None)
+        parameters = input_parameters.get("parameters", {})
 
         # Retrieve the list of TIFF files associated with the layer
         layers = []
@@ -70,6 +70,9 @@ class CMTaskCreator(Resource):
                 layers.append(file_path.replace(root_dir + os.path.sep, ""))
 
         task = cm.call(selection, layers, parameters)
+
+        layer_name = path.make_unique_layer_name(path.CM, cm_name, task_id=task)
+        geofile.save_cm_parameters(layer_name, input_parameters)
 
         return redirect(url_for(".cm_cm_task", cm_name=cm_name, task_id=task))
 

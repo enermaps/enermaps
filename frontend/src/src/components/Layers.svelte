@@ -1,5 +1,5 @@
 <script>
-  import {createEventDispatcher} from 'svelte';
+  import {createEventDispatcher, afterUpdate} from 'svelte';
   import {layersStore, selectedLayerStore} from '../stores.js';
   import {deleteLayer} from '../layers.js';
   import {BASE_URL} from '../settings.js';
@@ -25,6 +25,11 @@
       }
     }
   }
+
+
+  afterUpdate(() => {
+    dispatch('layout', '');
+  });
 
 
   function endEffect(layer) {
@@ -182,6 +187,8 @@
     if (layer.name === selection) {
       dispatch('selectedLayerVisibilityChanged', layer.visible);
     }
+
+    dispatch('layout', '');
   }
 
 
@@ -193,6 +200,8 @@
     }
 
     $selectedLayerStore = selection;
+
+    dispatch('layout', '');
   }
 
 
@@ -236,17 +245,11 @@
   }
 
   .scroll {
-    max-height: max(calc((100vh - 250px) / 3 - 50px), 200px);
+    max-height: max(calc((100vh - 250px) / 2 - 70px), 200px);
     border : none;
     overflow-y: scroll;
     scrollbar-color: #27275b;
     scrollbar-width: thin;
-  }
-
-  @media (max-height: 1000px) {
-    .scroll {
-      max-height: max(calc((100vh - 250px) / 2 - 50px), 200px);
-    }
   }
 
   .layer {

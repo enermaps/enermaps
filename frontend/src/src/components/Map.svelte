@@ -276,6 +276,21 @@
     margin-left: 35px;
     border: 0px;
   }
+
+  :global(#findbox input.search-input) {
+    font-size: 0.9em;
+    padding: 4px !important;
+    min-width: 200px;
+  }
+
+  :global(#findbox .search-button) {
+    background-image: url(../images/search.png);
+    background-position-y: 5px;
+  }
+
+  :global(#findbox .search-button:hover) {
+    background-position-y: -19px;
+  }
 </style>
 
 

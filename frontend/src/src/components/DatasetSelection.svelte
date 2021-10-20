@@ -1,5 +1,5 @@
 <script>
-  import {onMount} from 'svelte';
+  import {onMount, createEventDispatcher, afterUpdate} from 'svelte';
   import {getDatasetsWithVariables, getDatasetLayerName} from '../client.js';
   import {createLayer} from '../layers.js';
 
@@ -7,6 +7,8 @@
   let availableDatasets = null;
   let filter = '';
   let filteredDatasets = [];
+
+  const dispatch = createEventDispatcher();
 
 
   onMount(async () => {
@@ -67,6 +69,11 @@
     console.log(datasets.length + ' datasets found');
 
     availableDatasets = datasets;
+  });
+
+
+  afterUpdate(() => {
+    dispatch('layout', '');
   });
 
 
@@ -138,6 +145,15 @@
 
     createLayer(layerName, labels, title, dataset.is_raster, null);
   }
+
+
+  function isCombinationValid(dataset, variable, timePeriod) {
+    if (dataset.info.valid_combinations == null) {
+      return true;
+    }
+
+    return dataset.info.valid_combinations[timePeriod].indexOf(variable) != -1;
+  }
 </script>
 
 
@@ -168,17 +184,11 @@
   }
 
   .scroll {
-    max-height: max(calc((100vh - 250px) / 3 - 50px), 200px);
+    max-height: max(calc((100vh - 250px) / 2 - 70px), 200px);
     border : none;
     overflow-y: scroll;
     scrollbar-color: #27275b;
     scrollbar-width: thin;
-  }
-
-  @media (max-height: 1000px) {
-    .scroll {
-      max-height: max(calc((100vh - 250px) / 2 - 50px), 200px);
-    }
   }
 
   table {
@@ -257,13 +267,15 @@
 
                   {#if isIntermediateLayerOpen(dataset, variable)}
                     {#each dataset.info.time_periods as timePeriod}
-                      <tr class="layer final" title={timePeriod} on:click={addLayer(dataset.ds_id, variable, timePeriod)}>
-                        <td></td>
-                        <td class="bullet"></td>
-                        <td class="bullet">◦</td>
-                        <td>{timePeriod}</td>
-                        <td></td>
-                      </tr>
+                      {#if isCombinationValid(dataset, variable, timePeriod)}
+                        <tr class="layer final" title={timePeriod} on:click={addLayer(dataset.ds_id, variable, timePeriod)}>
+                          <td></td>
+                          <td class="bullet"></td>
+                          <td class="bullet">◦</td>
+                          <td>{timePeriod}</td>
+                          <td></td>
+                        </tr>
+                      {/if}
                     {/each}
                   {/if}
                 {/each}
