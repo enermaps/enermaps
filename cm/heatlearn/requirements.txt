@@ -9,3 +9,4 @@ geocube==0.0.17
 jenkspy==0.2.0
 numpy==1.19.2
 scipy==1.6.3
+gdal==3.0.4

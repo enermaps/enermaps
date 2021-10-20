@@ -15,6 +15,7 @@ import urllib3
 from BaseCM.cm_output import validate
 from geocube.api.core import make_geocube
 from matplotlib import cm
+from osgeo import gdal
 from rasterio.mask import mask
 from shapely import wkt
 from shapely.geometry import Polygon, shape
@@ -209,6 +210,38 @@ def checkTile(matrix, tile_size):
         return False
 
 
+def getTile(tile_box: Polygon, source_file, replace_dict: dict = {}) -> np.array:
+    """Return the tile matrix from the original raster file."""
+    print(tile_box)
+    dataset = gdal.Open(source_file)
+    band = dataset.GetRasterBand(1)
+
+    geotransform = dataset.GetGeoTransform()
+
+    xinit = geotransform[0]
+    yinit = geotransform[3]
+
+    xsize = round(geotransform[1], 1)
+    ysize = round(geotransform[5], 1)
+
+    p1 = (tile_box.bounds[0], tile_box.bounds[3])  # upper left of bounding box
+    p2 = (tile_box.bounds[2], tile_box.bounds[1])  # bottom right of bounding box
+
+    row1 = int((p1[1] - yinit) / ysize)
+    col1 = int((p1[0] - xinit) / xsize)
+
+    row2 = int((p2[1] - yinit) / ysize)
+    col2 = int((p2[0] - xinit) / xsize)
+
+    tile = band.ReadAsArray(col1, row1, col2 - col1, row2 - row1)
+
+    # if replace_dict:
+    #     tile = replace_with_dict(tile,replace_dict)
+    # if tile_box.area != abs((tile.shape[0] * xsize) * (tile.shape[1] * ysize)):
+    #     raise ValueError("The cropped raster size does not correspond to the size of the tile box.")
+    return tile
+
+
 def heatlearn(
     task,
     geojson,
@@ -234,13 +267,14 @@ def heatlearn(
     boundary = boundary.rename(columns={0: "geometry"}).set_geometry("geometry")
 
     # Make sure that the clipping geometry does not leave any pixel out
-    boundary["geometry"] = boundary["geometry"].apply(
-        lambda x: wkt.loads(wkt.dumps(x, rounding_precision=0))
-    )
-    offset = boundary.total_bounds % PIXEL_SIZE
-    boundary["geometry"] = boundary["geometry"].translate(
-        xoff=-offset[0], yoff=-offset[1]
-    )
+    # boundary["geometry"] = boundary["geometry"].apply(
+    #     lambda x: wkt.loads(wkt.dumps(x, rounding_precision=0))
+    # )
+    # offset = boundary.total_bounds % PIXEL_SIZE
+    # boundary["geometry"] = boundary["geometry"].translate(
+    #     xoff=-offset[0], yoff=-offset[1]
+    # )
+    print(boundary["geometry"], flush=True)
 
     # Make tiles
     bounds = boundary.total_bounds
@@ -271,45 +305,56 @@ def heatlearn(
         }
     )
 
+    # vrt_options = gdal.BuildVRTOptions(resampleAlg='cubic', addAlpha=True)
+    # my_vrt = gdal.BuildVRT('my.vrt', raster_paths, options=vrt_options).FlushCache()
+
+    # ds = gdal.Warp('', 'my.vrt', format="VRT")
+
     raster = replace_with_dict(raster)
     raster = raster.astype(np.uint16)
+
     # Prepare inputs for the model
     # Initialize variables
     X = np.zeros(
         [tiles.shape[0], int(tile_size / PIXEL_SIZE), int(tile_size / PIXEL_SIZE), 2]
     )  # the second channel (mask) must have zeros
     tiles["suitable"] = False
+
     # Clip and check raster tiles
-    with rasterio.io.MemoryFile() as memfile:
-        with memfile.open(**meta) as dataset:
-            dataset.write(raster)  # dataset with new encoding
-            for t, row in tiles.iterrows():
-                # Clipping geometry in Rasterio format
-                coords = getFeatures(
-                    gpd.GeoDataFrame({"geometry": row.geometry}, index=[0])
-                )
-                # Clip using rasterio
-                out_img, out_transform = mask(
-                    dataset=dataset, shapes=coords, crop=True, pad=0
-                )
-                matrix = np.squeeze(out_img)
+    # with rasterio.io.MemoryFile() as memfile:
+    #     with memfile.open(**meta) as dataset:
+    #         dataset.write(raster)  # dataset with new encoding
 
-                # Check suitability
-                tiles.loc[t, "suitable"] = checkTile(matrix, tile_size)
+    with rasterio.open("test.tif", "w", **meta) as dest:
+        dest.write(raster)
 
-                # Make sure that the Rasterio clipping is successful
-                if 256 in np.unique(out_img):  # no 256-encoded pixels at borders
-                    raise ValueError("Clipping was not succesful.")
+    for t, row in tiles.iterrows():
+        # Clipping geometry in Rasterio format
+        # coords = getFeatures(
+        #     gpd.GeoDataFrame({"geometry": row.geometry}, index=[0])
+        # )
+        # Clip using rasterio
+        # out_img, out_transform = mask(
+        #     dataset=dataset, shapes=coords, crop=True, pad=0, all_touched=True
+        # )
+        # matrix = np.squeeze(out_img)
 
-                # Make sure each tile has the correct number of pixels
-                if matrix.shape != (tile_size // 2.5, tile_size // 2.5):  # exact size
-                    padded_array = np.zeros(
-                        (int(tile_size // 2.5), int(tile_size // 2.5))
-                    )
-                    padded_array[: matrix.shape[0], : matrix.shape[1]] = matrix
-                    matrix = padded_array
-                    tiles.loc[t, "suitable"] = False
-                X[t, :, :, 0] = matrix
+        matrix = getTile(row.geometry, "test.tif")
+
+        # Check suitability
+        tiles.loc[t, "suitable"] = checkTile(matrix, tile_size)
+
+        # Make sure that the Rasterio clipping is successful
+        # if 256 in np.unique(out_img):  # no 256-encoded pixels at borders
+        #     raise ValueError("Clipping was not succesful.")
+
+        # Make sure each tile has the correct number of pixels
+        if matrix.shape != (tile_size // 2.5, tile_size // 2.5):  # exact size
+            padded_array = np.zeros((int(tile_size // 2.5), int(tile_size // 2.5)))
+            padded_array[: matrix.shape[0], : matrix.shape[1]] = matrix
+            matrix = padded_array
+            tiles.loc[t, "suitable"] = False
+        X[t, :, :, 0] = matrix
 
     # Filter tiles
     X = X[tiles["suitable"], :, :, :]
@@ -335,6 +380,7 @@ def heatlearn(
         vector_data=tiles,
         measurements=["preds"],
         resolution=(-tile_size, tile_size),
+        fill=-9999,
         output_crs="EPSG:3035",
     )
     cube["preds"].rio.to_raster("tmp/tmp.tif")
