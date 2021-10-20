@@ -1,4 +1,12 @@
+import json
+import os
 from datetime import datetime
+
+from flask import safe_join
+
+from app.models import storage
+
+from . import path
 
 
 def convert(parameters):
@@ -42,6 +50,18 @@ def convert(parameters):
 
 def process_parameters(parameters):
     _process_time_periods(parameters)
+
+
+def get_valid_combinations(dataset_id):
+    layer_name = path.make_unique_layer_name(path.VECTOR, dataset_id)
+    storage_instance = storage.create(layer_name)
+    filename = safe_join(storage_instance.get_dir(layer_name), "combinations.json")
+
+    if not os.path.exists(filename):
+        return None
+
+    with open(filename, "r") as f:
+        return json.load(f)
 
 
 def _process_time_periods(parameters):
