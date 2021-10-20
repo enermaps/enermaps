@@ -3,13 +3,13 @@ import json
 import time
 
 import click
-from flask import current_app
+from flask import current_app, safe_join
 from flask.cli import with_appcontext
 
 from app.common import client
 from app.common import datasets as datasets_fcts
 from app.common import path
-from app.models import geofile
+from app.models import geofile, storage
 
 
 @click.command("update-all-datasets")
@@ -181,19 +181,37 @@ def process_dataset(dataset, pretty_print=False):
                 time_period=time_period,
                 pretty_print=pretty_print,
             )
+
     elif len(parameters["variables"]) > 0:
         for variable in parameters["variables"]:
             process_layer(
                 type, dataset["ds_id"], variable=variable, pretty_print=pretty_print
             )
     elif len(parameters["time_periods"]) > 0:
+        valid_combinations = {}
+
         for time_period in parameters["time_periods"]:
-            process_layer(
+            valid_variables = process_layer(
                 type,
                 dataset["ds_id"],
                 time_period=time_period,
                 pretty_print=pretty_print,
             )
+
+            if valid_variables is not None:
+                if time_period not in valid_combinations:
+                    valid_combinations[time_period] = []
+
+                valid_combinations[time_period].extend(valid_variables)
+
+        if (type == path.VECTOR) and (len(valid_combinations) > 0):
+            layer_name = path.make_unique_layer_name(type, dataset["ds_id"])
+            storage_instance = storage.create(layer_name)
+            with open(
+                safe_join(storage_instance.get_dir(layer_name), "combinations.json"),
+                "w",
+            ) as f:
+                json.dump(valid_combinations, f)
     else:
         process_layer(type, dataset["ds_id"], pretty_print=pretty_print)
 
@@ -208,8 +226,8 @@ def process_layer(type, id, variable=None, time_period=None, pretty_print=False)
     time_started = time.time()
 
     data = client.get_geojson(layer_name, pretty_print)
-    if data is None:
-        return
+    if (data is None) or (data["features"] is None) or (len(data["features"]) == 0):
+        return None
 
     time_fetched = time.time()
 
@@ -219,8 +237,10 @@ def process_layer(type, id, variable=None, time_period=None, pretty_print=False)
 
     geofile.delete_all_features(layer_name)
 
+    valid_variables = None
+
     if type == path.VECTOR:
-        geofile.save_vector_geojson(layer_name, data)
+        valid_variables = geofile.save_vector_geojson(layer_name, data)
     else:
         for feature in data["features"]:
             feature_id = feature["id"]
@@ -233,6 +253,8 @@ def process_layer(type, id, variable=None, time_period=None, pretty_print=False)
     current_app.logger.info(
         f"... save done in {int(time_saved - time_fetched)} seconds."
     )
+
+    return valid_variables
 
 
 def process_area(id):
