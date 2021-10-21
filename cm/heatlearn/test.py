@@ -34,10 +34,10 @@ class TestCM(unittest.TestCase):
         task = MockTask()
 
         stats = heatlearn.heatlearn(task, selection, raster_paths, 500, 2020)
-
+        print(stats["values"]["Annual heating demand [GWh]"], flush=True)
         self.assertEqual(
             stats["values"]["Annual heating demand [GWh]"],
-            148,
+            468,  # with full grid
             "Request especting 0 returned different values",
         )
 
