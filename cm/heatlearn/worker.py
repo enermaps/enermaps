@@ -45,7 +45,6 @@ def heat_learn(self, selection: dict, rasters: list, params: dict):
         raster_paths=raster_paths,
         tile_size=tile_size,
         year=year,
-        to_colorize=False,
     )
     return results
 

@@ -33,9 +33,7 @@ class TestCM(unittest.TestCase):
 
         task = MockTask()
 
-        stats = heatlearn.heatlearn(
-            task, selection, raster_paths, 500, 2020, to_colorize=False
-        )
+        stats = heatlearn.heatlearn(task, selection, raster_paths, 500, 2020)
 
         self.assertEqual(
             stats["values"]["Annual heating demand [GWh]"],
