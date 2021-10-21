@@ -60,7 +60,6 @@ services:
       dockerfile: cm_heat_demand/Dockerfile
     environment:
       WMS_CACHE_DIR: /wms_cache
-      CM_OUTPUTS_DIR: /cm_outputs
     depends_on:
       - redis
     restart: always
@@ -88,7 +87,6 @@ services:
       dockerfile: example_multiply/Dockerfile
     environment:
       WMS_CACHE_DIR: /wms_cache
-      CM_OUTPUTS_DIR: /cm_outputs
     depends_on:
       - redis
     restart: always
@@ -103,7 +101,6 @@ services:
       dockerfile: example_empty/Dockerfile
     environment:
       WMS_CACHE_DIR: /wms_cache
-      CM_OUTPUTS_DIR: /cm_outputs
     depends_on:
       - redis
     restart: always
