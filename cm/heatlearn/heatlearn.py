@@ -59,26 +59,25 @@ HDD_MODEL = {"slope": -0.0002855045732455094, "intercept": 1.8116549365250931}
 
 
 def createLegend(
-    preds: np.array, name: str = "Heating density", unit: str = "MWh"
+    preds: np.array, name: str = "Heating density", unit: str = "MWh", nb_class: int = 5
 ) -> dict:
     """Prepare a legend dict in HotMaps format"""
-    color_scale = cm.get_cmap(
-        "plasma", min([10, preds[~np.isnan(preds)].shape[0] - 1])
-    ).colors
-    color_scale[:, :-1] = color_scale[:, :-1] * 255
+    nb_class = min([nb_class, preds[~np.isnan(preds)].shape[0] - 1])
+    color_scale = cm.get_cmap("plasma", nb_class).colors
+    color_scale[:, :-1] *= 255
 
-    breaks = jenkspy.jenks_breaks(preds[~np.isnan(preds)], nb_class=5)
+    breaks = jenkspy.jenks_breaks(preds[~np.isnan(preds)], nb_class=nb_class)
 
     legend = {"name": name, "type": "custom", "symbology": []}
-    for i in range(len(breaks)):
+    for i in range(len(breaks) - 1):
         legend["symbology"].append(
             {
                 "red": float(color_scale[i, 0]),
                 "green": float(color_scale[i, 1]),
                 "blue": float(color_scale[i, 2]),
                 "opacity": float(color_scale[i, 3]),
-                "value": float(preds[i]),
-                "label": "≥" + str(preds[i]) + unit,
+                "value": float(breaks[i]),
+                "label": "≥ {} {}".format(int(round(breaks[i], 0)), unit),
             }
         )
     return legend
