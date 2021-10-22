@@ -189,7 +189,7 @@ function _addLayer(task) {
 
       layer.name = 'cm/' + task.result.cm_name + '/' + task.result.task_id;
       layer.task_id = task.id;
-      layer.effect = 'refresh';
+      layer.effect = null;
 
       const layers = get(layersStore);
       layersStore.set(layers);
