@@ -7,7 +7,7 @@ import {getDatasetLayerLegend} from './client.js';
 
 
 // Create a new layer and put it at the top of the stack, so it is displayed last
-export function createLayer(name, labels, title, isRaster, taskId) {
+export function createLayer(name, labels, title, isRaster, isTiled, taskId) {
   const layers = get(layersStore);
 
   let layer = getLayer(name);
@@ -21,6 +21,7 @@ export function createLayer(name, labels, title, isRaster, taskId) {
       labels: labels,
       title: title,
       is_raster: isRaster,
+      is_tiled: isTiled,
       visible: true,
       effect: 'new',
       leaflet_layer: null,

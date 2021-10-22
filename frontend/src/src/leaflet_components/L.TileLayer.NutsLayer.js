@@ -1,30 +1,8 @@
-L.TileLayer.NutsLayer = L.TileLayer.WMS.extend({
-  onAdd: function(map) {
-    this.selection = L.geoJSON();
-    const myStyle = {
-      color: '#ff7800',
-      weight: 10,
-      opacity: 1,
-    };
-    this.selection.style = myStyle;
-    this.selection.addTo(this._map);
-    // Triggered when the layer is added to a map.
-    //   Register a click listener, then do all the upstream WMS things
-    L.TileLayer.WMS.prototype.onAdd.call(this, map);
-    map.on('click', this.getFeatureInfo, this);
-  },
-
-  onRemove: function(map) {
-    // Triggered when the layer is removed from a map.
-    //   Unregister a click listener, then do all the upstream WMS things
-    L.TileLayer.WMS.prototype.onRemove.call(this, map);
-    map.off('click', this.getFeatureInfo, this);
-    this._map.removeLayer(this.selection);
-    this.selection = undefined;
-  },
+const BaseMethods = {
   getSelection: function() {
     return this.selection.toGeoJSON();
   },
+
   getFeatureInfo: function(evt) {
     const point = this._map.latLngToContainerPoint(evt.latlng,
         this._map.getZoom());
@@ -73,17 +51,22 @@ L.TileLayer.NutsLayer = L.TileLayer.WMS.extend({
     params[params.version === '1.3.0' ? 'i' : 'x'] = Math.floor(point.x);
     params[params.version === '1.3.0' ? 'j' : 'y'] = Math.floor(point.y);
 
-    return this._url + L.Util.getParamString(params, this._url, true);
+    const url = (this._wmsUrl !== undefined ? this._wmsUrl : this._url);
+
+    return url + L.Util.getParamString(params, url, true);
   },
+
   getFeatureId: function(feature) {
     if (!!feature.properties.nuts_id) {
       return feature.properties.nuts_id;
     }
     return feature.id;
   },
+
   onError: function(err) {
     console.log(err);
   },
+
   onClickSelect: function(err, content) {
     // if (err) { console.log(err); return; } // do nothing if there's an error
     // Otherwise show the content in a popup, or something.
@@ -106,8 +89,68 @@ L.TileLayer.NutsLayer = L.TileLayer.WMS.extend({
       }
     }
   },
+};
+
+
+L.TileLayer.NutsLayer = L.TileLayer.WMS.extend(BaseMethods).extend({
+  onAdd: function(map) {
+    this.selection = L.geoJSON();
+    const myStyle = {
+      color: '#ff7800',
+      weight: 10,
+      opacity: 1,
+    };
+    this.selection.style = myStyle;
+    this.selection.addTo(this._map);
+    // Triggered when the layer is added to a map.
+    //   Register a click listener, then do all the upstream WMS things
+    L.TileLayer.WMS.prototype.onAdd.call(this, map);
+    map.on('click', this.getFeatureInfo, this);
+  },
+
+  onRemove: function(map) {
+    // Triggered when the layer is removed from a map.
+    //   Unregister a click listener, then do all the upstream WMS things
+    L.TileLayer.WMS.prototype.onRemove.call(this, map);
+    map.off('click', this.getFeatureInfo, this);
+    this._map.removeLayer(this.selection);
+    this.selection = undefined;
+  },
 });
+
+
+L.NonTiledLayer.NutsLayer = L.NonTiledLayer.WMS.extend(BaseMethods).extend({
+  onAdd: function(map) {
+    this.selection = L.geoJSON();
+    const myStyle = {
+      color: '#ff7800',
+      weight: 10,
+      opacity: 1,
+    };
+    this.selection.style = myStyle;
+    this.selection.addTo(this._map);
+    // Triggered when the layer is added to a map.
+    //   Register a click listener, then do all the upstream WMS things
+    L.NonTiledLayer.WMS.prototype.onAdd.call(this, map);
+    map.on('click', this.getFeatureInfo, this);
+  },
+
+  onRemove: function(map) {
+    // Triggered when the layer is removed from a map.
+    //   Unregister a click listener, then do all the upstream WMS things
+    L.NonTiledLayer.WMS.prototype.onRemove.call(this, map);
+    map.off('click', this.getFeatureInfo, this);
+    this._map.removeLayer(this.selection);
+    this.selection = undefined;
+  },
+});
+
 
 L.tileLayer.nutsLayer = function(url, options) {
   return new L.TileLayer.NutsLayer(url, options);
+};
+
+
+L.nonTiledLayer.nutsLayer = function(url, options) {
+  return new L.NonTiledLayer.NutsLayer(url, options);
 };

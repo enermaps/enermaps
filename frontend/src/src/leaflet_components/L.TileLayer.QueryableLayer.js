@@ -1,18 +1,4 @@
-L.TileLayer.QueryableLayer = L.TileLayer.WMS.extend({
-  onAdd: function(map) {
-    // Triggered when the layer is added to a map.
-    //  Register a click listener, then do all the upstream WMS things
-    L.TileLayer.WMS.prototype.onAdd.call(this, map);
-    map.on('click', this.getFeatureInfo, this);
-  },
-
-  onRemove: function(map) {
-    // Triggered when the layer is removed from a map.
-    //   Unregister a click listener, then do all the upstream WMS things
-    L.TileLayer.WMS.prototype.onRemove.call(this, map);
-    map.off('click', this.getFeatureInfo, this);
-  },
-
+const BaseMethods = {
   getFeatureInfo: function(evt) {
     const point = this._map.latLngToContainerPoint(evt.latlng,
         this._map.getZoom());
@@ -61,7 +47,9 @@ L.TileLayer.QueryableLayer = L.TileLayer.WMS.extend({
     params[params.version === '1.3.0' ? 'i' : 'x'] = Math.floor(point.x);
     params[params.version === '1.3.0' ? 'j' : 'y'] = Math.floor(point.y);
 
-    return this._url + L.Util.getParamString(params, this._url, true);
+    const url = (this._wmsUrl !== undefined ? this._wmsUrl : this._url);
+
+    return url + L.Util.getParamString(params, url, true);
   },
 
   onError: function(err) {
@@ -169,8 +157,48 @@ L.TileLayer.QueryableLayer = L.TileLayer.WMS.extend({
       return {};
     }
   },
+};
+
+
+L.TileLayer.QueryableLayer = L.TileLayer.WMS.extend(BaseMethods).extend({
+  onAdd: function(map) {
+    // Triggered when the layer is added to a map.
+    //  Register a click listener, then do all the upstream WMS things
+    L.TileLayer.WMS.prototype.onAdd.call(this, map);
+    map.on('click', this.getFeatureInfo, this);
+  },
+
+  onRemove: function(map) {
+    // Triggered when the layer is removed from a map.
+    //   Unregister a click listener, then do all the upstream WMS things
+    L.TileLayer.WMS.prototype.onRemove.call(this, map);
+    map.off('click', this.getFeatureInfo, this);
+  },
 });
+
+
+L.NonTiledLayer.QueryableLayer = L.NonTiledLayer.WMS.extend(BaseMethods).extend({
+  onAdd: function(map) {
+    // Triggered when the layer is added to a map.
+    //  Register a click listener, then do all the upstream WMS things
+    L.NonTiledLayer.WMS.prototype.onAdd.call(this, map);
+    map.on('click', this.getFeatureInfo, this);
+  },
+
+  onRemove: function(map) {
+    // Triggered when the layer is removed from a map.
+    //   Unregister a click listener, then do all the upstream WMS things
+    L.NonTiledLayer.WMS.prototype.onRemove.call(this, map);
+    map.off('click', this.getFeatureInfo, this);
+  },
+});
+
 
 L.tileLayer.queryableLayer= function(url, options) {
   return new L.TileLayer.QueryableLayer(url, options);
+};
+
+
+L.nonTiledLayer.queryableLayer= function(url, options) {
+  return new L.NonTiledLayer.QueryableLayer(url, options);
 };
