@@ -13,6 +13,7 @@
   import 'leaflet.gridlayer.googlemutant/Leaflet.GoogleMutant';
   import 'leaflet-search/dist/leaflet-search.src.js';
   import 'leaflet-search/dist/leaflet-search.src.css';
+  import 'leaflet.nontiledlayer/dist/NonTiledLayer-src.js';
   import '../leaflet_components/L.TileLayer.NutsLayer.js';
   import '../leaflet_components/L.TileLayer.QueryableLayer.js';
   import '../leaflet_components/L.DrawingLayer.js';
@@ -95,12 +96,13 @@
         selectionLayers[desiredSelection] = new L.DrawingLayer();
         selectionLayers[desiredSelection].panel = leftPanel;
       } else {
-        const layer = L.tileLayer.nutsLayer(
+        const layer = L.nonTiledLayer.nutsLayer(
             WMS_URL,
             {
               transparent: 'true',
               layers: 'area/' + desiredSelection,
               format: 'image/png',
+              bounds: L.latLngBounds([-90, -180], [90, 180]),
             },
         );
 
@@ -134,23 +136,49 @@
       if (layer.visible && (layer.effect !== 'compute')) {
         if (layer.leaflet_layer === null) {
           if (layer.is_raster) {
-            layer.leaflet_layer = L.tileLayer.wms(
-                WMS_URL,
-                {
-                  transparent: 'true',
-                  layers: encodeURIComponent(layer.name),
-                  format: 'image/png',
-                },
-            );
+            if (layer.is_tiled) {
+              layer.leaflet_layer = L.tileLayer.wms(
+                  WMS_URL,
+                  {
+                    transparent: 'true',
+                    layers: encodeURIComponent(layer.name),
+                    format: 'image/png',
+                    tileSize: 512,
+                  },
+              );
+            } else {
+              layer.leaflet_layer = L.nonTiledLayer.wms(
+                  WMS_URL,
+                  {
+                    transparent: 'true',
+                    layers: encodeURIComponent(layer.name),
+                    format: 'image/png',
+                    bounds: L.latLngBounds([-90, -180], [90, 180]),
+                  },
+              );
+            }
           } else {
-            layer.leaflet_layer = L.tileLayer.queryableLayer(
-                WMS_URL,
-                {
-                  transparent: 'true',
-                  layers: encodeURIComponent(layer.name),
-                  format: 'image/png',
-                },
-            );
+            if (layer.is_tiled) {
+              layer.leaflet_layer = L.tileLayer.queryableLayer(
+                  WMS_URL,
+                  {
+                    transparent: 'true',
+                    layers: encodeURIComponent(layer.name),
+                    format: 'image/png',
+                    tileSize: 512,
+                  },
+              );
+            } else {
+              layer.leaflet_layer = L.nonTiledLayer.queryableLayer(
+                  WMS_URL,
+                  {
+                    transparent: 'true',
+                    layers: encodeURIComponent(layer.name),
+                    format: 'image/png',
+                    bounds: L.latLngBounds([-90, -180], [90, 180]),
+                  },
+              );
+            }
           }
 
           if (layer.task_id !== null) {
