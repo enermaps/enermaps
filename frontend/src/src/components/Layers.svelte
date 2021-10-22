@@ -18,6 +18,7 @@
 
     for (const layer of layers) {
       if ((layer.effect !== null) && (layer.effect !== 'compute') &&
+          (layer.effect !== 'refresh') && (layer.effect !== 'new') &&
           (effectTimers[layer.name] === undefined)) {
         effectTimers[layer.name] = window.setTimeout(() => {
           endEffect(layer);
@@ -283,9 +284,14 @@
 
   div :global(.layer.selected) {
     background-color: #6da8d7;
+    border: 2px solid #6da8d7;
   }
 
   div :global(.layer.new) {
+    background-color: #5dd798;
+  }
+
+  div :global(.layer.blink) {
     background-color: #5dd798;
   }
 
@@ -379,7 +385,7 @@
              on:drop={handleDrop} on:dragend={handleDragEnd}
              on:click={selectLayer(layer)} class:selected={layer.name === selection}
              class:new={layer.effect === 'new'} class:refresh={layer.effect === 'refresh'}
-             class:compute={layer.effect === 'compute'}
+             class:compute={layer.effect === 'compute'} class:blink={layer.effect === 'blink'}
              title="{layer.title}">
           <div class="handle">
             <p>∙</p>
