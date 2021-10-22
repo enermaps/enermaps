@@ -13,7 +13,7 @@ export function createLayer(name, labels, title, isRaster, isTiled, taskId) {
   let layer = getLayer(name);
 
   if (layer !== null) {
-    layer.effect = 'refresh';
+    layer.effect = 'blink';
     layer.visible = true;
   } else {
     layer = {
@@ -41,6 +41,32 @@ export function createLayer(name, labels, title, isRaster, isTiled, taskId) {
   layersStore.set(layers);
 
   return layer;
+}
+
+
+export function markLayerAsRefreshing(layer) {
+  if ((layer.effect === null) || ((layer.effect != 'new') &&
+      (layer.effect != 'compute'))) {
+    layer.effect = 'refresh';
+
+    const layers = get(layersStore);
+    layersStore.set(layers);
+  }
+}
+
+
+export function markLayerAsRefreshed(layer) {
+  if (layer.effect == 'compute') {
+    const task = getTask(layer.task_id);
+    if ((task === null) || (task.result.status !== SUCCESS_STATUS)) {
+      return;
+    }
+  }
+
+  layer.effect = null;
+
+  const layers = get(layersStore);
+  layersStore.set(layers);
 }
 
 
