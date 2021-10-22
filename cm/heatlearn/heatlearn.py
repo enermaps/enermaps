@@ -94,7 +94,6 @@ def replace_with_dict(array: np.array, dic: dict = ESM_dict):
 
     # Get argsort indices
     sorted_idx = keys.argsort()
-
     # Drop the magic bomb with searchsorted to get the corresponding
     # places for a in keys (using sorter since a is not necessarily sorted).
     # Then trace it back to original order with indexing into sidx
@@ -273,9 +272,6 @@ def heatlearn(
         }
     )
 
-    raster = replace_with_dict(raster)
-    raster = raster.astype(np.uint16)
-
     # Prepare inputs for the model
     # Initialize variables
     X = np.zeros(
@@ -297,6 +293,8 @@ def heatlearn(
                     dataset=dataset, shapes=coords, crop=True, pad=0
                 )
                 matrix = np.squeeze(out_img)
+
+                matrix = replace_with_dict(matrix)
 
                 # Check suitability
                 tiles.loc[t, "suitable"] = checkTile(matrix, tile_size)

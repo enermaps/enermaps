@@ -7,5 +7,5 @@ matplotlib==3.4.2
 tensorflow==2.4.1
 urllib3==1.26.5
 jenkspy==0.2.0
-numpy==1.19.2
+numpy==1.19.5
 scipy==1.6.3
