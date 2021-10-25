@@ -1,4 +1,6 @@
 import glob
+import json
+import os
 
 from flask import current_app, safe_join
 
@@ -41,6 +43,14 @@ class BaseRasterStorage(object):
             x[len(folder) + 1 :]
             for x in glob.glob(safe_join(folder, "**/*.tif"), recursive=True)
         ]
+
+    def get_geometries(self, layer_name):
+        filename = self.get_file_path(layer_name, "geometries.json")
+        if not os.path.exists(filename):
+            return None
+
+        with open(filename, "r") as f:
+            return json.load(f)
 
 
 class RasterStorage(BaseRasterStorage):

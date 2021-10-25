@@ -157,10 +157,6 @@ def get_legend(ds_id, variable, time_period, prettyprint):
 def process_dataset(dataset, pretty_print=False):
     type = path.RASTER if dataset["is_raster"] else path.VECTOR
 
-    # Don't download raster files if we have directly access to them
-    if (type == path.RASTER) and (current_app.config["RASTER_CACHE_DIR"] is not None):
-        return
-
     # Retrieve the variables of the dataset
     parameters = client.get_parameters(dataset["ds_id"])
     datasets_fcts.process_parameters(parameters)
@@ -242,12 +238,16 @@ def process_layer(type, id, variable=None, time_period=None, pretty_print=False)
     if type == path.VECTOR:
         valid_variables = geofile.save_vector_geojson(layer_name, data)
     else:
-        for feature in data["features"]:
-            feature_id = feature["id"]
-            current_app.logger.info(f"... download raster file <{feature_id}>")
-            raster_content = client.get_raster_file(id, feature_id)
-            if raster_content is not None:
-                geofile.save_raster_file(layer_name, feature_id, raster_content)
+        geofile.save_raster_geometries(layer_name, data)
+
+        # Don't download raster files if we have directly access to them
+        if current_app.config["RASTER_CACHE_DIR"] is None:
+            for feature in data["features"]:
+                feature_id = feature["id"]
+                current_app.logger.info(f"... download raster file <{feature_id}>")
+                raster_content = client.get_raster_file(id, feature_id)
+                if raster_content is not None:
+                    geofile.save_raster_file(layer_name, feature_id, raster_content)
 
     time_saved = time.time()
     current_app.logger.info(

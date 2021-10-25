@@ -143,7 +143,7 @@
       title = dataset.title;
     }
 
-    createLayer(layerName, labels, title, dataset.is_raster, null);
+    createLayer(layerName, labels, title, dataset.is_raster, dataset.is_tiled, null);
   }
 
 

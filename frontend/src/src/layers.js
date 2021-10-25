@@ -7,13 +7,13 @@ import {getDatasetLayerLegend} from './client.js';
 
 
 // Create a new layer and put it at the top of the stack, so it is displayed last
-export function createLayer(name, labels, title, isRaster, taskId) {
+export function createLayer(name, labels, title, isRaster, isTiled, taskId) {
   const layers = get(layersStore);
 
   let layer = getLayer(name);
 
   if (layer !== null) {
-    layer.effect = 'refresh';
+    layer.effect = 'blink';
     layer.visible = true;
   } else {
     layer = {
@@ -21,6 +21,7 @@ export function createLayer(name, labels, title, isRaster, taskId) {
       labels: labels,
       title: title,
       is_raster: isRaster,
+      is_tiled: isTiled,
       visible: true,
       effect: 'new',
       leaflet_layer: null,
@@ -40,6 +41,32 @@ export function createLayer(name, labels, title, isRaster, taskId) {
   layersStore.set(layers);
 
   return layer;
+}
+
+
+export function markLayerAsRefreshing(layer) {
+  if ((layer.effect === null) || ((layer.effect != 'new') &&
+      (layer.effect != 'compute'))) {
+    layer.effect = 'refresh';
+
+    const layers = get(layersStore);
+    layersStore.set(layers);
+  }
+}
+
+
+export function markLayerAsRefreshed(layer) {
+  if (layer.effect == 'compute') {
+    const task = getTask(layer.task_id);
+    if ((task === null) || (task.result.status !== SUCCESS_STATUS)) {
+      return;
+    }
+  }
+
+  layer.effect = null;
+
+  const layers = get(layersStore);
+  layersStore.set(layers);
 }
 
 

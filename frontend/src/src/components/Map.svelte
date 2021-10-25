@@ -13,6 +13,7 @@
   import 'leaflet.gridlayer.googlemutant/Leaflet.GoogleMutant';
   import 'leaflet-search/dist/leaflet-search.src.js';
   import 'leaflet-search/dist/leaflet-search.src.css';
+  import 'leaflet.nontiledlayer/dist/NonTiledLayer-src.js';
   import '../leaflet_components/L.TileLayer.NutsLayer.js';
   import '../leaflet_components/L.TileLayer.QueryableLayer.js';
   import '../leaflet_components/L.DrawingLayer.js';
@@ -25,7 +26,7 @@
   import {areaSelectionStore, layersStore, areaSelectionLayerStore} from '../stores.js';
   import {INITIAL_MAP_CENTER, INITIAL_ZOOM, BASE_LAYER_URL, BASE_LAYER_PARAMS} from '../settings.js';
   import {WMS_URL} from '../client.js';
-  import {recomputeLayer} from '../layers.js';
+  import {recomputeLayer, markLayerAsRefreshing, markLayerAsRefreshed} from '../layers.js';
 
 
   let map;
@@ -95,12 +96,13 @@
         selectionLayers[desiredSelection] = new L.DrawingLayer();
         selectionLayers[desiredSelection].panel = leftPanel;
       } else {
-        const layer = L.tileLayer.nutsLayer(
+        const layer = L.nonTiledLayer.nutsLayer(
             WMS_URL,
             {
               transparent: 'true',
               layers: 'area/' + desiredSelection,
               format: 'image/png',
+              bounds: L.latLngBounds([-90, -180], [90, 180]),
             },
         );
 
@@ -131,31 +133,75 @@
         layersToBePruned.delete(layer.leaflet_layer);
       }
 
+      // Create the correct type of layer (if necessary)
       if (layer.visible && (layer.effect !== 'compute')) {
         if (layer.leaflet_layer === null) {
           if (layer.is_raster) {
-            layer.leaflet_layer = L.tileLayer.wms(
-                WMS_URL,
-                {
-                  transparent: 'true',
-                  layers: encodeURIComponent(layer.name),
-                  format: 'image/png',
-                },
-            );
+            if (layer.is_tiled) {
+              layer.leaflet_layer = L.tileLayer.wms(
+                  WMS_URL,
+                  {
+                    transparent: 'true',
+                    layers: encodeURIComponent(layer.name),
+                    format: 'image/png',
+                    tileSize: 512,
+                  },
+              );
+            } else {
+              layer.leaflet_layer = L.nonTiledLayer.wms(
+                  WMS_URL,
+                  {
+                    transparent: 'true',
+                    layers: encodeURIComponent(layer.name),
+                    format: 'image/png',
+                    bounds: L.latLngBounds([-90, -180], [90, 180]),
+                    pane: map.getPanes().tilePane,
+                  },
+              );
+            }
           } else {
-            layer.leaflet_layer = L.tileLayer.queryableLayer(
-                WMS_URL,
-                {
-                  transparent: 'true',
-                  layers: encodeURIComponent(layer.name),
-                  format: 'image/png',
-                },
-            );
+            if (layer.is_tiled) {
+              layer.leaflet_layer = L.tileLayer.queryableLayer(
+                  WMS_URL,
+                  {
+                    transparent: 'true',
+                    layers: encodeURIComponent(layer.name),
+                    format: 'image/png',
+                    tileSize: 512,
+                  },
+              );
+            } else {
+              layer.leaflet_layer = L.nonTiledLayer.queryableLayer(
+                  WMS_URL,
+                  {
+                    transparent: 'true',
+                    layers: encodeURIComponent(layer.name),
+                    format: 'image/png',
+                    bounds: L.latLngBounds([-90, -180], [90, 180]),
+                    pane: map.getPanes().tilePane,
+                  },
+              );
+            }
           }
+
+          // Register to some events of the layer
+          layer.leaflet_layer.on(
+              'loading',
+              () => {
+                markLayerAsRefreshing(layer);
+              },
+          );
+
+          layer.leaflet_layer.on(
+              'load',
+              () => {
+                markLayerAsRefreshed(layer);
+              },
+          );
 
           if (layer.task_id !== null) {
             layer.leaflet_layer.on(
-                'tileerror',
+                layer.is_tiled ? 'tileerror' : 'error',
                 () => {
                   recomputeLayer(layer, overlaysGroup);
                 },

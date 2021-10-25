@@ -27,9 +27,11 @@ def get_mapnik_map(normalized_args):
         if layer is None:
             return None
 
-        mapnik_layers = layer.as_mapnik_layers()
+        mapnik_layers = layer.as_mapnik_layers(
+            bbox=utils.parse_envelope(normalized_args), projection=projection
+        )
         if (mapnik_layers is None) or (len(mapnik_layers) == 0):
-            return None
+            continue
 
         # Create the style for the lines (if necessary)
         (type, _, variable, _, _) = path.parse_unique_layer_name(layer_name)

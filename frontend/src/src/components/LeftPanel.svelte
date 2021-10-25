@@ -152,9 +152,13 @@
   <div class="area"><AreaSelection on:layout={recomputeLayout} /></div>
   <div class="selection" bind:this={selectionControls}></div>
   <div class="datasets"><DatasetSelection on:layout={recomputeLayout} /></div>
-  <div class="layers" bind:this={layersContainer}><Layers on:selectedLayerVisibilityChanged={onSelectedLayerVisibilityChanged} on:layout={recomputeLayout} /></div>
+  <div class="layers" bind:this={layersContainer}>
+    <Layers on:selectedLayerVisibilityChanged={onSelectedLayerVisibilityChanged}
+            on:layout={recomputeLayout} />
+  </div>
 </div>
 
 {#if mustDisplayDetails}
-  <div class="details" bind:this={detailsContainer}><Details /></div>
+  <div class="details" bind:this={detailsContainer} on:mouseover={() => map.dragging.disable()}
+       on:mouseout={() => map.dragging.enable()}><Details /></div>
 {/if}

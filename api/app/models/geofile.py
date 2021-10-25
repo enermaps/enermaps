@@ -13,12 +13,13 @@ from pathlib import Path
 from tempfile import TemporaryDirectory, mkdtemp
 
 import mapnik
+import ogr
+import osr
 from flask import safe_join
 from PIL import Image
 
+import app.common.projection as project
 from app.common import path
-from app.common.projection import proj4_from_geotiff  # epsg_to_proj4,
-from app.common.projection import epsg_to_wkt, proj4_from_shapefile
 
 from . import storage
 
@@ -68,7 +69,7 @@ def save_vector_geojson(layer_name, geojson):
             f.write(json.dumps(geojson))
 
         with open(proj_filepath, "w") as fd:
-            fd.write(epsg_to_wkt(4326))
+            fd.write(project.epsg_to_wkt(4326))
 
         with open(variables_filepath, "w") as f:
             f.write(json.dumps(valid_variables))
@@ -84,6 +85,41 @@ def save_vector_geojson(layer_name, geojson):
             print(e)
 
     return valid_variables
+
+
+def save_raster_geometries(layer_name, geojson):
+    type = path.get_type(layer_name)
+    storage_instance = storage.create_for_layer_type(type)
+
+    # Ensure the information we need if there
+    if (
+        (len(geojson["features"]) == 0)
+        or (geojson["features"][0]["geometry"] is None)
+        or (geojson["features"][0]["geometry"]["type"] != "Polygon")
+    ):
+        return
+
+    # Processing
+    geometries = {}
+    for feature in geojson["features"]:
+        geometries[feature["id"]] = feature["geometry"]["coordinates"][0]
+
+    # Save the files
+    with TemporaryDirectory(prefix=storage_instance.get_tmp_dir()) as tmp_dir:
+        tmp_filepath = safe_join(tmp_dir, "geometries.json")
+
+        with open(tmp_filepath, "w") as f:
+            f.write(json.dumps(geometries))
+
+        target_folder = storage_instance.get_dir(layer_name)
+        os.makedirs(os.path.dirname(target_folder), exist_ok=True)
+
+        try:
+            os.replace(tmp_dir, target_folder)
+        except (FileExistsError, OSError):
+            print("Geofile already exists")
+        except Exception as e:
+            print(e)
 
 
 def save_raster_file(layer_name, feature_id, raster_content):
@@ -196,7 +232,7 @@ class Layer(ABC):
         self.storage = storage
 
     @abstractmethod
-    def as_mapnik_layers(self):
+    def as_mapnik_layers(self, bbox=None, projection=None):
         """Return the Layer as a list of mapnik layers
         (https://mapnik.org/docs/v2.2.0/api/python/mapnik._mapnik.Layer-class.html)
         """
@@ -231,7 +267,7 @@ class RasterLayer(Layer):
         from the disk to only extract the projection.
         """
         try:
-            return proj4_from_geotiff(
+            return project.proj4_from_geotiff(
                 self.storage.get_file_path(
                     self.name, self.storage.list_feature_ids(self.name)[0]
                 )
@@ -239,15 +275,31 @@ class RasterLayer(Layer):
         except Exception:
             return None
 
-    def as_mapnik_layers(self):
+    def as_mapnik_layers(self, bbox=None, projection=None):
         """Open the geofile as Mapnik layer."""
+
+        # Only use as many raster files as necessary
+        rasters = []
+
+        geometries = self.storage.get_geometries(self.name)
+        if geometries is not None:
+            if (bbox is not None) and (projection is not None):
+                rasters = self._get_rasters_in_bbox(geometries, bbox, projection)
+            else:
+                for feature_id in geometries.keys():
+                    rasters.append(
+                        (feature_id, self.storage.get_file_path(self.name, feature_id))
+                    )
+        else:
+            for feature_id in self.storage.list_feature_ids(self.name):
+                rasters.append(
+                    (feature_id, self.storage.get_file_path(self.name, feature_id))
+                )
+
         layers = []
-
-        for feature_id in self.storage.list_feature_ids(self.name):
-            layer_path = self.storage.get_file_path(self.name, feature_id)
-
+        for feature_id, raster_path in rasters:
             layer = mapnik.Layer(feature_id)
-            layer.datasource = mapnik.Gdal(file=layer_path, band=1)
+            layer.datasource = mapnik.Gdal(file=raster_path, band=1)
             layer.srs = self.projection
             layer.queryable = False
 
@@ -256,15 +308,56 @@ class RasterLayer(Layer):
             # For CM results: sets the modification and access times of files to the
             # current time of day
             if path.get_type(self.name) == path.CM:
-                Path(layer_path).touch()
+                Path(raster_path).touch()
 
         return layers
+
+    def _get_rasters_in_bbox(self, geometries, bbox, projection):
+        source_ref = osr.SpatialReference()
+        target_ref = osr.SpatialReference()
+
+        source_ref.ImportFromEPSG(project.epsg_string_to_epsg(projection))
+        target_ref.ImportFromEPSG(4326)
+
+        t = osr.CoordinateTransformation(source_ref, target_ref)
+
+        bbox_top_left = t.TransformPoint(bbox.minx, bbox.maxy)
+        bbox_bottom_right = t.TransformPoint(bbox.maxx, bbox.miny)
+
+        bbox_ring = ogr.Geometry(ogr.wkbLinearRing)
+        bbox_ring.AddPoint(bbox_top_left[1], bbox_top_left[0])
+        bbox_ring.AddPoint(bbox_top_left[1], bbox_bottom_right[0])
+        bbox_ring.AddPoint(bbox_bottom_right[1], bbox_bottom_right[0])
+        bbox_ring.AddPoint(bbox_bottom_right[1], bbox_top_left[0])
+        bbox_ring.AddPoint(bbox_top_left[1], bbox_top_left[0])
+
+        bbox_poly = ogr.Geometry(ogr.wkbPolygon)
+        bbox_poly.AddGeometry(bbox_ring)
+
+        rasters = []
+
+        for feature_id, coordinates in geometries.items():
+            raster_ring = ogr.Geometry(ogr.wkbLinearRing)
+
+            for p in coordinates:
+                raster_ring.AddPoint(p[0], p[1])
+
+            raster_poly = ogr.Geometry(ogr.wkbPolygon)
+            raster_poly.AddGeometry(raster_ring)
+
+            intersection = bbox_poly.Intersection(raster_poly)
+            if intersection.GetGeometryCount() > 0:
+                rasters.append(
+                    (feature_id, self.storage.get_file_path(self.name, feature_id))
+                )
+
+        return rasters
 
 
 class VectorLayer(Layer):
     """Future implementation of a vector layer."""
 
-    def as_mapnik_layers(self):
+    def as_mapnik_layers(self, bbox=None, projection=None):
         geojson_file = self.storage.get_geojson_file(self.name)
         if not os.path.exists(geojson_file):
             print(f"GeoJSON file '{geojson_file}' was not found")
@@ -281,7 +374,7 @@ class VectorLayer(Layer):
     def projection(self):
         """Return the projection of the vector layer."""
         try:
-            return proj4_from_shapefile(self.storage.get_dir(self.name))
+            return project.proj4_from_shapefile(self.storage.get_dir(self.name))
         except Exception:
             return None
 
