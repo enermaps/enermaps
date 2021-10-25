@@ -69,6 +69,46 @@
     console.log(datasets.length + ' datasets found');
 
     availableDatasets = datasets;
+
+    // Allow to display a dataset at launch
+    let startDataset = null;
+
+    const urlParams = new URLSearchParams(window.location.search);
+
+    if (urlParams.has('shared_id')) {
+      const sharedId = urlParams.get('shared_id');
+      for (const dataset of datasets) {
+        if (dataset.shared_id == sharedId) {
+          startDataset = dataset;
+          break;
+        }
+      }
+    } else if (urlParams.has('dataset_id')) {
+      const datasetId = parseInt(urlParams.get('dataset_id'));
+      for (const dataset of datasets) {
+        if (dataset.ds_id == datasetId) {
+          startDataset = dataset;
+          break;
+        }
+      }
+    }
+
+    if (startDataset !== null) {
+      let startVariable = null;
+      let startTimePeriod = null;
+
+      if (startDataset.info.default_parameters.variable !== undefined) {
+        startVariable = startDataset.info.default_parameters.variable;
+      } else if (startDataset.info.variables.length > 0) {
+        startVariable = startDataset.info.variables[0];
+      }
+
+      if (startDataset.info.time_periods.length > 0) {
+        startTimePeriod = startDataset.info.time_periods[0];
+      }
+
+      addLayer(startDataset.ds_id, startVariable, startTimePeriod);
+    }
   });
 
 
