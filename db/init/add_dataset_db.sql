@@ -21,7 +21,8 @@ CREATE TYPE levl AS ENUM ('country', 'NUTS1', 'NUTS2', 'NUTS3', 'LAU', 'geometry
 CREATE TABLE public.datasets
 (
     ds_id int PRIMARY KEY,
-    metadata jsonb
+    metadata jsonb,
+    shared_id varchar(200) UNIQUE
 );
 
 CREATE TABLE public.spatial
