@@ -25,13 +25,13 @@ def create_for_layer_type(type):
 
 
 class BaseRasterStorage(object):
-    def get_root_dir(self):
+    def get_root_dir(self, cache=False):
         raise NotImplementedError
 
     def get_tmp_dir(self):
         raise NotImplementedError
 
-    def get_dir(self, layer_name):
+    def get_dir(self, layer_name, cache=False):
         raise NotImplementedError
 
     def get_file_path(self, layer_name, feature_id):
@@ -45,7 +45,7 @@ class BaseRasterStorage(object):
         ]
 
     def get_geometries(self, layer_name):
-        filename = self.get_file_path(layer_name, "geometries.json")
+        filename = safe_join(self.get_dir(layer_name, cache=True), "geometries.json")
         if not os.path.exists(filename):
             return None
 
@@ -54,8 +54,8 @@ class BaseRasterStorage(object):
 
 
 class RasterStorage(BaseRasterStorage):
-    def get_root_dir(self):
-        if current_app.config["RASTER_CACHE_DIR"] is not None:
+    def get_root_dir(self, cache=False):
+        if not (cache) and (current_app.config["RASTER_CACHE_DIR"] is not None):
             return current_app.config["RASTER_CACHE_DIR"]
 
         return safe_join(current_app.config["WMS_CACHE_DIR"], "rasters")
@@ -63,33 +63,35 @@ class RasterStorage(BaseRasterStorage):
     def get_tmp_dir(self):
         return safe_join(current_app.config["WMS_CACHE_DIR"], "tmp")
 
-    def get_dir(self, layer_name):
-        if current_app.config["RASTER_CACHE_DIR"] is not None:
+    def get_dir(self, layer_name, cache=False):
+        if not (cache) and (current_app.config["RASTER_CACHE_DIR"] is not None):
             (_, id, _, _, _) = path.parse_unique_layer_name(layer_name)
             return safe_join(self.get_root_dir(), str(id))
         else:
-            return safe_join(self.get_root_dir(), path.to_folder_path(layer_name))
+            return safe_join(
+                self.get_root_dir(cache=cache), path.to_folder_path(layer_name)
+            )
 
 
 class CMStorage(BaseRasterStorage):
-    def get_root_dir(self):
+    def get_root_dir(self, cache=False):
         return safe_join(current_app.config["CM_OUTPUTS_DIR"])
 
     def get_tmp_dir(self):
         return safe_join(current_app.config["CM_OUTPUTS_DIR"], "tmp")
 
-    def get_dir(self, layer_name):
+    def get_dir(self, layer_name, cache=False):
         return safe_join(self.get_root_dir(), path.to_folder_path(layer_name))
 
 
 class BaseVectorStorage(object):
-    def get_root_dir(self):
+    def get_root_dir(self, cache=False):
         raise NotImplementedError
 
     def get_tmp_dir(self):
         return safe_join(current_app.config["WMS_CACHE_DIR"], "tmp")
 
-    def get_dir(self, layer_name):
+    def get_dir(self, layer_name, cache=False):
         return safe_join(self.get_root_dir(), path.to_folder_path(layer_name))
 
     def get_file_path(self, layer_name, extension):
@@ -100,10 +102,10 @@ class BaseVectorStorage(object):
 
 
 class VectorStorage(BaseVectorStorage):
-    def get_root_dir(self):
+    def get_root_dir(self, cache=False):
         return safe_join(current_app.config["WMS_CACHE_DIR"], "vectors")
 
 
 class AreaStorage(BaseVectorStorage):
-    def get_root_dir(self):
+    def get_root_dir(self, cache=False):
         return safe_join(current_app.config["WMS_CACHE_DIR"], "areas")

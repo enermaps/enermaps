@@ -111,7 +111,7 @@ def save_raster_geometries(layer_name, geojson):
         with open(tmp_filepath, "w") as f:
             f.write(json.dumps(geometries))
 
-        target_folder = storage_instance.get_dir(layer_name)
+        target_folder = storage_instance.get_dir(layer_name, cache=True)
         os.makedirs(os.path.dirname(target_folder), exist_ok=True)
 
         try:
@@ -213,7 +213,7 @@ def _save_cm_json(layer_name, filename, data):
 def delete_all_features(layer_name):
     storage_instance = storage.create(layer_name)
 
-    folder = storage_instance.get_dir(layer_name)
+    folder = storage_instance.get_dir(layer_name, cache=True)
     if not os.path.exists(folder):
         return
 

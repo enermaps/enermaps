@@ -49,6 +49,14 @@ class TestRasterStorage(BaseApiTest):
                 storage_instance.get_root_dir(), f"{self.wms_cache_dir}/rasters"
             )
 
+    def testCacheRootDir(self):
+        with self.flask_app.app_context():
+            storage_instance = storage.RasterStorage()
+            self.assertEquals(
+                storage_instance.get_root_dir(cache=True),
+                f"{self.wms_cache_dir}/rasters",
+            )
+
     def testTmpDir(self):
         with self.flask_app.app_context():
             storage_instance = storage.RasterStorage()
@@ -89,6 +97,44 @@ class TestRasterStorage(BaseApiTest):
             )
             self.assertEquals(
                 storage_instance.get_dir(f"raster/10//{ENCODED_VAR}"),
+                f"{self.wms_cache_dir}/rasters/10/{ENCODED_VAR}",
+            )
+
+    def testCacheDir(self):
+        with self.flask_app.app_context():
+            storage_instance = storage.RasterStorage()
+            self.assertEquals(
+                storage_instance.get_dir("raster/10", cache=True),
+                f"{self.wms_cache_dir}/rasters/10",
+            )
+            self.assertEquals(
+                storage_instance.get_dir("raster/10/2015", cache=True),
+                f"{self.wms_cache_dir}/rasters/10/2015",
+            )
+            self.assertEquals(
+                storage_instance.get_dir("raster/10/2015-01", cache=True),
+                f"{self.wms_cache_dir}/rasters/10/2015-01",
+            )
+            self.assertEquals(
+                storage_instance.get_dir("raster/10/None", cache=True),
+                f"{self.wms_cache_dir}/rasters/10/None",
+            )
+            self.assertEquals(
+                storage_instance.get_dir(f"raster/10/2015/{ENCODED_VAR}", cache=True),
+                f"{self.wms_cache_dir}/rasters/10/2015/{ENCODED_VAR}",
+            )
+            self.assertEquals(
+                storage_instance.get_dir(
+                    f"raster/10/2015-01/{ENCODED_VAR}", cache=True
+                ),
+                f"{self.wms_cache_dir}/rasters/10/2015-01/{ENCODED_VAR}",
+            )
+            self.assertEquals(
+                storage_instance.get_dir(f"raster/10/None/{ENCODED_VAR}", cache=True),
+                f"{self.wms_cache_dir}/rasters/10/None/{ENCODED_VAR}",
+            )
+            self.assertEquals(
+                storage_instance.get_dir(f"raster/10//{ENCODED_VAR}", cache=True),
                 f"{self.wms_cache_dir}/rasters/10/{ENCODED_VAR}",
             )
 
