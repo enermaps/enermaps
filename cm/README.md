@@ -262,10 +262,6 @@ cm-new_cm:
   build:
     context: ./cm
     dockerfile: new_cm/Dockerfile
-  environment:
-    WMS_CACHE_DIR: /wms_cache
-  volumes:
-    - wms_cache:/wms_cache
   env_file:
     .env
 ```
@@ -295,6 +291,12 @@ To do so, we strongly encourage you to use the method ```CMBase.post_raster()```
 ```python
 task.post_raster("result.tif", fd)
 ```
+
+def output_raster(raster_name, raster_fd):
+    """Add a raster to the api"""
+    files = {"file": (raster_name, raster_fd, "image/tiff")}
+    resp = requests.post(API_URL + "api/geofile/", files=files)
+    return resp.ok
 
 At the moment, only Geotiff is supported.
 

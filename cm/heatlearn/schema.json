@@ -1,0 +1,26 @@
+{
+  "$schema": "http://json-schema.org/draft-03/schema#",
+  "type": "object",
+  "properties": {
+    "tileSize": {
+      "type": "integer",
+      "title": "Tile size (m)",
+      "description": "Tile width in meters",
+      "required": true,
+      "default": 500,
+      "enum": [
+        300,
+      500
+      ]
+    },
+    "year": {
+      "type": "integer",
+      "title": "Year",
+      "minimum": 1980,
+      "maximum": 2020,
+      "default": 2020,
+      "required": true,
+      "description": "Year"
+    }
+  }
+}

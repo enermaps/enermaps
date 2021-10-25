@@ -1,0 +1,17 @@
+{
+    "tile_size": 500,
+    "pixel_size": 2.5,
+    "grid_type": "grid50",
+    "tile_type": "overlapped",
+    "ratio_with_idc": 0.4,
+    "idc_coverage_ratio": 0.05,
+    "difference_ratio": 2,
+    "predicting_variable": "idc_abs",
+    "predicting_on_tile100": false,
+    "flipping": false,
+    "flipping_xy": true,
+    "use_heights": false,
+    "modeled_height": false,
+    "training_ratio": 0.6,
+    "validation_ratio": 0.2
+}
