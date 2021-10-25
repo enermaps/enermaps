@@ -220,18 +220,9 @@ GRANT SELECT ON public.parameters to api_anon;
 GRANT SELECT ON public.parameters to api_user;
 
 
--- Code to support OPENAIRE gateway
--- Create a new datasets table to be filled in
--- as the original datasets table only contains integrated datasets
-CREATE TABLE IF NOT EXISTS public.datasets_full
-(
-    ds_id int PRIMARY KEY,
-    shared_id varchar(200),
-    metadata json
-);
-GRANT SELECT ON public.datasets_full TO api_user;
+GRANT SELECT ON public.datasets TO api_user;
 -- Make it public to anynomous users
-GRANT SELECT ON public.datasets_full TO api_anon;
+GRANT SELECT ON public.datasets TO api_anon;
 
 
 -- Utility function for making a JSON array out of CSV values (used for authors list)
@@ -298,7 +289,7 @@ SELECT shared_id AS id, row_to_json((
     text('http://datacite.org/schema/kernel-4') as "schemaVersion",
     text('EnerMaps') as "source",
     bool(true) as "isActive")
-    AS x )) AS "attributes" FROM datasets_full)t;
+    AS x )) AS "attributes" FROM datasets)t;
 GRANT SELECT ON public.datacite to api_anon;
 
 -- EnerMaps-specific metadata
@@ -340,7 +331,7 @@ json_build_object(
                   'Size of file (raw, compressed in parentheses)', metadata ->> 'Size of file (raw, compressed in parentheses)',
                   'Other relevant information', metadata ->> 'Other relevant information'
                  ) as metadata
-    from datasets_full
+    from datasets
 GROUP BY ds_id
 ORDER BY ds_id;
 GRANT SELECT ON public.metadata to api_anon;
