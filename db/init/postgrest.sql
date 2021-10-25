@@ -6,6 +6,9 @@ GRANT api_anon TO test;
 CREATE ROLE api_user nologin;
 GRANT api_user TO test;
 
+CREATE ROLE legend_editor nologin;
+GRANT legend_editor TO test;
+
 GRANT USAGE ON schema public TO api_user;
 GRANT SELECT ON public.spatial TO api_user;
 GRANT SELECT ON public.data TO api_user;
@@ -196,6 +199,7 @@ CREATE OR REPLACE FUNCTION enermaps_query_table(parameters text,
 GRANT EXECUTE ON FUNCTION enermaps_query_table(parameters text, row_limit int, row_offset int) to api_user;
 
 -- View to provide list of parameters to construct the queries
+DROP VIEW IF EXISTS parameters;
 CREATE OR REPLACE VIEW parameters AS
 SELECT ds_id::int as ds_id,
         (metadata ->> 'Title') as title,
@@ -345,11 +349,6 @@ GRANT SELECT ON public.metadata to api_anon;
 -- Function to set new legends
 -- Initialize
 DROP FUNCTION IF EXISTS enermaps_set_legend(parameters text, legend text);
-REVOKE ALL PRIVILEGES ON ALL TABLES IN SCHEMA public FROM legend_editor;
-DROP ROLE IF EXISTS legend_editor;
--- Create new user for the API
-CREATE ROLE legend_editor nologin;
-GRANT legend_editor TO test;
 
 CREATE OR REPLACE FUNCTION enermaps_set_legend(parameters text, legend text)
     RETURNS void
