@@ -198,7 +198,7 @@ GRANT EXECUTE ON FUNCTION enermaps_query_table(parameters text, row_limit int, r
 -- View to provide list of parameters to construct the queries
 CREATE OR REPLACE VIEW parameters AS
 SELECT ds_id::int as ds_id,
-        (metadata ->> 'Title (with Hyperlink)') as title,
+        (metadata ->> 'Title') as title,
         (metadata ->> 'parameters')::jsonb ->> 'variables' as variables,
         TO_TIMESTAMP((metadata ->> 'parameters')::jsonb ->> 'start_at', 'YYYY-MM-DD HH24:MI')::timestamp without time zone as start_at,
         TO_TIMESTAMP((metadata ->> 'parameters')::jsonb ->> 'end_at', 'YYYY-MM-DD HH24:MI')::timestamp without time zone as end_at,
@@ -210,7 +210,7 @@ SELECT ds_id::int as ds_id,
         ((metadata ->> 'parameters')::jsonb ->> 'levels')::jsonb as levels,
         (metadata ->> 'default_parameters')::jsonb as default_parameters
         FROM datasets
-        WHERE (metadata ->> 'Title (with Hyperlink)') <> ''
+        WHERE (metadata ->> 'Title') <> ''
         ORDER BY ds_id;
 GRANT SELECT ON public.parameters to api_anon;
 GRANT SELECT ON public.parameters to api_user;
@@ -444,14 +444,14 @@ GRANT EXECUTE ON FUNCTION enermaps_get_legend(parameters text) to api_user;
 DROP VIEW IF EXISTS dataset_list;
 CREATE OR REPLACE VIEW dataset_list AS
 SELECT  datasets.ds_id::int as ds_id,
-        (datasets.metadata ->> 'Title (with Hyperlink)') as title,
+        (datasets.metadata ->> 'Title') as title,
         COALESCE(((datasets.metadata ->> 'parameters')::jsonb ->> 'is_raster')::bool, true) as is_raster,
         COALESCE(((datasets.metadata ->> 'parameters')::jsonb ->> 'is_tiled')::bool, true) as is_tiled,
         datasets_full.shared_id as shared_id,
         (datasets.metadata ->> 'Projection system') as projection
         FROM datasets
         INNER JOIN datasets_full ON datasets.ds_id = datasets_full.ds_id
-        WHERE (datasets.metadata ->> 'Title (with Hyperlink)') <> ''
+        WHERE (datasets.metadata ->> 'Title') <> ''
         ORDER BY ds_id;
 GRANT SELECT ON public.dataset_list to api_anon;
 
