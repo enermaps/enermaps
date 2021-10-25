@@ -4,7 +4,7 @@ rasterio==1.1.8
 pyproj==3.0.0.post1
 geopandas==0.8.2
 matplotlib==3.4.2
-tensorflow==2.4.1
+tensorflow==2.5.1
 urllib3==1.26.5
 jenkspy==0.2.0
 numpy==1.19.5
