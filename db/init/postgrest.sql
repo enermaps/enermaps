@@ -442,15 +442,14 @@ GRANT EXECUTE ON FUNCTION enermaps_get_legend(parameters text) to api_user;
 -- Returns a list of all the datasets, with the data needed by the web app
 DROP VIEW IF EXISTS dataset_list;
 CREATE OR REPLACE VIEW dataset_list AS
-SELECT  datasets.ds_id::int as ds_id,
-        (datasets.metadata ->> 'Title') as title,
-        COALESCE(((datasets.metadata ->> 'parameters')::jsonb ->> 'is_raster')::bool, true) as is_raster,
-        COALESCE(((datasets.metadata ->> 'parameters')::jsonb ->> 'is_tiled')::bool, true) as is_tiled,
-        datasets_full.shared_id as shared_id,
-        (datasets.metadata ->> 'Projection system') as projection
+SELECT  ds_id::int as ds_id,
+        (metadata ->> 'Title') as title,
+        COALESCE(((metadata ->> 'parameters')::jsonb ->> 'is_raster')::bool, true) as is_raster,
+        COALESCE(((metadata ->> 'parameters')::jsonb ->> 'is_tiled')::bool, true) as is_tiled,
+        shared_id as shared_id
+        (metadata ->> 'Projection system') as projection
         FROM datasets
-        INNER JOIN datasets_full ON datasets.ds_id = datasets_full.ds_id
-        WHERE (datasets.metadata ->> 'Title') <> ''
+        WHERE (metadata ->> 'Title') <> ''
         ORDER BY ds_id;
 GRANT SELECT ON public.dataset_list to api_anon;
 
