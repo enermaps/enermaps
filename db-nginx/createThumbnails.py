@@ -23,7 +23,7 @@ SCREENSHOT_SIZE = (3582, 1960)
 RESIZED = (658, 360)
 CROP_AREA = (0, 0, 640, 360)  # left, upper, right, lower
 
-datasets = pd.read_csv("../data-integration/datasets_full.csv", index_col=0)
+datasets = pd.read_csv("../data-integration/datasets.csv", index_col=0)
 
 for i, ds in datasets.iterrows():
     pid = ds["shared_id"]
