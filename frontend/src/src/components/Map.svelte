@@ -155,6 +155,7 @@
                     layers: encodeURIComponent(layer.name),
                     format: 'image/png',
                     bounds: L.latLngBounds([-90, -180], [90, 180]),
+                    pane: map.getPanes().tilePane,
                   },
               );
             }
@@ -177,6 +178,7 @@
                     layers: encodeURIComponent(layer.name),
                     format: 'image/png',
                     bounds: L.latLngBounds([-90, -180], [90, 180]),
+                    pane: map.getPanes().tilePane,
                   },
               );
             }
