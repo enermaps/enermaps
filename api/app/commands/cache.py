@@ -3,12 +3,13 @@ import json
 import time
 
 import click
+from flask import current_app, safe_join
+from flask.cli import with_appcontext
+
 from app.common import client
 from app.common import datasets as datasets_fcts
 from app.common import path
 from app.models import geofile, storage
-from flask import current_app, safe_join
-from flask.cli import with_appcontext
 
 
 @click.command("update-all-datasets")
