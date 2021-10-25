@@ -5,6 +5,7 @@ Allow for updates without checking metadata.
 
 @author: giuseppeperonato
 """
+import json
 import logging
 import os
 import sys
@@ -64,14 +65,30 @@ QUERIES = {
 }
 
 QUERY_FIELDS = {
-    6: dict([],),  # empty list means all; None means do not use query fields.
-    9: dict([],),  # empty list means all; None means do not use query fields.
-    22: dict([],),  # empty list means all; None means do not use query fields.
-    42: dict([],),  # empty list means all; None means do not use query fields.
-    47: dict([],),  # empty list means all; None means do not use query fields.
-    48: dict([],),  # empty list means all; None means do not use query fields.
-    49: dict([],),  # empty list means all; None means do not use query fields.
-    50: dict([],),  # empty list means all; None means do not use query fields.
+    6: dict(
+        [],
+    ),  # empty list means all; None means do not use query fields.
+    9: dict(
+        [],
+    ),  # empty list means all; None means do not use query fields.
+    22: dict(
+        [],
+    ),  # empty list means all; None means do not use query fields.
+    42: dict(
+        [],
+    ),  # empty list means all; None means do not use query fields.
+    47: dict(
+        [],
+    ),  # empty list means all; None means do not use query fields.
+    48: dict(
+        [],
+    ),  # empty list means all; None means do not use query fields.
+    49: dict(
+        [],
+    ),  # empty list means all; None means do not use query fields.
+    50: dict(
+        [],
+    ),  # empty list means all; None means do not use query fields.
 }
 
 QUERY_PARAMETERS = {
@@ -234,16 +251,22 @@ if __name__ == "__main__":
             "{} - {}".format(ds_id, datasets.loc[ds_id, "Title (with Hyperlink)"])
         )
 
-        if utilities.datasetExists(ds_id, DB_URL,):
+        if utilities.datasetExists(
+            ds_id,
+            DB_URL,
+        ):
             if isForced:
                 utilities.removeDataset(ds_id, DB_URL)
                 logging.info("Removed existing dataset")
             else:
                 logging.error("Dataset already existing. Use --force to replace it.")
 
-        if not utilities.datasetExists(ds_id, DB_URL,):
+        if not utilities.datasetExists(
+            ds_id,
+            DB_URL,
+        ):
             data = get(**QUERIES[ds_id])
-            metadata = datasets.loc[ds_id]
+            metadata = datasets.loc[ds_id].fillna("").to_dict()
             # Add parameters as metadata
             (
                 metadata["parameters"],
@@ -251,13 +274,26 @@ if __name__ == "__main__":
             ) = utilities.get_query_metadata(
                 data, QUERY_FIELDS[ds_id], QUERY_PARAMETERS[ds_id]
             )
-            dataset = pd.DataFrame([{"ds_id": ds_id, "metadata": metadata.to_json()}])
+            metadata = json.dumps(metadata)
+            dataset = pd.DataFrame(
+                [
+                    {
+                        "ds_id": ds_id,
+                        "metadata": metadata,
+                        "shared_id": datasets.loc[ds_id, "shared_id"],
+                    }
+                ]
+            )
             utilities.toPostgreSQL(
-                dataset, DB_URL, schema="datasets",
+                dataset,
+                DB_URL,
+                schema="datasets",
             )
 
             data["ds_id"] = ds_id
             data["israster"] = False
             utilities.toPostgreSQL(
-                data, DB_URL, schema="data",
+                data,
+                DB_URL,
+                schema="data",
             )

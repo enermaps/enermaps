@@ -42,7 +42,9 @@ DB_URL = utilities.DB_URL
 
 
 def prepareNETCDF(
-    df: pd.DataFrame, crs: CRS = CRS.from_epsg(3035), delete_orig: bool = False,
+    df: pd.DataFrame,
+    crs: CRS = CRS.from_epsg(3035),
+    delete_orig: bool = False,
 ):
     """
     Convert  NetCDF into EnerMaps rasters (single band, GeoTiff, EPSG:3035).
@@ -99,7 +101,8 @@ def prepareNETCDF(
 
             # Compress
             os.system(  # nosec
-                "gdal_translate {filename} {dest_filename} -of GTIFF --config GDAL_PAM_ENABLED NO -co COMPRESS=DEFLATE -co BIGTIFF=YES".format(
+                "gdal_translate {filename} {dest_filename} -of GTIFF --config"
+                " GDAL_PAM_ENABLED NO -co COMPRESS=DEFLATE -co BIGTIFF=YES".format(
                     filename=tmp_filename, dest_filename=dest_filename
                 )
             )
@@ -301,7 +304,10 @@ def get(url: str, dp: frictionless.package.Package, force: bool = False):
 
     # Inferring and completing metadata
     logging.info("Creating datapackage for input data")
-    new_dp = frictionless.describe_package(file, stats=True,)  # Add stats
+    new_dp = frictionless.describe_package(
+        file,
+        stats=True,
+    )  # Add stats
     # Add date
     new_dp["datePublished"] = datePublished
 
@@ -339,7 +345,10 @@ if __name__ == "__main__":
 
     for ds_id in ds_ids:
         logging.info("Retrieving Dataset {}".format(ds_id))
-        dp = utilities.getDataPackage(ds_id, DB_URL,)
+        dp = utilities.getDataPackage(
+            ds_id,
+            DB_URL,
+        )
 
         data, dp = get(datasets.loc[ds_id, "di_URL"], dp, isForced)
 
@@ -358,7 +367,10 @@ if __name__ == "__main__":
                 logging.error("File not found; {}".format(row.fid))
 
         if isinstance(data, pd.DataFrame):
-            if utilities.datasetExists(ds_id, DB_URL,):
+            if utilities.datasetExists(
+                ds_id,
+                DB_URL,
+            ):
                 utilities.removeDataset(ds_id, DB_URL)
                 logging.info("Removed existing dataset")
 
@@ -372,20 +384,34 @@ if __name__ == "__main__":
             ) = utilities.get_query_metadata(data, QUERY_FIELDS, QUERY_PARAMETERS)
             metadata["datapackage"] = dp
             metadata = json.dumps(metadata)
-            dataset = pd.DataFrame([{"ds_id": ds_id, "metadata": metadata}])
+            dataset = pd.DataFrame(
+                [
+                    {
+                        "ds_id": ds_id,
+                        "metadata": metadata,
+                        "shared_id": datasets.loc[ds_id, "shared_id"],
+                    }
+                ]
+            )
             utilities.toPostgreSQL(
-                dataset, DB_URL, schema="datasets",
+                dataset,
+                DB_URL,
+                schema="datasets",
             )
 
             # Create data table
             data["ds_id"] = ds_id
             utilities.toPostgreSQL(
-                data, DB_URL, schema="data",
+                data,
+                DB_URL,
+                schema="data",
             )
 
             # Create empty spatial table
             spatial = pd.DataFrame()
             spatial[["fid", "ds_id"]] = data[["fid", "ds_id"]]
             utilities.toPostgreSQL(
-                spatial, DB_URL, schema="spatial",
+                spatial,
+                DB_URL,
+                schema="spatial",
             )
