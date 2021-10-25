@@ -120,7 +120,10 @@ def get(directory):
     enermaps_data = utilities.ENERMAPS_DF
     enermaps_data["fid"] = fids
 
-    spatial = gpd.GeoDataFrame(geometry=extents, crs=SRS.to_string(),)
+    spatial = gpd.GeoDataFrame(
+        geometry=extents,
+        crs=SRS.to_string(),
+    )
     spatial["fid"] = fids
 
     return enermaps_data, spatial
@@ -156,20 +159,34 @@ if __name__ == "__main__":
                 metadata["default_parameters"],
             ) = utilities.get_query_metadata(data, QUERY_FIELDS, QUERY_PARAMETERS)
             metadata = json.dumps(metadata)
-            dataset = pd.DataFrame([{"ds_id": ds_id, "metadata": metadata}])
+            dataset = pd.DataFrame(
+                [
+                    {
+                        "ds_id": ds_id,
+                        "metadata": metadata,
+                        "shared_id": datasets.loc[ds_id, "shared_id"],
+                    }
+                ]
+            )
             utilities.toPostgreSQL(
-                dataset, DB_URL, schema="datasets",
+                dataset,
+                DB_URL,
+                schema="datasets",
             )
 
             # Create data table
             data["ds_id"] = ds_id
             utilities.toPostgreSQL(
-                data, DB_URL, schema="data",
+                data,
+                DB_URL,
+                schema="data",
             )
             # Create spatial table
             spatial["ds_id"] = ds_id
             utilities.toPostGIS(
-                spatial, DB_URL, schema="spatial",
+                spatial,
+                DB_URL,
+                schema="spatial",
             )
         else:
             logging.error(

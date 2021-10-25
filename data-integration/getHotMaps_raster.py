@@ -198,7 +198,15 @@ if __name__ == "__main__":
                 metadata["default_parameters"],
             ) = utilities.get_query_metadata(data, QUERY_FIELDS, QUERY_PARAMETERS)
             metadata = json.dumps(metadata)
-            dataset = pd.DataFrame([{"ds_id": ds_id, "metadata": metadata}])
+            dataset = pd.DataFrame(
+                [
+                    {
+                        "ds_id": ds_id,
+                        "metadata": metadata,
+                        "shared_id": datasets.loc[ds_id, "shared_id"],
+                    }
+                ]
+            )
             utilities.toPostgreSQL(
                 dataset,
                 DB_URL,
