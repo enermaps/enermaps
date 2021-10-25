@@ -129,6 +129,9 @@ You can manually execute the available pipelines witn the following commands:
   - 50: EUROSTAT Regional GDP
     `docker-compose -f ../docker-compose-db.yml run data-integration getEurostat.py --select_ds_ids 50`
 
+An additional pipeline can be used to add metadata for datasets that will only be listed in the OpenAIRE gateway:
+    `docker-compose -f ../docker-compose-db.yml run data-integration not-in-EDMT.py`
+
 Remember to start the db service via `docker-compose --file ../docker-compose-db.yml up -d db` before running the pipelines.
 
 ## Required files
@@ -139,8 +142,3 @@ In order to execute data integration pipelines accessing the Copernicus Climate 
 You can find more information here on how to include the CDS API key in this file here:
 https://cds.climate.copernicus.eu/api-how-to
 If you are not interested in using these pipelines, an empty file should be created.
-
-## Metadata table for OpenAIRE gateway
-
-A table named `datasets_full` is used to provide metadata to the OpenAIRE Gateway, while waiting for the `datasets` table to be filled in with all pipelines.
-Follow instructions on `addDatasets.py`.
