@@ -30,12 +30,12 @@ jobs:
       - name: install linters
         run: pip install -r linter-requirements.txt
 
+      - name: check-lint with isort
+        run: cd api && isort --profile black --check --diff .
       - name: check-lint with black
         run: cd api && black --diff --check .
       - name: check-lint with bandit
         run: cd api && bandit -r .
-      - name: check-lint with isort
-        run: cd api && isort --profile black --check --diff .
       - name: check-lint with flake8
         run: cd api && flake8 **/*py
 

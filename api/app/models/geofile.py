@@ -12,13 +12,14 @@ from abc import ABC, abstractmethod
 from pathlib import Path
 from tempfile import TemporaryDirectory, mkdtemp
 
-import app.common.projection as project
 import mapnik
 import ogr
 import osr
-from app.common import path
 from flask import safe_join
 from PIL import Image
+
+import app.common.projection as project
+from app.common import path
 
 from . import storage
 
