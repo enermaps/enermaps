@@ -2,8 +2,9 @@ import glob
 import json
 import os
 
-from app.common import path
 from flask import current_app, safe_join
+
+from app.common import path
 
 
 def create(layer_name):
