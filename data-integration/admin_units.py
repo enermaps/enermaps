@@ -6,6 +6,7 @@ No update check is performed here.
 @author: giuseppeperonato
 """
 
+import json
 import logging
 import os
 import sys
@@ -23,8 +24,9 @@ GISCO_DATASETS = {
 }
 logging.basicConfig(level=logging.INFO)
 
-# Dataset id
 DS_ID = 0
+
+METADATA = {"parameters": {"is_raster": False}, "default_parameters": {}}
 
 DB_URL = utilities.DB_URL
 
@@ -103,9 +105,19 @@ def get(
 def integrate(enermaps_spatial: gpd.GeoDataFrame):
     """Integrate datasets. Each (Geo)DataFrame corresponds to a SQL table."""
     # Upload dataset record
-    enermaps_datasets = pd.DataFrame([{"ds_id": DS_ID}])
+    enermaps_datasets = pd.DataFrame(
+        [
+            {
+                "ds_id": DS_ID,
+                "metadata": json.dumps(METADATA),
+                "shared_id": "nuts-lau",
+            }
+        ]
+    )
     utilities.toPostgreSQL(
-        enermaps_datasets, DB_URL, schema="datasets",
+        enermaps_datasets,
+        DB_URL,
+        schema="datasets",
     )
     # Upload spatial records
     enermaps_spatial["ds_id"] = DS_ID
@@ -116,7 +128,9 @@ def integrate(enermaps_spatial: gpd.GeoDataFrame):
     enermaps_data["value"] = 0
     enermaps_data["variable"] = ""
     utilities.toPostgreSQL(
-        enermaps_data, DB_URL, schema="data",
+        enermaps_data,
+        DB_URL,
+        schema="data",
     )
 
 

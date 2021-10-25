@@ -140,7 +140,10 @@ def get(url: str, dp: frictionless.package.Package, force: bool = False):
 
     # Inferring and completing metadata
     logging.info("Creating datapackage for input data")
-    new_dp = frictionless.describe_package(csv_file, stats=True,)  # Add stats
+    new_dp = frictionless.describe_package(
+        csv_file,
+        stats=True,
+    )  # Add stats
 
     # Add missing valies
     new_dp.resources[0]["schema"]["missingValues"] = ["NULL"]
@@ -188,7 +191,10 @@ if __name__ == "__main__":
 
         if isinstance(data, pd.DataFrame):
             # Remove existing dataset
-            if utilities.datasetExists(ds_id, DB_URL,):
+            if utilities.datasetExists(
+                ds_id,
+                DB_URL,
+            ):
                 utilities.removeDataset(ds_id, DB_URL)
                 logging.info("Removed existing dataset")
 
@@ -201,20 +207,34 @@ if __name__ == "__main__":
                 metadata["default_parameters"],
             ) = utilities.get_query_metadata(data, QUERY_FIELDS, QUERY_PARAMETERS)
             metadata = json.dumps(metadata)
-            dataset = pd.DataFrame([{"ds_id": ds_id, "metadata": metadata}])
+            dataset = pd.DataFrame(
+                [
+                    {
+                        "ds_id": ds_id,
+                        "metadata": metadata,
+                        "shared_id": datasets.loc[ds_id, "shared_id"],
+                    }
+                ]
+            )
             utilities.toPostgreSQL(
-                dataset, DB_URL, schema="datasets",
+                dataset,
+                DB_URL,
+                schema="datasets",
             )
 
             # Create data table
             data["ds_id"] = ds_id
             utilities.toPostgreSQL(
-                data, DB_URL, schema="data",
+                data,
+                DB_URL,
+                schema="data",
             )
 
             # Create spatial table
             spatial = spatial.to_crs("EPSG:3035")
             spatial["ds_id"] = ds_id
             utilities.toPostGIS(
-                spatial, DB_URL, schema="spatial",
+                spatial,
+                DB_URL,
+                schema="spatial",
             )
