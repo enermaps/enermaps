@@ -33,7 +33,7 @@ def make_unique_layer_name(type, id, variable=None, time_period=None, task_id=No
         if (time_period is not None) and (variable is not None):
             name += f"/{time_period}/{encode(variable)}"
         elif variable is not None:
-            name += f"//{encode(variable)}"
+            name += f"/-/{encode(variable)}"
         elif time_period is not None:
             name += f"/{time_period}"
 
@@ -60,7 +60,7 @@ def parse_unique_layer_name(name):
 
         if len(parts) == 2:
             time_period, variable = parts
-            if time_period == "":
+            if time_period == "-":
                 time_period = None
         elif len(parts) == 1:
             time_period = parts[0]
@@ -104,4 +104,4 @@ def to_folder_path(name):
         parts.append(task_id)
         return "/".join(parts)
 
-    return "/".join(parts).replace("//", "/")
+    return "/".join(parts).replace("/-/", "/")
