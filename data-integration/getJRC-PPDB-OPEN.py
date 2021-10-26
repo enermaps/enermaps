@@ -138,6 +138,9 @@ def prepare(dp: frictionless.package.Package, name: str):
         crs="EPSG:4326",
     )
 
+    # Remove empty  geometry
+    spatial = spatial.loc[~spatial["geometry"].is_empty, :]
+
     # Other fields to json
     def np_encoder(object):
         """Source: https://stackoverflow.com/a/65151218."""
@@ -161,6 +164,9 @@ def prepare(dp: frictionless.package.Package, name: str):
 
     # Remove nan
     data = data.dropna()
+
+    # Remove records without geometry
+    data = data.loc[data["fid"].isin(spatial["fid"]), :]
 
     # Conversion
     enermaps_data = utilities.ENERMAPS_DF
