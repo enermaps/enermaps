@@ -148,7 +148,8 @@ def convertZip(directory: str):
                 os.path.basename(extract_dir) + ".tif",
             )
             os.system(  # nosec
-                "gdal_translate {source_file} {dest_file}  -of GTIFF --config GDAL_PAM_ENABLED NO -co COMPRESS=DEFLATE -co BIGTIFF=YES".format(
+                "gdal_translate {source_file} {dest_file}  -of GTIFF --config"
+                " GDAL_PAM_ENABLED NO -co COMPRESS=DEFLATE -co BIGTIFF=YES".format(
                     source_file=source_file, dest_file=dest_file
                 )
             )
@@ -167,7 +168,8 @@ def tiling(directory: str):
             target_dir = os.path.join(directory, os.path.basename(file))[:-4]
             os.mkdir(target_dir)
             os.system(  # nosec
-                "gdal_retile.py -ps 400 400 -targetDir {target_dir} -csv tiles.csv -csvDelim , {source_file} ".format(
+                "gdal_retile.py -ps 400 400 -targetDir {target_dir} -csv tiles.csv"
+                " -csvDelim , {source_file} ".format(
                     target_dir=target_dir, source_file=file
                 )
             )
@@ -260,7 +262,15 @@ if __name__ == "__main__":
                 data, QUERY_FIELDS[ds_id], QUERY_PARAMETERS[ds_id]
             )
             metadata = json.dumps(metadata)
-            dataset = pd.DataFrame([{"ds_id": ds_id, "metadata": metadata}])
+            dataset = pd.DataFrame(
+                [
+                    {
+                        "ds_id": ds_id,
+                        "metadata": metadata,
+                        "shared_id": datasets.loc[ds_id, "shared_id"],
+                    }
+                ]
+            )
             utilities.toPostgreSQL(
                 dataset,
                 DB_URL,
@@ -299,7 +309,6 @@ if __name__ == "__main__":
             )
         else:
             logging.error(
-                "The {} directory must exist and contain {} files from Copernicus.".format(
-                    directory, N_FILES
-                )
+                "The {} directory must exist and contain {} files from Copernicus."
+                .format(directory, N_FILES)
             )

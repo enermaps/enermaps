@@ -113,7 +113,8 @@ def get(url: list, dp: frictionless.package.Package, force: bool = False):
     # Inferring and completing metadata
     logging.info("Creating datapackage for input data")
     new_dp = frictionless.describe_package(
-        os.path.join(my_uuid, "data.csv"), stats=True,  # Add stats
+        os.path.join(my_uuid, "data.csv"),
+        stats=True,  # Add stats
     )
     # Update the path
     new_dp.resources[0]["path"] = os.path.join(os.path.join(my_uuid, "data.csv"))
@@ -186,7 +187,15 @@ if __name__ == "__main__":
             ) = utilities.get_query_metadata(data, QUERY_FIELDS, QUERY_PARAMETERS)
             metadata["datapackage"] = dp
             metadata = json.dumps(metadata)
-            dataset = pd.DataFrame([{"ds_id": ds_id, "metadata": metadata}])
+            dataset = pd.DataFrame(
+                [
+                    {
+                        "ds_id": ds_id,
+                        "metadata": metadata,
+                        "shared_id": datasets.loc[ds_id, "shared_id"],
+                    }
+                ]
+            )
             utilities.toPostgreSQL(dataset, DB_URL, schema="datasets")
 
             # Create data table

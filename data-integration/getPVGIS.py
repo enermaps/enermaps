@@ -30,17 +30,23 @@ RASTER_META = {"epsg": "4326"}
 
 SUBDATASETS = [
     {
-        "path": "http://re.jrc.ec.europa.eu/pvg_download/cmsafdata/gh_0_month_cmsaf.zip",
+        "path": (
+            "http://re.jrc.ec.europa.eu/pvg_download/cmsafdata/gh_0_month_cmsaf.zip"
+        ),
         "unit": UNIT,
         "raster": RASTER_META,
     },
     {
-        "path": "http://re.jrc.ec.europa.eu/pvg_download/cmsafdata/gh_opt_month_cmsaf.zip",
+        "path": (
+            "http://re.jrc.ec.europa.eu/pvg_download/cmsafdata/gh_opt_month_cmsaf.zip"
+        ),
         "unit": UNIT,
         "raster": RASTER_META,
     },
     {
-        "path": "http://re.jrc.ec.europa.eu/pvg_download/cmsafdata/gh_2a_month_cmsaf.zip",
+        "path": (
+            "http://re.jrc.ec.europa.eu/pvg_download/cmsafdata/gh_2a_month_cmsaf.zip"
+        ),
         "unit": UNIT,
         "raster": RASTER_META,
     },
@@ -210,9 +216,18 @@ def postProcess(data: pd.DataFrame):
 
     """
     variables = {
-        "0": "Monthly average global irradiance on a horizontal surface (W/m2), period 2005-2015",
-        "opt": "Monthly average global irradiance on an optimally inclined surface (W/m2), period 2005-2015",
-        "2a": "Monthly average global irradiance on a two-axis sun-tracking surface (W/m2), period 2005-2015",
+        "0": (
+            "Monthly average global irradiance on a horizontal surface (W/m2), period"
+            " 2005-2015"
+        ),
+        "opt": (
+            "Monthly average global irradiance on an optimally inclined surface (W/m2),"
+            " period 2005-2015"
+        ),
+        "2a": (
+            "Monthly average global irradiance on a two-axis sun-tracking surface"
+            " (W/m2), period 2005-2015"
+        ),
     }
     days_per_month = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
     for i, row in data.iterrows():
@@ -245,7 +260,10 @@ if __name__ == "__main__":
             pass
 
         if isinstance(data, pd.DataFrame):
-            if utilities.datasetExists(ds_id, DB_URL,):
+            if utilities.datasetExists(
+                ds_id,
+                DB_URL,
+            ):
                 utilities.removeDataset(ds_id, DB_URL)
                 logging.info("Removed existing dataset")
 
@@ -258,20 +276,34 @@ if __name__ == "__main__":
                 metadata["default_parameters"],
             ) = utilities.get_query_metadata(data, QUERY_FIELDS, QUERY_PARAMETERS)
             metadata = json.dumps(metadata)
-            dataset = pd.DataFrame([{"ds_id": ds_id, "metadata": metadata}])
+            dataset = pd.DataFrame(
+                [
+                    {
+                        "ds_id": ds_id,
+                        "metadata": metadata,
+                        "shared_id": datasets.loc[ds_id, "shared_id"],
+                    }
+                ]
+            )
             utilities.toPostgreSQL(
-                dataset, DB_URL, schema="datasets",
+                dataset,
+                DB_URL,
+                schema="datasets",
             )
 
             # Create data table
             data["ds_id"] = ds_id
             utilities.toPostgreSQL(
-                data, DB_URL, schema="data",
+                data,
+                DB_URL,
+                schema="data",
             )
 
             # Create empty spatial table
             spatial = pd.DataFrame()
             spatial[["fid", "ds_id"]] = data[["fid", "ds_id"]]
             utilities.toPostgreSQL(
-                spatial, DB_URL, schema="spatial",
+                spatial,
+                DB_URL,
+                schema="spatial",
             )

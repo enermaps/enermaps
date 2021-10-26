@@ -6,6 +6,9 @@ GRANT api_anon TO test;
 CREATE ROLE api_user nologin;
 GRANT api_user TO test;
 
+CREATE ROLE legend_editor nologin;
+GRANT legend_editor TO test;
+
 GRANT USAGE ON schema public TO api_user;
 GRANT SELECT ON public.spatial TO api_user;
 GRANT SELECT ON public.data TO api_user;
@@ -196,9 +199,10 @@ CREATE OR REPLACE FUNCTION enermaps_query_table(parameters text,
 GRANT EXECUTE ON FUNCTION enermaps_query_table(parameters text, row_limit int, row_offset int) to api_user;
 
 -- View to provide list of parameters to construct the queries
+DROP VIEW IF EXISTS parameters;
 CREATE OR REPLACE VIEW parameters AS
 SELECT ds_id::int as ds_id,
-        (metadata ->> 'Title (with Hyperlink)') as title,
+        (metadata ->> 'Title') as title,
         (metadata ->> 'parameters')::jsonb ->> 'variables' as variables,
         TO_TIMESTAMP((metadata ->> 'parameters')::jsonb ->> 'start_at', 'YYYY-MM-DD HH24:MI')::timestamp without time zone as start_at,
         TO_TIMESTAMP((metadata ->> 'parameters')::jsonb ->> 'end_at', 'YYYY-MM-DD HH24:MI')::timestamp without time zone as end_at,
@@ -210,24 +214,15 @@ SELECT ds_id::int as ds_id,
         ((metadata ->> 'parameters')::jsonb ->> 'levels')::jsonb as levels,
         (metadata ->> 'default_parameters')::jsonb as default_parameters
         FROM datasets
-        WHERE (metadata ->> 'Title (with Hyperlink)') <> ''
+        WHERE (metadata ->> 'Title') <> ''
         ORDER BY ds_id;
 GRANT SELECT ON public.parameters to api_anon;
 GRANT SELECT ON public.parameters to api_user;
 
 
--- Code to support OPENAIRE gateway
--- Create a new datasets table to be filled in
--- as the original datasets table only contains integrated datasets
-CREATE TABLE IF NOT EXISTS public.datasets_full
-(
-    ds_id int PRIMARY KEY,
-    shared_id varchar(200),
-    metadata json
-);
-GRANT SELECT ON public.datasets_full TO api_user;
+GRANT SELECT ON public.datasets TO api_user;
 -- Make it public to anynomous users
-GRANT SELECT ON public.datasets_full TO api_anon;
+GRANT SELECT ON public.datasets TO api_anon;
 
 
 -- Utility function for making a JSON array out of CSV values (used for authors list)
@@ -294,7 +289,7 @@ SELECT shared_id AS id, row_to_json((
     text('http://datacite.org/schema/kernel-4') as "schemaVersion",
     text('EnerMaps') as "source",
     bool(true) as "isActive")
-    AS x )) AS "attributes" FROM datasets_full)t;
+    AS x )) AS "attributes" FROM datasets)t;
 GRANT SELECT ON public.datacite to api_anon;
 
 -- EnerMaps-specific metadata
@@ -336,7 +331,7 @@ json_build_object(
                   'Size of file (raw, compressed in parentheses)', metadata ->> 'Size of file (raw, compressed in parentheses)',
                   'Other relevant information', metadata ->> 'Other relevant information'
                  ) as metadata
-    from datasets_full
+    from datasets
 GROUP BY ds_id
 ORDER BY ds_id;
 GRANT SELECT ON public.metadata to api_anon;
@@ -345,11 +340,6 @@ GRANT SELECT ON public.metadata to api_anon;
 -- Function to set new legends
 -- Initialize
 DROP FUNCTION IF EXISTS enermaps_set_legend(parameters text, legend text);
-REVOKE ALL PRIVILEGES ON ALL TABLES IN SCHEMA public FROM legend_editor;
-DROP ROLE IF EXISTS legend_editor;
--- Create new user for the API
-CREATE ROLE legend_editor nologin;
-GRANT legend_editor TO test;
 
 CREATE OR REPLACE FUNCTION enermaps_set_legend(parameters text, legend text)
     RETURNS void
@@ -443,15 +433,14 @@ GRANT EXECUTE ON FUNCTION enermaps_get_legend(parameters text) to api_user;
 -- Returns a list of all the datasets, with the data needed by the web app
 DROP VIEW IF EXISTS dataset_list;
 CREATE OR REPLACE VIEW dataset_list AS
-SELECT  datasets.ds_id::int as ds_id,
-        (datasets.metadata ->> 'Title (with Hyperlink)') as title,
-        COALESCE(((datasets.metadata ->> 'parameters')::jsonb ->> 'is_raster')::bool, true) as is_raster,
-        COALESCE(((datasets.metadata ->> 'parameters')::jsonb ->> 'is_tiled')::bool, true) as is_tiled,
-        datasets_full.shared_id as shared_id,
-        (datasets.metadata ->> 'Projection system') as projection
+SELECT  ds_id::int as ds_id,
+        (metadata ->> 'Title') as title,
+        COALESCE(((metadata ->> 'parameters')::jsonb ->> 'is_raster')::bool, true) as is_raster,
+        COALESCE(((metadata ->> 'parameters')::jsonb ->> 'is_tiled')::bool, true) as is_tiled,
+        shared_id as shared_id
+        (metadata ->> 'Projection system') as projection
         FROM datasets
-        INNER JOIN datasets_full ON datasets.ds_id = datasets_full.ds_id
-        WHERE (datasets.metadata ->> 'Title (with Hyperlink)') <> ''
+        WHERE (metadata ->> 'Title') <> ''
         ORDER BY ds_id;
 GRANT SELECT ON public.dataset_list to api_anon;
 
