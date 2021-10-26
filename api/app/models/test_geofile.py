@@ -62,7 +62,28 @@ class TestSaveVectorGeoJSON(BaseApiTest):
                         "var3": None,
                     },
                 },
-            }
+            },
+            {
+                "id": "FEATURE_ID",
+                "type": "Feature",
+                "geometry": {
+                    "type": "Point",
+                    "coordinates": [],
+                },
+                "properties": {
+                    "units": {"var1": "MW", "var2": "kWh", "var3": "kWh"},
+                    "fields": {
+                        "field1": "value1",
+                    },
+                    "legend": {"symbology": []},
+                    "start_at": None,
+                    "variables": {
+                        "var1": 1000,
+                        "var2": 2000,
+                        "var3": None,
+                    },
+                },
+            },
         ],
     }
 
