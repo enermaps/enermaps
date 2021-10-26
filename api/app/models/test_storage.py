@@ -1,3 +1,4 @@
+import json
 import os
 import shutil
 import tempfile
@@ -226,6 +227,34 @@ class TestRasterStorage(BaseApiTest):
             self.assertTrue("subfolder2/FID3.tif" in features)
             self.assertTrue("subfolder2/FID4.tif" in features)
 
+    def testGetGeometries(self):
+        with self.flask_app.app_context():
+            storage_instance = storage.RasterStorage()
+
+            layer_name = "raster/10"
+
+            GEOMETRIES = {
+                "FID1.tif": [
+                    [2.29753807249901, 48.8755536106299],
+                    [2.29614325745428, 48.8844921519625],
+                    [2.28257324809059, 48.8835519677318],
+                    [2.28397047391374, 48.8746136217482],
+                    [2.29753807249901, 48.8755536106299],
+                ]
+            }
+
+            os.makedirs(storage_instance.get_dir(layer_name))
+
+            with open(
+                os.path.join(storage_instance.get_dir(layer_name), "geometries.json"),
+                "w",
+            ) as f:
+                json.dump(GEOMETRIES, f)
+
+            geometries = storage_instance.get_geometries(layer_name)
+
+            self.assertEqual(geometries, GEOMETRIES)
+
 
 class TestRasterStorageWithoutCache(BaseApiTest):
     def setUp(self):
@@ -328,6 +357,36 @@ class TestRasterStorageWithoutCache(BaseApiTest):
                 ),
                 f"{self.raster_cache_dir}/10/layer.tif",
             )
+
+    def testGetGeometries(self):
+        with self.flask_app.app_context():
+            storage_instance = storage.RasterStorage()
+
+            layer_name = "raster/10"
+
+            GEOMETRIES = {
+                "FID1.tif": [
+                    [2.29753807249901, 48.8755536106299],
+                    [2.29614325745428, 48.8844921519625],
+                    [2.28257324809059, 48.8835519677318],
+                    [2.28397047391374, 48.8746136217482],
+                    [2.29753807249901, 48.8755536106299],
+                ]
+            }
+
+            os.makedirs(storage_instance.get_dir(layer_name, cache=True))
+
+            with open(
+                os.path.join(
+                    storage_instance.get_dir(layer_name, cache=True), "geometries.json"
+                ),
+                "w",
+            ) as f:
+                json.dump(GEOMETRIES, f)
+
+            geometries = storage_instance.get_geometries(layer_name)
+
+            self.assertEqual(geometries, GEOMETRIES)
 
 
 class TestCMStorage(BaseApiTest):

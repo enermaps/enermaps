@@ -447,7 +447,8 @@ SELECT  datasets.ds_id::int as ds_id,
         (datasets.metadata ->> 'Title (with Hyperlink)') as title,
         COALESCE(((datasets.metadata ->> 'parameters')::jsonb ->> 'is_raster')::bool, true) as is_raster,
         COALESCE(((datasets.metadata ->> 'parameters')::jsonb ->> 'is_tiled')::bool, true) as is_tiled,
-        datasets_full.shared_id as shared_id
+        datasets_full.shared_id as shared_id,
+        (datasets.metadata ->> 'Projection system') as projection
         FROM datasets
         INNER JOIN datasets_full ON datasets.ds_id = datasets_full.ds_id
         WHERE (datasets.metadata ->> 'Title (with Hyperlink)') <> ''
