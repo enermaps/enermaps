@@ -211,6 +211,12 @@ def process_dataset(dataset, pretty_print=False):
     else:
         process_layer(type, dataset["ds_id"], pretty_print=pretty_print)
 
+    # For raster datasets, save the projection in a file
+    if type == path.RASTER:
+        current_app.logger.info("... save projection")
+        layer_name = path.make_unique_layer_name(type, dataset["ds_id"])
+        geofile.save_raster_projection(layer_name, dataset["projection"])
+
 
 def process_layer(type, id, variable=None, time_period=None, pretty_print=False):
     layer_name = path.make_unique_layer_name(
@@ -238,6 +244,7 @@ def process_layer(type, id, variable=None, time_period=None, pretty_print=False)
     if type == path.VECTOR:
         valid_variables = geofile.save_vector_geojson(layer_name, data)
     else:
+        current_app.logger.info("... save geometries")
         geofile.save_raster_geometries(layer_name, data)
 
         # Don't download raster files if we have directly access to them

@@ -1,3 +1,4 @@
+import json
 import os
 import shutil
 import tempfile
@@ -49,6 +50,14 @@ class TestRasterStorage(BaseApiTest):
                 storage_instance.get_root_dir(), f"{self.wms_cache_dir}/rasters"
             )
 
+    def testCacheRootDir(self):
+        with self.flask_app.app_context():
+            storage_instance = storage.RasterStorage()
+            self.assertEquals(
+                storage_instance.get_root_dir(cache=True),
+                f"{self.wms_cache_dir}/rasters",
+            )
+
     def testTmpDir(self):
         with self.flask_app.app_context():
             storage_instance = storage.RasterStorage()
@@ -89,6 +98,44 @@ class TestRasterStorage(BaseApiTest):
             )
             self.assertEquals(
                 storage_instance.get_dir(f"raster/10//{ENCODED_VAR}"),
+                f"{self.wms_cache_dir}/rasters/10/{ENCODED_VAR}",
+            )
+
+    def testCacheDir(self):
+        with self.flask_app.app_context():
+            storage_instance = storage.RasterStorage()
+            self.assertEquals(
+                storage_instance.get_dir("raster/10", cache=True),
+                f"{self.wms_cache_dir}/rasters/10",
+            )
+            self.assertEquals(
+                storage_instance.get_dir("raster/10/2015", cache=True),
+                f"{self.wms_cache_dir}/rasters/10/2015",
+            )
+            self.assertEquals(
+                storage_instance.get_dir("raster/10/2015-01", cache=True),
+                f"{self.wms_cache_dir}/rasters/10/2015-01",
+            )
+            self.assertEquals(
+                storage_instance.get_dir("raster/10/None", cache=True),
+                f"{self.wms_cache_dir}/rasters/10/None",
+            )
+            self.assertEquals(
+                storage_instance.get_dir(f"raster/10/2015/{ENCODED_VAR}", cache=True),
+                f"{self.wms_cache_dir}/rasters/10/2015/{ENCODED_VAR}",
+            )
+            self.assertEquals(
+                storage_instance.get_dir(
+                    f"raster/10/2015-01/{ENCODED_VAR}", cache=True
+                ),
+                f"{self.wms_cache_dir}/rasters/10/2015-01/{ENCODED_VAR}",
+            )
+            self.assertEquals(
+                storage_instance.get_dir(f"raster/10/None/{ENCODED_VAR}", cache=True),
+                f"{self.wms_cache_dir}/rasters/10/None/{ENCODED_VAR}",
+            )
+            self.assertEquals(
+                storage_instance.get_dir(f"raster/10//{ENCODED_VAR}", cache=True),
                 f"{self.wms_cache_dir}/rasters/10/{ENCODED_VAR}",
             )
 
@@ -179,6 +226,34 @@ class TestRasterStorage(BaseApiTest):
             self.assertTrue("subfolder1/FID2.tif" in features)
             self.assertTrue("subfolder2/FID3.tif" in features)
             self.assertTrue("subfolder2/FID4.tif" in features)
+
+    def testGetGeometries(self):
+        with self.flask_app.app_context():
+            storage_instance = storage.RasterStorage()
+
+            layer_name = "raster/10"
+
+            GEOMETRIES = {
+                "FID1.tif": [
+                    [2.29753807249901, 48.8755536106299],
+                    [2.29614325745428, 48.8844921519625],
+                    [2.28257324809059, 48.8835519677318],
+                    [2.28397047391374, 48.8746136217482],
+                    [2.29753807249901, 48.8755536106299],
+                ]
+            }
+
+            os.makedirs(storage_instance.get_dir(layer_name))
+
+            with open(
+                os.path.join(storage_instance.get_dir(layer_name), "geometries.json"),
+                "w",
+            ) as f:
+                json.dump(GEOMETRIES, f)
+
+            geometries = storage_instance.get_geometries(layer_name)
+
+            self.assertEqual(geometries, GEOMETRIES)
 
 
 class TestRasterStorageWithoutCache(BaseApiTest):
@@ -282,6 +357,36 @@ class TestRasterStorageWithoutCache(BaseApiTest):
                 ),
                 f"{self.raster_cache_dir}/10/layer.tif",
             )
+
+    def testGetGeometries(self):
+        with self.flask_app.app_context():
+            storage_instance = storage.RasterStorage()
+
+            layer_name = "raster/10"
+
+            GEOMETRIES = {
+                "FID1.tif": [
+                    [2.29753807249901, 48.8755536106299],
+                    [2.29614325745428, 48.8844921519625],
+                    [2.28257324809059, 48.8835519677318],
+                    [2.28397047391374, 48.8746136217482],
+                    [2.29753807249901, 48.8755536106299],
+                ]
+            }
+
+            os.makedirs(storage_instance.get_dir(layer_name, cache=True))
+
+            with open(
+                os.path.join(
+                    storage_instance.get_dir(layer_name, cache=True), "geometries.json"
+                ),
+                "w",
+            ) as f:
+                json.dump(GEOMETRIES, f)
+
+            geometries = storage_instance.get_geometries(layer_name)
+
+            self.assertEqual(geometries, GEOMETRIES)
 
 
 class TestCMStorage(BaseApiTest):
