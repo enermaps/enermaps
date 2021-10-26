@@ -53,12 +53,12 @@ export async function getDatasetLayerName(datasetId, raster, variable, timePerio
   if ((variable != null) && (timePeriod != null)) {
     return fetchText(
         'api/datasets/layer_name/' + prefix + '/' + datasetId + '/' +
-        btoa(variable) + '/' + timePeriod + '/',
+        encodeURIComponent(variable) + '/' + timePeriod + '/',
     );
   } else if (variable != null) {
     return fetchText(
         'api/datasets/layer_name/' + prefix + '/' + datasetId + '/' +
-        btoa(variable) + '/',
+        encodeURIComponent(variable) + '/',
     );
   } else if (timePeriod != null) {
     return fetchText(
