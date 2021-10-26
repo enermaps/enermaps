@@ -52,6 +52,15 @@ class BaseRasterStorage(object):
         with open(filename, "r") as f:
             return json.load(f)
 
+    def get_projection(self, layer_name):
+        (_, id, _, _, _) = path.parse_unique_layer_name(layer_name)
+        filename = safe_join(self.get_root_dir(cache=True), str(id), "projection.txt")
+        if not os.path.exists(filename):
+            return None
+
+        with open(filename, "r") as f:
+            return f.read()
+
 
 class RasterStorage(BaseRasterStorage):
     def get_root_dir(self, cache=False):

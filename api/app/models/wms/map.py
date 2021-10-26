@@ -13,10 +13,10 @@ from app.models.wms import utils
 def get_mapnik_map(normalized_args):
     """Return the Mapnik object (with hardcoded symbology/rule)."""
 
-    projection = utils.parse_projection(normalized_args)
+    bbox_projection = utils.parse_projection(normalized_args)
 
     size = utils.parse_size(normalized_args)
-    mp = mapnik.Map(size.width, size.height, "+init=" + projection)
+    mp = mapnik.Map(size.width, size.height, "+init=" + bbox_projection)
 
     mp.legend_images_folders = []
 
@@ -28,7 +28,7 @@ def get_mapnik_map(normalized_args):
             return None
 
         mapnik_layers = layer.as_mapnik_layers(
-            bbox=utils.parse_envelope(normalized_args), projection=projection
+            bbox=utils.parse_envelope(normalized_args), bbox_projection=bbox_projection
         )
         if (mapnik_layers is None) or (len(mapnik_layers) == 0):
             continue
