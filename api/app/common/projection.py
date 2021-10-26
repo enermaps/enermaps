@@ -49,6 +49,27 @@ def proj4_from_geotiff(path):
     return srs.ExportToProj4()
 
 
+def epsg_from_geotiff(path):
+    """Extract the proj4 formatted projection descrition
+    from a geotiff file.
+    """
+    raster = gdal.Open(path)
+    if not raster:
+        return None
+
+    prj = raster.GetProjection()
+    prj = prj.strip()
+    if not prj:
+        return None
+
+    srs = osr.SpatialReference(wkt=prj)
+
+    if srs.GetAuthorityName(None) != "EPSG":
+        return None
+
+    return srs.GetAuthorityName(None) + ":" + srs.GetAuthorityCode(None)
+
+
 def epsg_to_wkt(epsg_code: int) -> str:
     """Return a wkt description from an epsg integer
     code
