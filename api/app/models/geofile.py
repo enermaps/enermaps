@@ -44,8 +44,18 @@ def save_vector_geojson(layer_name, geojson):
     # Processing
     valid_variables = []
 
+    filtered_features = []
     for i in range(len(geojson["features"])):
-        properties = geojson["features"][i]["properties"]
+        feature = geojson["features"][i]
+
+        if (
+            ("geometry" in feature)
+            and (feature["geometry"] is not None)
+            and (len(feature["geometry"]["coordinates"]) == 0)
+        ):
+            break
+
+        properties = feature["properties"]
 
         # Retrieve the list of variable names
         for variable, value in properties["variables"].items():
@@ -58,6 +68,10 @@ def save_vector_geojson(layer_name, geojson):
         # Add the variable values as keys accessible by mapnik
         for variable, value in properties["variables"].items():
             properties[f"__variable__{variable}"] = value
+
+        filtered_features.append(feature)
+
+    geojson["features"] = filtered_features
 
     # Save the files
     with TemporaryDirectory(prefix=storage_instance.get_tmp_dir()) as tmp_dir:
