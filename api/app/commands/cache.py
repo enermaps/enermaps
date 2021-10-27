@@ -9,7 +9,7 @@ from flask.cli import with_appcontext
 from app.common import client
 from app.common import datasets as datasets_fcts
 from app.common import path
-from app.common.projection import epsg_from_geotiff
+from app.common.projection import epsg_string_to_proj4
 from app.models import geofile, storage
 
 
@@ -220,15 +220,10 @@ def process_dataset(dataset, pretty_print=False):
     if type == path.RASTER:
         current_app.logger.info("... save projection")
         layer_name = path.make_unique_layer_name(type, dataset["ds_id"])
-
-        projection = None
-        if dataset["projection"].startswith("EPSG:"):
-            projection = dataset["projection"]
-        elif raster_file is not None:
-            projection = epsg_from_geotiff(raster_file)
-
-        if projection is not None:
-            geofile.save_raster_projection(layer_name, projection)
+        geofile.save_raster_projection(
+            layer_name,
+            epsg_string_to_proj4(current_app.config["RASTER_PROJECTION_SYSTEM"]),
+        )
 
 
 def process_layer(type, id, variable=None, time_period=None, pretty_print=False):
