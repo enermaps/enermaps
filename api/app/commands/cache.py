@@ -3,7 +3,7 @@ import json
 import time
 
 import click
-from flask import current_app, safe_join
+from flask import current_app
 from flask.cli import with_appcontext
 
 from app.common import client
@@ -207,7 +207,7 @@ def process_dataset(dataset, pretty_print=False):
             layer_name = path.make_unique_layer_name(type, dataset["ds_id"])
             storage_instance = storage.create(layer_name)
             with open(
-                safe_join(storage_instance.get_dir(layer_name), "combinations.json"),
+                storage_instance.get_combinations_file(layer_name),
                 "w",
             ) as f:
                 json.dump(valid_combinations, f)

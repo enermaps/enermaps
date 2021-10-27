@@ -125,6 +125,7 @@ class BaseVectorStorage(object):
     GEOJSON_FILENAME = "data.geojson"
     PROJECTION_FILENAME = "projection.txt"
     VARIABLES_FILENAME = "variables.json"
+    COMBINATIONS_FILENAME = "combinations.json"
 
     def get_root_dir(self, cache=False):
         raise NotImplementedError
@@ -147,6 +148,9 @@ class BaseVectorStorage(object):
     def get_variables_file(self, layer_name):
         return self.get_file_path(layer_name, BaseVectorStorage.VARIABLES_FILENAME)
 
+    def get_combinations_file(self, layer_name):
+        return self.get_file_path(layer_name, BaseVectorStorage.COMBINATIONS_FILENAME)
+
     def get_projection(self, layer_name):
         filename = self.get_projection_file(layer_name)
         if not os.path.exists(filename):
@@ -154,6 +158,14 @@ class BaseVectorStorage(object):
 
         with open(filename, "r") as f:
             return f.read()
+
+    def get_combinations(self, layer_name):
+        filename = self.get_combinations_file(layer_name)
+        if not os.path.exists(filename):
+            return None
+
+        with open(filename, "r") as f:
+            return json.load(f)
 
 
 class VectorStorage(BaseVectorStorage):

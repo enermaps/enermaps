@@ -39,9 +39,16 @@ class DatasetsFull(Resource):
             datasets_fcts.process_parameters(dataset["info"])
 
             if not dataset["is_raster"]:
-                dataset["info"][
-                    "valid_combinations"
-                ] = datasets_fcts.get_valid_combinations(dataset["ds_id"])
+                combinations = datasets_fcts.get_valid_combinations(dataset["ds_id"])
+                dataset["info"]["valid_combinations"] = combinations
+
+                if combinations is not None:
+                    variables = []
+                    for key, v in combinations.items():
+                        variables.extend(v)
+                        variables = list(set(variables))
+
+                    dataset["info"]["variables"] = variables
 
         add_openaire_links(datasets)
 
