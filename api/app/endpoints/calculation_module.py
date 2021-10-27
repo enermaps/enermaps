@@ -13,7 +13,7 @@ from werkzeug.datastructures import FileStorage
 
 from app.common import path
 from app.models import calculation_module as CM
-from app.models import geofile, storage
+from app.models import geofile
 
 api = Namespace("cm", "Calculation module endpoint")
 current_file_dir = os.path.dirname(os.path.abspath(__file__))
@@ -62,12 +62,17 @@ class CMTaskCreator(Resource):
 
         # Retrieve the list of TIFF files associated with the layer
         layers = []
-        if (layer_name is not None) and (path.get_type(layer_name) == path.RASTER):
-            storage_instance = storage.create(layer_name)
-            root_dir = storage_instance.get_root_dir()
-            for feature_id in storage_instance.list_feature_ids(layer_name):
-                file_path = storage_instance.get_file_path(layer_name, feature_id)
-                layers.append(file_path.replace(root_dir + os.path.sep, ""))
+        if (
+            (layer_name is not None)
+            and (path.get_type(layer_name) == path.RASTER)
+            and ("features" in selection)
+            and (len(selection["features"]) > 0)
+        ):
+            layer = geofile.load(layer_name)
+            rasters = layer.get_rasters_in_feature_list(selection["features"])
+            root_dir = layer.storage.get_root_dir() + os.path.sep
+            for _, file_path in rasters:
+                layers.append(file_path.replace(root_dir, ""))
 
         task = cm.call(selection, layers, parameters)
 

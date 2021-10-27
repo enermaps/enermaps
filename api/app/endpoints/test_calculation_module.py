@@ -104,13 +104,65 @@ class CMTaskCreatorTest(BaseApiTest):
                 storage_instance.get_file_path(layer_name, "FID2.tif"),
             )
 
+            data = {
+                "FID1.tif": [[0, 60], [10, 60], [10, 30], [0, 30], [0, 60]],
+                "FID2.tif": [[10, 60], [20, 60], [20, 30], [10, 30], [10, 60]],
+            }
+
+            with open(storage_instance.get_geometries_file(layer_name), "w") as f:
+                json.dump(data, f)
+
     @patch(
         "app.models.calculation_module.cm_by_name",
         new=Mock(return_value=CM),
     )
-    def testCreateTask(self):
+    def testCreateTaskSmallSelection(self):
         parameters = {
-            "selection": {"area1": 10},
+            "selection": {
+                "features": [
+                    {
+                        "geometry": {
+                            "coordinates": [
+                                [[5, 40], [8, 40], [8, 45], [5, 45], [5, 40]]
+                            ]
+                        }
+                    }
+                ]
+            },
+            "layer": "raster/42",
+            "parameters": {"param1": 4},
+        }
+
+        response = self.client.post("api/cm/mock_cm/task/", json=parameters)
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(
+            urlparse(response.location).path,
+            "/api/cm/mock_cm/task/01234567-0000-0000-0000-000000000000/",
+        )
+
+        args = CMTaskCreatorTest.CM.called_with_args
+        self.assertEqual(len(args), 3)
+        self.assertEqual(args[0], parameters["selection"])
+        self.assertTrue("42/FID1.tif" in args[1])
+        self.assertEqual(args[2], parameters["parameters"])
+
+    @patch(
+        "app.models.calculation_module.cm_by_name",
+        new=Mock(return_value=CM),
+    )
+    def testCreateTaskBigSelection(self):
+        parameters = {
+            "selection": {
+                "features": [
+                    {
+                        "geometry": {
+                            "coordinates": [
+                                [[5, 40], [50, 40], [50, 45], [5, 45], [5, 40]]
+                            ]
+                        }
+                    }
+                ]
+            },
             "layer": "raster/42",
             "parameters": {"param1": 4},
         }

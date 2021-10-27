@@ -1,6 +1,9 @@
 import copy
 import json
 import os
+import shutil
+
+import mapnik
 
 from app.common import path
 from app.common.projection import epsg_string_to_proj4
@@ -424,3 +427,247 @@ class TestSaveCMParameters(BaseApiTest):
                 data = json.load(f)
 
             self.assertEqual(data, TestSaveCMParameters.PARAMETERS)
+
+
+class TestRasterLayerIntersections(BaseApiTest):
+    def setUp(self):
+        super().setUp()
+
+        with self.flask_app.app_context():
+            # Copy the raster dataset
+            layer_name = path.make_unique_layer_name(path.RASTER, 42, "heat")
+            storage_instance = storage.create(layer_name)
+
+            os.makedirs(storage_instance.get_dir(layer_name))
+
+            shutil.copy(
+                self.get_testdata_path("hotmaps-cdd_curr_adapted.tif"),
+                storage_instance.get_file_path(layer_name, "FID.tif"),
+            )
+
+            data = {"FID.tif": [[0, 60], [10, 60], [10, 30], [0, 30], [0, 60]]}
+
+            with open(storage_instance.get_geometries_file(layer_name), "w") as f:
+                json.dump(data, f)
+
+    def testIntersectsBoundingBox(self):
+        with self.flask_app.app_context():
+            layer_name = path.make_unique_layer_name(path.RASTER, 42, "heat")
+            layer = geofile.load(layer_name)
+
+            rasters = layer.get_rasters_in_bbox(
+                mapnik.Box2d(40, 0, 60, 10), "EPSG:3035"
+            )
+            self.assertEqual(len(rasters), 1)
+            self.assertEqual(
+                rasters[0],
+                (
+                    "FID.tif",
+                    layer.storage.get_file_path(layer_name, "FID.tif"),
+                ),
+            )
+
+    def testNotIntersectsBoundingBox(self):
+        with self.flask_app.app_context():
+            layer_name = path.make_unique_layer_name(path.RASTER, 42, "heat")
+            layer = geofile.load(layer_name)
+
+            rasters = layer.get_rasters_in_bbox(
+                mapnik.Box2d(40, -70, 60, -60), "EPSG:3035"
+            )
+            self.assertEqual(len(rasters), 0)
+
+    def testIntersectsOneFeatureOnePolygon(self):
+        with self.flask_app.app_context():
+            layer_name = path.make_unique_layer_name(path.RASTER, 42, "heat")
+            layer = geofile.load(layer_name)
+
+            features = [
+                {
+                    "geometry": {
+                        "coordinates": [[[5, 40], [8, 40], [8, 45], [5, 45], [5, 40]]]
+                    }
+                }
+            ]
+
+            rasters = layer.get_rasters_in_feature_list(features)
+            self.assertEqual(len(rasters), 1)
+            self.assertEqual(
+                rasters[0],
+                (
+                    "FID.tif",
+                    layer.storage.get_file_path(layer_name, "FID.tif"),
+                ),
+            )
+
+    def testIntersectsOneFeatureTwoPolygons(self):
+        with self.flask_app.app_context():
+            layer_name = path.make_unique_layer_name(path.RASTER, 42, "heat")
+            layer = geofile.load(layer_name)
+
+            features = [
+                {
+                    "geometry": {
+                        "coordinates": [
+                            [[5, 40], [8, 40], [8, 45], [5, 45], [5, 40]],
+                            [[5, 50], [8, 50], [8, 55], [5, 55], [5, 50]],
+                        ]
+                    }
+                }
+            ]
+
+            rasters = layer.get_rasters_in_feature_list(features)
+            self.assertEqual(len(rasters), 1)
+            self.assertEqual(
+                rasters[0],
+                (
+                    "FID.tif",
+                    layer.storage.get_file_path(layer_name, "FID.tif"),
+                ),
+            )
+
+    def testIntersectsOneFeatureTwoPolygons2(self):
+        with self.flask_app.app_context():
+            layer_name = path.make_unique_layer_name(path.RASTER, 42, "heat")
+            layer = geofile.load(layer_name)
+
+            features = [
+                {
+                    "geometry": {
+                        "coordinates": [
+                            [[-70, 40], [-60, 40], [-60, 45], [-70, 45], [-70, 40]],
+                            [[5, 50], [8, 50], [8, 55], [5, 55], [5, 50]],
+                        ]
+                    }
+                }
+            ]
+
+            rasters = layer.get_rasters_in_feature_list(features)
+            self.assertEqual(len(rasters), 1)
+            self.assertEqual(
+                rasters[0],
+                (
+                    "FID.tif",
+                    layer.storage.get_file_path(layer_name, "FID.tif"),
+                ),
+            )
+
+    def testIntersectsTwoFeaturesOnePolygon(self):
+        with self.flask_app.app_context():
+            layer_name = path.make_unique_layer_name(path.RASTER, 42, "heat")
+            layer = geofile.load(layer_name)
+
+            features = [
+                {
+                    "geometry": {
+                        "coordinates": [[[5, 40], [8, 40], [8, 45], [5, 45], [5, 40]]]
+                    }
+                },
+                {
+                    "geometry": {
+                        "coordinates": [[[5, 50], [8, 50], [8, 55], [5, 55], [5, 50]]]
+                    }
+                },
+            ]
+
+            rasters = layer.get_rasters_in_feature_list(features)
+            self.assertEqual(len(rasters), 1)
+            self.assertEqual(
+                rasters[0],
+                (
+                    "FID.tif",
+                    layer.storage.get_file_path(layer_name, "FID.tif"),
+                ),
+            )
+
+    def testIntersectsTwoFeaturesOnePolygon2(self):
+        with self.flask_app.app_context():
+            layer_name = path.make_unique_layer_name(path.RASTER, 42, "heat")
+            layer = geofile.load(layer_name)
+
+            features = [
+                {
+                    "geometry": {
+                        "coordinates": [
+                            [[-70, 40], [-60, 40], [-60, 45], [-70, 45], [-70, 40]]
+                        ]
+                    }
+                },
+                {
+                    "geometry": {
+                        "coordinates": [[[5, 50], [8, 50], [8, 55], [5, 55], [5, 50]]]
+                    }
+                },
+            ]
+
+            rasters = layer.get_rasters_in_feature_list(features)
+            self.assertEqual(len(rasters), 1)
+            self.assertEqual(
+                rasters[0],
+                (
+                    "FID.tif",
+                    layer.storage.get_file_path(layer_name, "FID.tif"),
+                ),
+            )
+
+    def testNotIntersectsOneFeatureOnePolygon(self):
+        with self.flask_app.app_context():
+            layer_name = path.make_unique_layer_name(path.RASTER, 42, "heat")
+            layer = geofile.load(layer_name)
+
+            features = [
+                {
+                    "geometry": {
+                        "coordinates": [
+                            [[-70, 40], [-60, 40], [-60, 45], [-70, 45], [-70, 40]]
+                        ]
+                    }
+                }
+            ]
+
+            rasters = layer.get_rasters_in_feature_list(features)
+            self.assertEqual(len(rasters), 0)
+
+    def testNotIntersectsOneFeatureTwoPolygons(self):
+        with self.flask_app.app_context():
+            layer_name = path.make_unique_layer_name(path.RASTER, 42, "heat")
+            layer = geofile.load(layer_name)
+
+            features = [
+                {
+                    "geometry": {
+                        "coordinates": [
+                            [[-70, 40], [-60, 40], [-60, 45], [-70, 45], [-70, 40]],
+                            [[-70, 50], [-60, 50], [-60, 55], [-70, 55], [-70, 50]],
+                        ]
+                    }
+                }
+            ]
+
+            rasters = layer.get_rasters_in_feature_list(features)
+            self.assertEqual(len(rasters), 0)
+
+    def testNotIntersectsTwoFeaturesOnePolygon(self):
+        with self.flask_app.app_context():
+            layer_name = path.make_unique_layer_name(path.RASTER, 42, "heat")
+            layer = geofile.load(layer_name)
+
+            features = [
+                {
+                    "geometry": {
+                        "coordinates": [
+                            [[-70, 40], [-60, 40], [-60, 45], [-70, 45], [-70, 40]]
+                        ]
+                    }
+                },
+                {
+                    "geometry": {
+                        "coordinates": [
+                            [[-70, 50], [-60, 50], [-60, 55], [-70, 55], [-70, 50]]
+                        ]
+                    }
+                },
+            ]
+
+            rasters = layer.get_rasters_in_feature_list(features)
+            self.assertEqual(len(rasters), 0)
