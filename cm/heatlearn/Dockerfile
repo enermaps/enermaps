@@ -14,13 +14,12 @@ RUN chmod 1777 /tmp && \
 ENV CPLUS_INCLUDE_PATH=/usr/include/gdal
 ENV C_INCLUDE_PATH=/usr/include/gdal
 
-COPY /.env-db-server /.env-db-server
-
 COPY cm/heatlearn/requirements.txt requirements.txt
 RUN pip3 install -r requirements.txt
 COPY cm/base /tmp/base
 RUN cd /tmp/base && pip3 install . && python3 test.py
 COPY cm/heatlearn .
 RUN mkdir -p tmp
+COPY /.env-db-server /.env-db-server
 RUN python3 test.py
 CMD ["python3", "worker.py"]
