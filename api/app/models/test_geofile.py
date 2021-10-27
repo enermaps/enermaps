@@ -262,7 +262,7 @@ class TestSaveRasterGeometries(BaseApiTest):
                 os.path.exists(f"{self.wms_cache_dir}/rasters/{folder}/geometries.json")
             )
 
-    def testFailureNoGeometry(self):
+    def testSuccessNoGeometry(self):
         with self.flask_app.app_context():
             layer_name = path.make_unique_layer_name(
                 path.RASTER, 42, time_period="2015", variable="variable"
@@ -274,11 +274,19 @@ class TestSaveRasterGeometries(BaseApiTest):
             geofile.save_raster_geometries(layer_name, geojson)
 
             folder = path.to_folder_path(layer_name)
-            self.assertFalse(
-                os.path.exists(f"{self.wms_cache_dir}/rasters/{folder}/geometries.json")
-            )
+            filename = f"{self.wms_cache_dir}/rasters/{folder}/geometries.json"
 
-    def testFailureNotPolygon(self):
+            self.assertTrue(os.path.exists(filename))
+
+            with open(filename, "r") as f:
+                geometries = json.load(f)
+
+            self.assertEqual(len(geometries), 1)
+            self.assertTrue("FID1.tif" in geometries)
+
+            self.assertTrue(geometries["FID1.tif"] is None)
+
+    def testSuccessNotPolygon(self):
         with self.flask_app.app_context():
             layer_name = path.make_unique_layer_name(
                 path.RASTER, 42, time_period="2015", variable="variable"
@@ -290,9 +298,17 @@ class TestSaveRasterGeometries(BaseApiTest):
             geofile.save_raster_geometries(layer_name, geojson)
 
             folder = path.to_folder_path(layer_name)
-            self.assertFalse(
-                os.path.exists(f"{self.wms_cache_dir}/rasters/{folder}/geometries.json")
-            )
+            filename = f"{self.wms_cache_dir}/rasters/{folder}/geometries.json"
+
+            self.assertTrue(os.path.exists(filename))
+
+            with open(filename, "r") as f:
+                geometries = json.load(f)
+
+            self.assertEqual(len(geometries), 1)
+            self.assertTrue("FID1.tif" in geometries)
+
+            self.assertTrue(geometries["FID1.tif"] is None)
 
 
 class TestSaveRasterFile(BaseApiTest):
