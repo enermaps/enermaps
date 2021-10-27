@@ -50,6 +50,10 @@ export async function getDatasetParameters(datasetId) {
 export async function getDatasetLayerName(datasetId, raster, variable, timePeriod) {
   const prefix = raster ? 'raster' : 'vector';
 
+  if (variable != null) {
+    variable = variable.replaceAll('/', '__SLASH__');
+  }
+
   if ((variable != null) && (timePeriod != null)) {
     return fetchText(
         'api/datasets/layer_name/' + prefix + '/' + datasetId + '/' +
