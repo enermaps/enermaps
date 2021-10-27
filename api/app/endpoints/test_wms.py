@@ -10,7 +10,7 @@ from PIL import Image
 
 import app.common.xml as xml
 from app.common import path
-from app.common.projection import epsg_to_wkt
+from app.common.projection import epsg_to_proj4
 from app.common.test import BaseApiTest, BaseIntegrationTest
 from app.models import storage
 
@@ -114,9 +114,9 @@ class WMSGetMapTest(BaseApiTest):
         "width": str(TILE_SIZE[0]),
         "height": str(TILE_SIZE[1]),
         "srs": "EPSG:3857",
-        "bbox": "19567.87924100512,6809621.975869781"
-        ","
-        "39135.75848201024,6829189.85511079",
+        "bbox": (
+            "19567.87924100512,6809621.975869781,39135.75848201024,6829189.85511079"
+        ),
     }
 
     def setUp(self):
@@ -134,9 +134,9 @@ class WMSGetMapTest(BaseApiTest):
                 storage_instance.get_geojson_file(layer_name),
             )
 
-            proj_filepath = storage_instance.get_file_path(layer_name, "prj")
+            proj_filepath = storage_instance.get_projection_file(layer_name)
             with open(proj_filepath, "w") as fd:
-                fd.write(epsg_to_wkt(4326))
+                fd.write(epsg_to_proj4(4326))
 
             # Copy the raster dataset
             layer_name = path.make_unique_layer_name(path.RASTER, 42, "heat")

@@ -25,6 +25,10 @@ def create_for_layer_type(type):
 
 
 class BaseRasterStorage(object):
+
+    PROJECTION_FILENAME = "projection.txt"
+    GEOMETRIES_FILENAME = "geometries.json"
+
     def get_root_dir(self, cache=False):
         raise NotImplementedError
 
@@ -44,8 +48,21 @@ class BaseRasterStorage(object):
             for x in glob.glob(safe_join(folder, "**/*.tif"), recursive=True)
         ]
 
+    def get_projection_file(self, layer_name):
+        (_, id, _, _, _) = path.parse_unique_layer_name(layer_name)
+        return safe_join(
+            self.get_root_dir(cache=True),
+            str(id),
+            BaseRasterStorage.PROJECTION_FILENAME,
+        )
+
+    def get_geometries_file(self, layer_name):
+        return safe_join(
+            self.get_dir(layer_name, cache=True), BaseRasterStorage.GEOMETRIES_FILENAME
+        )
+
     def get_geometries(self, layer_name):
-        filename = safe_join(self.get_dir(layer_name, cache=True), "geometries.json")
+        filename = self.get_geometries_file(layer_name)
         if not os.path.exists(filename):
             return None
 
@@ -53,8 +70,7 @@ class BaseRasterStorage(object):
             return json.load(f)
 
     def get_projection(self, layer_name):
-        (_, id, _, _, _) = path.parse_unique_layer_name(layer_name)
-        filename = safe_join(self.get_root_dir(cache=True), str(id), "projection.txt")
+        filename = self.get_projection_file(layer_name)
         if not os.path.exists(filename):
             return None
 
@@ -92,8 +108,25 @@ class CMStorage(BaseRasterStorage):
     def get_dir(self, layer_name, cache=False):
         return safe_join(self.get_root_dir(), path.to_folder_path(layer_name))
 
+    def get_projection_file(self, layer_name, feature_id):
+        return safe_join(self.get_dir(layer_name), feature_id.replace(".tif", ".prj"))
+
+    def get_projection(self, layer_name, feature_id):
+        filename = self.get_projection_file(layer_name, feature_id)
+        if not os.path.exists(filename):
+            return None
+
+        with open(filename, "r") as f:
+            return f.read()
+
 
 class BaseVectorStorage(object):
+
+    GEOJSON_FILENAME = "data.geojson"
+    PROJECTION_FILENAME = "projection.txt"
+    VARIABLES_FILENAME = "variables.json"
+    COMBINATIONS_FILENAME = "combinations.json"
+
     def get_root_dir(self, cache=False):
         raise NotImplementedError
 
@@ -103,11 +136,36 @@ class BaseVectorStorage(object):
     def get_dir(self, layer_name, cache=False):
         return safe_join(self.get_root_dir(), path.to_folder_path(layer_name))
 
-    def get_file_path(self, layer_name, extension):
-        return safe_join(self.get_dir(layer_name), f"data.{extension}")
+    def get_file_path(self, layer_name, filename):
+        return safe_join(self.get_dir(layer_name), filename)
 
     def get_geojson_file(self, layer_name):
-        return self.get_file_path(layer_name, "geojson")
+        return self.get_file_path(layer_name, BaseVectorStorage.GEOJSON_FILENAME)
+
+    def get_projection_file(self, layer_name):
+        return self.get_file_path(layer_name, BaseVectorStorage.PROJECTION_FILENAME)
+
+    def get_variables_file(self, layer_name):
+        return self.get_file_path(layer_name, BaseVectorStorage.VARIABLES_FILENAME)
+
+    def get_combinations_file(self, layer_name):
+        return self.get_file_path(layer_name, BaseVectorStorage.COMBINATIONS_FILENAME)
+
+    def get_projection(self, layer_name):
+        filename = self.get_projection_file(layer_name)
+        if not os.path.exists(filename):
+            return None
+
+        with open(filename, "r") as f:
+            return f.read()
+
+    def get_combinations(self, layer_name):
+        filename = self.get_combinations_file(layer_name)
+        if not os.path.exists(filename):
+            return None
+
+        with open(filename, "r") as f:
+            return json.load(f)
 
 
 class VectorStorage(BaseVectorStorage):

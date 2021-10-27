@@ -3,6 +3,7 @@ import json
 import os
 
 from app.common import path
+from app.common.projection import epsg_string_to_proj4
 from app.common.test import BaseApiTest
 
 from . import geofile, storage
@@ -103,7 +104,9 @@ class TestSaveVectorGeoJSON(BaseApiTest):
             self.assertTrue(
                 os.path.exists(f"{self.wms_cache_dir}/vectors/42/data.geojson")
             )
-            self.assertTrue(os.path.exists(f"{self.wms_cache_dir}/vectors/42/data.prj"))
+            self.assertTrue(
+                os.path.exists(f"{self.wms_cache_dir}/vectors/42/projection.txt")
+            )
             self.assertTrue(
                 os.path.exists(f"{self.wms_cache_dir}/vectors/42/variables.json")
             )
@@ -147,7 +150,9 @@ class TestSaveRasterProjection(BaseApiTest):
         with self.flask_app.app_context():
             layer_name = "raster/42"
 
-            geofile.save_raster_projection(layer_name, "EPSG:3857")
+            geofile.save_raster_projection(
+                layer_name, epsg_string_to_proj4("EPSG:3035")
+            )
 
             self.assertTrue(
                 os.path.exists(f"{self.wms_cache_dir}/rasters/42/projection.txt")
@@ -159,7 +164,9 @@ class TestSaveRasterProjection(BaseApiTest):
                 path.RASTER, 42, time_period="2015", variable="variable"
             )
 
-            geofile.save_raster_projection(layer_name, "EPSG:3857")
+            geofile.save_raster_projection(
+                layer_name, epsg_string_to_proj4("EPSG:3035")
+            )
 
             self.assertTrue(
                 os.path.exists(f"{self.wms_cache_dir}/rasters/42/projection.txt")
@@ -169,12 +176,14 @@ class TestSaveRasterProjection(BaseApiTest):
         with self.flask_app.app_context():
             layer_name = "raster/42"
 
-            geofile.save_raster_projection(layer_name, "EPSG:3857")
+            projection = epsg_string_to_proj4("EPSG:3035")
+
+            geofile.save_raster_projection(layer_name, projection)
 
             with open(f"{self.wms_cache_dir}/rasters/42/projection.txt", "r") as f:
                 data = f.read()
 
-            self.assertEqual(data, "EPSG:3857")
+            self.assertEqual(data, projection)
 
 
 class TestSaveRasterGeometries(BaseApiTest):
@@ -262,7 +271,7 @@ class TestSaveRasterGeometries(BaseApiTest):
                 os.path.exists(f"{self.wms_cache_dir}/rasters/{folder}/geometries.json")
             )
 
-    def testFailureNoGeometry(self):
+    def testSuccessNoGeometry(self):
         with self.flask_app.app_context():
             layer_name = path.make_unique_layer_name(
                 path.RASTER, 42, time_period="2015", variable="variable"
@@ -274,11 +283,19 @@ class TestSaveRasterGeometries(BaseApiTest):
             geofile.save_raster_geometries(layer_name, geojson)
 
             folder = path.to_folder_path(layer_name)
-            self.assertFalse(
-                os.path.exists(f"{self.wms_cache_dir}/rasters/{folder}/geometries.json")
-            )
+            filename = f"{self.wms_cache_dir}/rasters/{folder}/geometries.json"
 
-    def testFailureNotPolygon(self):
+            self.assertTrue(os.path.exists(filename))
+
+            with open(filename, "r") as f:
+                geometries = json.load(f)
+
+            self.assertEqual(len(geometries), 1)
+            self.assertTrue("FID1.tif" in geometries)
+
+            self.assertTrue(geometries["FID1.tif"] is None)
+
+    def testSuccessNotPolygon(self):
         with self.flask_app.app_context():
             layer_name = path.make_unique_layer_name(
                 path.RASTER, 42, time_period="2015", variable="variable"
@@ -290,35 +307,47 @@ class TestSaveRasterGeometries(BaseApiTest):
             geofile.save_raster_geometries(layer_name, geojson)
 
             folder = path.to_folder_path(layer_name)
-            self.assertFalse(
-                os.path.exists(f"{self.wms_cache_dir}/rasters/{folder}/geometries.json")
-            )
+            filename = f"{self.wms_cache_dir}/rasters/{folder}/geometries.json"
+
+            self.assertTrue(os.path.exists(filename))
+
+            with open(filename, "r") as f:
+                geometries = json.load(f)
+
+            self.assertEqual(len(geometries), 1)
+            self.assertTrue("FID1.tif" in geometries)
+
+            self.assertTrue(geometries["FID1.tif"] is None)
 
 
 class TestSaveRasterFile(BaseApiTest):
     def testSimple(self):
         with self.flask_app.app_context():
-            self.assertTrue(
-                geofile.save_raster_file("raster/42", "file.txt", b"Hello world")
-            )
+            raster_filename = self.get_testdata_path("hotmaps-cdd_curr_adapted.tif")
+            with open(raster_filename, "rb") as f:
+                content = f.read()
+
+            self.assertTrue(geofile.save_raster_file("raster/42", "file.tif", content))
 
             storage_instance = storage.create("raster/42")
             self.assertTrue(
-                os.path.exists(storage_instance.get_file_path("raster/42", "file.txt"))
+                os.path.exists(storage_instance.get_file_path("raster/42", "file.tif"))
             )
 
     def testWithSubFolders(self):
         with self.flask_app.app_context():
+            raster_filename = self.get_testdata_path("hotmaps-cdd_curr_adapted.tif")
+            with open(raster_filename, "rb") as f:
+                content = f.read()
+
             self.assertTrue(
-                geofile.save_raster_file(
-                    "raster/42", "subfolder/file.txt", b"Hello world"
-                )
+                geofile.save_raster_file("raster/42", "subfolder/file.tif", content)
             )
 
             storage_instance = storage.create("raster/42")
             self.assertTrue(
                 os.path.exists(
-                    storage_instance.get_file_path("raster/42", "subfolder/file.txt")
+                    storage_instance.get_file_path("raster/42", "subfolder/file.tif")
                 )
             )
 
@@ -328,13 +357,20 @@ class TestSaveCMFile(BaseApiTest):
         with self.flask_app.app_context():
             layer_name = "cm/some_name/01234567-0000-0000-0000-000000000000"
 
-            self.assertTrue(
-                geofile.save_cm_file(layer_name, "file.txt", b"Hello world")
-            )
+            raster_filename = self.get_testdata_path("hotmaps-cdd_curr_adapted.tif")
+            with open(raster_filename, "rb") as f:
+                content = f.read()
+
+            self.assertTrue(geofile.save_cm_file(layer_name, "file.tif", content))
 
             storage_instance = storage.create(layer_name)
             self.assertTrue(
-                os.path.exists(storage_instance.get_file_path(layer_name, "file.txt"))
+                os.path.exists(storage_instance.get_file_path(layer_name, "file.tif"))
+            )
+            self.assertTrue(
+                os.path.exists(
+                    storage_instance.get_projection_file(layer_name, "file.tif")
+                )
             )
 
 

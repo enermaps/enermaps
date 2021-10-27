@@ -438,7 +438,6 @@ SELECT  ds_id::int as ds_id,
         COALESCE(((metadata ->> 'parameters')::jsonb ->> 'is_raster')::bool, true) as is_raster,
         COALESCE(((metadata ->> 'parameters')::jsonb ->> 'is_tiled')::bool, true) as is_tiled,
         shared_id as shared_id,
-        (metadata ->> 'Projection system') as projection,
         (metadata ->> 'Group') as group
         FROM datasets
         WHERE (metadata ->> 'Title') <> ''

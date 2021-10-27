@@ -1,7 +1,6 @@
 """Endpoint for the manipulation of datasets
 """
 
-import base64
 import hashlib
 
 from flask import Response
@@ -40,9 +39,16 @@ class DatasetsFull(Resource):
             datasets_fcts.process_parameters(dataset["info"])
 
             if not dataset["is_raster"]:
-                dataset["info"][
-                    "valid_combinations"
-                ] = datasets_fcts.get_valid_combinations(dataset["ds_id"])
+                combinations = datasets_fcts.get_valid_combinations(dataset["ds_id"])
+                dataset["info"]["valid_combinations"] = combinations
+
+                if combinations is not None:
+                    variables = []
+                    for key, v in combinations.items():
+                        variables.extend(v)
+                        variables = list(set(variables))
+
+                    dataset["info"]["variables"] = variables
 
         add_openaire_links(datasets)
 
@@ -63,23 +69,21 @@ class DatasetParameters(Resource):
 
 
 @api.route(
-    "/layer_name/vector/<int:id>/", defaults={"variableb64": None, "time_period": None}
+    "/layer_name/vector/<int:id>/", defaults={"variable": None, "time_period": None}
 )
-@api.route("/layer_name/vector/<int:id>/<string:variableb64>/<string:time_period>/")
+@api.route("/layer_name/vector/<int:id>/<string:variable>/<string:time_period>/")
 @api.route(
-    "/layer_name/vector/<int:id>/<string:variableb64>/", defaults={"time_period": None}
+    "/layer_name/vector/<int:id>/<string:variable>/", defaults={"time_period": None}
 )
 @api.route(
     "/layer_name/vector/<int:id>/-/<string:time_period>/",
-    defaults={"variableb64": None},
+    defaults={"variable": None},
 )
 class VectorLayerName(Resource):
-    def get(self, id, variableb64=None, time_period=None):
+    def get(self, id, variable=None, time_period=None):
         """Return an unique layer name"""
-        if variableb64 is not None:
-            variable = base64.b64decode(str.encode(variableb64)).decode()
-        else:
-            variable = None
+        if variable is not None:
+            variable = variable.replace("__SLASH__", "/")
 
         layer_name = path.make_unique_layer_name(
             path.VECTOR, id, variable=variable, time_period=time_period
@@ -89,23 +93,21 @@ class VectorLayerName(Resource):
 
 
 @api.route(
-    "/layer_name/raster/<int:id>/", defaults={"variableb64": None, "time_period": None}
+    "/layer_name/raster/<int:id>/", defaults={"variable": None, "time_period": None}
 )
-@api.route("/layer_name/raster/<int:id>/<string:variableb64>/<string:time_period>/")
+@api.route("/layer_name/raster/<int:id>/<string:variable>/<string:time_period>/")
 @api.route(
-    "/layer_name/raster/<int:id>/<string:variableb64>/", defaults={"time_period": None}
+    "/layer_name/raster/<int:id>/<string:variable>/", defaults={"time_period": None}
 )
 @api.route(
     "/layer_name/raster/<int:id>/-/<string:time_period>/",
-    defaults={"variableb64": None},
+    defaults={"variable": None},
 )
 class RasterLayerName(Resource):
-    def get(self, id, variableb64=None, time_period=None):
+    def get(self, id, variable=None, time_period=None):
         """Return an unique layer name"""
-        if variableb64 is not None:
-            variable = base64.b64decode(str.encode(variableb64)).decode()
-        else:
-            variable = None
+        if variable is not None:
+            variable = variable.replace("__SLASH__", "/")
 
         layer_name = path.make_unique_layer_name(
             path.RASTER, id, variable=variable, time_period=time_period

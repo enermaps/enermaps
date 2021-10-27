@@ -3,7 +3,7 @@ from unittest.mock import Mock, patch
 from app.common import path
 from app.common.test import BaseApiTest
 
-ENCODED_VAR = path.encode("var")
+ENCODED_VAR = "var%20name"
 
 
 class DatasetsTest(BaseApiTest):
@@ -247,7 +247,7 @@ class VectorLayerNameTest(BaseApiTest):
 
     def testWithVariable(self):
         response = self.client.get(f"api/datasets/layer_name/vector/42/{ENCODED_VAR}/")
-        name = path.make_unique_layer_name(path.VECTOR, 42, variable="var")
+        name = path.make_unique_layer_name(path.VECTOR, 42, variable="var name")
         self.assertEqual(name, response.data.decode())
 
     def testWithTimePeriod(self):
@@ -260,7 +260,7 @@ class VectorLayerNameTest(BaseApiTest):
             f"api/datasets/layer_name/vector/42/{ENCODED_VAR}/2015/"
         )
         name = path.make_unique_layer_name(
-            path.VECTOR, 42, variable="var", time_period=2015
+            path.VECTOR, 42, variable="var name", time_period=2015
         )
         self.assertEqual(name, response.data.decode())
 
@@ -285,7 +285,7 @@ class RasterLayerNameTest(BaseApiTest):
 
     def testWithVariable(self):
         response = self.client.get(f"api/datasets/layer_name/raster/42/{ENCODED_VAR}/")
-        name = path.make_unique_layer_name(path.RASTER, 42, variable="var")
+        name = path.make_unique_layer_name(path.RASTER, 42, variable="var name")
         self.assertEqual(name, response.data.decode())
 
     def testWithTimePeriod(self):
@@ -298,7 +298,7 @@ class RasterLayerNameTest(BaseApiTest):
             f"api/datasets/layer_name/raster/42/{ENCODED_VAR}/2015/"
         )
         name = path.make_unique_layer_name(
-            path.RASTER, 42, variable="var", time_period=2015
+            path.RASTER, 42, variable="var name", time_period=2015
         )
         self.assertEqual(name, response.data.decode())
 

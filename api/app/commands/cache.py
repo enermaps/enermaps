@@ -3,12 +3,13 @@ import json
 import time
 
 import click
-from flask import current_app, safe_join
+from flask import current_app
 from flask.cli import with_appcontext
 
 from app.common import client
 from app.common import datasets as datasets_fcts
 from app.common import path
+from app.common.projection import epsg_string_to_proj4
 from app.models import geofile, storage
 
 
@@ -166,11 +167,13 @@ def process_dataset(dataset, pretty_print=False):
         parameters["variables"] = []
 
     # Iterate over all combinations of variables and time_periods
+    raster_file = None
+
     if (len(parameters["variables"]) > 0) and (len(parameters["time_periods"]) > 0):
         for variable, time_period in itertools.product(
             parameters["variables"], parameters["time_periods"]
         ):
-            process_layer(
+            _, raster_file = process_layer(
                 type,
                 dataset["ds_id"],
                 variable=variable,
@@ -180,14 +183,14 @@ def process_dataset(dataset, pretty_print=False):
 
     elif len(parameters["variables"]) > 0:
         for variable in parameters["variables"]:
-            process_layer(
+            _, raster_file = process_layer(
                 type, dataset["ds_id"], variable=variable, pretty_print=pretty_print
             )
     elif len(parameters["time_periods"]) > 0:
         valid_combinations = {}
 
         for time_period in parameters["time_periods"]:
-            valid_variables = process_layer(
+            valid_variables, raster_file = process_layer(
                 type,
                 dataset["ds_id"],
                 time_period=time_period,
@@ -204,18 +207,23 @@ def process_dataset(dataset, pretty_print=False):
             layer_name = path.make_unique_layer_name(type, dataset["ds_id"])
             storage_instance = storage.create(layer_name)
             with open(
-                safe_join(storage_instance.get_dir(layer_name), "combinations.json"),
+                storage_instance.get_combinations_file(layer_name),
                 "w",
             ) as f:
                 json.dump(valid_combinations, f)
     else:
-        process_layer(type, dataset["ds_id"], pretty_print=pretty_print)
+        _, raster_file = process_layer(
+            type, dataset["ds_id"], pretty_print=pretty_print
+        )
 
     # For raster datasets, save the projection in a file
     if type == path.RASTER:
         current_app.logger.info("... save projection")
         layer_name = path.make_unique_layer_name(type, dataset["ds_id"])
-        geofile.save_raster_projection(layer_name, dataset["projection"])
+        geofile.save_raster_projection(
+            layer_name,
+            epsg_string_to_proj4(current_app.config["RASTER_PROJECTION_SYSTEM"]),
+        )
 
 
 def process_layer(type, id, variable=None, time_period=None, pretty_print=False):
@@ -240,6 +248,7 @@ def process_layer(type, id, variable=None, time_period=None, pretty_print=False)
     geofile.delete_all_features(layer_name)
 
     valid_variables = None
+    raster_file = None
 
     if type == path.VECTOR:
         valid_variables = geofile.save_vector_geojson(layer_name, data)
@@ -253,15 +262,23 @@ def process_layer(type, id, variable=None, time_period=None, pretty_print=False)
                 feature_id = feature["id"]
                 current_app.logger.info(f"... download raster file <{feature_id}>")
                 raster_content = client.get_raster_file(id, feature_id)
+
                 if raster_content is not None:
                     geofile.save_raster_file(layer_name, feature_id, raster_content)
+
+        # Retrieve the name of one raster file, in case we need to retrieve infos from it
+        if len(data["features"]) > 0:
+            storage_instance = storage.create_for_layer_type(type)
+            raster_file = storage_instance.get_file_path(
+                layer_name, data["features"][0]["id"]
+            )
 
     time_saved = time.time()
     current_app.logger.info(
         f"... save done in {int(time_saved - time_fetched)} seconds."
     )
 
-    return valid_variables
+    return valid_variables, raster_file
 
 
 def process_area(id):
