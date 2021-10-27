@@ -82,6 +82,9 @@ class DatasetParameters(Resource):
 class VectorLayerName(Resource):
     def get(self, id, variable=None, time_period=None):
         """Return an unique layer name"""
+        if variable is not None:
+            variable = variable.replace("__SLASH__", "/")
+
         layer_name = path.make_unique_layer_name(
             path.VECTOR, id, variable=variable, time_period=time_period
         )
@@ -103,6 +106,9 @@ class VectorLayerName(Resource):
 class RasterLayerName(Resource):
     def get(self, id, variable=None, time_period=None):
         """Return an unique layer name"""
+        if variable is not None:
+            variable = variable.replace("__SLASH__", "/")
+
         layer_name = path.make_unique_layer_name(
             path.RASTER, id, variable=variable, time_period=time_period
         )
