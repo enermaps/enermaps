@@ -48,6 +48,8 @@ def create_app(environment="production", testing=False, on_startup=False):
     app.config["WMS_CACHE_DIR"] = "wms_cache"
     app.config["CM_OUTPUTS_DIR"] = "cm_outputs"
     app.config["FILTER_DATASETS"] = False
+    app.config["RASTER_PROJECTION_SYSTEM"] = "EPSG:3035"
+    app.config["VECTOR_PROJECTION_SYSTEM"] = "EPSG:4326"
     app.config["WMS"] = {}
     app.config["WMS"]["ALLOWED_PROJECTIONS"] = ["EPSG:3857"]
     app.config["WMS"]["MAX_SIZE"] = 2048 ** 2
