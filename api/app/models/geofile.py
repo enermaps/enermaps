@@ -134,18 +134,20 @@ def save_raster_geometries(layer_name, geojson):
     type = path.get_type(layer_name)
     storage_instance = storage.create_for_layer_type(type)
 
-    # Ensure the information we need if there
-    if (
-        (len(geojson["features"]) == 0)
-        or (geojson["features"][0]["geometry"] is None)
-        or (geojson["features"][0]["geometry"]["type"] != "Polygon")
-    ):
+    # Ensure that there are some features
+    if len(geojson["features"]) == 0:
         return
 
     # Processing
     geometries = {}
+
     for feature in geojson["features"]:
-        geometries[feature["id"]] = feature["geometry"]["coordinates"][0]
+        geometry = feature["geometry"]
+
+        if (geometry is None) or (geometry["type"] != "Polygon"):
+            geometries[feature["id"]] = None
+        else:
+            geometries[feature["id"]] = geometry["coordinates"][0]
 
     # Save the file
     with TemporaryDirectory(prefix=storage_instance.get_tmp_dir()) as tmp_dir:
@@ -330,7 +332,11 @@ class RasterLayer(Layer):
 
         geometries = self.storage.get_geometries(self.name)
         if geometries is not None:
-            if (bbox is not None) and (bbox_projection is not None):
+            if (
+                (bbox is not None)
+                and (bbox_projection is not None)
+                and (geometries[next(iter(geometries))] is not None)
+            ):
                 rasters = self._get_rasters_in_bbox(geometries, bbox, bbox_projection)
             else:
                 for feature_id in geometries.keys():
