@@ -45,7 +45,7 @@ class MakePathTest(BaseApiTest):
 
     def testVectorLayerWithVariable(self):
         name = path.make_unique_layer_name(path.VECTOR, 42, variable="var")
-        self.assertEqual(name, f"vector/42//{ENCODED_VAR}")
+        self.assertEqual(name, f"vector/42/-/{ENCODED_VAR}")
 
     def testVectorLayerWithTimePeriodYear(self):
         name = path.make_unique_layer_name(path.VECTOR, 42, time_period="2015")
@@ -89,7 +89,7 @@ class MakePathTest(BaseApiTest):
 
     def testRasterLayerWithVariable(self):
         name = path.make_unique_layer_name(path.RASTER, 42, variable="var")
-        self.assertEqual(name, f"raster/42//{ENCODED_VAR}")
+        self.assertEqual(name, f"raster/42/-/{ENCODED_VAR}")
 
     def testRasterLayerWithTimePeriodYear(self):
         name = path.make_unique_layer_name(path.RASTER, 42, time_period="2015")
@@ -224,7 +224,7 @@ class ParsePathTest(BaseApiTest):
 
     def testVectorLayerWithVariable(self):
         (type, id, variable, time_period, task_id) = path.parse_unique_layer_name(
-            f"vector/42//{ENCODED_VAR}"
+            f"vector/42/-/{ENCODED_VAR}"
         )
         self.assertEqual(type, path.VECTOR)
         self.assertEqual(id, 42)
@@ -304,7 +304,7 @@ class ParsePathTest(BaseApiTest):
 
     def testRasterLayerWithVariable(self):
         (type, id, variable, time_period, task_id) = path.parse_unique_layer_name(
-            f"raster/42//{ENCODED_VAR}"
+            f"raster/42/-/{ENCODED_VAR}"
         )
         self.assertEqual(type, path.RASTER)
         self.assertEqual(id, 42)
@@ -383,7 +383,7 @@ class GetTypeTest(BaseApiTest):
         self.assertEqual(type, path.VECTOR)
 
     def testVectorLayerWithVariable(self):
-        type = path.get_type(f"vector/42//{ENCODED_VAR}")
+        type = path.get_type(f"vector/42/-/{ENCODED_VAR}")
         self.assertEqual(type, path.VECTOR)
 
     def testVectorLayerWithTimePeriodYear(self):
@@ -415,7 +415,7 @@ class GetTypeTest(BaseApiTest):
         self.assertEqual(type, path.RASTER)
 
     def testRasterLayerWithVariable(self):
-        type = path.get_type(f"raster/42//{ENCODED_VAR}")
+        type = path.get_type(f"raster/42/-/{ENCODED_VAR}")
         self.assertEqual(type, path.RASTER)
 
     def testRasterLayerWithTimePeriodYear(self):
@@ -457,7 +457,7 @@ class ToFolderPathTest(BaseApiTest):
         self.assertEqual(folder_path, "42")
 
     def testVectorLayerWithVariable(self):
-        folder_path = path.to_folder_path(f"vector/42//{ENCODED_VAR}")
+        folder_path = path.to_folder_path(f"vector/42/-/{ENCODED_VAR}")
         self.assertEqual(folder_path, "42")
 
     def testVectorLayerWithTimePeriodYear(self):
@@ -489,7 +489,7 @@ class ToFolderPathTest(BaseApiTest):
         self.assertEqual(folder_path, "42")
 
     def testRasterLayerWithVariable(self):
-        folder_path = path.to_folder_path(f"raster/42//{ENCODED_VAR}")
+        folder_path = path.to_folder_path(f"raster/42/-/{ENCODED_VAR}")
         self.assertEqual(folder_path, f"42/{ENCODED_VAR}")
 
     def testRasterLayerWithTimePeriodYear(self):

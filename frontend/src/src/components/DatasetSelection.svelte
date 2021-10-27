@@ -7,6 +7,8 @@
   let availableDatasets = null;
   let filter = '';
   let filteredDatasets = [];
+  const topics = [];
+  let selectedTopic = null;
 
   const dispatch = createEventDispatcher();
 
@@ -52,6 +54,10 @@
           dataset.info.const_time_period = dataset.info.time_periods[0];
         }
       }
+
+      if ((dataset.group != '') && (topics.indexOf(dataset.group) == -1)) {
+        topics.push(dataset.group);
+      }
     }
 
     datasets.sort(function(dataset1, dataset2) {
@@ -66,7 +72,9 @@
       return 0;
     });
 
-    console.log(datasets.length + ' datasets found');
+    topics.sort();
+
+    console.log(datasets.length + ' datasets found, in ' + topics.length + ' topics');
 
     availableDatasets = datasets;
 
@@ -119,8 +127,24 @@
 
   $: {
     if (availableDatasets !== null) {
-      filteredDatasets = availableDatasets.filter((dataset) =>
-        dataset.title.toLowerCase().indexOf(filter.toLowerCase()) !== -1);
+      filteredDatasets = Array.from(availableDatasets);
+
+      if (selectedTopic !== null) {
+        filteredDatasets = filteredDatasets.filter((dataset) =>
+          (dataset.group == selectedTopic));
+      }
+
+      if (filter != '') {
+        filteredDatasets = filteredDatasets.filter((dataset) =>
+          dataset.title.toLowerCase().indexOf(filter.toLowerCase()) !== -1);
+      }
+    }
+  }
+
+
+  function changeTopicSelection(topic) {
+    if (topic !== selectedTopic) {
+      selectedTopic = topic;
     }
   }
 
@@ -223,6 +247,31 @@
     width: 100%;
   }
 
+  .topics {
+      margin-top: 4px;
+      margin-bottom: 4px;
+  }
+
+  .topic {
+    background-color: #eeeeee;
+    border: 1px solid #27275b;
+    border-radius: 4px;
+    display: inline-block;
+    margin-bottom: 2px;
+    margin-right: 2px;
+    padding-left: 4px;
+    padding-right: 4px;
+    padding-top: 2px;
+    padding-bottom: 2px;
+    cursor: pointer;
+  }
+
+  .topic.selected {
+    background-color: #6da8d7;
+    color: white;
+    font-weight: bold;
+  }
+
   .scroll {
     max-height: max(calc((100vh - 250px) / 2 - 70px), 200px);
     border : none;
@@ -271,6 +320,11 @@
     transform: rotate(90deg);
     display: inline-block;
   }
+
+  .help {
+    font-style: italic;
+    color: rgb(128,128, 128);
+  }
 </style>
 
 
@@ -283,78 +337,97 @@
   {:else}
     <input bind:value={filter} class="search" placeholder="Search dataset...">
 
-    <div class="scroll">
-      <table id="datasets" style="margin-top: 6px;">
-        <tbody>
-          {#each filteredDatasets as dataset (dataset.ds_id)}
-            <tr class="dataset" title={dataset.title} on:click={toggleDataset(dataset)} class:open={dataset.open}>
-              <td class="arrow"><span>►</span></td>
-              <td class="title" colspan="3">{dataset.title}</td>
-              <td class="openair">
-                <a href={dataset.openaireLink} title="Link to OpenAIRE metadata" target="_blank">&#128279;</a>
-              </td>
-            </tr>
+    {#if topics.length > 0}
+      <div class="topics">
+        <span class="topic" class:selected={selectedTopic === null} on:click={() => changeTopicSelection(null)}>All</span>
+        {#each topics as topic}
+          <span class="topic" class:selected={selectedTopic == topic} on:click={() => changeTopicSelection(topic)}>{topic}</span>
+        {/each}
+      </div>
+    {/if}
 
-            {#if dataset.open}
-              {#if dataset.info.both}
-                {#each dataset.info.variables as variable}
-                  <tr class="layer intermediate" title={variable} on:click={toggleIntermediateLayer(dataset, variable)} class:open={isIntermediateLayerOpen(dataset, variable)}>
-                    <td></td>
-                    <td class="arrow"><span>►</span></td>
-                    <td colspan="2">{variable}</td>
-                    <td></td>
-                  </tr>
+    {#if filteredDatasets.length > 0}
+      <div class="scroll">
+        <table id="datasets">
+          <tbody>
+            {#each filteredDatasets as dataset (dataset.ds_id)}
+              <tr class="dataset" title={dataset.title} on:click={() => toggleDataset(dataset)} class:open={dataset.open}>
+                <td class="arrow"><span>►</span></td>
+                <td class="title" colspan="3">{dataset.title}</td>
+                <td class="openair">
+                  <a href={dataset.openaireLink} title="Link to OpenAIRE metadata" target="_blank">&#128279;</a>
+                </td>
+              </tr>
 
-                  {#if isIntermediateLayerOpen(dataset, variable)}
-                    {#each dataset.info.time_periods as timePeriod}
-                      {#if isCombinationValid(dataset, variable, timePeriod)}
-                        <tr class="layer final" title={timePeriod} on:click={addLayer(dataset.ds_id, variable, timePeriod)}>
-                          <td></td>
-                          <td class="bullet"></td>
-                          <td class="bullet">◦</td>
-                          <td>{timePeriod}</td>
-                          <td></td>
-                        </tr>
-                      {/if}
-                    {/each}
-                  {/if}
-                {/each}
-              {:else if dataset.info.variables_only}
-                {#each dataset.info.variables as variable}
-                  <tr class="layer final" title={variable} on:click={addLayer(dataset.ds_id, variable, dataset.info.const_time_period)}>
+              {#if dataset.open}
+                {#if dataset.info.both}
+                  {#each dataset.info.variables as variable}
+                    <tr class="layer intermediate" title={variable}
+                        on:click={() => toggleIntermediateLayer(dataset, variable)} class:open={isIntermediateLayerOpen(dataset, variable)}>
+                      <td></td>
+                      <td class="arrow"><span>►</span></td>
+                      <td colspan="2">{variable}</td>
+                      <td></td>
+                    </tr>
+
+                    {#if isIntermediateLayerOpen(dataset, variable)}
+                      {#each dataset.info.time_periods as timePeriod}
+                        {#if isCombinationValid(dataset, variable, timePeriod)}
+                          <tr class="layer final" title={timePeriod}
+                              on:click={() => addLayer(dataset.ds_id, variable, timePeriod)}>
+                            <td></td>
+                            <td class="bullet"></td>
+                            <td class="bullet">◦</td>
+                            <td>{timePeriod}</td>
+                            <td></td>
+                          </tr>
+                        {/if}
+                      {/each}
+                    {/if}
+                  {/each}
+                {:else if dataset.info.variables_only}
+                  {#each dataset.info.variables as variable}
+                    <tr class="layer final" title={variable}
+                        on:click={() => addLayer(dataset.ds_id, variable, dataset.info.const_time_period)}>
+                      <td></td>
+                      <td class="bullet">◦</td>
+                      <td colspan="2">{variable}</td>
+                      <td></td>
+                    </tr>
+                  {/each}
+                {:else if dataset.info.time_period_only}
+                  {#each dataset.info.time_periods as timePeriod}
+                    <tr class="layer final" title={timePeriod}
+                        on:click={() => addLayer(dataset.ds_id, dataset.info.const_variable, timePeriod)}>
+                      <td></td>
+                      <td class="bullet">◦</td>
+                      <td colspan="2">{timePeriod}</td>
+                      <td></td>
+                    </tr>
+                  {/each}
+                {:else}
+                  <tr class="layer final" title={dataset.title}
+                      on:click={() => addLayer(dataset.ds_id, dataset.info.const_variable, dataset.info.const_time_period)}>
                     <td></td>
                     <td class="bullet">◦</td>
-                    <td colspan="2">{variable}</td>
+                    {#if dataset.info.const_variable !== null}
+                      <td colspan="2">{dataset.info.const_variable}</td>
+                    {:else if dataset.info.const_time_period !== null}
+                      <td colspan="2">{dataset.info.const_time_period}</td>
+                    {:else}
+                      <td colspan="2">{dataset.title}</td>
+                    {/if}
                     <td></td>
                   </tr>
-                {/each}
-              {:else if dataset.info.time_period_only}
-                {#each dataset.info.time_periods as timePeriod}
-                  <tr class="layer final" title={timePeriod} on:click={addLayer(dataset.ds_id, dataset.info.const_variable, timePeriod)}>
-                    <td></td>
-                    <td class="bullet">◦</td>
-                    <td colspan="2">{timePeriod}</td>
-                    <td></td>
-                  </tr>
-                {/each}
-              {:else}
-                <tr class="layer final" title={dataset.title} on:click={addLayer(dataset.ds_id, dataset.info.const_variable, dataset.info.const_time_period)}>
-                  <td></td>
-                  <td class="bullet">◦</td>
-                  {#if dataset.info.const_variable !== null}
-                    <td colspan="2">{dataset.info.const_variable}</td>
-                  {:else if dataset.info.const_time_period !== null}
-                    <td colspan="2">{dataset.info.const_time_period}</td>
-                  {:else}
-                    <td colspan="2">{dataset.title}</td>
-                  {/if}
-                  <td></td>
-                </tr>
+                {/if}
               {/if}
-            {/if}
-          {/each}
-        </tbody>
-      </table>
-    </div>
+            {/each}
+          </tbody>
+        </table>
+      </div>
+
+    {:else}
+      <span class="help">No dataset matching the filter(s) found</span>
+    {/if}
   {/if}
 </div>

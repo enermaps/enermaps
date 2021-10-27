@@ -383,7 +383,7 @@
              on:dragstart={handleDragStart} on:dragenter={handleDragEnter}
              on:dragover={handleDragOver} on:dragleave={handleDragLeave}
              on:drop={handleDrop} on:dragend={handleDragEnd}
-             on:click={selectLayer(layer)} class:selected={layer.name === selection}
+             on:click={() => selectLayer(layer)} class:selected={layer.name === selection}
              class:new={layer.effect === 'new'} class:refresh={layer.effect === 'refresh'}
              class:compute={layer.effect === 'compute'} class:blink={layer.effect === 'blink'}
              title="{layer.title}">
@@ -392,7 +392,7 @@
             <p>∙</p>
             <p>∙</p>
           </div>
-          <input type="checkbox" checked={layer.visible} on:change={changeVisibility(layer)} on:click|stopPropagation />
+          <input type="checkbox" checked={layer.visible} on:change={() => changeVisibility(layer)} on:click|stopPropagation />
           <div class="labels">
             <p class="primary">{layer.labels.primary}</p>
             {#if layer.labels.secondary !== null}
@@ -404,7 +404,7 @@
           </div>
           <div class="delete_button">
             <img src="{BASE_URL}images/clear-icon.png" title="Remove the layer"
-                 alt="Remove the layer" on:click={deleteLayer(layer)}>
+                 alt="Remove the layer" on:click={() => deleteLayer(layer)}>
           </div>
         </div>
 
