@@ -8,6 +8,9 @@ import os
 
 import pandas as pd
 
+# Limit to these postgrest queries
+QUERY_STRINGS = [""]
+
 
 def parseLog(log_file: str, parsed_log_file: str):
     """Parse the original log file."""
@@ -74,8 +77,18 @@ def parseLog(log_file: str, parsed_log_file: str):
                 lambda x: safelyJSONdecode(x)
             )
             # Get the dataset id
-            queries["ds_id"] = [d.get("data.ds_id") for d in queries.json_query]
-
+            ds_id = []
+            for d in queries.json_query:
+                parameters = d.get("parameters", {})
+                if isinstance(parameters, str):
+                    parameters = json.loads(parameters)
+                if "data.ds_id" in parameters.keys():
+                    ds_id.append(parameters.get("data.ds_id"))
+                elif "id" in d.keys():
+                    ds_id.append(parameters.get("id"))
+                else:
+                    ds_id.append(-1)
+            queries["ds_id"] = ds_id
             parsed_log.append(queries)
 
         # Parse log
@@ -84,6 +97,8 @@ def parseLog(log_file: str, parsed_log_file: str):
             ~log["detail"].isnull(),  # the parameters are saved in the detail field
             ["log_time", "message", "detail", "session_id", "session_line_num"],
         ]
+        for string in QUERY_STRINGS:
+            queries = queries.loc[queries.message.str.contains(string), :]
         if queries.shape[0] > 0:
             print("PostgREST queries")
             queries["detail"] = queries["detail"].str.replace("\n", "")
@@ -95,12 +110,25 @@ def parseLog(log_file: str, parsed_log_file: str):
                 lambda x: safelyJSONdecode(x)
             )
             # Get the dataset_id
-            queries["ds_id"] = [
-                d.get("parameters", {}).get("data.ds_id", -1)
-                for d in queries.json_query
-            ]
+            ds_id = []
+            for d in queries.json_query:
+                parameters = d.get("parameters", {})
+                if isinstance(parameters, str):
+                    parameters = json.loads(parameters)
+                if "data.ds_id" in parameters.keys():
+                    ds_id.append(parameters.get("data.ds_id"))
+                elif "id" in parameters.keys():
+                    ds_id.append(parameters.get("id"))
+                else:
+                    ds_id.append(-1)
+            queries["ds_id"] = ds_id
             # Drop duplicate rows
             queries = queries.groupby("session_id").first()
+
+            # Find PostGrest function
+            queries["function"] = queries["message"].str.extract(
+                r'(?<=SELECT "public".")(.*)(?="\()'
+            )
             # Find geolocalization info based on session_id
             geolocal = log.loc[log["session_id"].isin(queries.index), :]
             # Get the IP address
@@ -108,8 +136,10 @@ def parseLog(log_file: str, parsed_log_file: str):
                 geolocal["message"].str.contains("request.header.x-forwarded-for"), :
             ]
             geolocal["ip"] = geolocal["message"].str.extract(
-                r'(?<=request.header.x-forwarded-for" = \')(.*)(?=\';SET LOCAL "request.header.x-forwarded-host" )'
+                r'(?<=request.header.x-forwarded-for" = \')(.*)(?=\';SET LOCAL'
+                r' "request.header.x-forwarded-host" )'
             )
+
             # Merge geolocalization info with query info
             if geolocal.shape[0] > 0:
                 queries = pd.merge(
@@ -117,6 +147,9 @@ def parseLog(log_file: str, parsed_log_file: str):
                 )
             else:
                 queries["ip"] = None
+
+            # Get only first ip
+            queries["ip"] = queries["ip"].str.split(",").str[0]
             parsed_log.append(queries)
 
         # Concatenate the two types of query
@@ -125,9 +158,16 @@ def parseLog(log_file: str, parsed_log_file: str):
             parsed_log["log_time"] = pd.to_datetime(parsed_log["log_time"])
             parsed_log = parsed_log.sort_values("log_time", ascending=True)
 
+            # Drop duplicates
+            parsed_log = (
+                parsed_log.groupby(["log_time", "ip", "function"], dropna=False)
+                .first()
+                .reset_index()
+            )
+
             # Append to file parsed log of queries
             print("Saving log file to {}".format(parsed_log_file))
-            sel_cols = ["log_time", "ds_id", "ip", "json_query"]
+            sel_cols = ["log_time", "ds_id", "ip", "function", "json_query"]
             if not os.path.exists(parsed_log_file):
                 parsed_log[sel_cols].iloc[0:0].to_csv(
                     parsed_log_file, header=True, index=False
