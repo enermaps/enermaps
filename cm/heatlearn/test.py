@@ -1,6 +1,9 @@
 import json
 import os
 import unittest
+from unittest.mock import patch
+
+import pandas as pd
 
 import heatlearn
 
@@ -26,8 +29,17 @@ class MockTask:
         self.nb_rasters_posted += 1
 
 
+def mockGetHDD(polygon, year=2020):
+    CH013 = pd.read_csv("CH013_HDD.csv", index_col="time", parse_dates=True)
+    return CH013.loc[CH013.index.year == year, :].values.tolist()[0]
+
+
 class TestCM(unittest.TestCase):
-    def test_rasterstats(self):
+    @patch(
+        "heatlearn.getHDD",
+        side_effect=mockGetHDD,
+    )
+    def test_rasterstats(self, getHDD_function):
         selection = load_geojson("ge_rive_droite_500.geojson")
         raster_paths = [get_testdata_path("200km_2p5m_N26E38_07_18.tif")]
 
@@ -38,7 +50,7 @@ class TestCM(unittest.TestCase):
         self.assertEqual(
             stats["values"]["Annual heating demand [GWh]"],
             468,  # with full grid
-            "Request especting 0 returned different values",
+            "Request expecting 0 returned different values",
         )
 
         self.assertEqual(task.nb_rasters_posted, 1)
