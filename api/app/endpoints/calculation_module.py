@@ -142,10 +142,4 @@ class CMTaskGeofile(Resource):
         if not geofile.save_cm_file(layer_name, feature_id, uploaded_file.read()):
             abort(400)
 
-        # Check that the file contains a projection
-        layer = geofile.load(layer_name)
-        if not layer.projection:
-            geofile.delete_all_features(layer_name)
-            abort(400, "The uploaded file didn't contain a projection")
-
         return Response(status=201)

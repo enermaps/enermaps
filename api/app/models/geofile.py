@@ -15,7 +15,7 @@ from tempfile import TemporaryDirectory, mkdtemp
 import mapnik
 import ogr
 import osr
-from flask import safe_join
+from flask import current_app, safe_join
 from PIL import Image
 
 import app.common.projection as project
@@ -75,15 +75,19 @@ def save_vector_geojson(layer_name, geojson):
 
     # Save the files
     with TemporaryDirectory(prefix=storage_instance.get_tmp_dir()) as tmp_dir:
-        tmp_filepath = safe_join(tmp_dir, "data.geojson")
-        proj_filepath = safe_join(tmp_dir, "data.prj")
-        variables_filepath = safe_join(tmp_dir, "variables.json")
+        tmp_filepath = safe_join(tmp_dir, storage_instance.GEOJSON_FILENAME)
+        proj_filepath = safe_join(tmp_dir, storage_instance.PROJECTION_FILENAME)
+        variables_filepath = safe_join(tmp_dir, storage_instance.VARIABLES_FILENAME)
 
         with open(tmp_filepath, "w") as f:
             f.write(json.dumps(geojson))
 
         with open(proj_filepath, "w") as fd:
-            fd.write(project.epsg_to_wkt(4326))
+            fd.write(
+                project.epsg_string_to_proj4(
+                    current_app.config["VECTOR_PROJECTION_SYSTEM"]
+                )
+            )
 
         with open(variables_filepath, "w") as f:
             f.write(json.dumps(valid_variables))
@@ -112,15 +116,13 @@ def save_raster_projection(layer_name, projection):
 
     # Save the file
     with TemporaryDirectory(prefix=storage_instance.get_tmp_dir()) as tmp_dir:
-        tmp_filepath = safe_join(tmp_dir, "projection.txt")
+        tmp_filepath = safe_join(tmp_dir, storage_instance.PROJECTION_FILENAME)
 
         with open(tmp_filepath, "w") as f:
             f.write(projection)
 
-        target_folder = storage_instance.get_dir(layer_name, cache=True)
-        os.makedirs(target_folder, exist_ok=True)
-
-        target_filename = safe_join(target_folder, "projection.txt")
+        target_filename = storage_instance.get_projection_file(layer_name)
+        os.makedirs(os.path.dirname(target_filename), exist_ok=True)
 
         try:
             os.replace(tmp_filepath, target_filename)
@@ -151,16 +153,16 @@ def save_raster_geometries(layer_name, geojson):
 
     # Save the file
     with TemporaryDirectory(prefix=storage_instance.get_tmp_dir()) as tmp_dir:
-        tmp_filepath = safe_join(tmp_dir, "geometries.json")
+        tmp_filepath = safe_join(tmp_dir, storage_instance.GEOMETRIES_FILENAME)
 
         with open(tmp_filepath, "w") as f:
             f.write(json.dumps(geometries))
 
-        target_folder = storage_instance.get_dir(layer_name, cache=True)
-        os.makedirs(os.path.dirname(target_folder), exist_ok=True)
+        target_filename = storage_instance.get_geometries_file(layer_name)
+        os.makedirs(os.path.dirname(target_filename), exist_ok=True)
 
         try:
-            os.replace(tmp_dir, target_folder)
+            os.replace(tmp_filepath, target_filename)
         except (FileExistsError, OSError):
             print("Geometries file already exists")
         except Exception as e:
@@ -212,6 +214,17 @@ def _save_raster_file(storage_instance, layer_name, feature_id, raster_content):
         with open(tmp_filepath, "wb") as f:
             f.write(raster_content)
 
+        # For CMs: extract the projection form the raster file
+        proj_filepath = None
+        if path.get_type(layer_name) == path.CM:
+            projection = project.proj4_from_geotiff(tmp_filepath)
+            if projection is None:
+                return False
+
+            proj_filepath = tmp_filepath.replace(".tif", ".prj")
+            with open(proj_filepath, "w") as f:
+                f.write(projection)
+
         target_folder = storage_instance.get_dir(layer_name)
         if len(subfolder) > 0:
             target_folder = safe_join(target_folder, subfolder)
@@ -222,6 +235,12 @@ def _save_raster_file(storage_instance, layer_name, feature_id, raster_content):
             os.replace(
                 tmp_filepath, storage_instance.get_file_path(layer_name, feature_id)
             )
+
+            if proj_filepath is not None:
+                os.replace(
+                    proj_filepath,
+                    storage_instance.get_projection_file(layer_name, feature_id),
+                )
         except (FileExistsError, OSError):
             print("Raster file already exists")
             return False
@@ -285,14 +304,6 @@ class Layer(ABC):
 
     @property
     @abstractmethod
-    def projection(self):
-        """Return the projection used for that datasource, the output is always a proj4 string
-        (see https://proj.org/ for more information)
-        """
-        pass
-
-    @property
-    @abstractmethod
     def is_queryable(self):
         """Return true if the layer has features, this allow the layer to be
         queried for feature at a given location
@@ -304,25 +315,6 @@ class RasterLayer(Layer):
     @property
     def is_queryable(self):
         return False
-
-    @property
-    def projection(self):
-        """Return the projection of the raster layer,
-        currently this approach is quite naive as we read
-        from the disk to only extract the projection.
-        """
-        projection = self.storage.get_projection(self.name)
-        if (projection is not None) and (projection != ""):
-            return project.epsg_string_to_proj4(projection)
-
-        try:
-            return project.proj4_from_geotiff(
-                self.storage.get_file_path(
-                    self.name, self.storage.list_feature_ids(self.name)[0]
-                )
-            )
-        except Exception:
-            return None
 
     def as_mapnik_layers(self, bbox=None, bbox_projection=None):
         """Open the geofile as Mapnik layer."""
@@ -349,18 +341,33 @@ class RasterLayer(Layer):
                     (feature_id, self.storage.get_file_path(self.name, feature_id))
                 )
 
+        type = path.get_type(self.name)
+
+        if type == path.RASTER:
+            projection = self.storage.get_projection(self.name)
+
+            # By security
+            if projection is None:
+                projection = project.epsg_string_to_proj4(
+                    current_app.config["RASTER_PROJECTION_SYSTEM"]
+                )
+
         layers = []
         for feature_id, raster_path in rasters:
             layer = mapnik.Layer(feature_id)
             layer.datasource = mapnik.Gdal(file=raster_path, band=1)
-            layer.srs = self.projection
             layer.queryable = False
+
+            if type == path.RASTER:
+                layer.srs = projection
+            elif type == path.CM:
+                layer.srs = self.storage.get_projection(self.name, feature_id)
 
             layers.append(layer)
 
             # For CM results: sets the modification and access times of files to the
             # current time of day
-            if path.get_type(self.name) == path.CM:
+            if type == path.CM:
                 Path(raster_path).touch()
 
         return layers
@@ -370,7 +377,9 @@ class RasterLayer(Layer):
         target_ref = osr.SpatialReference()
 
         source_ref.ImportFromEPSG(project.epsg_string_to_epsg(bbox_projection))
-        target_ref.ImportFromEPSG(4326)
+        target_ref.ImportFromEPSG(
+            project.epsg_string_to_epsg(current_app.config["VECTOR_PROJECTION_SYSTEM"])
+        )
 
         t = osr.CoordinateTransformation(source_ref, target_ref)
 
@@ -416,20 +425,20 @@ class VectorLayer(Layer):
             print(f"GeoJSON file '{geojson_file}' was not found")
             return None
 
+        projection = self.storage.get_projection(self.name)
+
+        # By security
+        if projection is None:
+            projection = project.epsg_string_to_proj4(
+                current_app.config["VECTOR_PROJECTION_SYSTEM"]
+            )
+
         layer = mapnik.Layer(self.name)
-        layer.srs = self.projection
         layer.datasource = mapnik.GeoJSON(file=geojson_file)
+        layer.srs = projection
         layer.queryable = True
 
         return [layer]
-
-    @property
-    def projection(self):
-        """Return the projection of the vector layer."""
-        try:
-            return project.proj4_from_shapefile(self.storage.get_dir(self.name))
-        except Exception:
-            return None
 
     @property
     def is_queryable(self):

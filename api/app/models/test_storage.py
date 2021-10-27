@@ -478,37 +478,43 @@ class TestVectorStorage(BaseApiTest):
         with self.flask_app.app_context():
             storage_instance = storage.VectorStorage()
             self.assertEquals(
-                storage_instance.get_file_path("vector/10", "txt"),
+                storage_instance.get_file_path("vector/10", "data.txt"),
                 f"{self.wms_cache_dir}/vectors/10/data.txt",
             )
             self.assertEquals(
-                storage_instance.get_file_path("vector/10/2015", "txt"),
+                storage_instance.get_file_path("vector/10/2015", "data.txt"),
                 f"{self.wms_cache_dir}/vectors/10/2015/data.txt",
             )
             self.assertEquals(
-                storage_instance.get_file_path("vector/10/2015-01", "txt"),
+                storage_instance.get_file_path("vector/10/2015-01", "data.txt"),
                 f"{self.wms_cache_dir}/vectors/10/2015-01/data.txt",
             )
             self.assertEquals(
-                storage_instance.get_file_path("vector/10/None", "txt"),
+                storage_instance.get_file_path("vector/10/None", "data.txt"),
                 f"{self.wms_cache_dir}/vectors/10/None/data.txt",
             )
             self.assertEquals(
-                storage_instance.get_file_path(f"vector/10/2015/{ENCODED_VAR}", "txt"),
+                storage_instance.get_file_path(
+                    f"vector/10/2015/{ENCODED_VAR}", "data.txt"
+                ),
                 f"{self.wms_cache_dir}/vectors/10/2015/data.txt",
             )
             self.assertEquals(
                 storage_instance.get_file_path(
-                    f"vector/10/2015-01/{ENCODED_VAR}", "txt"
+                    f"vector/10/2015-01/{ENCODED_VAR}", "data.txt"
                 ),
                 f"{self.wms_cache_dir}/vectors/10/2015-01/data.txt",
             )
             self.assertEquals(
-                storage_instance.get_file_path(f"vector/10/None/{ENCODED_VAR}", "txt"),
+                storage_instance.get_file_path(
+                    f"vector/10/None/{ENCODED_VAR}", "data.txt"
+                ),
                 f"{self.wms_cache_dir}/vectors/10/None/data.txt",
             )
             self.assertEquals(
-                storage_instance.get_file_path(f"vector/10/-/{ENCODED_VAR}", "txt"),
+                storage_instance.get_file_path(
+                    f"vector/10/-/{ENCODED_VAR}", "data.txt"
+                ),
                 f"{self.wms_cache_dir}/vectors/10/data.txt",
             )
 
