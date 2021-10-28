@@ -429,7 +429,7 @@ class TestSaveCMParameters(BaseApiTest):
             self.assertEqual(data, TestSaveCMParameters.PARAMETERS)
 
 
-class TestRasterLayerIntersections(BaseApiTest):
+class TestRasterLayerIntersectionsWithoutGeometryFile(BaseApiTest):
     def setUp(self):
         super().setUp()
 
@@ -445,10 +445,10 @@ class TestRasterLayerIntersections(BaseApiTest):
                 storage_instance.get_file_path(layer_name, "FID.tif"),
             )
 
-            data = {"FID.tif": [[0, 60], [10, 60], [10, 30], [0, 30], [0, 60]]}
+            self.createGeometryFile(storage_instance.get_geometries_file(layer_name))
 
-            with open(storage_instance.get_geometries_file(layer_name), "w") as f:
-                json.dump(data, f)
+    def createGeometryFile(self, filename):
+        pass
 
     def testIntersectsBoundingBox(self):
         with self.flask_app.app_context():
@@ -466,16 +466,6 @@ class TestRasterLayerIntersections(BaseApiTest):
                     layer.storage.get_file_path(layer_name, "FID.tif"),
                 ),
             )
-
-    def testNotIntersectsBoundingBox(self):
-        with self.flask_app.app_context():
-            layer_name = path.make_unique_layer_name(path.RASTER, 42, "heat")
-            layer = geofile.load(layer_name)
-
-            rasters = layer.get_rasters_in_bbox(
-                mapnik.Box2d(40, -70, 60, -60), "EPSG:4326"
-            )
-            self.assertEqual(len(rasters), 0)
 
     def testIntersectsOneFeatureOnePolygon(self):
         with self.flask_app.app_context():
@@ -610,6 +600,34 @@ class TestRasterLayerIntersections(BaseApiTest):
                 ),
             )
 
+
+class TestRasterLayerIntersectionsWithoutCoordinatesInGeometryFile(
+    TestRasterLayerIntersectionsWithoutGeometryFile
+):
+    def createGeometryFile(self, filename):
+        data = {"FID.tif": None}
+
+        with open(filename, "w") as f:
+            json.dump(data, f)
+
+
+class TestRasterLayerIntersections(TestRasterLayerIntersectionsWithoutGeometryFile):
+    def createGeometryFile(self, filename):
+        data = {"FID.tif": [[0, 60], [10, 60], [10, 30], [0, 30], [0, 60]]}
+
+        with open(filename, "w") as f:
+            json.dump(data, f)
+
+    def testNotIntersectsBoundingBox(self):
+        with self.flask_app.app_context():
+            layer_name = path.make_unique_layer_name(path.RASTER, 42, "heat")
+            layer = geofile.load(layer_name)
+
+            rasters = layer.get_rasters_in_bbox(
+                mapnik.Box2d(40, -70, 60, -60), "EPSG:4326"
+            )
+            self.assertEqual(len(rasters), 0)
+
     def testNotIntersectsOneFeatureOnePolygon(self):
         with self.flask_app.app_context():
             layer_name = path.make_unique_layer_name(path.RASTER, 42, "heat")
@@ -671,3 +689,73 @@ class TestRasterLayerIntersections(BaseApiTest):
 
             rasters = layer.get_rasters_in_feature_list(features)
             self.assertEqual(len(rasters), 0)
+
+
+class TestRasterLayerAsMapnikLayersWithoutGeometryFile(BaseApiTest):
+    def setUp(self):
+        super().setUp()
+
+        with self.flask_app.app_context():
+            # Copy the raster dataset
+            layer_name = path.make_unique_layer_name(path.RASTER, 42, "heat")
+            storage_instance = storage.create(layer_name)
+
+            os.makedirs(storage_instance.get_dir(layer_name))
+
+            shutil.copy(
+                self.get_testdata_path("hotmaps-cdd_curr_adapted.tif"),
+                storage_instance.get_file_path(layer_name, "FID.tif"),
+            )
+
+            self.createGeometryFile(storage_instance.get_geometries_file(layer_name))
+
+    def createGeometryFile(self, filename):
+        pass
+
+    def testWithBoundingBox(self):
+        with self.flask_app.app_context():
+            layer_name = path.make_unique_layer_name(path.RASTER, 42, "heat")
+            layer = geofile.load(layer_name)
+
+            layers = layer.as_mapnik_layers(
+                bbox=mapnik.Box2d(40, 0, 60, 10), bbox_projection="EPSG:4326"
+            )
+
+            self.assertEqual(len(layers), 1)
+
+    def testWithoutBoundingBox(self):
+        with self.flask_app.app_context():
+            layer_name = path.make_unique_layer_name(path.RASTER, 42, "heat")
+            layer = geofile.load(layer_name)
+
+            layers = layer.as_mapnik_layers()
+            self.assertEqual(len(layers), 1)
+
+
+class TestRasterLayerAsMapnikLayersWithoutCoordinatesInGeometryFile(
+    TestRasterLayerAsMapnikLayersWithoutGeometryFile
+):
+    def createGeometryFile(self, filename):
+        data = {"FID.tif": None}
+
+        with open(filename, "w") as f:
+            json.dump(data, f)
+
+
+class TestRasterLayerAsMapnikLayers(TestRasterLayerAsMapnikLayersWithoutGeometryFile):
+    def createGeometryFile(self, filename):
+        data = {"FID.tif": [[0, 60], [10, 60], [10, 30], [0, 30], [0, 60]]}
+
+        with open(filename, "w") as f:
+            json.dump(data, f)
+
+    def testNotIntersectsBoundingBox(self):
+        with self.flask_app.app_context():
+            layer_name = path.make_unique_layer_name(path.RASTER, 42, "heat")
+            layer = geofile.load(layer_name)
+
+            layers = layer.as_mapnik_layers(
+                bbox=mapnik.Box2d(40, -70, 60, -60), bbox_projection="EPSG:4326"
+            )
+
+            self.assertEqual(len(layers), 0)
