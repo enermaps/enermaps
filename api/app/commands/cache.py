@@ -18,19 +18,20 @@ from app.models import geofile, storage
 def update_all_datasets():
     datasets = client.get_dataset_list(disable_filtering=True)
     for dataset in datasets:
-        process_dataset(dataset)
+        process_dataset(dataset, ignore_intersecting=True)
 
 
 @click.command("update-dataset")
 @click.argument("ds_id")
+@click.option("--all", is_flag=True)
 @click.option("-p", "--prettyprint", is_flag=True)
 @with_appcontext
-def update_dataset(ds_id, prettyprint):
+def update_dataset(ds_id, all, prettyprint):
     datasets = client.get_dataset_list(disable_filtering=True)
     datasets = [x for x in datasets if x["ds_id"] == int(ds_id)]
 
     if len(datasets) == 1:
-        process_dataset(datasets[0], prettyprint)
+        process_dataset(datasets[0], ignore_intersecting=all, pretty_print=prettyprint)
 
 
 @click.command("update-areas")
@@ -155,7 +156,7 @@ def get_legend(ds_id, variable, time_period, prettyprint):
         current_app.logger.info(result)
 
 
-def process_dataset(dataset, pretty_print=False):
+def process_dataset(dataset, ignore_intersecting=False, pretty_print=False):
     type = path.RASTER if dataset["is_raster"] else path.VECTOR
 
     # Retrieve the variables of the dataset
@@ -178,13 +179,18 @@ def process_dataset(dataset, pretty_print=False):
                 dataset["ds_id"],
                 variable=variable,
                 time_period=time_period,
+                ignore_intersecting=ignore_intersecting,
                 pretty_print=pretty_print,
             )
 
     elif len(parameters["variables"]) > 0:
         for variable in parameters["variables"]:
             _, raster_file = process_layer(
-                type, dataset["ds_id"], variable=variable, pretty_print=pretty_print
+                type,
+                dataset["ds_id"],
+                variable=variable,
+                ignore_intersecting=ignore_intersecting,
+                pretty_print=pretty_print,
             )
     elif len(parameters["time_periods"]) > 0:
         valid_combinations = {}
@@ -194,6 +200,7 @@ def process_dataset(dataset, pretty_print=False):
                 type,
                 dataset["ds_id"],
                 time_period=time_period,
+                ignore_intersecting=ignore_intersecting,
                 pretty_print=pretty_print,
             )
 
@@ -213,7 +220,10 @@ def process_dataset(dataset, pretty_print=False):
                 json.dump(valid_combinations, f)
     else:
         _, raster_file = process_layer(
-            type, dataset["ds_id"], pretty_print=pretty_print
+            type,
+            dataset["ds_id"],
+            ignore_intersecting=ignore_intersecting,
+            pretty_print=pretty_print,
         )
 
     # For raster datasets, save the projection in a file
@@ -226,7 +236,14 @@ def process_dataset(dataset, pretty_print=False):
         )
 
 
-def process_layer(type, id, variable=None, time_period=None, pretty_print=False):
+def process_layer(
+    type,
+    id,
+    variable=None,
+    time_period=None,
+    ignore_intersecting=False,
+    pretty_print=False,
+):
     layer_name = path.make_unique_layer_name(
         type, id, variable=variable, time_period=time_period
     )
@@ -235,7 +252,10 @@ def process_layer(type, id, variable=None, time_period=None, pretty_print=False)
 
     time_started = time.time()
 
-    data = client.get_geojson(layer_name, pretty_print)
+    data = client.get_geojson(
+        layer_name, ignore_intersecting=ignore_intersecting, pretty_print=pretty_print
+    )
+
     if (data is None) or (data["features"] is None) or (len(data["features"]) == 0):
         return None
 
