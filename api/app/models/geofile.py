@@ -422,7 +422,7 @@ class RasterLayer(Layer):
 
         source_ref.ImportFromEPSG(project.epsg_string_to_epsg(bbox_projection))
         target_ref.ImportFromEPSG(
-            project.epsg_string_to_epsg(current_app.config["RASTER_PROJECTION_SYSTEM"])
+            project.epsg_string_to_epsg(current_app.config["VECTOR_PROJECTION_SYSTEM"])
         )
 
         t = osr.CoordinateTransformation(source_ref, target_ref)
