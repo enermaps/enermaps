@@ -456,7 +456,7 @@ class TestRasterLayerIntersections(BaseApiTest):
             layer = geofile.load(layer_name)
 
             rasters = layer.get_rasters_in_bbox(
-                mapnik.Box2d(40, 0, 60, 10), "EPSG:3035"
+                mapnik.Box2d(40, 0, 60, 10), "EPSG:4326"
             )
             self.assertEqual(len(rasters), 1)
             self.assertEqual(
@@ -473,7 +473,7 @@ class TestRasterLayerIntersections(BaseApiTest):
             layer = geofile.load(layer_name)
 
             rasters = layer.get_rasters_in_bbox(
-                mapnik.Box2d(40, -70, 60, -60), "EPSG:3035"
+                mapnik.Box2d(40, -70, 60, -60), "EPSG:4326"
             )
             self.assertEqual(len(rasters), 0)
 
