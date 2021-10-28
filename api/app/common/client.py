@@ -96,11 +96,13 @@ def get_areas():
     ]
 
 
-def get_geojson(layer_name, pretty_print=False):
+def get_geojson(layer_name, ignore_intersecting=False, pretty_print=False):
     """
     Fetch a geojson dataset layer from the enermaps server with a given id.
     """
-    parameters = _parameters_from_layer_name(layer_name)
+    parameters = _parameters_from_layer_name(
+        layer_name, ignore_intersecting=ignore_intersecting
+    )
     return _get_geojson(parameters, pretty_print)
 
 
@@ -128,7 +130,7 @@ def get_legend(layer_name, pretty_print=False, ttl_hash=None):
 
     url = DATASETS_SERVER_URL + "rpc/enermaps_get_legend"
 
-    parameters = _parameters_from_layer_name(layer_name)
+    parameters = _parameters_from_layer_name(layer_name, ignore_intersecting=True)
 
     headers = {"Authorization": "Bearer {}".format(DATASETS_SERVER_API_KEY)}
 
@@ -210,7 +212,7 @@ def _get_geojson(parameters, pretty_print=False):
     return all_data
 
 
-def _parameters_from_layer_name(layer_name):
+def _parameters_from_layer_name(layer_name, ignore_intersecting=False):
     (type, id, variable, time_period, _) = path.parse_unique_layer_name(layer_name)
 
     parameters = {
@@ -237,7 +239,8 @@ def _parameters_from_layer_name(layer_name):
     for k, v in dataset_parameters["default_parameters"].items():
         if k not in parameters:
             if k == "intersecting":
-                parameters[k] = v
+                if not (ignore_intersecting):
+                    parameters[k] = v
             elif (k == "fields") and (len(v) > 0):
                 parameters[k] = v
             elif k == "level":
