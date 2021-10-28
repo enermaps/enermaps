@@ -320,26 +320,7 @@ class RasterLayer(Layer):
         """Open the geofile as Mapnik layer."""
 
         # Only use as many raster files as necessary
-        rasters = []
-
-        geometries = self.storage.get_geometries(self.name)
-        if geometries is not None:
-            if (
-                (bbox is not None)
-                and (bbox_projection is not None)
-                and (geometries[next(iter(geometries))] is not None)
-            ):
-                rasters = self._get_rasters_in_bbox(geometries, bbox, bbox_projection)
-            else:
-                for feature_id in geometries.keys():
-                    rasters.append(
-                        (feature_id, self.storage.get_file_path(self.name, feature_id))
-                    )
-        else:
-            for feature_id in self.storage.list_feature_ids(self.name):
-                rasters.append(
-                    (feature_id, self.storage.get_file_path(self.name, feature_id))
-                )
+        rasters = self.get_rasters_in_bbox(bbox, bbox_projection)
 
         type = path.get_type(self.name)
 
@@ -372,7 +353,70 @@ class RasterLayer(Layer):
 
         return layers
 
-    def _get_rasters_in_bbox(self, geometries, bbox, bbox_projection):
+    def get_rasters_in_feature_list(self, features):
+        geometries = self.storage.get_geometries(self.name)
+
+        rasters = []
+
+        # No geometry file
+        if geometries is None:
+            for feature_id in self.storage.list_feature_ids(self.name):
+                rasters.append(
+                    (feature_id, self.storage.get_file_path(self.name, feature_id))
+                )
+            return rasters
+
+        # No polygon in the geometry file
+        if geometries[next(iter(geometries))] is None:
+            for feature_id in geometries.keys():
+                rasters.append(
+                    (feature_id, self.storage.get_file_path(self.name, feature_id))
+                )
+            return rasters
+
+        # Check the intersections
+        polygons = []
+
+        for feature in features:
+            for coordinates in feature["geometry"]["coordinates"]:
+                ring = ogr.Geometry(ogr.wkbLinearRing)
+
+                for p in coordinates:
+                    ring.AddPoint(p[0], p[1])
+
+                poly = ogr.Geometry(ogr.wkbPolygon)
+                poly.AddGeometry(ring)
+
+                polygons.append(poly)
+
+        return self._get_rasters_in_polygons(geometries, polygons)
+
+    def get_rasters_in_bbox(self, bbox, bbox_projection):
+        geometries = self.storage.get_geometries(self.name)
+
+        rasters = []
+
+        # No geometry file
+        if geometries is None:
+            for feature_id in self.storage.list_feature_ids(self.name):
+                rasters.append(
+                    (feature_id, self.storage.get_file_path(self.name, feature_id))
+                )
+            return rasters
+
+        # No polygon in the geometry file
+        if (
+            (bbox is None)
+            or (bbox_projection is None)
+            or (geometries[next(iter(geometries))] is None)
+        ):
+            for feature_id in geometries.keys():
+                rasters.append(
+                    (feature_id, self.storage.get_file_path(self.name, feature_id))
+                )
+            return rasters
+
+        # Check the intersections
         source_ref = osr.SpatialReference()
         target_ref = osr.SpatialReference()
 
@@ -396,6 +440,9 @@ class RasterLayer(Layer):
         bbox_poly = ogr.Geometry(ogr.wkbPolygon)
         bbox_poly.AddGeometry(bbox_ring)
 
+        return self._get_rasters_in_polygons(geometries, [bbox_poly])
+
+    def _get_rasters_in_polygons(self, geometries, polygons):
         rasters = []
 
         for feature_id, coordinates in geometries.items():
@@ -407,11 +454,13 @@ class RasterLayer(Layer):
             raster_poly = ogr.Geometry(ogr.wkbPolygon)
             raster_poly.AddGeometry(raster_ring)
 
-            intersection = bbox_poly.Intersection(raster_poly)
-            if intersection.GetGeometryCount() > 0:
-                rasters.append(
-                    (feature_id, self.storage.get_file_path(self.name, feature_id))
-                )
+            for polygon in polygons:
+                intersection = polygon.Intersection(raster_poly)
+                if intersection.GetGeometryCount() > 0:
+                    rasters.append(
+                        (feature_id, self.storage.get_file_path(self.name, feature_id))
+                    )
+                    break
 
         return rasters
 
