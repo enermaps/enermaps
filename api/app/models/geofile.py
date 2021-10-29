@@ -99,8 +99,45 @@ def save_vector_geojson(layer_name, geojson):
             os.replace(tmp_dir, target_folder)
         except (FileExistsError, OSError):
             print("Geofile already exists")
+            return valid_variables
         except Exception as e:
             print(e)
+            return valid_variables
+
+    # Determine the bounding box of the data
+    layer = load(layer_name)
+    mapnik_layers = layer.as_mapnik_layers()
+
+    low_left = None
+    upper_right = None
+
+    for mapnik_layer in mapnik_layers:
+        layerproj = mapnik.Projection(mapnik_layer.srs)
+        bbox = mapnik_layer.envelope()
+
+        layer_low_left = layerproj.inverse(mapnik.Coord(bbox.minx, bbox.miny))
+        layer_upper_right = layerproj.inverse(mapnik.Coord(bbox.maxx, bbox.maxy))
+
+        if low_left is not None:
+            low_left.x = min(low_left.x, layer_low_left.x)
+            low_left.y = min(low_left.y, layer_low_left.y)
+            upper_right.x = max(upper_right.x, layer_upper_right.x)
+            upper_right.y = max(upper_right.y, layer_upper_right.y)
+        else:
+            low_left = layer_low_left
+            upper_right = layer_upper_right
+
+    with open(layer.storage.get_bbox_file(layer_name), "w") as f:
+        f.write(
+            json.dumps(
+                {
+                    "left": low_left.x,
+                    "right": upper_right.x,
+                    "bottom": low_left.y,
+                    "top": upper_right.y,
+                }
+            )
+        )
 
     return valid_variables
 
@@ -165,8 +202,76 @@ def save_raster_geometries(layer_name, geojson):
             os.replace(tmp_filepath, target_filename)
         except (FileExistsError, OSError):
             print("Geometries file already exists")
+            return
         except Exception as e:
             print(e)
+            return
+
+    # Determine the bounding box of the data
+    if geometries[next(iter(geometries))] is not None:
+        left = None
+        right = None
+        bottom = None
+        top = None
+
+        for feature_id, coordinates in geometries.items():
+            for p in coordinates:
+                if left is not None:
+                    left = min(left, p[0])
+                    right = max(right, p[0])
+                    bottom = min(bottom, p[1])
+                    top = max(top, p[1])
+                else:
+                    left = p[0]
+                    right = p[0]
+                    bottom = p[1]
+                    top = p[1]
+
+        with open(storage_instance.get_bbox_file(layer_name), "w") as f:
+            f.write(
+                json.dumps(
+                    {
+                        "left": left,
+                        "right": right,
+                        "bottom": bottom,
+                        "top": top,
+                    }
+                )
+            )
+    else:
+        layer = load(layer_name)
+        mapnik_layers = layer.as_mapnik_layers()
+
+        low_left = None
+        upper_right = None
+
+        for mapnik_layer in mapnik_layers:
+            layerproj = mapnik.Projection(mapnik_layer.srs)
+            bbox = mapnik_layer.envelope()
+
+            layer_low_left = layerproj.inverse(mapnik.Coord(bbox.minx, bbox.miny))
+            layer_upper_right = layerproj.inverse(mapnik.Coord(bbox.maxx, bbox.maxy))
+
+            if low_left is not None:
+                low_left.x = min(low_left.x, layer_low_left.x)
+                low_left.y = min(low_left.y, layer_low_left.y)
+                upper_right.x = max(upper_right.x, layer_upper_right.x)
+                upper_right.y = max(upper_right.y, layer_upper_right.y)
+            else:
+                low_left = layer_low_left
+                upper_right = layer_upper_right
+
+        with open(layer.storage.get_bbox_file(layer_name), "w") as f:
+            f.write(
+                json.dumps(
+                    {
+                        "left": low_left.x,
+                        "right": upper_right.x,
+                        "bottom": low_left.y,
+                        "top": upper_right.y,
+                    }
+                )
+            )
 
 
 def save_raster_file(layer_name, feature_id, raster_content):

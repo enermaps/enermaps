@@ -8,11 +8,15 @@ from app.common.test import BaseApiTest
 
 
 class Response(object):
-    def __init__(self, content):
+    def __init__(self, content, status_code=200):
         self.content = content
+        self.status_code = status_code
 
     def json(self):
         return json.loads(self.content)
+
+    def raise_for_status(self):
+        raise Exception(self.status_code)
 
 
 def setupResponse(response):
@@ -108,6 +112,14 @@ class DatasetListTest(BaseApiTest):
     @patch("requests.get")
     def testFailure(self, get_mock):
         with self.flask_app.app_context():
+            get_mock.return_value = setupResponse(Response(None, 500))
+
+            datasets = client.get_dataset_list()
+            self.assertEqual(len(datasets), 0)
+
+    @patch("requests.get")
+    def testException(self, get_mock):
+        with self.flask_app.app_context():
             get_mock.side_effect = Exception()
 
             datasets = client.get_dataset_list()
@@ -158,6 +170,14 @@ class ParametersTest(BaseApiTest):
     @patch("requests.get")
     def testFailure(self, get_mock):
         with self.flask_app.app_context():
+            get_mock.return_value = setupResponse(Response(None, 500))
+
+            parameters = client.get_parameters(1)
+            self.assertTrue(parameters is None)
+
+    @patch("requests.get")
+    def testException(self, get_mock):
+        with self.flask_app.app_context():
             get_mock.side_effect = Exception()
 
             parameters = client.get_parameters(1)
@@ -199,6 +219,14 @@ class RasterFileTest(BaseApiTest):
 
     @patch("requests.get")
     def testFailure(self, get_mock):
+        with self.flask_app.app_context():
+            get_mock.return_value = setupResponse(Response(None, 500))
+
+            content = client.get_raster_file(1, "FID.tif")
+            self.assertTrue(content is None)
+
+    @patch("requests.get")
+    def testException(self, get_mock):
         with self.flask_app.app_context():
             get_mock.side_effect = Exception()
 
@@ -989,6 +1017,20 @@ class GeoJSONTest(BaseApiTest):
     )
     def testFailure(self, get_mock):
         with self.flask_app.app_context():
+            get_mock.return_value = setupResponse(Response(None, 500))
+
+            layer_name = path.make_unique_layer_name(path.VECTOR, 1)
+            geojson = client.get_geojson(layer_name, ignore_intersecting=True)
+
+            self.assertTrue(geojson is None)
+
+    @patch("requests.get")
+    @patch(
+        "app.common.client.get_parameters",
+        new=Mock(return_value=datasets.convert(PARAMETERS)),
+    )
+    def testException(self, get_mock):
+        with self.flask_app.app_context():
             get_mock.side_effect = Exception()
 
             layer_name = path.make_unique_layer_name(path.VECTOR, 1)
@@ -1071,6 +1113,14 @@ class AeraTest(BaseApiTest):
 
     @patch("requests.get")
     def testFailure(self, get_mock):
+        with self.flask_app.app_context():
+            get_mock.return_value = setupResponse(Response(None, 500))
+
+            geojson = client.get_area("NUTS1")
+            self.assertTrue(geojson is None)
+
+    @patch("requests.get")
+    def testException(self, get_mock):
         with self.flask_app.app_context():
             get_mock.side_effect = Exception()
 
@@ -1181,6 +1231,19 @@ class LegendTest(BaseApiTest):
         new=Mock(return_value=datasets.convert(PARAMETERS_DEFAULT_INTERSECTING)),
     )
     def testFailure(self, get_mock):
+        with self.flask_app.app_context():
+            get_mock.return_value = setupResponse(Response(None, 500))
+
+            layer_name = path.make_unique_layer_name(path.VECTOR, 1)
+            legend = client.get_legend(layer_name, ttl_hash=900)
+            self.assertTrue(legend is None)
+
+    @patch("requests.get")
+    @patch(
+        "app.common.client.get_parameters",
+        new=Mock(return_value=datasets.convert(PARAMETERS_DEFAULT_INTERSECTING)),
+    )
+    def testException(self, get_mock):
         with self.flask_app.app_context():
             get_mock.side_effect = Exception()
 
