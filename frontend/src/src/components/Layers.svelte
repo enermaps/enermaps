@@ -9,6 +9,10 @@
   let selection = null;
   const effectTimers = {};
 
+  let rootElement = null;
+  let layersContainer = null;
+  let disableLayoutEvent = false;
+
   const dispatch = createEventDispatcher();
 
 
@@ -29,7 +33,11 @@
 
 
   afterUpdate(() => {
-    dispatch('layout', '');
+    if (!disableLayoutEvent) {
+      dispatch('layout', '');
+    }
+
+    disableLayoutEvent = false;
   });
 
 
@@ -215,6 +223,20 @@
       }
     });
   }
+
+
+  export function setMaxHeight(maxHeight) {
+    if (layersContainer !== null) {
+      const rectPanel = rootElement.getBoundingClientRect();
+      const rectLayers = layersContainer.getBoundingClientRect();
+
+      maxHeight = maxHeight - (rectLayers.top - rectPanel.top) -
+                  (rectPanel.bottom - rectLayers.bottom);
+
+      layersContainer.style.maxHeight = maxHeight + 'px';
+      disableLayoutEvent = true;
+    }
+  }
 </script>
 
 
@@ -365,14 +387,14 @@
 </style>
 
 
-<div id="layers_list" on:click|stopPropagation
+<div id="layers_list" bind:this={rootElement} on:click|stopPropagation
      on:dblclick|stopPropagation on:wheel|stopPropagation >
   <h3>Layers</h3>
 
   {#if layers.length == 0}
     <span class="help">Add some layers from the Dataset panel</span>
   {:else}
-    <div class="scroll">
+    <div class="scroll" bind:this={layersContainer}>
       <div class="target" data-layername=""
            on:dragenter={handleDragEnter}
            on:dragover={handleDragOver} on:dragleave={handleDragLeave}
