@@ -85,6 +85,22 @@ $ docker-compose exec api /bin/bash -c 'flask list-datasets'
 $ docker-compose exec api /bin/bash -c 'flask update-dataset 3'
 ```
 
+Note that by default, the `update-dataset` command will respect the default area
+defined for the dataset in the database server. This is mainly for development
+purposes, as those datasets have GB of data and you only need a subset to work on
+them. To download all the dataset, use the `--all` option:
+
+```
+$ docker-compose exec api /bin/bash -c 'flask update-dataset --all 35'
+```
+
+On the production server, to populate the WMS cache with all the available
+datasets, do:
+
+```
+$ docker-compose exec api /bin/bash -c 'flask update-all-datasets'
+```
+
 ## External API
 
 A PostGREST API is available to give access to the DB to external users, as well as to the OpenAIRE gateway.
