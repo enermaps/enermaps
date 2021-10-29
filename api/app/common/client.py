@@ -241,8 +241,9 @@ def _parameters_from_layer_name(layer_name, ignore_intersecting=False):
             if k == "intersecting":
                 if not (ignore_intersecting):
                     parameters[k] = v
-            elif (k == "fields") and (len(v) > 0):
-                parameters[k] = v
+            elif k == "fields":
+                if len(v) > 0:
+                    parameters[k] = v
             elif k == "level":
                 parameters[k] = f"{v}"
             else:
@@ -255,7 +256,7 @@ def _dataset_is_on_disk(dataset):
     type = path.RASTER if dataset["is_raster"] else path.VECTOR
     dataset_name = path.make_unique_layer_name(type, dataset["ds_id"])
     storage_instance = storage.create_for_layer_type(type)
-    return os.path.exists(storage_instance.get_dir(dataset_name))
+    return os.path.exists(storage_instance.get_dir(dataset_name, cache=True))
 
 
 def _pretty_print_request(response):
