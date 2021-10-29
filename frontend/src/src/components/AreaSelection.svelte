@@ -59,20 +59,10 @@
     border : none;
   }
 
-  #areas {
-    overflow-y: auto;
-    border : none;
+  .areas {
+    width: 100%;
   }
-
-  label {
-    display: block;
-    overflow-y: auto;
-    white-space: nowrap;
-    text-overflow: ellipsis;
-    overflow-x: hidden;
-    margin-top: 2px;
-  }
-</style>
+  </style>
 
 
 <div id="area_selection" on:click|stopPropagation on:dblclick|stopPropagation on:wheel|stopPropagation>
@@ -80,13 +70,12 @@
     Loading areas...
   {:else}
     <h3>Area selection</h3>
-    <div id="areas">
+
+    <select class="areas" bind:value={$areaSelectionStore}>
+      <option value={null}>None</option>
       {#each availableAreas as area}
-        <label title={area.title}>
-          <input type=radio bind:group={$areaSelectionStore} value={area.id}>
-          {area.title}
-        </label>
+        <option value={area.id}>{area.title}</option>
       {/each}
-    </div>
+    </select>
   {/if}
 </div>

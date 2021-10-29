@@ -10,6 +10,10 @@
   const topics = [];
   let selectedTopic = null;
 
+  let rootElement = null;
+  let datasetsContainer = null;
+  let disableLayoutEvent = false;
+
   const dispatch = createEventDispatcher();
 
 
@@ -121,7 +125,11 @@
 
 
   afterUpdate(() => {
-    dispatch('layout', '');
+    if (!disableLayoutEvent) {
+      dispatch('layout', '');
+    }
+
+    disableLayoutEvent = false;
   });
 
 
@@ -138,13 +146,6 @@
         filteredDatasets = filteredDatasets.filter((dataset) =>
           dataset.title.toLowerCase().indexOf(filter.toLowerCase()) !== -1);
       }
-    }
-  }
-
-
-  function changeTopicSelection(topic) {
-    if (topic !== selectedTopic) {
-      selectedTopic = topic;
     }
   }
 
@@ -218,6 +219,20 @@
 
     return dataset.info.valid_combinations[timePeriod].indexOf(variable) != -1;
   }
+
+
+  export function setMaxHeight(maxHeight) {
+    if (datasetsContainer !== null) {
+      const rectPanel = rootElement.getBoundingClientRect();
+      const rectDatasets = datasetsContainer.getBoundingClientRect();
+
+      maxHeight = maxHeight - (rectDatasets.top - rectPanel.top) -
+                  (rectPanel.bottom - rectDatasets.bottom);
+
+      datasetsContainer.style.maxHeight = maxHeight + 'px';
+      disableLayoutEvent = true;
+    }
+  }
 </script>
 
 
@@ -248,28 +263,21 @@
   }
 
   .topics {
-      margin-top: 4px;
-      margin-bottom: 4px;
+    width: 100%;
+    margin-top: 4px;
+    margin-bottom: 4px;
+    font-size: 0;
   }
 
-  .topic {
-    background-color: #eeeeee;
-    border: 1px solid #27275b;
-    border-radius: 4px;
+  .topics label {
     display: inline-block;
-    margin-bottom: 2px;
-    margin-right: 2px;
-    padding-left: 4px;
-    padding-right: 4px;
-    padding-top: 2px;
-    padding-bottom: 2px;
-    cursor: pointer;
+    width: 40px;
+    font-size: 12px;
   }
 
-  .topic.selected {
-    background-color: #6da8d7;
-    color: white;
-    font-weight: bold;
+  .topics select {
+    width: calc(100% - 40px);
+    font-size: 12px;
   }
 
   .scroll {
@@ -328,7 +336,7 @@
 </style>
 
 
-<div id="datasets_selection" on:click|stopPropagation
+<div id="datasets_selection" bind:this={rootElement} on:click|stopPropagation
      on:dblclick|stopPropagation on:wheel|stopPropagation>
   <h3>Datasets</h3>
 
@@ -339,15 +347,18 @@
 
     {#if topics.length > 0}
       <div class="topics">
-        <span class="topic" class:selected={selectedTopic === null} on:click={() => changeTopicSelection(null)}>All</span>
-        {#each topics as topic}
-          <span class="topic" class:selected={selectedTopic == topic} on:click={() => changeTopicSelection(topic)}>{topic}</span>
-        {/each}
+        <label for="topic">Group:</label>
+        <select name="topic" bind:value={selectedTopic}>
+          <option value={null}>All</option>
+          {#each topics as topic}
+            <option value={topic}>{topic}</option>
+          {/each}
+        </select>
       </div>
     {/if}
 
     {#if filteredDatasets.length > 0}
-      <div class="scroll">
+      <div class="scroll" bind:this={datasetsContainer}>
         <table id="datasets">
           <tbody>
             {#each filteredDatasets as dataset (dataset.ds_id)}
@@ -407,7 +418,10 @@
                   {/each}
                 {:else}
                   <tr class="layer final" title={dataset.title}
-                      on:click={() => addLayer(dataset.ds_id, dataset.info.const_variable, dataset.info.const_time_period)}>
+                      on:click={() => addLayer(
+                        dataset.ds_id, dataset.info.const_variable,
+                        dataset.info.const_time_period,
+                      )}>
                     <td></td>
                     <td class="bullet">◦</td>
                     {#if dataset.info.const_variable !== null}

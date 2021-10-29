@@ -1,6 +1,6 @@
 <script>
   import {tick} from 'svelte';
-  import {selectedLayerStore, isCMPaneActiveStore} from '../stores.js';
+  import {areaSelectionStore, selectedLayerStore, isCMPaneActiveStore} from '../stores.js';
   import {getLayer} from '../layers.js';
   import {getTask, flashTask, SUCCESS_STATUS} from '../tasks.js';
   import AreaSelection from './AreaSelection.svelte';
@@ -16,9 +16,12 @@
   let mapScrollingDisabled = false;
   let map = null;
 
+  let datasetsContainer = null;
   let layersContainer = null;
   let detailsContainer = null;
 
+  let datasetsPanel = null;
+  let layersPanel = null;
 
   selectedLayerStore.subscribe(displayHideDetails);
 
@@ -77,7 +80,7 @@
 
 
   async function recomputeLayout(event) {
-    if ((layersContainer === null) || !mustDisplayDetails) {
+    if (layersContainer === null) {
       return;
     }
 
@@ -87,22 +90,64 @@
 
     await tick();
 
-    const rectLayers = layersContainer.getBoundingClientRect();
-    const rectDetails = detailsContainer.getBoundingClientRect();
-
     const windowHeight = window.innerHeight;
 
-    if (rectDetails.height > windowHeight - (rectLayers.bottom + 20)) {
-      detailsContainer.style.left = (rectLayers.right + 10) + 'px';
+    let rectDatasets = datasetsContainer.getBoundingClientRect();
+    let rectLayers = layersContainer.getBoundingClientRect();
 
-      if (rectDetails.height > windowHeight - (rectLayers.top + 10)) {
-        detailsContainer.style.top = (windowHeight - rectDetails.height - 10) + 'px';
-      } else {
-        detailsContainer.style.top = rectLayers.top + 'px';
-      }
+    // Attempt to fit everything in one column
+    const maxHeight = (windowHeight - (rectDatasets.top - 20)) / 2;
+
+    layersContainer.style.marginTop = 0;
+    layersPanel.setMaxHeight(maxHeight);
+    rectLayers = layersContainer.getBoundingClientRect();
+
+    const maxHeight2 = windowHeight - rectDatasets.top - 20 - rectLayers.height;
+    let oneColumn = true;
+
+    if (maxHeight2 >= Math.max(maxHeight, 300)) {
+      datasetsPanel.setMaxHeight(maxHeight2);
+      rectDatasets = datasetsContainer.getBoundingClientRect();
+
+      layersContainer.style.left = '10px';
+      layersContainer.style.top = (rectDatasets.bottom + 10) + 'px';
+      rectLayers = layersContainer.getBoundingClientRect();
     } else {
-      detailsContainer.style.left = '10px';
-      detailsContainer.style.top = (rectLayers.bottom + 10) + 'px';
+      const height = windowHeight - rectDatasets.top - 10;
+
+      if ($areaSelectionStore != 'selection') {
+        layersPanel.setMaxHeight(height);
+        layersContainer.style.top = rectDatasets.top + 'px';
+      } else {
+        layersPanel.setMaxHeight(height - 42);
+        layersContainer.style.top = (rectDatasets.top + 42) + 'px';
+      }
+
+      layersContainer.style.left = (rectDatasets.right + 10) + 'px';
+      rectLayers = layersContainer.getBoundingClientRect();
+
+      datasetsPanel.setMaxHeight(height);
+      rectDatasets = datasetsContainer.getBoundingClientRect();
+
+      oneColumn = false;
+    }
+
+    // Is there enough room for the details panel?
+    if (detailsContainer !== null) {
+      const rectDetails = detailsContainer.getBoundingClientRect();
+
+      if (rectDetails.height > windowHeight - (rectLayers.bottom + 20)) {
+        detailsContainer.style.left = (rectLayers.right + 10) + 'px';
+
+        if (oneColumn && (rectDetails.height > windowHeight - (rectLayers.top + 10))) {
+          detailsContainer.style.top = (windowHeight - rectDetails.height - 10) + 'px';
+        } else {
+          detailsContainer.style.top = rectLayers.top + 'px';
+        }
+      } else {
+        detailsContainer.style.left = rectLayers.left + 'px';
+        detailsContainer.style.top = (rectLayers.bottom + 10) + 'px';
+      }
     }
   }
 
@@ -136,6 +181,7 @@
   }
 
   .layers {
+    position: fixed;
     margin-top: 10px;
   }
 
@@ -151,9 +197,12 @@
 <div id="left_panel" bind:this={rootElement}>
   <div class="area"><AreaSelection on:layout={recomputeLayout} /></div>
   <div class="selection" bind:this={selectionControls}></div>
-  <div class="datasets"><DatasetSelection on:layout={recomputeLayout} /></div>
+  <div class="datasets" bind:this={datasetsContainer}>
+    <DatasetSelection bind:this={datasetsPanel} on:layout={recomputeLayout} />
+  </div>
   <div class="layers" bind:this={layersContainer}>
-    <Layers on:selectedLayerVisibilityChanged={onSelectedLayerVisibilityChanged}
+    <Layers bind:this={layersPanel}
+            on:selectedLayerVisibilityChanged={onSelectedLayerVisibilityChanged}
             on:layout={recomputeLayout} />
   </div>
 </div>
