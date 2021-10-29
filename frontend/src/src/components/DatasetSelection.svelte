@@ -10,6 +10,10 @@
   const topics = [];
   let selectedTopic = null;
 
+  let rootElement = null;
+  let datasetsContainer = null;
+  let disableLayoutEvent = false;
+
   const dispatch = createEventDispatcher();
 
 
@@ -121,7 +125,11 @@
 
 
   afterUpdate(() => {
-    dispatch('layout', '');
+    if (!disableLayoutEvent) {
+      dispatch('layout', '');
+    }
+
+    disableLayoutEvent = false;
   });
 
 
@@ -210,6 +218,20 @@
     }
 
     return dataset.info.valid_combinations[timePeriod].indexOf(variable) != -1;
+  }
+
+
+  export function setMaxHeight(maxHeight) {
+    if (datasetsContainer !== null) {
+      const rectPanel = rootElement.getBoundingClientRect();
+      const rectDatasets = datasetsContainer.getBoundingClientRect();
+
+      maxHeight = maxHeight - (rectDatasets.top - rectPanel.top) -
+                  (rectPanel.bottom - rectDatasets.bottom);
+
+      datasetsContainer.style.maxHeight = maxHeight + 'px';
+      disableLayoutEvent = true;
+    }
   }
 </script>
 
@@ -314,7 +336,7 @@
 </style>
 
 
-<div id="datasets_selection" on:click|stopPropagation
+<div id="datasets_selection" bind:this={rootElement} on:click|stopPropagation
      on:dblclick|stopPropagation on:wheel|stopPropagation>
   <h3>Datasets</h3>
 
@@ -336,7 +358,7 @@
     {/if}
 
     {#if filteredDatasets.length > 0}
-      <div class="scroll">
+      <div class="scroll" bind:this={datasetsContainer}>
         <table id="datasets">
           <tbody>
             {#each filteredDatasets as dataset (dataset.ds_id)}
@@ -396,7 +418,10 @@
                   {/each}
                 {:else}
                   <tr class="layer final" title={dataset.title}
-                      on:click={() => addLayer(dataset.ds_id, dataset.info.const_variable, dataset.info.const_time_period)}>
+                      on:click={() => addLayer(
+                        dataset.ds_id, dataset.info.const_variable,
+                        dataset.info.const_time_period,
+                      )}>
                     <td></td>
                     <td class="bullet">◦</td>
                     {#if dataset.info.const_variable !== null}
