@@ -142,13 +142,6 @@
   }
 
 
-  function changeTopicSelection(topic) {
-    if (topic !== selectedTopic) {
-      selectedTopic = topic;
-    }
-  }
-
-
   async function toggleDataset(dataset) {
     dataset.open = !dataset.open;
     availableDatasets = availableDatasets;
@@ -248,28 +241,21 @@
   }
 
   .topics {
-      margin-top: 4px;
-      margin-bottom: 4px;
+    width: 100%;
+    margin-top: 4px;
+    margin-bottom: 4px;
+    font-size: 0;
   }
 
-  .topic {
-    background-color: #eeeeee;
-    border: 1px solid #27275b;
-    border-radius: 4px;
+  .topics label {
     display: inline-block;
-    margin-bottom: 2px;
-    margin-right: 2px;
-    padding-left: 4px;
-    padding-right: 4px;
-    padding-top: 2px;
-    padding-bottom: 2px;
-    cursor: pointer;
+    width: 40px;
+    font-size: 12px;
   }
 
-  .topic.selected {
-    background-color: #6da8d7;
-    color: white;
-    font-weight: bold;
+  .topics select {
+    width: calc(100% - 40px);
+    font-size: 12px;
   }
 
   .scroll {
@@ -339,10 +325,13 @@
 
     {#if topics.length > 0}
       <div class="topics">
-        <span class="topic" class:selected={selectedTopic === null} on:click={() => changeTopicSelection(null)}>All</span>
-        {#each topics as topic}
-          <span class="topic" class:selected={selectedTopic == topic} on:click={() => changeTopicSelection(topic)}>{topic}</span>
-        {/each}
+        <label for="topic">Group:</label>
+        <select name="topic" bind:value={selectedTopic}>
+          <option value={null}>All</option>
+          {#each topics as topic}
+            <option value={topic}>{topic}</option>
+          {/each}
+        </select>
       </div>
     {/if}
 
