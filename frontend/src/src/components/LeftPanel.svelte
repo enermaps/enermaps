@@ -1,6 +1,6 @@
 <script>
   import {tick} from 'svelte';
-  import {selectedLayerStore, isCMPaneActiveStore} from '../stores.js';
+  import {areaSelectionStore, selectedLayerStore, isCMPaneActiveStore} from '../stores.js';
   import {getLayer} from '../layers.js';
   import {getTask, flashTask, SUCCESS_STATUS} from '../tasks.js';
   import AreaSelection from './AreaSelection.svelte';
@@ -115,9 +115,15 @@
     } else {
       const height = windowHeight - rectDatasets.top - 10;
 
-      layersPanel.setMaxHeight(height);
+      if ($areaSelectionStore != 'selection') {
+        layersPanel.setMaxHeight(height);
+        layersContainer.style.top = rectDatasets.top + 'px';
+      } else {
+        layersPanel.setMaxHeight(height - 42);
+        layersContainer.style.top = (rectDatasets.top + 42) + 'px';
+      }
+
       layersContainer.style.left = (rectDatasets.right + 10) + 'px';
-      layersContainer.style.top = rectDatasets.top + 'px';
       rectLayers = layersContainer.getBoundingClientRect();
 
       datasetsPanel.setMaxHeight(height);
