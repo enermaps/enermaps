@@ -31,6 +31,9 @@ def get_dataset_list(disable_filtering=False, pretty_print=False):
             if pretty_print:
                 _pretty_print_request(resp)
 
+            if resp.status_code != 200:
+                resp.raise_for_status()
+
             datasets = resp.json()
 
         # If necessary: filter out datasets that don't exist in the cache
@@ -58,13 +61,16 @@ def get_parameters(dataset_id, pretty_print=False):
             if pretty_print:
                 _pretty_print_request(resp)
 
+            if resp.status_code != 200:
+                resp.raise_for_status()
+
             parameters = resp.json()
 
         return datasets.convert(parameters)
 
     except Exception as ex:
         logging.error(
-            f"Failed to retrieve the variables of the dataset <{dataset_id}>:"
+            f"Failed to retrieve the parameters of the dataset <{dataset_id}>:"
             f" {repr(ex)}"
         )
         return None
@@ -111,6 +117,9 @@ def get_raster_file(dataset_id, feature_id):
 
     try:
         with requests.get(url, stream=True) as resp:
+            if resp.status_code != 200:
+                resp.raise_for_status()
+
             return resp.content
     except Exception as ex:
         logging.error(
@@ -142,6 +151,9 @@ def get_legend(layer_name, pretty_print=False, ttl_hash=None):
         with requests.get(url, headers=headers, params=params) as resp:
             if pretty_print:
                 _pretty_print_request(resp)
+
+            if resp.status_code != 200:
+                resp.raise_for_status()
 
             return resp.json()
     except Exception as ex:
@@ -190,10 +202,13 @@ def _get_geojson(parameters, pretty_print=False):
                 if pretty_print:
                     _pretty_print_request(resp)
 
+                if resp.status_code != 200:
+                    resp.raise_for_status()
+
                 data = resp.json()
 
             if ("features" not in data) or (data["features"] is None):
-                break
+                return None
 
             if all_data is not None:
                 all_data["features"].extend(data["features"])

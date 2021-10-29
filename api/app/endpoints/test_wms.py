@@ -9,7 +9,7 @@ from owslib.wms import WebMapService
 from PIL import Image
 
 import app.common.xml as xml
-from app.common import path
+from app.common import datasets, path
 from app.common.projection import epsg_to_proj4
 from app.common.test import BaseApiTest, BaseIntegrationTest
 from app.models import storage
@@ -28,13 +28,42 @@ class BaseWMSTest(BaseApiTest):
 class WMSGetCapabilitiesTest(BaseApiTest):
     """Test the get capabilities (a list of all endpoint and layer)"""
 
+    DATASETS = [
+        {
+            "ds_id": 1,
+            "is_raster": True,
+            "title": "dataset1",
+        },
+        {
+            "ds_id": 2,
+            "is_raster": False,
+            "title": "dataset2",
+        },
+    ]
+
+    PARAMETERS = {
+        "end_at": None,
+        "parameters": {
+            "end_at": None,
+            "fields": [],
+            "levels": [],
+            "is_tiled": False,
+            "start_at": None,
+            "is_raster": False,
+            "variables": [],
+            "time_periods": [],
+            "temporal_granularity": None,
+        },
+        "default_parameters": {},
+    }
+
     @classmethod
     def setUpClass(cl):
         """Create the xml schema validator."""
         schema_path = WMSGetCapabilitiesTest.get_testdata_path(
             "WMS_MS_Capabilities_1.3.0.xsd"
         )
-        # load additonal schemas
+        # load additional schemas
         with open(schema_path, "rb") as schema_fd:
             xmlschema = xml.etree_fromstring(schema_fd.read())
 
@@ -55,6 +84,14 @@ class WMSGetCapabilitiesTest(BaseApiTest):
         xmlschema.insert(1, newimport)
         cl.schema = etree.XMLSchema(xmlschema)
 
+    @patch(
+        "app.common.client.get_dataset_list",
+        new=Mock(return_value=DATASETS),
+    )
+    @patch(
+        "app.common.client.get_parameters",
+        new=Mock(return_value=datasets.convert(PARAMETERS)),
+    )
     def testSucceedWithUppercaseParameters(self):
         """Test that lowercase parameters produces the same result as uppercase
         get parameters
@@ -76,11 +113,18 @@ class WMSGetCapabilitiesTest(BaseApiTest):
         response = self.client.get("api/wms", query_string={"request": args})
         self.assertEqual(response.status, "400 BAD REQUEST", response.data)
 
+    @patch(
+        "app.common.client.get_dataset_list",
+        new=Mock(return_value=DATASETS),
+    )
+    @patch(
+        "app.common.client.get_parameters",
+        new=Mock(return_value=datasets.convert(PARAMETERS)),
+    )
     def testLayerLessCall(self):
         """Test that the call to getCapabilities with no layers defined
         returns an empty list of layers.
         """
-        # help(self.client.get)
         response = self.client.get("api/wms", query_string=GETCAPABILITIES_ARGS)
         self.assertStatusCodeEqual(response, 200)
         root = xml.etree_fromstring(response.data)

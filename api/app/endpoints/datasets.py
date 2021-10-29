@@ -18,6 +18,8 @@ class Datasets(Resource):
     def get(self):
         """Return a list of all datasets known by the platform"""
         datasets = client.get_dataset_list()
+        if len(datasets) == 0:
+            abort(404)
 
         add_openaire_links(datasets)
 
@@ -30,6 +32,8 @@ class DatasetsFull(Resource):
         """Return a list of all datasets known by the platform, along with their
         variables and time periods"""
         datasets = client.get_dataset_list()
+        if len(datasets) == 0:
+            abort(404)
 
         for dataset in datasets:
             dataset["info"] = client.get_parameters(dataset["ds_id"])
@@ -119,15 +123,23 @@ class RasterLayerName(Resource):
 @api.route("/legend/<path:layer_name>/")
 class Legend(Resource):
     def get(self, layer_name):
-        """Return a the legend of the layer"""
-        return client.get_legend(layer_name)
+        """Return the legend of the layer"""
+        legend = client.get_legend(layer_name)
+        if legend is None:
+            abort(404)
+
+        return legend
 
 
 @api.route("/areas/")
 class Areas(Resource):
     def get(self):
         """Return a list of all areas known by the platform"""
-        return client.get_areas()
+        areas = client.get_areas()
+        if len(areas) == 0:
+            abort(404)
+
+        return areas
 
 
 def add_openaire_links(datasets):
