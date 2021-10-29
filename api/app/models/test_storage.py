@@ -245,15 +245,47 @@ class TestRasterStorage(BaseApiTest):
 
             os.makedirs(storage_instance.get_dir(layer_name))
 
-            with open(
-                os.path.join(storage_instance.get_dir(layer_name), "geometries.json"),
-                "w",
-            ) as f:
+            filename = os.path.join(
+                storage_instance.get_dir(layer_name), "geometries.json"
+            )
+            with open(filename, "w") as f:
                 json.dump(GEOMETRIES, f)
 
             geometries = storage_instance.get_geometries(layer_name)
 
             self.assertEqual(geometries, GEOMETRIES)
+
+    def testGetBBox(self):
+        with self.flask_app.app_context():
+            storage_instance = storage.RasterStorage()
+
+            layer_name = "raster/10"
+
+            BBOX = {
+                "left": 10,
+                "right": 20,
+                "bottom": 30,
+                "top": 40,
+            }
+
+            os.makedirs(storage_instance.get_dir(layer_name))
+
+            filename = os.path.join(storage_instance.get_dir(layer_name), "bbox.json")
+            with open(filename, "w") as f:
+                json.dump(BBOX, f)
+
+            bbox = storage_instance.get_bbox(layer_name)
+
+            self.assertEqual(bbox, BBOX)
+
+    def testGetBBoxMissingFile(self):
+        with self.flask_app.app_context():
+            storage_instance = storage.RasterStorage()
+
+            layer_name = "raster/10"
+
+            bbox = storage_instance.get_bbox(layer_name)
+            self.assertTrue(bbox is None)
 
 
 class TestRasterStorageWithoutCache(BaseApiTest):
@@ -376,17 +408,49 @@ class TestRasterStorageWithoutCache(BaseApiTest):
 
             os.makedirs(storage_instance.get_dir(layer_name, cache=True))
 
-            with open(
-                os.path.join(
-                    storage_instance.get_dir(layer_name, cache=True), "geometries.json"
-                ),
-                "w",
-            ) as f:
+            filename = os.path.join(
+                storage_instance.get_dir(layer_name, cache=True), "geometries.json"
+            )
+            with open(filename, "w") as f:
                 json.dump(GEOMETRIES, f)
 
             geometries = storage_instance.get_geometries(layer_name)
 
             self.assertEqual(geometries, GEOMETRIES)
+
+    def testGetBBox(self):
+        with self.flask_app.app_context():
+            storage_instance = storage.RasterStorage()
+
+            layer_name = "raster/10"
+
+            BBOX = {
+                "left": 10,
+                "right": 20,
+                "bottom": 30,
+                "top": 40,
+            }
+
+            os.makedirs(storage_instance.get_dir(layer_name, cache=True))
+
+            filename = os.path.join(
+                storage_instance.get_dir(layer_name, cache=True), "bbox.json"
+            )
+            with open(filename, "w") as f:
+                json.dump(BBOX, f)
+
+            bbox = storage_instance.get_bbox(layer_name)
+
+            self.assertEqual(bbox, BBOX)
+
+    def testGetBBoxMissingFile(self):
+        with self.flask_app.app_context():
+            storage_instance = storage.RasterStorage()
+
+            layer_name = "raster/10"
+
+            bbox = storage_instance.get_bbox(layer_name)
+            self.assertTrue(bbox is None)
 
 
 class TestCMStorage(BaseApiTest):
@@ -553,6 +617,38 @@ class TestVectorStorage(BaseApiTest):
                 storage_instance.get_geojson_file(f"vector/10/-/{ENCODED_VAR}"),
                 f"{self.wms_cache_dir}/vectors/10/data.geojson",
             )
+
+    def testGetBBox(self):
+        with self.flask_app.app_context():
+            storage_instance = storage.RasterStorage()
+
+            layer_name = "vector/10"
+
+            BBOX = {
+                "left": 10,
+                "right": 20,
+                "bottom": 30,
+                "top": 40,
+            }
+
+            os.makedirs(storage_instance.get_dir(layer_name))
+
+            filename = os.path.join(storage_instance.get_dir(layer_name), "bbox.json")
+            with open(filename, "w") as f:
+                json.dump(BBOX, f)
+
+            bbox = storage_instance.get_bbox(layer_name)
+
+            self.assertEqual(bbox, BBOX)
+
+    def testGetBBoxMissingFile(self):
+        with self.flask_app.app_context():
+            storage_instance = storage.RasterStorage()
+
+            layer_name = "vector/10"
+
+            bbox = storage_instance.get_bbox(layer_name)
+            self.assertTrue(bbox is None)
 
 
 class TestAreaStorage(BaseApiTest):

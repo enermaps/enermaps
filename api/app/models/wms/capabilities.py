@@ -3,12 +3,13 @@
 import itertools
 import os
 
-import mapnik
+import osr
 from flask import current_app, request
 from lxml import etree  # nosec
 
-from app.common import client, path, projection, xml
-from app.models import geofile
+import app.common.projection as project
+from app.common import client, path, xml
+from app.models import storage
 
 current_file_dir = os.path.dirname(os.path.abspath(__file__))
 
@@ -49,6 +50,9 @@ def get_capabilities():
         get_map.insert(0, format_node)
 
     datasets = client.get_dataset_list()
+    if len(datasets) == 0:
+        return None
+
     for dataset in datasets:
         type = path.RASTER if dataset["is_raster"] else path.VECTOR
 
@@ -72,6 +76,8 @@ def get_capabilities():
             layer_node.append(crs_node)
 
         parameters = client.get_parameters(dataset["ds_id"])
+        if parameters is None:
+            return None
 
         if (len(parameters["variables"]) > 0) and (len(parameters["time_periods"]) > 0):
             for variable, time_period in itertools.product(
@@ -112,12 +118,12 @@ def get_layer_capabilities(
         type, id, variable=variable, time_period=time_period
     )
 
-    layer = geofile.load(layer_name)
-    if layer is None:
+    storage_instance = storage.create_for_layer_type(type)
+    if not os.path.exists(storage_instance.get_dir(layer_name, cache=True)):
         return
 
-    mapnik_layers = layer.as_mapnik_layers()
-    if mapnik_layers is None:
+    bbox = storage_instance.get_bbox(layer_name)
+    if bbox is None:
         return
 
     sublayer_node = etree.Element("Layer")
@@ -141,54 +147,46 @@ def get_layer_capabilities(
     name_node.text = layer_name
     sublayer_node.append(name_node)
 
-    low_left = None
-    upper_right = None
-
-    for mapnik_layer in mapnik_layers:
-        layerproj = mapnik.Projection(mapnik_layer.srs)
-        bbox = mapnik_layer.envelope()
-
-        layer_low_left = layerproj.inverse(mapnik.Coord(bbox.minx, bbox.miny))
-        layer_upper_right = layerproj.inverse(mapnik.Coord(bbox.maxx, bbox.maxy))
-
-        if low_left is not None:
-            low_left.x = min(low_left.x, layer_low_left.x)
-            low_left.y = min(low_left.y, layer_low_left.y)
-            upper_right.x = max(upper_right.x, layer_upper_right.x)
-            upper_right.y = max(upper_right.y, layer_upper_right.y)
-        else:
-            low_left = layer_low_left
-            upper_right = layer_upper_right
-
     projected_bbox = etree.Element("EX_GeographicBoundingBox")
 
     west_bound = etree.Element("westBoundLongitude")
-    west_bound.text = str(low_left.x)
+    west_bound.text = str(bbox["left"])
     projected_bbox.append(west_bound)
 
     east_bound = etree.Element("eastBoundLongitude")
-    east_bound.text = str(upper_right.x)
+    east_bound.text = str(bbox["right"])
     projected_bbox.append(east_bound)
 
     south_bound = etree.Element("southBoundLatitude")
-    south_bound.text = str(low_left.y)
+    south_bound.text = str(bbox["bottom"])
     projected_bbox.append(south_bound)
 
     north_bound = etree.Element("northBoundLatitude")
-    north_bound.text = str(upper_right.y)
+    north_bound.text = str(bbox["top"])
     projected_bbox.append(north_bound)
 
     sublayer_node.append(projected_bbox)
 
+    source_ref = osr.SpatialReference()
+    source_ref.ImportFromEPSG(
+        project.epsg_string_to_epsg(current_app.config["VECTOR_PROJECTION_SYSTEM"])
+    )
+
     for crs in current_app.config["WMS"]["ALLOWED_PROJECTIONS"]:
         bbox_node = etree.Element("BoundingBox")
-        proj4 = projection.epsg_string_to_proj4(crs)
-        proj_low_left = low_left.forward(mapnik.Projection(proj4))
-        proj_upper_right = upper_right.forward(mapnik.Projection(proj4))
-        bbox_node.set("minx", str(proj_low_left.x))
-        bbox_node.set("maxx", str(proj_upper_right.x))
-        bbox_node.set("miny", str(proj_low_left.y))
-        bbox_node.set("maxy", str(proj_upper_right.y))
+
+        target_ref = osr.SpatialReference()
+        target_ref.ImportFromEPSG(project.epsg_string_to_epsg(crs))
+
+        t = osr.CoordinateTransformation(source_ref, target_ref)
+
+        bottom_left = t.TransformPoint(bbox["left"], bbox["bottom"])
+        top_right = t.TransformPoint(bbox["right"], bbox["top"])
+
+        bbox_node.set("minx", str(bottom_left[0]))
+        bbox_node.set("maxx", str(top_right[0]))
+        bbox_node.set("miny", str(bottom_left[1]))
+        bbox_node.set("maxy", str(top_right[1]))
         bbox_node.set("CRS", crs)
         sublayer_node.append(bbox_node)
 

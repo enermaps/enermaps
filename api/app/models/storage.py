@@ -28,6 +28,7 @@ class BaseRasterStorage(object):
 
     PROJECTION_FILENAME = "projection.txt"
     GEOMETRIES_FILENAME = "geometries.json"
+    BBOX_FILENAME = "bbox.json"
 
     def get_root_dir(self, cache=False):
         raise NotImplementedError
@@ -61,6 +62,11 @@ class BaseRasterStorage(object):
             self.get_dir(layer_name, cache=True), BaseRasterStorage.GEOMETRIES_FILENAME
         )
 
+    def get_bbox_file(self, layer_name):
+        return safe_join(
+            self.get_dir(layer_name, cache=True), BaseRasterStorage.BBOX_FILENAME
+        )
+
     def get_geometries(self, layer_name):
         filename = self.get_geometries_file(layer_name)
         if not os.path.exists(filename):
@@ -76,6 +82,14 @@ class BaseRasterStorage(object):
 
         with open(filename, "r") as f:
             return f.read()
+
+    def get_bbox(self, layer_name):
+        filename = self.get_bbox_file(layer_name)
+        if not os.path.exists(filename):
+            return None
+
+        with open(filename, "r") as f:
+            return json.load(f)
 
 
 class RasterStorage(BaseRasterStorage):
@@ -126,6 +140,7 @@ class BaseVectorStorage(object):
     PROJECTION_FILENAME = "projection.txt"
     VARIABLES_FILENAME = "variables.json"
     COMBINATIONS_FILENAME = "combinations.json"
+    BBOX_FILENAME = "bbox.json"
 
     def get_root_dir(self, cache=False):
         raise NotImplementedError
@@ -151,6 +166,9 @@ class BaseVectorStorage(object):
     def get_combinations_file(self, layer_name):
         return self.get_file_path(layer_name, BaseVectorStorage.COMBINATIONS_FILENAME)
 
+    def get_bbox_file(self, layer_name):
+        return self.get_file_path(layer_name, BaseVectorStorage.BBOX_FILENAME)
+
     def get_projection(self, layer_name):
         filename = self.get_projection_file(layer_name)
         if not os.path.exists(filename):
@@ -161,6 +179,14 @@ class BaseVectorStorage(object):
 
     def get_combinations(self, layer_name):
         filename = self.get_combinations_file(layer_name)
+        if not os.path.exists(filename):
+            return None
+
+        with open(filename, "r") as f:
+            return json.load(f)
+
+    def get_bbox(self, layer_name):
+        filename = self.get_bbox_file(layer_name)
         if not os.path.exists(filename):
             return None
 
