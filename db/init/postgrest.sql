@@ -289,7 +289,7 @@ SELECT shared_id AS id, row_to_json((
     text('http://datacite.org/schema/kernel-4') as "schemaVersion",
     text('EnerMaps') as "source",
     bool(true) as "isActive")
-    AS x )) AS "attributes" FROM datasets)t;
+    AS x )) AS "attributes" FROM datasets WHERE ds_id > 0)t;
 GRANT SELECT ON public.datacite to api_anon;
 
 -- EnerMaps-specific metadata
@@ -332,6 +332,7 @@ json_build_object(
                   'Other relevant information', metadata ->> 'Other relevant information'
                  ) as metadata
     from datasets
+WHERE ds_id > 0
 GROUP BY ds_id
 ORDER BY ds_id;
 GRANT SELECT ON public.metadata to api_anon;
