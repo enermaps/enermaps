@@ -2,6 +2,7 @@ import copy
 import json
 import os
 import shutil
+
 import mapnik
 
 from app.common import path
