@@ -1,4 +1,7 @@
 -- POSTGREST
+\set db_db `echo "${DB_DB}"`
+\c :db_db;
+
 CREATE ROLE api_anon nologin;
 GRANT usage ON schema public TO api_anon;
 GRANT api_anon TO test;
