@@ -148,7 +148,7 @@ def get_legend(layer_name, pretty_print=False, ttl_hash=None):
             "parameters": json.dumps(parameters),
         }
 
-        with requests.get(url, headers=headers, params=params) as resp:
+        with requests.get(url, headers=headers, params=params, timeout=10) as resp:
             if pretty_print:
                 _pretty_print_request(resp)
 
