@@ -3,7 +3,7 @@
 \set db_password `echo "${DB_PASSWORD}"`
 \set db_db `echo "${DB_DB}"`
 
-CREATE USER :db_user WITH UNENCRYPTED PASSWORD :'db_password';
+ALTER USER :db_user WITH UNENCRYPTED PASSWORD :'db_password';
 ALTER USER :db_user WITH LOGIN;
 CREATE DATABASE :db_db OWNER :'db_user';
 
@@ -49,7 +49,7 @@ CREATE TABLE public.data
     dt double precision,
     z double precision,
     isRaster boolean,
-    vis_id uuid;
+    vis_id uuid
 );
 
 CREATE TABLE public.visualization
