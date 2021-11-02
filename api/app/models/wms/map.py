@@ -213,6 +213,9 @@ def make_raster_style(legend):
 
             raster_colorizer.add_stop(symbol["value"], mapnik.COLORIZER_LINEAR, color)
 
+    # Some raster files use the maximal value for a float32 as a "no data" value
+    raster_colorizer.add_stop(3.4e38, mapnik.Color("transparent"))
+
     raster_symb.colorizer = raster_colorizer
     rule.symbols.append(raster_symb)
     mapnik_style.rules.append(rule)
