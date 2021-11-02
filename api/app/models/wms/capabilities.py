@@ -180,13 +180,20 @@ def get_layer_capabilities(
 
         t = osr.CoordinateTransformation(source_ref, target_ref)
 
-        bottom_left = t.TransformPoint(bbox["left"], bbox["bottom"])
-        top_right = t.TransformPoint(bbox["right"], bbox["top"])
+        # In WMS 1.3.0, the order of parameters for BBOX depends on whether the CRS
+        # definition has flipped axes. This is the case for "EPSG:4326" and "EPSG:3035".
+        if current_app.config["VECTOR_PROJECTION_SYSTEM"] in ("EPSG:4326", "EPSG:3035"):
+            bottom_left = t.TransformPoint(bbox["bottom"], bbox["left"])
+            top_right = t.TransformPoint(bbox["top"], bbox["right"])
+        else:
+            bottom_left = t.TransformPoint(bbox["left"], bbox["bottom"])
+            top_right = t.TransformPoint(bbox["right"], bbox["top"])
 
         bbox_node.set("minx", str(bottom_left[0]))
         bbox_node.set("maxx", str(top_right[0]))
         bbox_node.set("miny", str(bottom_left[1]))
         bbox_node.set("maxy", str(top_right[1]))
+
         bbox_node.set("CRS", crs)
         sublayer_node.append(bbox_node)
 
