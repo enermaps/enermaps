@@ -6,7 +6,7 @@ from collections import namedtuple
 import mapnik
 from flask import abort, current_app
 
-MIME_TO_MAPNIK = {"image/png": "png", "image/jpg": "jpg"}
+MIME_TO_MAPNIK = {"image/png": "png", "image/jpg": "jpeg"}
 
 
 def parse_envelope(params):
@@ -14,6 +14,7 @@ def parse_envelope(params):
     raw_extremas = params["bbox"].split(",")
     if len(raw_extremas) != 4:
         abort(400, "bounding box need four extremas")
+
     try:
         minx, miny, maxx, maxy = [float(extrema) for extrema in raw_extremas]
     except ValueError:
@@ -22,9 +23,12 @@ def parse_envelope(params):
             "Excepted the bounding box to be a comma separated "
             "list of floating point numbers",
         )
+
     if (minx == maxx) or (miny == maxy):
         abort(400, "envelope area shouldn't be 0")
+
     bbox = mapnik.Box2d(minx, miny, maxx, maxy)
+
     return bbox
 
 
