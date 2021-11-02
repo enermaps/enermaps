@@ -1172,13 +1172,15 @@ class LegendTest(BaseApiTest):
             self.assertEqual(len(get_mock.call_args.args), 1)
             self.assertEqual(get_mock.call_args.args[0], "rpc/enermaps_get_legend")
 
-            self.assertEqual(len(get_mock.call_args.kwargs), 2)
+            self.assertEqual(len(get_mock.call_args.kwargs), 3)
 
             self.assertTrue("headers" in get_mock.call_args.kwargs)
             self.assertTrue("Authorization" in get_mock.call_args.kwargs["headers"])
 
             self.assertTrue("params" in get_mock.call_args.kwargs)
             self.assertTrue("parameters" in get_mock.call_args.kwargs["params"])
+
+            self.assertTrue("timeout" in get_mock.call_args.kwargs)
 
             req_parameters = json.loads(
                 get_mock.call_args.kwargs["params"]["parameters"]
