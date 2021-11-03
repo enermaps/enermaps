@@ -283,21 +283,40 @@ def process_layer(
         type, id, variable=variable, time_period=time_period
     )
 
-    current_app.logger.info(f"Download geojson <{layer_name}>...")
-
     time_started = time.time()
 
-    data = client.get_geojson(
-        layer_name, ignore_intersecting=ignore_intersecting, pretty_print=pretty_print
-    )
+    if type == path.VECTOR:
+        current_app.logger.info(f"Download geojson <{layer_name}>...")
 
-    if data is None:
-        current_app.logger.info("... failed to retrieve the geojson")
-        return (False, None)
+        data = client.get_geojson(
+            layer_name,
+            ignore_intersecting=ignore_intersecting,
+            pretty_print=pretty_print,
+        )
 
-    if (data["features"] is None) or (len(data["features"]) == 0):
-        current_app.logger.info("... no feature found in the geojson")
-        return (False, None)
+        if data is None:
+            current_app.logger.info("... failed to retrieve the geojson")
+            return (False, None)
+
+        if (data["features"] is None) or (len(data["features"]) == 0):
+            current_app.logger.info("... no feature found in the geojson")
+            return (False, None)
+    else:
+        current_app.logger.info(f"Download raster files list of <{layer_name}>...")
+
+        data = client.get_rasters(
+            layer_name,
+            ignore_intersecting=ignore_intersecting,
+            pretty_print=pretty_print,
+        )
+
+        if data is None:
+            current_app.logger.info("... failed to retrieve the list of raster files")
+            return (False, None)
+
+        if len(data) == 0:
+            current_app.logger.info("... no raster file found")
+            return (False, None)
 
     time_fetched = time.time()
 
@@ -315,8 +334,8 @@ def process_layer(
     else:
         # Don't download raster files if we have directly access to them
         if current_app.config["RASTER_CACHE_DIR"] is None:
-            for feature in data["features"]:
-                feature_id = feature["id"]
+            for feature in data:
+                feature_id = feature["fid"]
                 current_app.logger.info(f"... download raster file <{feature_id}>")
                 raster_content = client.get_raster_file(id, feature_id)
 
