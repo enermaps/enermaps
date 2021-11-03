@@ -462,3 +462,63 @@ CREATE OR REPLACE FUNCTION enermaps_get_parameters(id integer)
   LANGUAGE SQL
   IMMUTABLE;
 GRANT EXECUTE ON FUNCTION enermaps_get_parameters(id integer) to api_user;
+
+
+-- Returns a list of raster files and their geometry (if available) for a raster dataset
+-- This specialized function is faster than retrieving the geojson if you don't need it.
+DROP FUNCTION IF EXISTS enermaps_get_rasters(parameters text);
+CREATE OR REPLACE FUNCTION enermaps_get_rasters(parameters text)
+  RETURNS jsonb
+  AS $$
+  DECLARE
+      -- where string
+      where_string text := '';
+      -- variables to loop on the json input
+      _key text;
+      _value text;
+      _geometry text;
+      counter int := 0;
+      -- output
+      out_jsonb jsonb;
+  BEGIN
+      FOR _key, _value IN
+        SELECT * FROM json_each_text(parameters::json)
+      LOOP
+        IF counter > 0 THEN
+          where_string := where_string || ' AND ';
+        END IF;
+        IF _key = 'level' THEN
+          where_string := where_string || 'spatial.levl_code = ANY(''' || _value || '''::levl[])';
+        ELSIF _key = 'intersecting' THEN
+          EXECUTE 'SELECT ST_TRANSFORM(ST_GeometryFromText(''' || _value || ''',4326),3035);'
+            INTO _geometry;
+          where_string := where_string || 'ST_intersects(spatial.geometry,''' || _geometry || ''')';
+        ELSEIF is_json_object(_value) THEN
+          where_string := where_string || create_json_where(_key, _value::json);
+        ELSIF _value is null THEN
+          where_string := where_string || _key || ' IS NULL ';
+        ELSE
+          where_string := where_string || _key || ' = ' || _value;
+        END IF;
+        counter := counter + 1;
+      END LOOP;
+      IF counter > 0 THEN
+        where_string := where_string || ' AND ';
+      END IF;
+      EXECUTE format('
+        SELECT jsonb_agg(features.feature)
+        FROM (
+          SELECT jsonb_build_object(
+            ''fid'', data.fid,
+            ''geometry'', ST_AsGeoJSON(ST_Reverse(ST_ForceRHR(ST_TRANSFORM(spatial.geometry, 4326))))::jsonb
+          ) AS feature
+          FROM data, spatial
+          WHERE %s spatial.fid=data.fid
+        ) features;', where_string)
+      INTO out_jsonb;
+      RETURN out_jsonb;
+  END;
+  $$
+  LANGUAGE plpgsql
+  IMMUTABLE;
+GRANT EXECUTE ON FUNCTION enermaps_get_rasters(parameters text) to api_user;

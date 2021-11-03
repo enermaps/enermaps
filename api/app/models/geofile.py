@@ -169,24 +169,24 @@ def save_raster_projection(layer_name, projection):
             print(e)
 
 
-def save_raster_geometries(layer_name, geojson):
+def save_raster_geometries(layer_name, rasters_list):
     type = path.get_type(layer_name)
     storage_instance = storage.create_for_layer_type(type)
 
-    # Ensure that there are some features
-    if len(geojson["features"]) == 0:
+    # Ensure that there are some raster files
+    if len(rasters_list) == 0:
         return
 
     # Processing
     geometries = {}
 
-    for feature in geojson["features"]:
-        geometry = feature["geometry"]
+    for raster in rasters_list:
+        geometry = raster["geometry"]
 
         if (geometry is None) or (geometry["type"] != "Polygon"):
-            geometries[feature["id"]] = None
+            geometries[raster["fid"]] = None
         else:
-            geometries[feature["id"]] = geometry["coordinates"][0]
+            geometries[raster["fid"]] = geometry["coordinates"][0]
 
     # Save the file
     with TemporaryDirectory(prefix=storage_instance.get_tmp_dir()) as tmp_dir:

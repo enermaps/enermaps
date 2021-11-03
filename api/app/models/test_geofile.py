@@ -215,40 +215,23 @@ class TestSaveRasterProjection(BaseApiTest):
 
 
 class TestSaveRasterGeometries(BaseApiTest):
-    GEOJSON = {
-        "type": "FeatureCollection",
-        "features": [
-            {
-                "id": "FID1.tif",
-                "type": "Feature",
-                "geometry": {
-                    "type": "Polygon",
-                    "coordinates": [
-                        [
-                            [10, 30],
-                            [20, 30],
-                            [20, 40],
-                            [10, 40],
-                            [10, 30],
-                        ],
+    RASTERS = [
+        {
+            "fid": "FID1.tif",
+            "geometry": {
+                "type": "Polygon",
+                "coordinates": [
+                    [
+                        [10, 30],
+                        [20, 30],
+                        [20, 40],
+                        [10, 40],
+                        [10, 30],
                     ],
-                },
-                "properties": {
-                    "units": {"var1": "MW", "var2": "kWh", "var3": "kWh"},
-                    "fields": {
-                        "field1": "value1",
-                    },
-                    "legend": {"symbology": []},
-                    "start_at": None,
-                    "variables": {
-                        "var1": None,
-                        "var2": None,
-                        "var3": None,
-                    },
-                },
-            }
-        ],
-    }
+                ],
+            },
+        },
+    ]
 
     def testSuccess(self):
         with self.flask_app.app_context():
@@ -257,7 +240,7 @@ class TestSaveRasterGeometries(BaseApiTest):
             )
 
             geofile.save_raster_geometries(
-                layer_name, copy.deepcopy(TestSaveRasterGeometries.GEOJSON)
+                layer_name, copy.deepcopy(TestSaveRasterGeometries.RASTERS)
             )
 
             folder = path.to_folder_path(layer_name)
@@ -278,9 +261,9 @@ class TestSaveRasterGeometries(BaseApiTest):
             for i in range(len(polygon)):
                 self.assertEqual(
                     polygon[i],
-                    TestSaveRasterGeometries.GEOJSON["features"][0]["geometry"][
-                        "coordinates"
-                    ][0][i],
+                    TestSaveRasterGeometries.RASTERS[0]["geometry"]["coordinates"][0][
+                        i
+                    ],
                 )
 
             filename = f"{self.wms_cache_dir}/rasters/{folder}/bbox.json"
@@ -306,10 +289,9 @@ class TestSaveRasterGeometries(BaseApiTest):
                 path.RASTER, 42, time_period="2015", variable="variable"
             )
 
-            geojson = copy.deepcopy(TestSaveRasterGeometries.GEOJSON)
-            geojson["features"] = []
+            rasters = []
 
-            geofile.save_raster_geometries(layer_name, geojson)
+            geofile.save_raster_geometries(layer_name, rasters)
 
             folder = path.to_folder_path(layer_name)
             self.assertFalse(
@@ -335,10 +317,10 @@ class TestSaveRasterGeometries(BaseApiTest):
                 raster_filename, f"{self.wms_cache_dir}/rasters/{folder}/FID1.tif"
             )
 
-            geojson = copy.deepcopy(TestSaveRasterGeometries.GEOJSON)
-            geojson["features"][0]["geometry"] = None
+            rasters = copy.deepcopy(TestSaveRasterGeometries.RASTERS)
+            rasters[0]["geometry"] = None
 
-            geofile.save_raster_geometries(layer_name, geojson)
+            geofile.save_raster_geometries(layer_name, rasters)
 
             filename = f"{self.wms_cache_dir}/rasters/{folder}/geometries.json"
 
@@ -384,10 +366,10 @@ class TestSaveRasterGeometries(BaseApiTest):
                 raster_filename, f"{self.wms_cache_dir}/rasters/{folder}/FID1.tif"
             )
 
-            geojson = copy.deepcopy(TestSaveRasterGeometries.GEOJSON)
-            geojson["features"][0]["geometry"]["type"] = "Point"
+            rasters = copy.deepcopy(TestSaveRasterGeometries.RASTERS)
+            rasters[0]["geometry"]["type"] = "Point"
 
-            geofile.save_raster_geometries(layer_name, geojson)
+            geofile.save_raster_geometries(layer_name, rasters)
 
             filename = f"{self.wms_cache_dir}/rasters/{folder}/geometries.json"
 
