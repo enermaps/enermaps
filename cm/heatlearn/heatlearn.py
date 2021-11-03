@@ -164,7 +164,18 @@ def getHDD(polygon, year=2020):
                 }
             },
         )
-        df.append(pd.DataFrame(r.json()))
+        if r.status_code != 200:
+            raise ConnectionError(
+                "There is a problem connecting to the EnerMaps API. Please try again"
+                " later."
+            )
+        if len(r.json()) > 0:
+            df.append(pd.DataFrame(r.json()))
+        else:
+            raise ValueError(
+                "There is a problem retrieving the heating degree days. Try to change"
+                " the analysis area."
+            )
     df = pd.concat(df, ignore_index=True)
     if df.shape[0] > 0:  # there are NUTS3 with HDD
         df["HDD"] = df["variables"].apply(lambda x: x["Heating degree days"])
