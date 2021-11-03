@@ -20,6 +20,7 @@ from rasterio.mask import mask
 from shapely import wkt
 from shapely.geometry import Polygon, shape
 from shapely.ops import cascaded_union
+from tensorflow.keras.backend import clear_session
 from tensorflow.keras.models import load_model
 
 # REST API for HDD
@@ -320,6 +321,7 @@ def heatlearn(
     # Predictions
     model = load_model(os.path.join("models", MODELS[tile_size], "model"))
     preds = model.predict(X)
+    clear_session()  # recover memory
 
     # Get HDD
     HDD, HDD_nosummer = getHDD(union_geometry, year=year)
