@@ -108,7 +108,8 @@ services:
     volumes:
       - wms_cache:/wms_cache:ro
     env_file:
-      .env
+      - .env
+      - .env-db-server
 
 volumes:
   wms_cache:
