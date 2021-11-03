@@ -53,7 +53,11 @@ class WMS(Resource):
         )
 
     def get_capabilities(self, _):
-        return Response(get_capabilities(), mimetype="text/xml")
+        capabilities = get_capabilities()
+        if capabilities is None:
+            abort(404)
+
+        return Response(capabilities, mimetype="text/xml")
 
     def get_map(self, normalized_args):
         """Return the map."""
@@ -90,7 +94,7 @@ class WMS(Resource):
         raw_query_layers = normalized_args.get("query_layers", "")
         query_layers = utils.parse_list(raw_query_layers)
         if set(query_layers) != {layer.name for layer in mp.layers}:
-            abort(400, "Requested layer didnt match the query_layers " "parameter")
+            abort(400, "Requested layer didnt match the query_layers parameter")
 
         features = {"features": []}
         for layerindex, mapnick_layer in enumerate(mp.layers):

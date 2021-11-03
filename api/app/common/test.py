@@ -36,6 +36,7 @@ class BaseApiTest(BaseTest):
         self.cm_outputs_dir = tempfile.mkdtemp()
         self.flask_app.config["WMS_CACHE_DIR"] = self.wms_cache_dir
         self.flask_app.config["CM_OUTPUTS_DIR"] = self.cm_outputs_dir
+        self.flask_app.config["FILTER_DATASETS"] = True
         self.client = self.flask_app.test_client()
         self.client.follow_redirect = True
         self.assertEqual(self.flask_app.debug, False)

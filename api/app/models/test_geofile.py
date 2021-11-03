@@ -113,6 +113,9 @@ class TestSaveVectorGeoJSON(BaseApiTest):
             self.assertTrue(
                 os.path.exists(f"{self.wms_cache_dir}/vectors/42/variables.json")
             )
+            self.assertTrue(
+                os.path.exists(f"{self.wms_cache_dir}/vectors/42/bbox.json")
+            )
 
     def testGeoJSONFile(self):
         with self.flask_app.app_context():
@@ -146,6 +149,28 @@ class TestSaveVectorGeoJSON(BaseApiTest):
             self.assertTrue("var1" in variables)
             self.assertTrue("var2" in variables)
             self.assertTrue("var3" not in variables)
+
+    def testBboxFile(self):
+        with self.flask_app.app_context():
+            layer_name = "vector/42"
+
+            geofile.save_vector_geojson(
+                layer_name, copy.deepcopy(TestSaveVectorGeoJSON.GEOJSON)
+            )
+
+            with open(f"{self.wms_cache_dir}/vectors/42/bbox.json", "r") as f:
+                bbox = json.load(f)
+
+            self.assertTrue(isinstance(bbox, dict))
+            self.assertTrue("left" in bbox)
+            self.assertTrue("right" in bbox)
+            self.assertTrue("bottom" in bbox)
+            self.assertTrue("top" in bbox)
+
+            self.assertAlmostEqual(bbox["left"], 7.4)
+            self.assertAlmostEqual(bbox["right"], 7.4)
+            self.assertAlmostEqual(bbox["bottom"], 46.0)
+            self.assertAlmostEqual(bbox["top"], 46.0)
 
 
 class TestSaveRasterProjection(BaseApiTest):
@@ -190,40 +215,23 @@ class TestSaveRasterProjection(BaseApiTest):
 
 
 class TestSaveRasterGeometries(BaseApiTest):
-    GEOJSON = {
-        "type": "FeatureCollection",
-        "features": [
-            {
-                "id": "FID1.tif",
-                "type": "Feature",
-                "geometry": {
-                    "type": "Polygon",
-                    "coordinates": [
-                        [
-                            [10, 30],
-                            [20, 30],
-                            [20, 40],
-                            [10, 40],
-                            [10, 30],
-                        ],
+    RASTERS = [
+        {
+            "fid": "FID1.tif",
+            "geometry": {
+                "type": "Polygon",
+                "coordinates": [
+                    [
+                        [10, 30],
+                        [20, 30],
+                        [20, 40],
+                        [10, 40],
+                        [10, 30],
                     ],
-                },
-                "properties": {
-                    "units": {"var1": "MW", "var2": "kWh", "var3": "kWh"},
-                    "fields": {
-                        "field1": "value1",
-                    },
-                    "legend": {"symbology": []},
-                    "start_at": None,
-                    "variables": {
-                        "var1": None,
-                        "var2": None,
-                        "var3": None,
-                    },
-                },
-            }
-        ],
-    }
+                ],
+            },
+        },
+    ]
 
     def testSuccess(self):
         with self.flask_app.app_context():
@@ -232,7 +240,7 @@ class TestSaveRasterGeometries(BaseApiTest):
             )
 
             geofile.save_raster_geometries(
-                layer_name, copy.deepcopy(TestSaveRasterGeometries.GEOJSON)
+                layer_name, copy.deepcopy(TestSaveRasterGeometries.RASTERS)
             )
 
             folder = path.to_folder_path(layer_name)
@@ -253,10 +261,27 @@ class TestSaveRasterGeometries(BaseApiTest):
             for i in range(len(polygon)):
                 self.assertEqual(
                     polygon[i],
-                    TestSaveRasterGeometries.GEOJSON["features"][0]["geometry"][
-                        "coordinates"
-                    ][0][i],
+                    TestSaveRasterGeometries.RASTERS[0]["geometry"]["coordinates"][0][
+                        i
+                    ],
                 )
+
+            filename = f"{self.wms_cache_dir}/rasters/{folder}/bbox.json"
+            self.assertTrue(os.path.exists(filename))
+
+            with open(filename, "r") as f:
+                bbox = json.load(f)
+
+            self.assertTrue(isinstance(bbox, dict))
+            self.assertTrue("left" in bbox)
+            self.assertTrue("right" in bbox)
+            self.assertTrue("bottom" in bbox)
+            self.assertTrue("top" in bbox)
+
+            self.assertAlmostEqual(bbox["left"], 10)
+            self.assertAlmostEqual(bbox["right"], 20)
+            self.assertAlmostEqual(bbox["bottom"], 30)
+            self.assertAlmostEqual(bbox["top"], 40)
 
     def testFailureNoFeatures(self):
         with self.flask_app.app_context():
@@ -264,14 +289,17 @@ class TestSaveRasterGeometries(BaseApiTest):
                 path.RASTER, 42, time_period="2015", variable="variable"
             )
 
-            geojson = copy.deepcopy(TestSaveRasterGeometries.GEOJSON)
-            geojson["features"] = []
+            rasters = []
 
-            geofile.save_raster_geometries(layer_name, geojson)
+            geofile.save_raster_geometries(layer_name, rasters)
 
             folder = path.to_folder_path(layer_name)
             self.assertFalse(
                 os.path.exists(f"{self.wms_cache_dir}/rasters/{folder}/geometries.json")
+            )
+
+            self.assertFalse(
+                os.path.exists(f"{self.wms_cache_dir}/rasters/{folder}/bbox.json")
             )
 
     def testSuccessNoGeometry(self):
@@ -280,12 +308,20 @@ class TestSaveRasterGeometries(BaseApiTest):
                 path.RASTER, 42, time_period="2015", variable="variable"
             )
 
-            geojson = copy.deepcopy(TestSaveRasterGeometries.GEOJSON)
-            geojson["features"][0]["geometry"] = None
-
-            geofile.save_raster_geometries(layer_name, geojson)
-
             folder = path.to_folder_path(layer_name)
+
+            raster_filename = self.get_testdata_path("hotmaps-cdd_curr_adapted.tif")
+
+            os.makedirs(f"{self.wms_cache_dir}/rasters/{folder}")
+            shutil.copy(
+                raster_filename, f"{self.wms_cache_dir}/rasters/{folder}/FID1.tif"
+            )
+
+            rasters = copy.deepcopy(TestSaveRasterGeometries.RASTERS)
+            rasters[0]["geometry"] = None
+
+            geofile.save_raster_geometries(layer_name, rasters)
+
             filename = f"{self.wms_cache_dir}/rasters/{folder}/geometries.json"
 
             self.assertTrue(os.path.exists(filename))
@@ -297,6 +333,23 @@ class TestSaveRasterGeometries(BaseApiTest):
             self.assertTrue("FID1.tif" in geometries)
 
             self.assertTrue(geometries["FID1.tif"] is None)
+
+            filename = f"{self.wms_cache_dir}/rasters/{folder}/bbox.json"
+            self.assertTrue(os.path.exists(filename))
+
+            with open(filename, "r") as f:
+                bbox = json.load(f)
+
+            self.assertTrue(isinstance(bbox, dict))
+            self.assertTrue("left" in bbox)
+            self.assertTrue("right" in bbox)
+            self.assertTrue("bottom" in bbox)
+            self.assertTrue("top" in bbox)
+
+            self.assertAlmostEqual(bbox["left"], -23.541022392946928)
+            self.assertAlmostEqual(bbox["right"], 60.231123578111784)
+            self.assertAlmostEqual(bbox["bottom"], 24.772138781524273)
+            self.assertAlmostEqual(bbox["top"], 64.20132131770235)
 
     def testSuccessNotPolygon(self):
         with self.flask_app.app_context():
@@ -304,12 +357,20 @@ class TestSaveRasterGeometries(BaseApiTest):
                 path.RASTER, 42, time_period="2015", variable="variable"
             )
 
-            geojson = copy.deepcopy(TestSaveRasterGeometries.GEOJSON)
-            geojson["features"][0]["geometry"]["type"] = "Point"
-
-            geofile.save_raster_geometries(layer_name, geojson)
-
             folder = path.to_folder_path(layer_name)
+
+            raster_filename = self.get_testdata_path("hotmaps-cdd_curr_adapted.tif")
+
+            os.makedirs(f"{self.wms_cache_dir}/rasters/{folder}")
+            shutil.copy(
+                raster_filename, f"{self.wms_cache_dir}/rasters/{folder}/FID1.tif"
+            )
+
+            rasters = copy.deepcopy(TestSaveRasterGeometries.RASTERS)
+            rasters[0]["geometry"]["type"] = "Point"
+
+            geofile.save_raster_geometries(layer_name, rasters)
+
             filename = f"{self.wms_cache_dir}/rasters/{folder}/geometries.json"
 
             self.assertTrue(os.path.exists(filename))
@@ -321,6 +382,35 @@ class TestSaveRasterGeometries(BaseApiTest):
             self.assertTrue("FID1.tif" in geometries)
 
             self.assertTrue(geometries["FID1.tif"] is None)
+
+            filename = f"{self.wms_cache_dir}/rasters/{folder}/geometries.json"
+
+            self.assertTrue(os.path.exists(filename))
+
+            with open(filename, "r") as f:
+                geometries = json.load(f)
+
+            self.assertEqual(len(geometries), 1)
+            self.assertTrue("FID1.tif" in geometries)
+
+            self.assertTrue(geometries["FID1.tif"] is None)
+
+            filename = f"{self.wms_cache_dir}/rasters/{folder}/bbox.json"
+            self.assertTrue(os.path.exists(filename))
+
+            with open(filename, "r") as f:
+                bbox = json.load(f)
+
+            self.assertTrue(isinstance(bbox, dict))
+            self.assertTrue("left" in bbox)
+            self.assertTrue("right" in bbox)
+            self.assertTrue("bottom" in bbox)
+            self.assertTrue("top" in bbox)
+
+            self.assertAlmostEqual(bbox["left"], -23.541022392946928)
+            self.assertAlmostEqual(bbox["right"], 60.231123578111784)
+            self.assertAlmostEqual(bbox["bottom"], 24.772138781524273)
+            self.assertAlmostEqual(bbox["top"], 64.20132131770235)
 
 
 class TestSaveRasterFile(BaseApiTest):

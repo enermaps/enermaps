@@ -31,6 +31,9 @@ def get_dataset_list(disable_filtering=False, pretty_print=False):
             if pretty_print:
                 _pretty_print_request(resp)
 
+            if resp.status_code != 200:
+                resp.raise_for_status()
+
             datasets = resp.json()
 
         # If necessary: filter out datasets that don't exist in the cache
@@ -58,13 +61,16 @@ def get_parameters(dataset_id, pretty_print=False):
             if pretty_print:
                 _pretty_print_request(resp)
 
+            if resp.status_code != 200:
+                resp.raise_for_status()
+
             parameters = resp.json()
 
         return datasets.convert(parameters)
 
     except Exception as ex:
         logging.error(
-            f"Failed to retrieve the variables of the dataset <{dataset_id}>:"
+            f"Failed to retrieve the parameters of the dataset <{dataset_id}>:"
             f" {repr(ex)}"
         )
         return None
@@ -96,11 +102,13 @@ def get_areas():
     ]
 
 
-def get_geojson(layer_name, pretty_print=False):
+def get_geojson(layer_name, ignore_intersecting=False, pretty_print=False):
     """
     Fetch a geojson dataset layer from the enermaps server with a given id.
     """
-    parameters = _parameters_from_layer_name(layer_name)
+    parameters = _parameters_from_layer_name(
+        layer_name, ignore_intersecting=ignore_intersecting
+    )
     return _get_geojson(parameters, pretty_print)
 
 
@@ -109,6 +117,9 @@ def get_raster_file(dataset_id, feature_id):
 
     try:
         with requests.get(url, stream=True) as resp:
+            if resp.status_code != 200:
+                resp.raise_for_status()
+
             return resp.content
     except Exception as ex:
         logging.error(
@@ -128,7 +139,7 @@ def get_legend(layer_name, pretty_print=False, ttl_hash=None):
 
     url = DATASETS_SERVER_URL + "rpc/enermaps_get_legend"
 
-    parameters = _parameters_from_layer_name(layer_name)
+    parameters = _parameters_from_layer_name(layer_name, ignore_intersecting=True)
 
     headers = {"Authorization": "Bearer {}".format(DATASETS_SERVER_API_KEY)}
 
@@ -137,9 +148,12 @@ def get_legend(layer_name, pretty_print=False, ttl_hash=None):
             "parameters": json.dumps(parameters),
         }
 
-        with requests.get(url, headers=headers, params=params) as resp:
+        with requests.get(url, headers=headers, params=params, timeout=10) as resp:
             if pretty_print:
                 _pretty_print_request(resp)
+
+            if resp.status_code != 200:
+                resp.raise_for_status()
 
             return resp.json()
     except Exception as ex:
@@ -161,6 +175,40 @@ def get_area(id, pretty_print=False):
     }
 
     return _get_geojson(parameters, pretty_print=pretty_print)
+
+
+def get_rasters(layer_name, ignore_intersecting=False, pretty_print=False):
+    """
+    Retrieve all the raster files of a layer, along with their geometry (if any)
+    from the enermaps server
+    """
+    url = DATASETS_SERVER_URL + "rpc/enermaps_get_rasters"
+
+    headers = {"Authorization": "Bearer {}".format(DATASETS_SERVER_API_KEY)}
+
+    parameters = _parameters_from_layer_name(
+        layer_name, ignore_intersecting=ignore_intersecting
+    )
+
+    try:
+        params = {
+            "parameters": json.dumps(parameters),
+        }
+
+        with requests.get(url, headers=headers, params=params) as resp:
+            if pretty_print:
+                _pretty_print_request(resp)
+
+            if resp.status_code != 200:
+                resp.raise_for_status()
+
+            data = resp.json()
+
+    except Exception as ex:
+        logging.error(f"Failed to retrieve the list of raster files: {repr(ex)}")
+        return None
+
+    return data
 
 
 def _get_geojson(parameters, pretty_print=False):
@@ -188,10 +236,13 @@ def _get_geojson(parameters, pretty_print=False):
                 if pretty_print:
                     _pretty_print_request(resp)
 
+                if resp.status_code != 200:
+                    resp.raise_for_status()
+
                 data = resp.json()
 
             if ("features" not in data) or (data["features"] is None):
-                break
+                return None
 
             if all_data is not None:
                 all_data["features"].extend(data["features"])
@@ -210,7 +261,7 @@ def _get_geojson(parameters, pretty_print=False):
     return all_data
 
 
-def _parameters_from_layer_name(layer_name):
+def _parameters_from_layer_name(layer_name, ignore_intersecting=False):
     (type, id, variable, time_period, _) = path.parse_unique_layer_name(layer_name)
 
     parameters = {
@@ -237,9 +288,11 @@ def _parameters_from_layer_name(layer_name):
     for k, v in dataset_parameters["default_parameters"].items():
         if k not in parameters:
             if k == "intersecting":
-                parameters[k] = v
-            elif (k == "fields") and (len(v) > 0):
-                parameters[k] = v
+                if not (ignore_intersecting):
+                    parameters[k] = v
+            elif k == "fields":
+                if len(v) > 0:
+                    parameters[k] = v
             elif k == "level":
                 parameters[k] = f"{v}"
             else:
@@ -252,7 +305,7 @@ def _dataset_is_on_disk(dataset):
     type = path.RASTER if dataset["is_raster"] else path.VECTOR
     dataset_name = path.make_unique_layer_name(type, dataset["ds_id"])
     storage_instance = storage.create_for_layer_type(type)
-    return os.path.exists(storage_instance.get_dir(dataset_name))
+    return os.path.exists(storage_instance.get_dir(dataset_name, cache=True))
 
 
 def _pretty_print_request(response):
