@@ -24,15 +24,8 @@ from tensorflow.keras.backend import clear_session
 from tensorflow.keras.models import load_model
 
 # REST API for HDD
-env_db_server = ".env-db-server"
-if not os.path.exists(env_db_server):
-    raise FileNotFoundError("Missing .env-db-server file")
-with open(env_db_server, "r") as f:
-    for line in f.read().splitlines():
-        if line.startswith("DATASETS_SERVER_API_KEY"):
-            API_KEY = line.split("=")[-1].replace('"', "")
-        if line.startswith("DATASETS_SERVER_URL"):
-            POSTGREST_URL = line.split("=")[-1]
+POSTGREST_URL = os.environ.get("DATASETS_SERVER_URL", "")
+API_KEY = os.environ.get("DATASETS_SERVER_API_KEY", "").replace('"', "")
 POSTGREST_ENDPOINT = "rpc/enermaps_query_table"
 HEADERS = {"Authorization": "Bearer {}".format(API_KEY)}
 
