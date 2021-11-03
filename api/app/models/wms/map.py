@@ -89,7 +89,7 @@ def create_style_from_legend(layer_name, layer, mapnik_layer):
 
     # Get the layer style and type
     if type in (path.VECTOR, path.RASTER):
-        legend = client.get_legend(layer_name, ttl_hash=client.get_ttl_hash(10))
+        legend = client.get_legend(layer_name, ttl_hash=client.get_ttl_hash(30))
     elif type == path.CM:
         legend = geofile.get_cm_legend(layer_name)
     else:

@@ -144,7 +144,7 @@
                     transparent: 'true',
                     layers: encodeURIComponent(layer.name),
                     format: 'image/png',
-                    tileSize: 512,
+                    tileSize: 256,
                   },
               );
             } else {
@@ -167,7 +167,7 @@
                     transparent: 'true',
                     layers: encodeURIComponent(layer.name),
                     format: 'image/png',
-                    tileSize: 512,
+                    tileSize: 256,
                   },
               );
             } else {
