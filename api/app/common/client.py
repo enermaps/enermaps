@@ -177,6 +177,40 @@ def get_area(id, pretty_print=False):
     return _get_geojson(parameters, pretty_print=pretty_print)
 
 
+def get_rasters(layer_name, ignore_intersecting=False, pretty_print=False):
+    """
+    Retrieve all the raster files of a layer, along with their geometry (if any)
+    from the enermaps server
+    """
+    url = DATASETS_SERVER_URL + "rpc/enermaps_get_rasters"
+
+    headers = {"Authorization": "Bearer {}".format(DATASETS_SERVER_API_KEY)}
+
+    parameters = _parameters_from_layer_name(
+        layer_name, ignore_intersecting=ignore_intersecting
+    )
+
+    try:
+        params = {
+            "parameters": json.dumps(parameters),
+        }
+
+        with requests.get(url, headers=headers, params=params) as resp:
+            if pretty_print:
+                _pretty_print_request(resp)
+
+            if resp.status_code != 200:
+                resp.raise_for_status()
+
+            data = resp.json()
+
+    except Exception as ex:
+        logging.error(f"Failed to retrieve the list of raster files: {repr(ex)}")
+        return None
+
+    return data
+
+
 def _get_geojson(parameters, pretty_print=False):
     """
     Fetch a geofile (geojson or raster) dataset layer from the enermaps server

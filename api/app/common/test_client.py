@@ -1252,3 +1252,104 @@ class LegendTest(BaseApiTest):
             layer_name = path.make_unique_layer_name(path.VECTOR, 1)
             legend = client.get_legend(layer_name, ttl_hash=900)
             self.assertTrue(legend is None)
+
+
+class RastersTest(BaseApiTest):
+
+    PARAMETERS = {
+        "end_at": None,
+        "parameters": {
+            "end_at": None,
+            "fields": [],
+            "levels": [],
+            "is_tiled": False,
+            "start_at": None,
+            "is_raster": False,
+            "variables": [],
+            "time_periods": [],
+            "temporal_granularity": None,
+        },
+        "default_parameters": {},
+    }
+
+    RASTERS = [
+        {
+            "fid": "FID1.tif",
+            "geometry": {
+                "type": "Polygon",
+                "coordinates": [[[0, 20], [10, 20], [10, 30], [0, 30], [0, 20]]],
+            },
+        },
+        {
+            "fid": "FID2.tif",
+            "geometry": {
+                "type": "Polygon",
+                "coordinates": [[[0, 30], [10, 30], [10, 40], [0, 40], [0, 30]]],
+            },
+        },
+    ]
+
+    @patch("requests.get")
+    @patch(
+        "app.common.client.get_parameters",
+        new=Mock(return_value=datasets.convert(PARAMETERS)),
+    )
+    def testSuccess(self, get_mock):
+        with self.flask_app.app_context():
+            get_mock.return_value = setupResponse(
+                Response(json.dumps(RastersTest.RASTERS))
+            )
+
+            rasters = client.get_rasters("raster/42")
+
+            self.assertEqual(get_mock.call_count, 1)
+
+            self.assertEqual(len(get_mock.call_args.args), 1)
+            self.assertEqual(get_mock.call_args.args[0], "rpc/enermaps_get_rasters")
+
+            self.assertEqual(len(get_mock.call_args.kwargs), 2)
+
+            self.assertTrue("headers" in get_mock.call_args.kwargs)
+            self.assertTrue("Authorization" in get_mock.call_args.kwargs["headers"])
+
+            self.assertTrue("params" in get_mock.call_args.kwargs)
+            self.assertTrue("parameters" in get_mock.call_args.kwargs["params"])
+
+            req_parameters = json.loads(
+                get_mock.call_args.kwargs["params"]["parameters"]
+            )
+
+            self.assertTrue("data.ds_id" in req_parameters)
+            self.assertEqual(req_parameters["data.ds_id"], 42)
+
+            self.assertTrue("variable" not in req_parameters)
+            self.assertTrue("start_at" not in req_parameters)
+            self.assertTrue("intersecting" not in req_parameters)
+            self.assertTrue("level" not in req_parameters)
+            self.assertTrue("fields" not in req_parameters)
+
+            self.assertEqual(rasters, RastersTest.RASTERS)
+
+    @patch("requests.get")
+    @patch(
+        "app.common.client.get_parameters",
+        new=Mock(return_value=datasets.convert(PARAMETERS)),
+    )
+    def testFailure(self, get_mock):
+        with self.flask_app.app_context():
+            get_mock.return_value = setupResponse(Response(None, 500))
+
+            rasters = client.get_rasters("raster/42")
+            self.assertTrue(rasters is None)
+
+    @patch("requests.get")
+    @patch(
+        "app.common.client.get_parameters",
+        new=Mock(return_value=datasets.convert(PARAMETERS)),
+    )
+    def testException(self, get_mock):
+        with self.flask_app.app_context():
+            get_mock.side_effect = Exception()
+
+            rasters = client.get_rasters("raster/42")
+            self.assertTrue(rasters is None)
