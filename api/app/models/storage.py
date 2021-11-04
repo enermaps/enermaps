@@ -1,6 +1,8 @@
 import glob
+import io
 import json
 import os
+import zipfile
 
 from flask import current_app, safe_join
 
@@ -132,6 +134,27 @@ class CMStorage(BaseRasterStorage):
 
         with open(filename, "r") as f:
             return f.read()
+
+    def as_zip(self, layer_name):
+        cm_dir = self.get_dir(layer_name)
+
+        if not os.path.exists(cm_dir):
+            return None
+
+        filenames = os.listdir(cm_dir)
+        if len(filenames) == 0:
+            return None
+
+        zipbuffer = io.BytesIO()
+        with zipfile.ZipFile(zipbuffer, "a") as zip_file:
+            for filename in filenames:
+                file_path = safe_join(cm_dir, filename)
+                with open(file_path, "rb") as fd:
+                    zip_file.writestr(filename, fd.read())
+
+        zipbuffer.seek(0)
+
+        return zipbuffer
 
 
 class BaseVectorStorage(object):
