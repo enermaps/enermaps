@@ -1,7 +1,9 @@
+import io
 import json
 import os
 import shutil
 import tempfile
+import zipfile
 from pathlib import Path
 
 from app.common import path
@@ -485,6 +487,78 @@ class TestCMStorage(BaseApiTest):
                 ),
                 f"{self.cm_outputs_dir}/some_name/01/23/45/67/01234567-0000-0000-0000-000000000000/result.tif",
             )
+
+    def testAsZip(self):
+        with self.flask_app.app_context():
+            storage_instance = storage.CMStorage()
+            layer_name = "cm/some_name/01234567-0000-0000-0000-000000000000"
+
+            os.makedirs(storage_instance.get_dir(layer_name))
+
+            with open(storage_instance.get_file_path(layer_name, "data.prj"), "w") as f:
+                f.write("PROJECTION")
+
+            with open(
+                storage_instance.get_file_path(layer_name, "parameters.json"), "w"
+            ) as f:
+                f.write("PARAMETERS")
+
+            with open(
+                storage_instance.get_file_path(layer_name, "result.json"), "w"
+            ) as f:
+                f.write("RESULT")
+
+            raster_filename = self.get_testdata_path("hotmaps-cdd_curr_adapted.tif")
+
+            shutil.copy(
+                raster_filename, storage_instance.get_file_path(layer_name, "data.tif")
+            )
+
+            content = storage_instance.as_zip(layer_name)
+
+            self.assertTrue(content is not None)
+            self.assertTrue(isinstance(content, io.BytesIO))
+
+            with zipfile.ZipFile(content, "r") as zip_file:
+                filenames = zip_file.namelist()
+                self.assertEqual(len(filenames), 4)
+                self.assertTrue("data.prj" in filenames)
+                self.assertTrue("parameters.json" in filenames)
+                self.assertTrue("result.json" in filenames)
+                self.assertTrue("data.tif" in filenames)
+
+                with zip_file.open("data.prj", "r") as f:
+                    self.assertEqual(f.read(), b"PROJECTION")
+
+                with zip_file.open("parameters.json", "r") as f:
+                    self.assertEqual(f.read(), b"PARAMETERS")
+
+                with zip_file.open("result.json", "r") as f:
+                    self.assertEqual(f.read(), b"RESULT")
+
+                with zip_file.open("data.tif", "r") as f:
+                    with open(raster_filename, "rb") as f2:
+                        self.assertEqual(f.read(), f2.read())
+
+    def testAsZipWithNotExistingDirectory(self):
+        with self.flask_app.app_context():
+            storage_instance = storage.CMStorage()
+            layer_name = "cm/some_name/01234567-0000-0000-0000-000000000000"
+
+            os.makedirs(storage_instance.get_dir(layer_name))
+
+            content = storage_instance.as_zip(layer_name)
+
+            self.assertTrue(content is None)
+
+    def testAsZipWithEmptyDirectory(self):
+        with self.flask_app.app_context():
+            storage_instance = storage.CMStorage()
+            layer_name = "cm/some_name/01234567-0000-0000-0000-000000000000"
+
+            content = storage_instance.as_zip(layer_name)
+
+            self.assertTrue(content is None)
 
 
 class TestVectorStorage(BaseApiTest):
