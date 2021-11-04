@@ -352,7 +352,7 @@ class CMTaskTest(BaseApiTest):
 
 
 class CMTaskDownloadTest(BaseApiTest):
-    def testSuccess(self):
+    def setupFiles(self):
         with self.flask_app.app_context():
             storage_instance = storage.CMStorage()
             layer_name = "cm/mock_cm/01234567-0000-0000-0000-000000000000"
@@ -377,6 +377,10 @@ class CMTaskDownloadTest(BaseApiTest):
             shutil.copy(
                 raster_filename, storage_instance.get_file_path(layer_name, "data.tif")
             )
+
+    def testSuccess(self):
+        with self.flask_app.app_context():
+            self.setupFiles()
 
             response = self.client.get(
                 "api/cm/mock_cm/task/01234567-0000-0000-0000-000000000000/download/"
@@ -407,11 +411,31 @@ class CMTaskDownloadTest(BaseApiTest):
                     self.assertEqual(f.read(), b"RESULT")
 
                 with zip_file.open("data.tif", "r") as f:
+                    raster_filename = self.get_testdata_path(
+                        "hotmaps-cdd_curr_adapted.tif"
+                    )
                     with open(raster_filename, "rb") as f2:
                         self.assertEqual(f.read(), f2.read())
 
     def testDownloadFromUnknownTask(self):
         response = self.client.get(
+            "api/cm/mock_cm/task/01234567-0000-0000-0000-000000000000/download/"
+        )
+        self.assertEqual(response.status_code, 404)
+
+    def testCheckSuccess(self):
+        with self.flask_app.app_context():
+            self.setupFiles()
+
+            response = self.client.head(
+                "api/cm/mock_cm/task/01234567-0000-0000-0000-000000000000/download/"
+            )
+
+            self.assertEqual(response.status_code, 200)
+            self.assertEqual(len(response.data), 0)
+
+    def testCheckFromUnknownTask(self):
+        response = self.client.head(
             "api/cm/mock_cm/task/01234567-0000-0000-0000-000000000000/download/"
         )
         self.assertEqual(response.status_code, 404)
