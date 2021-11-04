@@ -7,13 +7,13 @@ import os
 import re
 import unicodedata
 
-from flask import Response, abort, redirect, request, url_for
+from flask import Response, abort, redirect, request, send_file, url_for
 from flask_restx import Namespace, Resource
 from werkzeug.datastructures import FileStorage
 
 from app.common import path
 from app.models import calculation_module as CM
-from app.models import geofile
+from app.models import geofile, storage
 
 api = Namespace("cm", "Calculation module endpoint")
 current_file_dir = os.path.dirname(os.path.abspath(__file__))
@@ -120,6 +120,40 @@ class CMTask(Resource):
             geofile.save_cm_result(layer_name, result)
 
         return task_status
+
+
+@api.route("/<string:cm_name>/task/<string:task_id>/download/")
+class CMTaskDownload(Resource):
+    def get(self, cm_name, task_id):
+        """Get a ZIP file containing the result of the task"""
+        layer_name = path.make_unique_layer_name(path.CM, cm_name, task_id=task_id)
+        storage_instance = storage.create_for_layer_type(path.CM)
+
+        content = storage_instance.as_zip(layer_name)
+        if content is None:
+            abort(404)
+
+        return send_file(
+            content,
+            attachment_filename=f"{cm_name}_{task_id}.zip",
+            mimetype="application/zip",
+        )
+
+    def head(self, cm_name, task_id):
+        """Get a ZIP file containing the result of the task"""
+        layer_name = path.make_unique_layer_name(path.CM, cm_name, task_id=task_id)
+        storage_instance = storage.create_for_layer_type(path.CM)
+
+        cm_dir = storage_instance.get_dir(layer_name)
+
+        if not os.path.exists(cm_dir):
+            abort(404)
+
+        filenames = os.listdir(cm_dir)
+        if len(filenames) == 0:
+            abort(404)
+
+        return Response(status=200)
 
 
 @api.route("/<string:cm_name>/task/<string:task_id>/geofile/")

@@ -76,6 +76,9 @@ def get_mapnik_map(normalized_args):
 
             mp.layers.append(mapnik_layer)
 
+    if len(mp.layers) == 0:
+        return None
+
     return mp
 
 

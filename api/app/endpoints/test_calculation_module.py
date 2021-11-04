@@ -1,8 +1,10 @@
 """Test for the calculation modules
 """
+import io
 import json
 import os
 import shutil
+import zipfile
 from unittest.mock import Mock, patch
 from urllib.parse import urlparse
 
@@ -347,6 +349,96 @@ class CMTaskTest(BaseApiTest):
             "api/cm/mock_cm/task/01234567-0000-0000-0000-000000000000/"
         )
         self.assertEqual(response.status_code, 405)
+
+
+class CMTaskDownloadTest(BaseApiTest):
+    def setupFiles(self):
+        with self.flask_app.app_context():
+            storage_instance = storage.CMStorage()
+            layer_name = "cm/mock_cm/01234567-0000-0000-0000-000000000000"
+
+            os.makedirs(storage_instance.get_dir(layer_name))
+
+            with open(storage_instance.get_file_path(layer_name, "data.prj"), "w") as f:
+                f.write("PROJECTION")
+
+            with open(
+                storage_instance.get_file_path(layer_name, "parameters.json"), "w"
+            ) as f:
+                f.write("PARAMETERS")
+
+            with open(
+                storage_instance.get_file_path(layer_name, "result.json"), "w"
+            ) as f:
+                f.write("RESULT")
+
+            raster_filename = self.get_testdata_path("hotmaps-cdd_curr_adapted.tif")
+
+            shutil.copy(
+                raster_filename, storage_instance.get_file_path(layer_name, "data.tif")
+            )
+
+    def testSuccess(self):
+        with self.flask_app.app_context():
+            self.setupFiles()
+
+            response = self.client.get(
+                "api/cm/mock_cm/task/01234567-0000-0000-0000-000000000000/download/"
+            )
+            self.assertEqual(response.status_code, 200)
+
+            self.assertTrue(response.data is not None)
+            self.assertEqual(response.mimetype, "application/zip")
+
+            zipbuffer = io.BytesIO()
+            zipbuffer.write(response.data)
+
+            with zipfile.ZipFile(zipbuffer, "r") as zip_file:
+                filenames = zip_file.namelist()
+                self.assertEqual(len(filenames), 4)
+                self.assertTrue("data.prj" in filenames)
+                self.assertTrue("parameters.json" in filenames)
+                self.assertTrue("result.json" in filenames)
+                self.assertTrue("data.tif" in filenames)
+
+                with zip_file.open("data.prj", "r") as f:
+                    self.assertEqual(f.read(), b"PROJECTION")
+
+                with zip_file.open("parameters.json", "r") as f:
+                    self.assertEqual(f.read(), b"PARAMETERS")
+
+                with zip_file.open("result.json", "r") as f:
+                    self.assertEqual(f.read(), b"RESULT")
+
+                with zip_file.open("data.tif", "r") as f:
+                    raster_filename = self.get_testdata_path(
+                        "hotmaps-cdd_curr_adapted.tif"
+                    )
+                    with open(raster_filename, "rb") as f2:
+                        self.assertEqual(f.read(), f2.read())
+
+    def testDownloadFromUnknownTask(self):
+        response = self.client.get(
+            "api/cm/mock_cm/task/01234567-0000-0000-0000-000000000000/download/"
+        )
+        self.assertEqual(response.status_code, 404)
+
+    def testCheckSuccess(self):
+        with self.flask_app.app_context():
+            self.setupFiles()
+
+            response = self.client.head(
+                "api/cm/mock_cm/task/01234567-0000-0000-0000-000000000000/download/"
+            )
+
+            self.assertEqual(response.status_code, 200)
+            self.assertEqual(len(response.data), 0)
+
+    def testCheckFromUnknownTask(self):
+        response = self.client.head(
+            "api/cm/mock_cm/task/01234567-0000-0000-0000-000000000000/download/"
+        )
+        self.assertEqual(response.status_code, 404)
 
 
 class CMTaskGeoJSONTest(BaseApiTest):
