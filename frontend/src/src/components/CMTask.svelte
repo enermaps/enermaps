@@ -2,6 +2,8 @@
   import {BASE_URL} from '../settings.js';
   import {deleteTask, cancelTask, PENDING_STATUS, REFRESHING_STATUS, FAILURE_STATUS} from '../tasks.js';
   import {tasksStore} from '../stores.js';
+  import {recomputeLayer, getLayer} from '../layers.js';
+  import {getTaskDownloadLink} from '../client.js';
   import Chart from './Chart.svelte';
   import Value from './Value.svelte';
 
@@ -57,6 +59,17 @@
     task.effect = null;
     $tasksStore = $tasksStore;
   }
+
+
+  async function download() {
+    const url = await getTaskDownloadLink(task);
+
+    if (url !== null) {
+      window.open(url);
+    } else {
+      recomputeLayer(getLayer(task.layer), null);
+    }
+  }
 </script>
 
 
@@ -96,7 +109,7 @@
     background-color: #ff9933;
   }
 
-  div.tabs span:not(.close_button) {
+  span.tab {
     border: 1px solid black;
     padding: 4px;
     margin-left: 0;
@@ -105,7 +118,7 @@
     cursor: pointer;
   }
 
-  div.tabs span.selected:not(.close_button) {
+  span.tab.selected {
     border-bottom: 1px solid white;
     font-weight: bold;
     background-color: white;
@@ -123,6 +136,17 @@
     margin-top: 10px;
     padding-left: 10px;
     padding-right: 10px;
+  }
+
+  span.download {
+    position: absolute;
+    right: 24px;
+    padding-top: 0px;
+    cursor: pointer;
+  }
+
+  span.download.no-margin {
+    right: 8px;
   }
 
   span.close_button {
@@ -159,11 +183,15 @@
   {:else}
     <div class="container">
       <div class="tabs">
-        <span class:selected={activeTab === 'parameters'} on:click={() => (activeTab = 'parameters')}>Parameters</span>
-        <span class:selected={activeTab === 'result'} on:click={() => (activeTab = 'result')}>Result</span>
+        <span class="tab" class:selected={activeTab === 'parameters'} on:click={() => (activeTab = 'parameters')}>Parameters</span>
+        <span class="tab" class:selected={activeTab === 'result'} on:click={() => (activeTab = 'result')}>Result</span>
         {#if legend}
-          <span class:selected={activeTab === 'legend'} on:click={() => (activeTab = 'legend')}>Legend</span>
+          <span class="tab" class:selected={activeTab === 'legend'} on:click={() => (activeTab = 'legend')}>Legend</span>
         {/if}
+        <span class="download" class:no-margin={!displayCloseButton} on:click={() => (download())}>🔗
+          <!-- <a href="{BASE_URL}api/cm/{task.cm.name}/task/{task.id}/download/"
+             title="Download those results" target="_blank">🔗</a> -->
+        </span>
         {#if displayCloseButton }
           <span class="close_button" on:click="{deleteTask(task)}"><img src='{BASE_URL}images/clear-icon.png' alt='close'></span>
         {/if}
