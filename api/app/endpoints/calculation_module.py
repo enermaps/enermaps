@@ -139,6 +139,22 @@ class CMTaskDownload(Resource):
             mimetype="application/zip",
         )
 
+    def head(self, cm_name, task_id):
+        """Get a ZIP file containing the result of the task"""
+        layer_name = path.make_unique_layer_name(path.CM, cm_name, task_id=task_id)
+        storage_instance = storage.create_for_layer_type(path.CM)
+
+        cm_dir = storage_instance.get_dir(layer_name)
+
+        if not os.path.exists(cm_dir):
+            abort(404)
+
+        filenames = os.listdir(cm_dir)
+        if len(filenames) == 0:
+            abort(404)
+
+        return Response(status=200)
+
 
 @api.route("/<string:cm_name>/task/<string:task_id>/geofile/")
 class CMTaskGeofile(Resource):
