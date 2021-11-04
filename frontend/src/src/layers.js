@@ -76,7 +76,9 @@ export function recomputeLayer(layer, leafletGroup) {
   if ((task !== null) && (task.result.status === SUCCESS_STATUS)) {
     refreshTask(task);
 
-    leafletGroup.removeLayer(layer.leaflet_layer);
+    if (leafletGroup != null) {
+      leafletGroup.removeLayer(layer.leaflet_layer);
+    }
 
     layer.effect = 'compute';
     layer.leaflet_layer = null;

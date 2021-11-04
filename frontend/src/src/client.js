@@ -121,3 +121,20 @@ export async function deleteTaskResult(task) {
       });
   return await taskResponse.json();
 }
+
+
+export async function getTaskDownloadLink(task) {
+  const url = BASE_URL + 'api/cm/' + task.cm.name + '/task/' + task.id + '/download/';
+
+  const response = await fetch(
+      url,
+      {
+        method: 'HEAD',
+      });
+
+  if (!response.ok) {
+    return null;
+  }
+
+  return url;
+}
