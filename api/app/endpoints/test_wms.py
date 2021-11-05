@@ -1,4 +1,5 @@
 import io
+import json
 import os
 import shutil
 from unittest.mock import Mock, patch
@@ -193,6 +194,10 @@ class WMSGetMapTest(BaseApiTest):
                 storage_instance.get_file_path(layer_name, "FID.tif"),
             )
 
+            geometries = {"FID.tif": [[0, 60], [10, 60], [10, 30], [0, 30], [0, 60]]}
+            with open(storage_instance.get_geometries_file(layer_name), "w") as f:
+                json.dump(geometries, f)
+
     @patch(
         "app.common.client.get_legend",
         new=Mock(return_value=None),
@@ -217,6 +222,20 @@ class WMSGetMapTest(BaseApiTest):
         "app.common.client.get_legend",
         new=Mock(return_value=None),
     )
+    def testVectorTileWorkflowUnknownLayer(self):
+        """Retrieve a vector layer as image from WMS endpoint,
+        check if the image has the right size  without being empty.
+        """
+        args = self.TILE_PARAMETERS
+        args["layers"] = path.make_unique_layer_name(path.AREA, "unknown")
+
+        response = self.client.get("api/wms", query_string=args)
+        self.assertStatusCodeEqual(response, 404)
+
+    @patch(
+        "app.common.client.get_legend",
+        new=Mock(return_value=None),
+    )
     def testRasterTileWorkflow(self):
         """Retrieve a raster layer as image from WMS endpoint,
         then check that the tile request is not empty"""
@@ -231,6 +250,19 @@ class WMSGetMapTest(BaseApiTest):
         self.assertEqual(image.size, self.TILE_SIZE)
         self.assertEqual(image.size, self.TILE_SIZE)
         self.assertEqual(image.format, "PNG")
+
+    @patch(
+        "app.common.client.get_legend",
+        new=Mock(return_value=None),
+    )
+    def testRasterTileWorkflowUnknownLayer(self):
+        """Retrieve a raster layer as image from WMS endpoint,
+        then check that the tile request is not empty"""
+        args = self.TILE_PARAMETERS
+        args["layers"] = path.make_unique_layer_name(path.RASTER, 42, "unknown")
+
+        response = self.client.get("api/wms", query_string=args)
+        self.assertStatusCodeEqual(response, 404)
 
 
 class TestWMSLibCompliance(BaseIntegrationTest):
