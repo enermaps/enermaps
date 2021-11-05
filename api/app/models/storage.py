@@ -31,6 +31,7 @@ class BaseRasterStorage(object):
     PROJECTION_FILENAME = "projection.txt"
     GEOMETRIES_FILENAME = "geometries.json"
     BBOX_FILENAME = "bbox.json"
+    ZOOM_LIMITS_FILENAME = "zoom_limits.json"
 
     def get_root_dir(self, cache=False):
         raise NotImplementedError
@@ -62,6 +63,11 @@ class BaseRasterStorage(object):
             self.get_dir(layer_name, cache=True), BaseRasterStorage.BBOX_FILENAME
         )
 
+    def get_zoom_limits_file(self, layer_name):
+        return safe_join(
+            self.get_dir(layer_name, cache=True), BaseRasterStorage.ZOOM_LIMITS_FILENAME
+        )
+
     def get_geometries(self, layer_name):
         filename = self.get_geometries_file(layer_name)
         if not os.path.exists(filename):
@@ -82,6 +88,14 @@ class BaseRasterStorage(object):
         filename = self.get_bbox_file(layer_name)
         if not os.path.exists(filename):
             return None
+
+        with open(filename, "r") as f:
+            return json.load(f)
+
+    def get_zoom_limits(self, layer_name):
+        filename = self.get_zoom_limits_file(layer_name)
+        if not os.path.exists(filename):
+            return {}
 
         with open(filename, "r") as f:
             return json.load(f)
