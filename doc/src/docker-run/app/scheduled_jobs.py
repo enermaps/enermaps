@@ -1,20 +1,11 @@
-import logging
 import time
+from os import environ as env
 from subprocess import run
 
 import schedule
 
-
-def module_logger(mod_name: str):
-    logger = logging.getLogger(mod_name)
-    handler = logging.StreamHandler()
-    formatter = logging.Formatter(
-        '%(asctime)s [%(name)-12s] %(levelname)-8s %(message)s')
-    handler.setFormatter(formatter)
-    logger.addHandler(handler)
-    logger.setLevel(logging.DEBUG)
-    return logger
-
+from . import module_logger
+from .editor_auth_handler import get_authenticated_user_string
 
 log = module_logger(__name__)
 
@@ -31,9 +22,18 @@ def push_job():
     run(['sh', '/root/scripts/push'])
 
 
+def refresh_auth_users():
+    """Job to be scheduled to handle syncing the users with edit rights to the wiki"""
+    log.info('Refreshing AUTH_USERS')
+    auth_users = get_authenticated_user_string()
+    log.info(f'AUTH_USERS={auth_users}')
+    env['AUTH_USERS'] = auth_users
+
+
 if __name__ == '__main__':
     schedule.every().hour.at(':00').do(fetch_pull_job)
     schedule.every().hour.at(':05').do(push_job)
+    schedule.every().hour.at(':10').do(refresh_auth_users)
 
     while True:
         schedule.run_pending()
