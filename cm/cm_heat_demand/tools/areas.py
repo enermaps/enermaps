@@ -183,7 +183,7 @@ def get_areas(
     )
 
     # modification for the legend
-    filtered_map = np.where(filtered_map == 0, 10**-6, filtered_map)
+    filtered_map = np.where(filtered_map == 0, 10 ** -6, filtered_map)
 
     return (
         geo_transform,
