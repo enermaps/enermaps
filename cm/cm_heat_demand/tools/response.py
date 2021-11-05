@@ -1,7 +1,8 @@
-import numpy as np
-import jenkspy
-from matplotlib import cm as colormap
 import logging
+
+import jenkspy
+import numpy as np
+from matplotlib import cm as colormap
 
 
 def get_response(
@@ -98,13 +99,13 @@ def get_response(
         return base_dictionary
 
     def get_legend(
-            map_array: np.array,
-            base_dictionary: dict,
-            legend_name: str = "Heat demand",
-            unit: str = "MWh",
-            nb_class: int = 5,
-            colormap_name: str = "plasma",
-        ) -> dict:
+        map_array: np.array,
+        base_dictionary: dict,
+        legend_name: str = "Heat demand",
+        unit: str = "MWh",
+        nb_class: int = 5,
+        colormap_name: str = "plasma",
+    ) -> dict:
         """Prepare a legend dict in HotMaps format"""
         if not isinstance(nb_class, int):
             raise TypeError(f"{nb_class} type is not 'int'.")
@@ -122,11 +123,7 @@ def get_response(
             logging.info("=== BREAKS ===")
             logging.error(breaks)
             logging.error(listify_array)
-            legend = {
-                "name": legend_name,
-                "type": "custom",
-                "symbology": []
-            }
+            legend = {"name": legend_name, "type": "custom", "symbology": []}
             for enum, i in enumerate(range(len(breaks) - 1)):
                 legend["symbology"].append(
                     {
@@ -150,6 +147,6 @@ def get_response(
     response = get_graphs(base_dictionary=response, areas_potential=areas_potential)
     response = get_indicators(base_dictionary=response)
     response = get_geofiles(base_dictionary=response, layer_name=raster_name)
-    response = get_legend(base_dictionary=response, map_array=map_array, )
+    response = get_legend(base_dictionary=response, map_array=map_array)
 
     return response
