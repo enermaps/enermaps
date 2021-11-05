@@ -182,6 +182,9 @@ def get_areas(
         district_heating_zone_threshold=district_heating_zone_threshold,
     )
 
+    # modification for the legend
+    filtered_map = np.where(filtered_map == 0, 10**-6, filtered_map)
+
     return (
         geo_transform,
         total_heat_demand,
