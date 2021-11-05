@@ -401,7 +401,22 @@ class Layer(ABC):
         self.storage = storage
 
     @abstractmethod
-    def as_mapnik_layers(self, bbox=None, bbox_projection=None):
+    def get_data_for_bounding_box(self, bbox, bbox_projection):
+        """Get layer-specific data relevant to the provided bounding box.
+
+        Consider the data as an opaque array, that can be given to
+        'as_mapnik_layers()' later. For example:
+
+
+        data = layer.get_data_for_bounding_box(bbox, bbox_projection)
+
+        for i in range(0,len(data)+1,4):
+            mapnik_layers = layer.as_mapnik_layers(data[i:i+4])
+        """
+        pass
+
+    @abstractmethod
+    def as_mapnik_layers(self, data=None):
         """Return the Layer as a list of mapnik layers
         (https://mapnik.org/docs/v2.2.0/api/python/mapnik._mapnik.Layer-class.html)
         """
@@ -421,11 +436,17 @@ class RasterLayer(Layer):
     def is_queryable(self):
         return False
 
-    def as_mapnik_layers(self, bbox=None, bbox_projection=None):
-        """Open the geofile as Mapnik layer."""
+    def get_data_for_bounding_box(self, bbox, bbox_projection):
+        return self.get_rasters_in_bbox(bbox, bbox_projection)
+
+    def as_mapnik_layers(self, data=None):
+        """Return the Layer as a list of mapnik layers"""
 
         # Only use as many raster files as necessary
-        rasters = self.get_rasters_in_bbox(bbox, bbox_projection)
+        if data is None:
+            rasters = self.get_rasters_in_bbox(None, None)
+        else:
+            rasters = data
 
         type = path.get_type(self.name)
 
@@ -440,6 +461,9 @@ class RasterLayer(Layer):
 
         layers = []
         for feature_id, raster_path in rasters:
+            if not os.path.exists(raster_path):
+                continue
+
             layer = mapnik.Layer(feature_id)
             layer.datasource = mapnik.Gdal(file=raster_path, band=1)
             layer.queryable = False
@@ -465,10 +489,13 @@ class RasterLayer(Layer):
 
         # No geometry file
         if geometries is None:
-            for feature_id in self.storage.list_feature_ids(self.name):
-                rasters.append(
-                    (feature_id, self.storage.get_file_path(self.name, feature_id))
-                )
+            # Only CM layers are authorized to not have a geometry file
+            type = path.get_type(self.name)
+            if type == path.CM:
+                for feature_id in self.storage.list_feature_ids(self.name):
+                    rasters.append(
+                        (feature_id, self.storage.get_file_path(self.name, feature_id))
+                    )
             return rasters
 
         # No polygon in the geometry file
@@ -503,10 +530,13 @@ class RasterLayer(Layer):
 
         # No geometry file
         if geometries is None:
-            for feature_id in self.storage.list_feature_ids(self.name):
-                rasters.append(
-                    (feature_id, self.storage.get_file_path(self.name, feature_id))
-                )
+            # Only CM layers are authorized to not have a geometry file
+            type = path.get_type(self.name)
+            if type == path.CM:
+                for feature_id in self.storage.list_feature_ids(self.name):
+                    rasters.append(
+                        (feature_id, self.storage.get_file_path(self.name, feature_id))
+                    )
             return rasters
 
         # No polygon in the geometry file
@@ -573,10 +603,19 @@ class RasterLayer(Layer):
 class VectorLayer(Layer):
     """Future implementation of a vector layer."""
 
-    def as_mapnik_layers(self, bbox=None, bbox_projection=None):
+    def get_data_for_bounding_box(self, bbox, bbox_projection):
         geojson_file = self.storage.get_geojson_file(self.name)
         if not os.path.exists(geojson_file):
             print(f"GeoJSON file '{geojson_file}' was not found")
+            return []
+
+        return [geojson_file]
+
+    def as_mapnik_layers(self, data=None):
+        if data is None:
+            data = self.get_data_for_bounding_box(None, None)
+
+        if len(data) == 0:
             return None
 
         projection = self.storage.get_projection(self.name)
@@ -588,7 +627,7 @@ class VectorLayer(Layer):
             )
 
         layer = mapnik.Layer(self.name)
-        layer.datasource = mapnik.GeoJSON(file=geojson_file)
+        layer.datasource = mapnik.GeoJSON(file=data[0])
         layer.srs = projection
         layer.queryable = True
 
