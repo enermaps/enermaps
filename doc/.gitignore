@@ -3,3 +3,4 @@ reset.sh
 original/
 translate/
 .env
+.git/
