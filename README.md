@@ -199,3 +199,22 @@ Work in your environment following this procedure:
  - Various imports are automatically sorted for you
  - Automatic checks verify that unused libraries and variables can't get committed
  - Contributors are expected to follow this code of conduct as it guarantees code formatting quality
+
+## Documentation Platform
+
+Creating a thorough documentation for this project is an essential task. To facilitate this, a dedicated platform has been composed. The source code and detailed description of the platform can be found in the [doc](./doc) module of this repository.
+
+### Who can contribute to the project documentation?
+
+All the GitHub users who are either collaborators or contributors in the enermaps/doc repository can login on the web platform with their GitHub user name or email address and are authorized to modify the docs.
+
+**Note that it is not sufficient to simply have read / write access in the enermaps/doc repository to be authorized for content editing. A user should be added to the list of collaborators explicitly, or should contribute to some branch of the repo with at least one commit.**
+
+### Building the platform
+
+All the environment variable values should be added to `.env-doc`, then the service can be built and ran using the following commands:
+
+```shell
+docker-compose --file docker-compose-doc.yml build
+docker-compose --file docker-compose-doc.yml up -d
+```
