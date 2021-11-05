@@ -1,5 +1,6 @@
 """Functions related to the "GetMap" operation of the Web Map Service (WMS)"""
 
+import os
 import shutil
 
 import mapnik
@@ -10,64 +11,85 @@ from app.models import geofile
 from app.models.wms import utils
 
 
-def get_mapnik_map(normalized_args):
-    """Return the Mapnik object (with hardcoded symbology/rule)."""
-
+def get_map_image(normalized_args):
+    size = utils.parse_size(normalized_args)
+    bbox = utils.parse_envelope(normalized_args)
     bbox_projection = utils.parse_projection(normalized_args)
 
-    size = utils.parse_size(normalized_args)
-    mp = mapnik.Map(size.width, size.height, "+init=" + bbox_projection)
+    image = mapnik.Image(size.width, size.height)
 
-    mp.legend_images_folders = []
-
-    # Get the list of the layers to display
     layers = utils.parse_layers(normalized_args)
+    success = False
     for index, layer_name in enumerate(layers):
-        layer = geofile.load(layer_name)
-        if layer is None:
-            return None
+        if add_layer_to_image(index, layer_name, size, bbox, bbox_projection, image):
+            success = True
 
-        mapnik_layers = layer.as_mapnik_layers(
-            bbox=utils.parse_envelope(normalized_args), bbox_projection=bbox_projection
-        )
-        if (mapnik_layers is None) or (len(mapnik_layers) == 0):
-            continue
+    if not success:
+        return None
 
-        # Create the style for the lines (if necessary)
-        (type, _, variable, _, _) = path.parse_unique_layer_name(layer_name)
+    return image
 
-        line_style = None
-        line_style_name = None
 
-        if type == path.VECTOR:
-            line_style, line_style_name = make_line_style(variable)
-        elif type == path.AREA:
-            line_style, line_style_name = make_line_style(None)
+def add_layer_to_image(index, layer_name, size, bbox, bbox_projection, image):
+    # Create the mapnik layers
+    layer = geofile.load(layer_name)
+    if layer is None:
+        return False
+
+    if not os.path.exists(layer.storage.get_dir(layer_name, cache=True)):
+        return False
+
+    layer_data = layer.get_data_for_bounding_box(bbox, bbox_projection)
+    if (layer_data is None) or (len(layer_data) == 0):
+        return True
+
+    # Create the style for the lines (if necessary)
+    (type, _, variable, _, _) = path.parse_unique_layer_name(layer_name)
+
+    line_style = None
+    line_style_name = None
+
+    if type == path.VECTOR:
+        line_style, line_style_name = make_line_style(variable)
+    elif type == path.AREA:
+        line_style, line_style_name = make_line_style(None)
+
+    if line_style is not None:
+        line_style_name += f"_{index}"
+
+    # Render the mapnik layers into the image
+    legend_style_created = False
+    legend_style = None
+    legend_style_name = None
+    legend_images_folder = None
+
+    for i in range(0, len(layer_data) + 1, 9):
+        mp = mapnik.Map(size.width, size.height, "+init=" + bbox_projection)
 
         if line_style is not None:
-            line_style_name += f"_{index}"
             mp.append_style(line_style_name, line_style)
 
-        # Create the style for the legend (if necessary)
-        legend_style = None
-        legend_style_name = None
-
-        if path.get_type(layer_name) in (path.RASTER, path.VECTOR, path.CM):
-            (
-                legend_style,
-                legend_style_name,
-                legend_images_folder,
-            ) = create_style_from_legend(layer_name, layer, mapnik_layers[0])
-
-            if legend_images_folder is not None:
-                mp.legend_images_folders.append(legend_images_folder)
-
         if legend_style is not None:
-            legend_style_name += f"_{index}"
             mp.append_style(legend_style_name, legend_style)
 
-        # Apply the styles to the layer
-        for mapnik_layer in mapnik_layers:
+        for mapnik_layer in layer.as_mapnik_layers(data=layer_data[i : i + 9]):
+            # Create the style for the legend (if necessary)
+            if not (legend_style_created) and (
+                path.get_type(layer_name) in (path.RASTER, path.VECTOR, path.CM)
+            ):
+                (
+                    legend_style,
+                    legend_style_name,
+                    legend_images_folder,
+                ) = create_style_from_legend(layer_name, layer, mapnik_layer)
+
+                if legend_style is not None:
+                    legend_style_name += f"_{index}"
+                    mp.append_style(legend_style_name, legend_style)
+
+                legend_style_created = True
+
+            # Apply the styles to the mapnik layers
             if line_style is not None:
                 mapnik_layer.styles.append(line_style_name)
 
@@ -76,8 +98,40 @@ def get_mapnik_map(normalized_args):
 
             mp.layers.append(mapnik_layer)
 
-    if len(mp.layers) == 0:
-        return None
+        mp.zoom_to_box(bbox)
+        mapnik.render(mp, image)
+
+    # Cleanup
+    if legend_images_folder is not None:
+        shutil.rmtree(legend_images_folder)
+
+    return True
+
+
+def get_mapnik_map_for_feature_info(normalized_args):
+    """Return the Mapnik object (with hardcoded symbology/rule)."""
+
+    bbox_projection = utils.parse_projection(normalized_args)
+
+    size = utils.parse_size(normalized_args)
+    mp = mapnik.Map(size.width, size.height, "+init=" + bbox_projection)
+
+    layers = utils.parse_layers(normalized_args)
+    for index, layer_name in enumerate(layers):
+        # Only authorized for vector and area layers
+        if path.get_type(layer_name) not in (path.VECTOR, path.AREA):
+            return None
+
+        layer = geofile.load(layer_name)
+        if layer is None:
+            return None
+
+        mapnik_layers = layer.as_mapnik_layers()
+        if (mapnik_layers is None) or (len(mapnik_layers) == 0):
+            return None
+
+        for mapnik_layer in mapnik_layers:
+            mp.layers.append(mapnik_layer)
 
     return mp
 
@@ -222,7 +276,7 @@ def make_raster_style(legend):
     raster_symb.colorizer = raster_colorizer
     rule.symbols.append(raster_symb)
     mapnik_style.rules.append(rule)
-    return mapnik_style, "num_raster_style"
+    return mapnik_style, "raster_style"
 
 
 def make_polygon_style(variable, legend):

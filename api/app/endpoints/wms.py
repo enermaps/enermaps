@@ -13,14 +13,12 @@ For more information about the WMS, see https://portal.ogc.org/files/?artifact_i
 
 import json
 
-import mapnik
 from flask import Response, abort, request
 from flask_restx import Namespace, Resource
 
-from app.models import geofile
 from app.models.wms import utils
 from app.models.wms.capabilities import get_capabilities
-from app.models.wms.map import delete_image_folders, get_mapnik_map
+from app.models.wms.map import get_map_image, get_mapnik_map_for_feature_info
 
 api = Namespace("wms", "WMS compatible endpoint")
 
@@ -61,20 +59,11 @@ class WMS(Resource):
 
     def get_map(self, normalized_args):
         """Return the map."""
-        mapnik_format, mime_format = utils.parse_format(normalized_args)
-        size = utils.parse_size(normalized_args)
-
-        mp = get_mapnik_map(normalized_args)
-        if mp is None:
+        image = get_map_image(normalized_args)
+        if image is None:
             abort(404)
 
-        mp.zoom_to_box(utils.parse_envelope(normalized_args))
-
-        image = mapnik.Image(size.width, size.height)
-        mapnik.render(mp, image)
-
-        delete_image_folders(mp)
-
+        mapnik_format, mime_format = utils.parse_format(normalized_args)
         return Response(image.tostring(mapnik_format), mimetype=mime_format)
 
     def get_feature_info(self, normalized_args):
@@ -85,7 +74,7 @@ class WMS(Resource):
         if normalized_args["info_format"] != "application/json":
             abort(400, "this endpoint doesn't support non json return value")
 
-        mp = get_mapnik_map(normalized_args)
+        mp = get_mapnik_map_for_feature_info(normalized_args)
         if mp is None:
             abort(404)
 
@@ -98,13 +87,6 @@ class WMS(Resource):
 
         features = {"features": []}
         for layerindex, mapnick_layer in enumerate(mp.layers):
-            layer_name = mapnick_layer.name
-            layer = geofile.load(layer_name)
-            if not layer.is_queryable:
-                abort(
-                    400, "Requested query layer {} is not queryable.".format(layer.name)
-                )
-
             mapnick_layer.queryable = True
 
             position = utils.parse_position(normalized_args)
