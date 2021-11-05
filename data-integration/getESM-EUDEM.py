@@ -26,6 +26,8 @@ import utilities
 from shapely.geometry import box
 
 N_FILES = {21: 27, 35: 279}
+COMPRESS = {21: "DEFLATE", 35: "DEFLATE"}
+RESOLUTION = {21: 400, 35: 20000}
 ISRASTER = True
 logging.basicConfig(level=logging.INFO)
 
@@ -109,7 +111,7 @@ LEGENDS = {
 RECORD_METADATA = {
     "variable": {21: "Elevation", 35: "Land use"},
     "unit": {21: "m", 35: ""},
-    "vis_id": {35: LEGENDS[35]["vis_id"]},
+    "vis_id": {21: None, 35: LEGENDS[35]["vis_id"]},
 }
 
 
@@ -126,7 +128,7 @@ QUERY_PARAMETERS = {
 }
 
 
-def convertZip(directory: str):
+def convertZip(directory: str, ds_id=int, Remove=True):
     """Convert files downloaded from Copernicus."""
     files_list = glob.glob(os.path.join(directory, "*.zip"))
     if len(files_list) > 0:
@@ -149,17 +151,20 @@ def convertZip(directory: str):
             )
             os.system(  # nosec
                 "gdal_translate {source_file} {dest_file}  -of GTIFF --config"
-                " GDAL_PAM_ENABLED NO -co COMPRESS=DEFLATE -co BIGTIFF=YES".format(
-                    source_file=source_file, dest_file=dest_file
+                " GDAL_PAM_ENABLED NO -co COMPRESS={compress} -co BIGTIFF=YES".format(
+                    source_file=source_file,
+                    dest_file=dest_file,
+                    compress=COMPRESS[ds_id],
                 )
             )
-            shutil.rmtree(extract_dir)
-            os.remove(zipfile)
+            if Remove:
+                shutil.rmtree(extract_dir)
+                os.remove(zipfile)
     else:
         logging.info("There are no zip files to extract")
 
 
-def tiling(directory: str):
+def tiling(directory: str, ds_id=int, Remove=True):
     """Tile data from Copernicus."""
     files_list = glob.glob(os.path.join(directory, "orig_tiles", "*.tif"))
     if len(files_list) > 0:
@@ -168,12 +173,17 @@ def tiling(directory: str):
             target_dir = os.path.join(directory, os.path.basename(file))[:-4]
             os.mkdir(target_dir)
             os.system(  # nosec
-                "gdal_retile.py -ps 400 400 -targetDir {target_dir} -csv tiles.csv"
-                " -csvDelim , {source_file} ".format(
-                    target_dir=target_dir, source_file=file
+                "gdal_retile.py -ps {resolution} {resolution} -co COMPRESS={compress}"
+                " -co BIGTIFF=YES -targetDir {target_dir} -csv tiles.csv -csvDelim ,"
+                " {source_file} ".format(
+                    resolution=RESOLUTION[ds_id],
+                    compress=COMPRESS[ds_id],
+                    target_dir=target_dir,
+                    source_file=file,
                 )
             )
-        shutil.rmtree(os.path.join(directory, "orig_tiles"))
+        if Remove:
+            shutil.rmtree(os.path.join(directory, "orig_tiles"))
     else:
         logging.info("There are no files to tile")
 
@@ -227,7 +237,6 @@ if __name__ == "__main__":
     ds_ids, isForced = utilities.parser(script_name, datasets)
 
     for ds_id in ds_ids:
-
         directory = "data/{}".format(ds_id)
 
         if (
@@ -236,12 +245,16 @@ if __name__ == "__main__":
             and len(os.listdir(directory)) == N_FILES[ds_id]
         ):
             # Dezip
-            convertZip(directory)
+            convertZip(directory, ds_id, Remove=True)
 
             # Retile
-            tiling(directory)
+            tiling(directory, ds_id, Remove=True)
 
             data, spatial = get(directory)
+
+            # Add metadata
+            data["ds_id"] = ds_id
+            data = addRecordMetadata(data, RECORD_METADATA)
 
             # Remove existing dataset
             if utilities.datasetExists(ds_id, DB_URL) and not isForced:
@@ -280,11 +293,10 @@ if __name__ == "__main__":
             # Add legends
             legends = []
             for key in LEGENDS.keys():
-                df = pd.DataFrame()
-                df["vis_id"] = LEGENDS[key]["vis_id"]
-                df["legend"] = json.dumps(LEGENDS[key]["legend"])
-                legends.append(df)
-            legends_df = pd.concat(legends)
+                legends.append(
+                    (LEGENDS[key]["vis_id"], json.dumps(LEGENDS[key]["legend"]))
+                )
+            legends_df = pd.DataFrame(legends, columns=["vis_id", "legend"])
             utilities.toPostgreSQL(
                 legends_df,
                 DB_URL,
@@ -292,8 +304,6 @@ if __name__ == "__main__":
             )
 
             # Create data table
-            data["ds_id"] = ds_id
-            data = addRecordMetadata(data, RECORD_METADATA)
             utilities.toPostgreSQL(
                 data,
                 DB_URL,
