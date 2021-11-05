@@ -44,13 +44,6 @@ class BaseRasterStorage(object):
     def get_file_path(self, layer_name, feature_id):
         return safe_join(self.get_dir(layer_name), feature_id)
 
-    def list_feature_ids(self, layer_name):
-        folder = self.get_dir(layer_name)
-        return [
-            x[len(folder) + 1 :]
-            for x in glob.glob(safe_join(folder, "**/*.tif"), recursive=True)
-        ]
-
     def get_projection_file(self, layer_name):
         (_, id, _, _, _) = path.parse_unique_layer_name(layer_name)
         return safe_join(
@@ -123,6 +116,13 @@ class CMStorage(BaseRasterStorage):
 
     def get_dir(self, layer_name, cache=False):
         return safe_join(self.get_root_dir(), path.to_folder_path(layer_name))
+
+    def list_feature_ids(self, layer_name):
+        folder = self.get_dir(layer_name)
+        return [
+            x[len(folder) + 1 :]
+            for x in glob.glob(safe_join(folder, "**/*.tif"), recursive=True)
+        ]
 
     def get_projection_file(self, layer_name, feature_id):
         return safe_join(self.get_dir(layer_name), feature_id.replace(".tif", ".prj"))
