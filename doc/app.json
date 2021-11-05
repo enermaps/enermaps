@@ -25,10 +25,6 @@
     "GITHUB_WIKI_REMOTE_BRANCH": {
       "description": "The branch of the repository under $GITHUB_WIKI_REMOTE_URL to be used.",
       "value": "data"
-    },
-    "AUTH_USERS": {
-      "description": "List of user emails separated by a coma. The specified email addresses need to be identical to the one that is used for logging in to GitHub.",
-      "value": "some@one.com,ex@mple.com"
     }
   },
   "stack": "container",

@@ -1,8 +1,8 @@
-version: "3.2"
+version: "3.8"
 services:
   wiki:
-    image: enermaps/wiki
-    container_name: enermaps-wiki
+    image: enermaps/doc
+    container_name: enermaps-doc
     env_file: .env
     build: .
     ports:

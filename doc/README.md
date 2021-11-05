@@ -1,6 +1,6 @@
 # EnerMaps wiki
 
-[![Deploy](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy?template=https://github.com/enermaps/wiki-platform)
+[![Deploy](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy?template=https://github.com/enermaps/enermaps/tree/master/doc)
 
 ## Table Of Contents
 
@@ -10,6 +10,7 @@
     - [Build & Run](#build--run)
 - [OAuth Configuration](#oauth-configuration)
     - [Setting up OAuth with GitHub](#setting-up-oauth-with-github)
+    - [Who can edit the wiki?](#who-can-edit-the-wiki)
 - [Automatic remote operations](#automatic-remote-operations)
     - [Container startup](#container-startup)
     - [Authorizing `git` read and write operations inside the container](#authorizing-git-read-and-write-operations-inside-the-container)
@@ -30,8 +31,6 @@ Kindly create _.env_ file based on _.env.example_ and update the environment var
 
 - `GITHUB_CLIENT_ID`: OAuth provider app client ID for GitHub
 - `GITHUB_CLIENT_SECRET`: OAuth provider app client secret for GitHub
-- `AUTH_USERS`: list of user emails separated by a coma (eg. email1,email2,email3). The specified email addresses need
-  to be identical to the one that is used for logging in to GitHub.
 - `GITHUB_WIKI_REMOTE_URL`: The URL to the repository where the wiki data resides
 - `GITHUB_WIKI_REMOTE_BRANCH`: The branch of the repository under `GITHUB_WIKI_REMOTE_URL` to be used
 
@@ -61,7 +60,6 @@ docker run -d --rm \
 --name enermaps-wiki \
 -e GITHUB_CLIENT_ID=0123456789 \
 -e GITHUB_CLIENT_SECRET=0123456789 \
--e AUTH_USERS=email1,email2,email3 \
 -e GITHUB_WIKI_REMOTE_URL=https://<bot personal access token>@github.com/<owner>/<repo name>.git \
 -e GITHUB_WIKI_REMOTE_BRANCH=data \
 enermaps/wiki
@@ -124,6 +122,12 @@ The setting fields should be filled out as follows:
     - `<YOUR_URL>/__omnigollum__/auth/github/callback`
 
 To test it in local development, you can take a look at the [Develop](#develop) section.
+
+### Who can edit the wiki?
+
+A GitHub user will be authorized to log in on the wiki platform iff the user is a contributor or a collaborator in the
+repository under `GITHUB_WIKI_REMOTE_URL`. The [GitHub API](https://docs.github.com/en/rest) is used to dynamically
+determine the identity of these users.
 
 ## Automatic remote operations
 

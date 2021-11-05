@@ -40,10 +40,11 @@ RUN apt-get update && \
     apt-get upgrade -y && \
     apt-get install -y python3-pip
 
-# docker-run: Startup script
+# docker-run: Setup for the startup & scheduled job-handler script
 RUN mkdir /root/docker-run
-COPY src/docker-run /root/docker-run
+COPY src/docker-run/requirements.txt /root/docker-run/requirements.txt
 RUN pip3 install -r /root/docker-run/requirements.txt
+COPY src/docker-run /root/docker-run
 
 # Expose port 80, as Gollum needs it to serve the wiki
 # Port is configured in /root/docker-run/run.py by the --port option
@@ -51,4 +52,5 @@ EXPOSE 80
 
 # Handling git initialization and Gollum startup
 # Using a Python script for the cleaner handling of environment variables and conditional operators
-ENTRYPOINT ["python3", "-u", "/root/docker-run/run.py"]
+WORKDIR /root/docker-run
+ENTRYPOINT ["python3", "-m", "app.run"]
