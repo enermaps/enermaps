@@ -27,7 +27,7 @@ from shapely.geometry import box
 
 N_FILES = {21: 27, 35: 279}
 COMPRESS = {21: "DEFLATE", 35: "DEFLATE"}
-RESOLUTION = {21: 400, 35: 20000}
+RESOLUTION = {21: 800, 35: 20000}
 ISRASTER = True
 logging.basicConfig(level=logging.INFO)
 
