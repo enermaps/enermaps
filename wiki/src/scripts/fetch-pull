@@ -1,0 +1,5 @@
+#!/bin/bash
+echo "$(date '+%Y-%m-%d, %T, %A') - Fetching and pulling commits from remote"
+cd /root/wiki-data || exit
+git fetch
+git pull

@@ -1,0 +1,92 @@
+#wiki-wrapper #template blockquote {
+    margin: 1em 0;
+    border-left: 4px solid #ddd;
+    padding-left: 0.8em;
+    color: #555;
+}
+
+#head {
+    margin-top: 0.5em;
+    border-bottom: 0px;
+}
+
+#head + #head {
+    border-bottom: 1px solid #ddd;
+}
+
+#head h1 {
+    font-size: 2.8em;
+    padding: 10px 0 10px 0;
+}
+
+#logo {
+    height: 10em;
+    width: 8.4em;
+    margin-left: 4em;
+    margin-top: 0em;
+    float: left;
+}
+
+#wiki-wrapper {
+    max-width: 1020px;
+}
+
+.markdown-body {
+    font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Helvetica, Arial, sans-serif, Apple Color Emoji, Segoe UI Emoji;
+    font-size: inherit;
+    padding: 0 20px 20px 20px;
+    line-height: inherit;
+    overflow: visible;
+}
+
+#wiki-body {
+    font-size: 1.2em;
+    line-height: 1.5;
+    word-wrap: break-word;
+}
+
+#wiki-sidebar {
+    font-size: 1em;
+    line-height: 1.2;
+    word-wrap: break-word;
+    border-radius: 0em !important;
+    background-color: #fff !important;
+}
+
+#wiki-footer {
+    clear: none;
+    font-size: 1em;
+    line-height: 1.2;
+    word-wrap: break-word;
+}
+
+#footer-content {
+    border-radius: 0em !important;
+    background-color: #fff !important;
+    border: 1px solid #ddd;
+    overflow: hidden;
+}
+
+#sidebar-content h1 {
+    font-size: 1.4em;
+}
+
+#sidebar-content h2 {
+    font-size: 1.3em;
+}
+
+#sidebar-content h3 {
+    font-size: 1.2em;
+}
+
+#sidebar-content h4 {
+    font-size: 1.1em;
+}
+
+.markdown-body li + li {
+    margin-top: 0.25em;
+}
+
+h2 :not(:last-child) {
+    display: none !important;
+}
