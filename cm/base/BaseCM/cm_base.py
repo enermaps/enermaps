@@ -47,6 +47,7 @@ def get_default_schema_path():
 
 class CMBase(Task):
     schema_path = ""
+    available_layer = list()
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -88,6 +89,7 @@ class CMBase(Task):
         d["pretty_name"] = self.pretty_name
         d["name"] = self.name
         d["queue"] = self.queue
+        d["available_layer"] = self.available_layer
         return json.dumps(d)
 
     def post_raster(self, raster_name, raster_fd):
@@ -101,6 +103,14 @@ class CMBase(Task):
         except ConnectionError as error:
             logging.error("Error during the post of the file.")
             raise ConnectionError(error)
+
+    def validate_layers(self, rasters: list):
+        if not rasters:
+            raise ValueError("Raster list must be non-empty.")
+        for raster in rasters:
+            layer_id, *_ = raster.split("/")
+            if int(layer_id) not in self.available_layer:
+                raise ValueError("The selected layer can not be process with this CM.")
 
 
 def base_task(app, schema_path):

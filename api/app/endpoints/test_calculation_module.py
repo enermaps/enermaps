@@ -24,6 +24,7 @@ class MockCM:
         self.called_with_args = []
         self.status = status
         self.result = result
+        self.available_layer = list()
 
     def call(self, *args):
         self.called_with_args = args
@@ -62,12 +63,13 @@ class CMListTest(BaseApiTest):
             self.assertEqual(len(cms), 1)
 
             cm = cms[0]
-            self.assertEqual(len(cm), 4)
+            self.assertEqual(len(cm), 5)
 
             self.assertEqual(cm["name"], ref.name)
             self.assertEqual(cm["pretty_name"], ref.pretty_name)
             self.assertEqual(cm["parameters"], ref.parameters)
             self.assertEqual(cm["schema"], ref.schema)
+            self.assertEqual(cm["available_layer"], ref.available_layer)
 
     def testPostNotAllowed(self):
         response = self.client.post("api/cm/")
