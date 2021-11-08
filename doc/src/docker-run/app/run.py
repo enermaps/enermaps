@@ -13,13 +13,13 @@ if __name__ == '__main__':
     if not wiki_data_dir.exists():
         run(['git', 'clone', '--branch', wiki_remote_branch, wiki_remote_url, str(wiki_data_dir)])
 
-    Popen(['python3', '-m', 'app.scheduled_jobs'], close_fds=True, cwd='/root/docker-run')
+    Popen(['python3', '-m', 'app.scheduled_jobs'], close_fds=True, cwd='/root/app/docker-run')
 
     # Set the $AUTH_USERS env var
     refresh_auth_users()
 
     # Start gollum
-    run(['/usr/local/bin/gollum', str(wiki_data_dir),
-         '--config', '/root/gollum-data/config.rb',
+    run(['gollum', str(wiki_data_dir),
+         '--config', '/root/app/gollum/config.rb',
          '--port', f'{env.get("PORT", "80")}',
          '--ref', wiki_remote_branch])
