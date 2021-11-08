@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta http-equiv="Content-type" content="text/html;charset=utf-8">
+  <meta name="MobileOptimized" content="width">
+  <meta name="HandheldFriendly" content="true">
+  <meta name="viewport" content="width=device-width">
+  <link rel="icon" href="https://enermaps.eu/wp-content/uploads/2020/05/cropped-enefavicon-32x32.png" sizes="32x32">
+  <link rel="icon" href="https://enermaps.eu/wp-content/uploads/2020/05/cropped-enefavicon-192x192.png" sizes="192x192">
+  <link rel="apple-touch-icon" href="https://enermaps.eu/wp-content/uploads/2020/05/cropped-enefavicon-180x180.png">
+  {{#sprockets_stylesheet_tag}}app{{/sprockets_stylesheet_tag}}
+  {{#sprockets_stylesheet_tag}}print print{{/sprockets_stylesheet_tag}}
+
+  {{#css}}<link rel="stylesheet" type="text/css" href="{{custom_css}}" media="all">{{/css}}
+  {{#noindex}}<meta name="robots" content="noindex, nofollow" />{{/noindex}}
+
+  <script>
+  var criticMarkup = '{{critic_markup}}';
+	var baseUrl = '{{base_url}}';
+	var uploadDest = 'uploads';
+	var perPageUploads = '{{per_page_uploads}}';
+	if (perPageUploads == 'true') {
+	  uploadDest = uploadDest + window.location.pathname.replace(/.*gollum\/[-\w]+\//, "/").replace(/\.[^/.]+$/, "").replace(baseUrl, "")
+	}
+	{{#page}}
+	  var pageFullPath = '{{escaped_url_path}}';
+    var pageFormat   = '{{format}}';
+	{{/page}}
+  {{#has_search_terms}}
+    var searchTerms  = [{{#search_terms}}'{{.}}', {{/search_terms}}
+    ];
+  {{/has_search_terms}}
+  {{#is_create_page}}
+    var default_markup = '{{default_markup}}';
+  {{/is_create_page}}
+
+  </script>
+  {{#sprockets_javascript_tag}}app{{/sprockets_javascript_tag}}
+  {{#has_editor}}
+  {{#sprockets_javascript_tag}}editor{{/sprockets_javascript_tag}}
+  {{/has_editor}}
+  {{#mathjax}}
+  <script type="text/javascript">
+    window.MathJax = {
+      tex2jax: {
+        inlineMath:  [ ['$','$'], ['\\(','\\)'] ],
+        displayMath: [ ['$$','$$'], ['\\[','\\]'] ],
+        processEscapes: true
+      },
+      TeX: { extensions: ["autoload-all.js"] }
+    };
+  </script>
+  {{#mathjax_config}}
+  <script type="text/javascript" src="{{mathjax_config_path}}"></script>
+  {{/mathjax_config}}
+  <script defer src="{{mathjax_js}}"></script>
+  {{/mathjax}}
+  {{#js}}<script type="text/javascript" src="{{custom_js}}"></script>{{/js}}
+
+  <title>{{title}}</title>
+</head>
+<body class="p-2">
+<div id="header" class="p-2 d-flex flex-justify-between">
+    <a href="https://enermaps.eu/" target="_blank">
+        <img src="https://enermaps.eu/wp-content/uploads/2020/06/logobigger210.png"
+             alt="EnerMaps Logo"
+             style="width:60%;">
+    </a>
+    {{< user}}
+</div>
+<div class="container-lg clearfix">
+{{{yield}}}
+</div>
+</body>
+</html>
