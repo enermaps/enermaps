@@ -1,6 +1,7 @@
 <script>
   import {onMount} from 'svelte';
   import {createTask} from '../tasks.js';
+  import {getLayer} from '../layers.js';
   import CMTask from './CMTask.svelte';
   import {areaSelectionLayerStore, selectedLayerStore, tasksStore} from '../stores.js';
   import 'brutusin-json-forms';
@@ -11,9 +12,9 @@
   export let cm;
   let isDisabled = true;
   let tasks = [];
-  let formElement;
+  let formElement = null;
   let form = undefined;
-  let callCMTooltip = 'brutison is a brutison';
+  let callCMTooltip = '';
   let isCollapsed = false;
 
 
@@ -26,18 +27,66 @@
   $: {
     tasks = $tasksStore;
 
+    let areaSelected = false;
+    if ($areaSelectionLayerStore !== null) {
+      const selection = $areaSelectionLayerStore.getSelection();
+      areaSelected = (selection != null) && (selection.features.length > 0);
+    }
+
     if ($selectedLayerStore === null) {
-      callCMTooltip = 'A layer needs to be selected first';
-    } else if ($areaSelectionLayerStore !== null) {
-      callCMTooltip = 'An area needs to be selected first';
+      callCMTooltip = 'A layer needs to be selected';
+    } else if (!areaSelected) {
+      callCMTooltip = 'An area needs to be selected';
     } else {
       callCMTooltip = 'Call the CM ' + cm.pretty_name;
     }
 
-    const isEnabled = ($selectedLayerStore != null) &&
-                      ($areaSelectionLayerStore != null);
+    let isEnabled = false;
+
+    if (($selectedLayerStore != null) && areaSelected) {
+      const layer = getLayer($selectedLayerStore);
+
+      if (layer.layer_infos != null) {
+        for (const entry of cm.input_layers) {
+          if (entry.dataset === 'all') {
+            isEnabled = true;
+            break;
+          }
+
+          if (entry.dataset === layer.layer_infos.dataset) {
+            if ((layer.layer_infos.variable === null) ||
+                (entry.variables === undefined) ||
+                (entry.variables.length == 0)) {
+              isEnabled = true;
+              break;
+            }
+
+            if (entry.variables.indexOf(layer.layer_infos.variable) >= 0) {
+              isEnabled = true;
+              break;
+            }
+          }
+        }
+      }
+
+      if (!isEnabled) {
+        callCMTooltip = 'The selected layer is not usable by this CM';
+      }
+    }
 
     isDisabled = !isEnabled;
+
+    if (formElement != null) {
+      const inputs = formElement.getElementsByTagName('input');
+      for (let i = 0; i < inputs.length; i++) {
+        inputs[i].disabled = (isDisabled ? 'disabled' : undefined);
+      }
+
+      const selects = formElement.getElementsByTagName('select');
+      for (let i = 0; i < selects.length; i++) {
+        selects[i].disabled = (isDisabled ? 'disabled' : undefined);
+      }
+    }
   }
 
 
@@ -88,13 +137,17 @@
     width: inherit;
   }
 
+  .cm_container.disabled {
+    background-color: darkgray;
+  }
+
   h3 {
     margin: 0;
   }
 </style>
 
 
-<div class="cm_container">
+<div class="cm_container" class:disabled={isDisabled}>
   <div class="cm_header">
     <div>
       <h3 class="cm_run">{cm.pretty_name}</h3>

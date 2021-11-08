@@ -211,9 +211,14 @@
     const hasZoomLimit = (dataset.info.zoom_limits !== undefined) &&
                          dataset.info.zoom_limits[layerName];
 
+    const layerInfos = {
+      dataset: dataset.ds_id,
+      variable: variable,
+    };
+
     createLayer(
         layerName, labels, title, dataset.is_raster, dataset.is_tiled,
-        hasZoomLimit, null,
+        hasZoomLimit, null, layerInfos,
     );
   }
 
