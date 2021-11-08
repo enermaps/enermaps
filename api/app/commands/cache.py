@@ -28,14 +28,42 @@ def update_all_datasets():
 @click.command("update-dataset")
 @click.argument("ds_id")
 @click.option("--all", is_flag=True)
+@click.option("-c", "--center", default=None)
+@click.option("-d", "--dimension", default=5.0)
 @click.option("-p", "--prettyprint", is_flag=True)
 @with_appcontext
-def update_dataset(ds_id, all, prettyprint):
+def update_dataset(ds_id, all, center, dimension, prettyprint):
     datasets = client.get_dataset_list(disable_filtering=True)
     datasets = [x for x in datasets if x["ds_id"] == int(ds_id)]
 
+    target_area = None
+    if center is not None:
+        try:
+            latitude, longitude = [float(x) for x in center.split(",")]
+            dimension = abs(float(dimension))
+
+            min_x = longitude - dimension / 2
+            max_x = longitude + dimension / 2
+            min_y = latitude - dimension / 2
+            max_y = latitude + dimension / 2
+
+            target_area = (
+                f"POLYGON(({min_x} {min_y},{max_x} {min_y},{max_x} {max_y},{min_x} {max_y},{min_x} {min_y}))"
+            )
+        except Exception:
+            current_app.logger.error(
+                'Invalid coordinates. Must be --center="<latitude>,<longitude>"'
+                " --dimension=<dimension> (all in degrees)"
+            )
+            return
+
     if len(datasets) == 1:
-        process_dataset(datasets[0], ignore_intersecting=all, pretty_print=prettyprint)
+        process_dataset(
+            datasets[0],
+            ignore_intersecting=all,
+            target_area=target_area,
+            pretty_print=prettyprint,
+        )
     else:
         current_app.logger.info("Dataset not found")
 
@@ -181,7 +209,9 @@ def get_legend(ds_id, variable, time_period, prettyprint):
         return
 
 
-def process_dataset(dataset, ignore_intersecting=False, pretty_print=False):
+def process_dataset(
+    dataset, ignore_intersecting=False, target_area=None, pretty_print=False
+):
     type = path.RASTER if dataset["is_raster"] else path.VECTOR
 
     # Retrieve the variables of the dataset
@@ -206,6 +236,7 @@ def process_dataset(dataset, ignore_intersecting=False, pretty_print=False):
                 variable=variable,
                 time_period=time_period,
                 ignore_intersecting=ignore_intersecting,
+                target_area=target_area,
                 pretty_print=pretty_print,
             )
 
@@ -219,6 +250,7 @@ def process_dataset(dataset, ignore_intersecting=False, pretty_print=False):
                 dataset["ds_id"],
                 variable=variable,
                 ignore_intersecting=ignore_intersecting,
+                target_area=target_area,
                 pretty_print=pretty_print,
             )
 
@@ -233,6 +265,7 @@ def process_dataset(dataset, ignore_intersecting=False, pretty_print=False):
                 dataset["ds_id"],
                 time_period=time_period,
                 ignore_intersecting=ignore_intersecting,
+                target_area=target_area,
                 pretty_print=pretty_print,
             )
 
@@ -258,6 +291,7 @@ def process_dataset(dataset, ignore_intersecting=False, pretty_print=False):
             type,
             dataset["ds_id"],
             ignore_intersecting=ignore_intersecting,
+            target_area=target_area,
             pretty_print=pretty_print,
         )
 
@@ -277,6 +311,7 @@ def process_layer(
     variable=None,
     time_period=None,
     ignore_intersecting=False,
+    target_area=None,
     pretty_print=False,
 ):
     layer_name = path.make_unique_layer_name(
@@ -291,6 +326,7 @@ def process_layer(
         data = client.get_geojson(
             layer_name,
             ignore_intersecting=ignore_intersecting,
+            target_area=target_area,
             pretty_print=pretty_print,
         )
 
@@ -307,6 +343,7 @@ def process_layer(
         data = client.get_rasters(
             layer_name,
             ignore_intersecting=ignore_intersecting,
+            target_area=target_area,
             pretty_print=pretty_print,
         )
 
