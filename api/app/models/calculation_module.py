@@ -65,6 +65,7 @@ class CalculationModule:
         self.pretty_name = kwargs.get("pretty_name", self.name)
         self.parameters = kwargs.get("parameters", {})
         self.schema = kwargs.get("schema", {})
+        self.input_layers = kwargs.get("input_layers", [])
         self.__doc__ = kwargs.get(
             "doc", "no documentation available for this calculation module"
         )

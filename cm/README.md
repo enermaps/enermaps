@@ -19,6 +19,7 @@ It must contain:
 * A schema.json jsonschema which describes the schema used for the input parameters (if applicable).
   You can find additional information about jsonschema
   (see https://json-schema.org/).
+* A JSON file (`input_layers.json`) indicating which dataset layers the CM can work on
 * A requirements.txt including cm specific dependencies.
 * A Dockerfile to create the necessary docker image.
   The docker-compose will need to be modified accordingly to create the new image.
@@ -34,6 +35,7 @@ Below is an example of the tree structure :
         ├── worker.py
         ├── test.py
         ├── schema.json
+        ├── input_layers.json
         ├── requirements.txt
         ├── Dockerfile
         ├── cm_script.py
@@ -47,7 +49,7 @@ For example:
 * for the example_multiply module, the function name is "multiply_raster" and becomes "Multiply raster" at the front-end.
 * for the example_empty module, the function name is "new_cm" and becomes "New cm" on the front-end.
 
-## Setup.cfg
+## `setup.cfg`
 
 Below is the setup file configuration.
 
@@ -61,7 +63,7 @@ line_length=88
 To keep consistency in the project,
 the following parameters mustn't be changed.
 
-## Worker.py
+## `worker.py`
 
 Below is an example of the broker implementation.
 
@@ -74,9 +76,10 @@ from cm_script import process
 
 app = cm_base.get_default_app(name="queue_name")
 schema_path = cm_base.get_default_schema_path()
+input_layers_path = cm_base.get_default_input_layers_path()
 
 
-@app.task(base=cm_base.CMBase, bind=True, schema_path=schema_path)
+@app.task(base=cm_base.CMBase, bind=True, schema_path=schema_path, input_layers_path=input_layers_path)
 def fun(self, selection: dict, rasters: list, params: dict):
     """New cm description"""
     # Validate the raster used
@@ -126,7 +129,7 @@ See [cm_output.py](./base/BaseCM/cm_output.py) for more information about the ou
 
 Warning: the name of the function in the `worker.py` file corresponds to the name of the CM as it will appear in the front-end. Make sure that this name is unique, otherwise it will generate conflicts with other CMs.
 
-## Test.py
+## `test.py`
 
 To perform unit tests on CMs, we use the Unittest library.
 For this, we define a class dependent on the Unittest.TestCase class.
@@ -174,7 +177,7 @@ if __name__ == "__main__":
     unittest.main()
 ```
 
-## Schema.json
+## `schema.json`
 
 The calculation module form is built thanks to a JSON file using `org.brutusin:json-forms`,
 a javascript library.
@@ -204,7 +207,58 @@ See the [GitHub repository](https://github.com/brutusin/json-forms) or
 
 NB : As mentioned above, this file refers to the optional input parameter `params` in the worker.py file.
 
-## Requirements.txt
+## `input_layers.json`
+
+This file contains a list of dataset layers that the CM can work with. Each entry of the
+list is a dictionary with two fields, `dataset` and `variables`.
+
+`dataset` is the ID of the dataset. The special value `"all"` can be used to specify all
+the datasets.
+
+`variables` is an array with the name of all the variables of the dataset accepted by the
+CM. If not specified, all the variables of the dataset are considered valid.
+
+### Example: specific variables of datasets 3 and 4
+
+```
+[
+    {
+        "dataset": 3,
+        "variables": [
+            "installed_capacity_MW",
+            "pumping_MW"
+        ]
+    },
+    {
+        "dataset": 4,
+        "variables": [
+            "capacity_p"
+        ]
+    }
+]
+```
+
+### Example: all variables of 3
+
+```
+[
+    {
+        "dataset": 3,
+    }
+]
+```
+
+### Example: all datasets
+
+```
+[
+    {
+        "dataset": "all",
+    }
+]
+```
+
+## `requirements.txt`
 
 Below is an example of the dependencies used by a cm.
 
@@ -266,7 +320,7 @@ cm-new_cm:
     .env
 ```
 
-## cm_script.py
+## `cm_script.py`
 
 This python script file contains all the functions that make the CM work.
 If the need arises, it is possible to organise these functions in directories.

@@ -37,6 +37,7 @@ class CMList(Resource):
             ret["pretty_name"] = cm.pretty_name
             ret["parameters"] = cm.parameters
             ret["schema"] = cm.schema
+            ret["input_layers"] = cm.input_layers
             return ret
 
         return [cm_as_dict(cm) for cm in cms.values()]
