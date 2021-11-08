@@ -1,0 +1,9 @@
+version: "3.8"
+services:
+  wiki:
+    image: enermaps/doc
+    container_name: enermaps-doc
+    env_file: .env
+    build: .
+    ports:
+      - "4567:80"

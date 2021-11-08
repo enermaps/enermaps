@@ -1,0 +1,32 @@
+{
+  "name": "EnerMaps Wiki",
+  "description": "Wiki platform for the EnerMaps project",
+  "repository": "https://github.com/enermaps/wiki-platform",
+  "logo": "https://avatars.githubusercontent.com/u/71395895?s=200&v=4",
+  "keywords": [
+    "python",
+    "ruby",
+    "gollum",
+    "wiki",
+    "enermaps",
+    "docker"
+  ],
+  "env": {
+    "GITHUB_CLIENT_ID": {
+      "description": "GitHub OAuth App Client ID. Required authenticate wiki editors."
+    },
+    "GITHUB_CLIENT_SECRET": {
+      "description": "GitHub OAuth App Client Secret. Required authenticate wiki editors."
+    },
+    "GITHUB_WIKI_REMOTE_URL": {
+      "description": "The URL to the remote repository that will be used to synchronize the wiki content. It should contain a bot personal access token so that read and write operations are made possible.",
+      "value": "https://<bot personal access token>@github.com/<owner>/<repo name>.git"
+    },
+    "GITHUB_WIKI_REMOTE_BRANCH": {
+      "description": "The branch of the repository under $GITHUB_WIKI_REMOTE_URL to be used.",
+      "value": "data"
+    }
+  },
+  "stack": "container",
+  "website": "https://enermaps.eu/"
+}

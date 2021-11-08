@@ -1,0 +1,6 @@
+reset.sh
+*.swp
+original/
+translate/
+.env
+.git/

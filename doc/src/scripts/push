@@ -1,0 +1,6 @@
+#!/bin/bash
+echo "$(date '+%Y-%m-%d, %T, %A') - Pushing commits"
+cd /root/wiki-data || exit
+git status
+git remote prune origin
+git push
