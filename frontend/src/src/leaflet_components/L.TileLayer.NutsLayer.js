@@ -1,6 +1,14 @@
+import {get} from 'svelte/store';
+import {areaSelectionLayerStore} from '../stores.js';
+
+
 const BaseMethods = {
   getSelection: function() {
-    return this.selection.toGeoJSON();
+    if (this.selection != null) {
+      return this.selection.toGeoJSON();
+    } else {
+      return null;
+    }
   },
 
   getFeatureInfo: function(evt) {
@@ -88,6 +96,9 @@ const BaseMethods = {
         this.selection.addData(feature);
       }
     }
+
+    const areaSelectionLayer = get(areaSelectionLayerStore);
+    areaSelectionLayerStore.set(areaSelectionLayer);
   },
 };
 

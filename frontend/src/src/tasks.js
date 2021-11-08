@@ -225,7 +225,7 @@ function _addLayer(task) {
 
       const layerName = 'cm/' + task.result.cm_name + '/' + task.result.task_id;
 
-      createLayer(layerName, labels, title, true, false, false, task.id);
+      createLayer(layerName, labels, title, true, false, false, task.id, null);
 
       task.layer = layerName;
     }

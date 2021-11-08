@@ -90,7 +90,7 @@
       <div id="header"><h2>Calculation Modules</h2></div>
     </div>
     <div id="list">
-      {#each cms as cm}
+      {#each cms as cm (cm.name)}
         <CM bind:cm />
       {/each}
     </div>
