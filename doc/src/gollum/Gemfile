@@ -1,0 +1,13 @@
+# frozen_string_literal: true
+
+source "https://rubygems.org"
+
+git_source(:github) { |repo_name| "https://github.com/#{repo_name}" }
+
+gem "redcarpet", "3.5.1"
+gem "mustache-sinatra", ">= 1.0.1"
+gem "github-markdown", "0.6.9"
+gem "github-markup", "4.0.0"
+gem "gollum", "5.2.3"
+gem "omnigollum", "0.1.6"
+gem "omniauth-github", "2.0.0"

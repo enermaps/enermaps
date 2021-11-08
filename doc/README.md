@@ -1,4 +1,4 @@
-# EnerMaps wiki
+# EnerMaps Documentation Platform
 
 [![Deploy](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy?template=https://github.com/enermaps/enermaps/tree/master/doc)
 
@@ -31,7 +31,8 @@ Kindly create _.env_ file based on _.env.example_ and update the environment var
 
 - `GITHUB_CLIENT_ID`: OAuth provider app client ID for GitHub
 - `GITHUB_CLIENT_SECRET`: OAuth provider app client secret for GitHub
-- `GITHUB_WIKI_REMOTE_URL`: The URL to the repository where the wiki data resides
+- `GITHUB_WIKI_REMOTE_URL`: The URL to the repository where the wiki data resides of the
+  form `https://<bot personal access token>@github.com/<owner>/<repo name>.git`
 - `GITHUB_WIKI_REMOTE_BRANCH`: The branch of the repository under `GITHUB_WIKI_REMOTE_URL` to be used
 
 ### Build & Run
@@ -180,6 +181,12 @@ pulled from the remote.
 Similarly to the previous case, a Python process handles this syncing task: the shell script `src/scripts/fetch-pull`
 gets invoked hourly at `:00` minutes in the background.
 
+#### Updating the list of users with permissions to edit the wiki
+
+Only those users that are contributors or collaborators in the repository under `GITHUB_WIKI_REMOTE_URL` are allowed to
+sign in on the platform and make modifications to the wiki. To update the list of these users, a Python function is
+invoked hourly at `:10` minutes in the background.
+
 #### Adjusting frequency & Checking logs
 
 To change the frequency of the scripts' invocations under `src/scripts/`, the `src/docker-run/scheduled_jobs.py` file
@@ -189,6 +196,7 @@ periodically. The definitions are intuitive and human-readable:
 ```python
 schedule.every().hour.at(':00').do(fetch_pull_job)
 schedule.every().hour.at(':05').do(push_job)
+schedule.every().hour.at(':10').do(refresh_auth_users)
 ```
 
 The relevant logs can be checked by running `docker logs -f enermaps-wiki`.
