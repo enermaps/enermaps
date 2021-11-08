@@ -48,6 +48,9 @@ COPY ./src/docker-run ./docker-run
 COPY ./src/scripts ./scripts
 RUN find ./scripts -type f -exec chmod +x {} \;
 
+# Copy .gitconfig
+COPY ./src/gollum/.gitconfig /root/.gitconfig
+
 # Expose port 80, as Gollum needs it to serve the wiki
 # Port is configured in /root/app/docker-run/run.py by the --port option
 EXPOSE 80

@@ -37,3 +37,9 @@ OmniAuth.config.allowed_request_methods = [:post, :get]
 ## :omnigollum options *must* be set before the Omnigollum extension is registered
 Precious::App.set(:omnigollum, options)
 Precious::App.register Omnigollum::Sinatra
+
+# Hook to be invoked after a commit
+Gollum::Hook.register(:post_commit, :hook_id) do |committer, sha1|
+  `sh /root/app/scripts/fetch-pull`
+  `sh /root/app/scripts/push`
+end
