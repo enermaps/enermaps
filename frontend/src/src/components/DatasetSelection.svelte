@@ -208,7 +208,13 @@
       title = dataset.title;
     }
 
-    createLayer(layerName, labels, title, dataset.is_raster, dataset.is_tiled, null);
+    const hasZoomLimit = (dataset.info.zoom_limits !== undefined) &&
+                         dataset.info.zoom_limits[layerName];
+
+    createLayer(
+        layerName, labels, title, dataset.is_raster, dataset.is_tiled,
+        hasZoomLimit, null,
+    );
   }
 
 
