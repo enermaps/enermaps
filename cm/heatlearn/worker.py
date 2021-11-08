@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
 
-import heatlearn
 from BaseCM import cm_base as cm_base
 from BaseCM import cm_input as cm_input
+
+import heatlearn
 
 ADMISSIBLE_TILE_SIZES = [500, 300]
 
