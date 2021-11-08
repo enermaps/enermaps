@@ -33,7 +33,7 @@ jobs:
       - name: check-lint with isort
         run: cd api && isort --profile black --check --diff .
       - name: check-lint with black
-        run: cd api && black --diff --check .
+        run: cd api && black --diff --check --experimental-string-processing .
       - name: check-lint with bandit
         run: cd api && bandit -r .
       - name: check-lint with flake8
