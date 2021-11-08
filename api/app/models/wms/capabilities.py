@@ -8,7 +8,9 @@ from flask import current_app, request
 from lxml import etree  # nosec
 
 import app.common.projection as project
-from app.common import client, path, xml
+from app.common import client
+from app.common import datasets as datasets_fcts
+from app.common import path, xml
 from app.models import storage
 
 current_file_dir = os.path.dirname(os.path.abspath(__file__))
@@ -79,6 +81,12 @@ def get_capabilities():
         if parameters is None:
             return None
 
+        datasets_fcts.process_parameters(
+            parameters,
+            dataset_id=dataset["ds_id"],
+            is_raster=dataset["is_raster"],
+        )
+
         if (len(parameters["variables"]) > 0) and (len(parameters["time_periods"]) > 0):
             for variable, time_period in itertools.product(
                 parameters["variables"], parameters["time_periods"]
@@ -86,6 +94,7 @@ def get_capabilities():
                 get_layer_capabilities(
                     layer_node,
                     dataset,
+                    parameters,
                     type,
                     dataset["ds_id"],
                     variable=variable,
@@ -94,15 +103,27 @@ def get_capabilities():
         elif len(parameters["variables"]) > 0:
             for variable in parameters["variables"]:
                 get_layer_capabilities(
-                    layer_node, dataset, type, dataset["ds_id"], variable=variable
+                    layer_node,
+                    dataset,
+                    parameters,
+                    type,
+                    dataset["ds_id"],
+                    variable=variable,
                 )
         elif len(parameters["time_periods"]) > 0:
             for time_period in parameters["time_periods"]:
                 get_layer_capabilities(
-                    layer_node, dataset, type, dataset["ds_id"], time_period=time_period
+                    layer_node,
+                    dataset,
+                    parameters,
+                    type,
+                    dataset["ds_id"],
+                    time_period=time_period,
                 )
         else:
-            get_layer_capabilities(layer_node, dataset, type, dataset["ds_id"])
+            get_layer_capabilities(
+                layer_node, dataset, parameters, type, dataset["ds_id"]
+            )
 
         root_layer.append(layer_node)
 
@@ -112,7 +133,7 @@ def get_capabilities():
 
 
 def get_layer_capabilities(
-    parent_layer, dataset, type, id, variable=None, time_period=None
+    parent_layer, dataset, parameters, type, id, variable=None, time_period=None
 ):
     layer_name = path.make_unique_layer_name(
         type, id, variable=variable, time_period=time_period
@@ -166,6 +187,12 @@ def get_layer_capabilities(
     projected_bbox.append(north_bound)
 
     sublayer_node.append(projected_bbox)
+
+    zoom_limits = parameters.get("zoom_limits", {})
+    if zoom_limits.get(layer_name, False):
+        min_scale_denominator = etree.Element("MinScaleDenominator")
+        min_scale_denominator.text = "2e6"
+        sublayer_node.append(min_scale_denominator)
 
     source_ref = osr.SpatialReference()
     source_ref.ImportFromEPSG(

@@ -519,7 +519,7 @@ class TestSaveCMParameters(BaseApiTest):
             self.assertEqual(data, TestSaveCMParameters.PARAMETERS)
 
 
-class TestRasterLayerIntersectionsWithoutGeometryFile(BaseApiTest):
+class TestRasterLayerIntersectionsBase(BaseApiTest):
     def setUp(self):
         super().setUp()
 
@@ -539,6 +539,84 @@ class TestRasterLayerIntersectionsWithoutGeometryFile(BaseApiTest):
 
     def createGeometryFile(self, filename):
         pass
+
+
+class TestRasterLayerIntersectionsWithoutGeometryFile(TestRasterLayerIntersectionsBase):
+    def testIntersectsBoundingBox(self):
+        with self.flask_app.app_context():
+            layer_name = path.make_unique_layer_name(path.RASTER, 42, "heat")
+            layer = geofile.load(layer_name)
+
+            rasters = layer.get_rasters_in_bbox(
+                mapnik.Box2d(40, 0, 60, 10), "EPSG:4326"
+            )
+            self.assertEqual(len(rasters), 0)
+
+    def testIntersectsOneFeatureOnePolygon(self):
+        with self.flask_app.app_context():
+            layer_name = path.make_unique_layer_name(path.RASTER, 42, "heat")
+            layer = geofile.load(layer_name)
+
+            features = [
+                {
+                    "geometry": {
+                        "coordinates": [[[5, 40], [8, 40], [8, 45], [5, 45], [5, 40]]]
+                    }
+                }
+            ]
+
+            rasters = layer.get_rasters_in_feature_list(features)
+            self.assertEqual(len(rasters), 0)
+
+    def testIntersectsOneFeatureTwoPolygons(self):
+        with self.flask_app.app_context():
+            layer_name = path.make_unique_layer_name(path.RASTER, 42, "heat")
+            layer = geofile.load(layer_name)
+
+            features = [
+                {
+                    "geometry": {
+                        "coordinates": [
+                            [[5, 40], [8, 40], [8, 45], [5, 45], [5, 40]],
+                            [[5, 50], [8, 50], [8, 55], [5, 55], [5, 50]],
+                        ]
+                    }
+                }
+            ]
+
+            rasters = layer.get_rasters_in_feature_list(features)
+            self.assertEqual(len(rasters), 0)
+
+    def testIntersectsTwoFeaturesOnePolygon(self):
+        with self.flask_app.app_context():
+            layer_name = path.make_unique_layer_name(path.RASTER, 42, "heat")
+            layer = geofile.load(layer_name)
+
+            features = [
+                {
+                    "geometry": {
+                        "coordinates": [[[5, 40], [8, 40], [8, 45], [5, 45], [5, 40]]]
+                    }
+                },
+                {
+                    "geometry": {
+                        "coordinates": [[[5, 50], [8, 50], [8, 55], [5, 55], [5, 50]]]
+                    }
+                },
+            ]
+
+            rasters = layer.get_rasters_in_feature_list(features)
+            self.assertEqual(len(rasters), 0)
+
+
+class TestRasterLayerIntersectionsWithoutCoordinatesInGeometryFile(
+    TestRasterLayerIntersectionsBase
+):
+    def createGeometryFile(self, filename):
+        data = {"FID.tif": None}
+
+        with open(filename, "w") as f:
+            json.dump(data, f)
 
     def testIntersectsBoundingBox(self):
         with self.flask_app.app_context():
@@ -691,17 +769,9 @@ class TestRasterLayerIntersectionsWithoutGeometryFile(BaseApiTest):
             )
 
 
-class TestRasterLayerIntersectionsWithoutCoordinatesInGeometryFile(
-    TestRasterLayerIntersectionsWithoutGeometryFile
+class TestRasterLayerIntersections(
+    TestRasterLayerIntersectionsWithoutCoordinatesInGeometryFile
 ):
-    def createGeometryFile(self, filename):
-        data = {"FID.tif": None}
-
-        with open(filename, "w") as f:
-            json.dump(data, f)
-
-
-class TestRasterLayerIntersections(TestRasterLayerIntersectionsWithoutGeometryFile):
     def createGeometryFile(self, filename):
         data = {"FID.tif": [[0, 60], [10, 60], [10, 30], [0, 30], [0, 60]]}
 
@@ -781,13 +851,13 @@ class TestRasterLayerIntersections(TestRasterLayerIntersectionsWithoutGeometryFi
             self.assertEqual(len(rasters), 0)
 
 
-class TestRasterLayerAsMapnikLayersWithoutGeometryFile(BaseApiTest):
+class TestRasterLayerDataAndMapnikBase(BaseApiTest):
     def setUp(self):
         super().setUp()
 
         with self.flask_app.app_context():
             # Copy the raster dataset
-            layer_name = path.make_unique_layer_name(path.RASTER, 42, "heat")
+            layer_name = self.getLayerName()
             storage_instance = storage.create(layer_name)
 
             os.makedirs(storage_instance.get_dir(layer_name))
@@ -797,55 +867,282 @@ class TestRasterLayerAsMapnikLayersWithoutGeometryFile(BaseApiTest):
                 storage_instance.get_file_path(layer_name, "FID.tif"),
             )
 
+            shutil.copy(
+                storage_instance.get_file_path(layer_name, "FID.tif"),
+                storage_instance.get_file_path(layer_name, "FID2.tif"),
+            )
+
             self.createGeometryFile(storage_instance.get_geometries_file(layer_name))
+
+    def getLayerName(self):
+        pass
 
     def createGeometryFile(self, filename):
         pass
 
-    def testWithBoundingBox(self):
-        with self.flask_app.app_context():
-            layer_name = path.make_unique_layer_name(path.RASTER, 42, "heat")
-            layer = geofile.load(layer_name)
 
-            layers = layer.as_mapnik_layers(
-                bbox=mapnik.Box2d(40, 0, 60, 10), bbox_projection="EPSG:4326"
+class TestCMLayerDataAndMapnikWithoutGeometryFile(TestRasterLayerDataAndMapnikBase):
+    def setUp(self):
+        super().setUp()
+
+        with self.flask_app.app_context():
+            layer_name = self.getLayerName()
+            storage_instance = storage.create(layer_name)
+
+            projection = epsg_string_to_proj4(
+                self.flask_app.config["RASTER_PROJECTION_SYSTEM"]
             )
 
+            with open(storage_instance.get_file_path(layer_name, "FID.prj"), "w") as f:
+                f.write(projection)
+
+            with open(storage_instance.get_file_path(layer_name, "FID2.prj"), "w") as f:
+                f.write(projection)
+
+    def getLayerName(self):
+        return path.make_unique_layer_name(
+            path.CM, "mock_cm", task_id="01234567-0000-0000-0000-000000000000"
+        )
+
+    def testDataWithBoundingBox(self):
+        with self.flask_app.app_context():
+            layer_name = self.getLayerName()
+            layer = geofile.load(layer_name)
+
+            data = layer.get_data_for_bounding_box(
+                mapnik.Box2d(40, 0, 60, 10), "EPSG:4326"
+            )
+
+            self.assertEqual(len(data), 2)
+
+    def testDataWithoutBoundingBox(self):
+        with self.flask_app.app_context():
+            layer_name = self.getLayerName()
+            layer = geofile.load(layer_name)
+
+            data = layer.get_data_for_bounding_box(None, None)
+            self.assertEqual(len(data), 2)
+
+    def testMapnikWithData(self):
+        with self.flask_app.app_context():
+            layer_name = self.getLayerName()
+            layer = geofile.load(layer_name)
+
+            storage_instance = storage.create(layer_name)
+
+            data = [("FID.tif", storage_instance.get_file_path(layer_name, "FID.tif"))]
+
+            layers = layer.as_mapnik_layers(data)
             self.assertEqual(len(layers), 1)
 
-    def testWithoutBoundingBox(self):
+    def testMapnikWithMultipleData(self):
         with self.flask_app.app_context():
-            layer_name = path.make_unique_layer_name(path.RASTER, 42, "heat")
+            layer_name = self.getLayerName()
+            layer = geofile.load(layer_name)
+
+            storage_instance = storage.create(layer_name)
+
+            data = [
+                ("FID.tif", storage_instance.get_file_path(layer_name, "FID.tif")),
+                ("FID2.tif", storage_instance.get_file_path(layer_name, "FID.tif")),
+            ]
+
+            layers = layer.as_mapnik_layers(data)
+            self.assertEqual(len(layers), 2)
+
+    def testMapnikWithoutData(self):
+        with self.flask_app.app_context():
+            layer_name = self.getLayerName()
             layer = geofile.load(layer_name)
 
             layers = layer.as_mapnik_layers()
+            self.assertEqual(len(layers), 2)
+
+    def testMapnikWithInvalidData(self):
+        with self.flask_app.app_context():
+            layer_name = self.getLayerName()
+            layer = geofile.load(layer_name)
+
+            storage_instance = storage.create(layer_name)
+
+            data = [
+                ("FID.tif", storage_instance.get_file_path(layer_name, "unknown.tif"))
+            ]
+
+            layers = layer.as_mapnik_layers(data)
+            self.assertEqual(len(layers), 0)
+
+
+class TestRasterLayerDataAndMapnikWithoutGeometryFile(TestRasterLayerDataAndMapnikBase):
+    def getLayerName(self):
+        return path.make_unique_layer_name(path.RASTER, 42, variable="heat")
+
+    def testDataWithBoundingBox(self):
+        with self.flask_app.app_context():
+            layer_name = self.getLayerName()
+            layer = geofile.load(layer_name)
+
+            data = layer.get_data_for_bounding_box(
+                mapnik.Box2d(40, 0, 60, 10), "EPSG:4326"
+            )
+
+            self.assertEqual(len(data), 0)
+
+    def testDataWithoutBoundingBox(self):
+        with self.flask_app.app_context():
+            layer_name = self.getLayerName()
+            layer = geofile.load(layer_name)
+
+            data = layer.get_data_for_bounding_box(None, None)
+            self.assertEqual(len(data), 0)
+
+    def testMapnikWithData(self):
+        with self.flask_app.app_context():
+            layer_name = self.getLayerName()
+            layer = geofile.load(layer_name)
+
+            storage_instance = storage.create(layer_name)
+
+            data = [("FID.tif", storage_instance.get_file_path(layer_name, "FID.tif"))]
+
+            layers = layer.as_mapnik_layers(data)
             self.assertEqual(len(layers), 1)
 
+    def testMapnikWithMultipleData(self):
+        with self.flask_app.app_context():
+            layer_name = self.getLayerName()
+            layer = geofile.load(layer_name)
 
-class TestRasterLayerAsMapnikLayersWithoutCoordinatesInGeometryFile(
-    TestRasterLayerAsMapnikLayersWithoutGeometryFile
+            storage_instance = storage.create(layer_name)
+
+            data = [
+                ("FID.tif", storage_instance.get_file_path(layer_name, "FID.tif")),
+                ("FID2.tif", storage_instance.get_file_path(layer_name, "FID.tif")),
+            ]
+
+            layers = layer.as_mapnik_layers(data)
+            self.assertEqual(len(layers), 2)
+
+    def testMapnikWithoutData(self):
+        with self.flask_app.app_context():
+            layer_name = self.getLayerName()
+            layer = geofile.load(layer_name)
+
+            layers = layer.as_mapnik_layers()
+            self.assertEqual(len(layers), 0)
+
+    def testMapnikWithInvalidData(self):
+        with self.flask_app.app_context():
+            layer_name = self.getLayerName()
+            layer = geofile.load(layer_name)
+
+            storage_instance = storage.create(layer_name)
+
+            data = [
+                ("FID.tif", storage_instance.get_file_path(layer_name, "unknown.tif"))
+            ]
+
+            layers = layer.as_mapnik_layers(data)
+            self.assertEqual(len(layers), 0)
+
+
+class TestRasterLayerDataAndMapnikWithoutCoordinatesInGeometryFile(
+    TestRasterLayerDataAndMapnikBase
 ):
+    def getLayerName(self):
+        return path.make_unique_layer_name(path.RASTER, 42, variable="heat")
+
     def createGeometryFile(self, filename):
         data = {"FID.tif": None}
 
         with open(filename, "w") as f:
             json.dump(data, f)
 
+    def testDataWithBoundingBox(self):
+        with self.flask_app.app_context():
+            layer_name = self.getLayerName()
+            layer = geofile.load(layer_name)
 
-class TestRasterLayerAsMapnikLayers(TestRasterLayerAsMapnikLayersWithoutGeometryFile):
+            data = layer.get_data_for_bounding_box(
+                mapnik.Box2d(40, 0, 60, 10), "EPSG:4326"
+            )
+
+            self.assertEqual(len(data), 1)
+
+    def testDataWithoutBoundingBox(self):
+        with self.flask_app.app_context():
+            layer_name = self.getLayerName()
+            layer = geofile.load(layer_name)
+
+            data = layer.get_data_for_bounding_box(None, None)
+            self.assertEqual(len(data), 1)
+
+    def testMapnikWithData(self):
+        with self.flask_app.app_context():
+            layer_name = self.getLayerName()
+            layer = geofile.load(layer_name)
+
+            storage_instance = storage.create(layer_name)
+
+            data = [("FID.tif", storage_instance.get_file_path(layer_name, "FID.tif"))]
+
+            layers = layer.as_mapnik_layers(data)
+            self.assertEqual(len(layers), 1)
+
+    def testMapnikWithMultipleData(self):
+        with self.flask_app.app_context():
+            layer_name = self.getLayerName()
+            layer = geofile.load(layer_name)
+
+            storage_instance = storage.create(layer_name)
+
+            data = [
+                ("FID.tif", storage_instance.get_file_path(layer_name, "FID.tif")),
+                ("FID2.tif", storage_instance.get_file_path(layer_name, "FID.tif")),
+            ]
+
+            layers = layer.as_mapnik_layers(data)
+            self.assertEqual(len(layers), 2)
+
+    def testMapnikWithoutData(self):
+        with self.flask_app.app_context():
+            layer_name = self.getLayerName()
+            layer = geofile.load(layer_name)
+
+            layers = layer.as_mapnik_layers()
+            self.assertEqual(len(layers), 1)
+
+    def testMapnikWithInvalidData(self):
+        with self.flask_app.app_context():
+            layer_name = self.getLayerName()
+            layer = geofile.load(layer_name)
+
+            storage_instance = storage.create(layer_name)
+
+            data = [
+                ("FID.tif", storage_instance.get_file_path(layer_name, "unknown.tif"))
+            ]
+
+            layers = layer.as_mapnik_layers(data)
+            self.assertEqual(len(layers), 0)
+
+
+class TestRasterLayerDataAndMapnik(
+    TestRasterLayerDataAndMapnikWithoutCoordinatesInGeometryFile
+):
     def createGeometryFile(self, filename):
         data = {"FID.tif": [[0, 60], [10, 60], [10, 30], [0, 30], [0, 60]]}
 
         with open(filename, "w") as f:
             json.dump(data, f)
 
-    def testNotIntersectsBoundingBox(self):
+    def testDataNotIntersectsBoundingBox(self):
         with self.flask_app.app_context():
             layer_name = path.make_unique_layer_name(path.RASTER, 42, "heat")
             layer = geofile.load(layer_name)
 
-            layers = layer.as_mapnik_layers(
-                bbox=mapnik.Box2d(40, -70, 60, -60), bbox_projection="EPSG:4326"
+            data = layer.get_data_for_bounding_box(
+                mapnik.Box2d(40, -70, 60, -60), "EPSG:4326"
             )
 
-            self.assertEqual(len(layers), 0)
+            self.assertEqual(len(data), 0)

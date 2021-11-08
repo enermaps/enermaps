@@ -44,14 +44,35 @@ def convert(parameters):
     }
 
 
-def process_parameters(parameters):
+def process_parameters(parameters, dataset_id=None, is_raster=False):
     _process_time_periods(parameters)
 
+    if dataset_id is not None:
+        if not is_raster:
+            combinations = _get_valid_combinations(dataset_id)
+            parameters["valid_combinations"] = combinations
 
-def get_valid_combinations(dataset_id):
+            if combinations is not None:
+                variables = []
+                for key, v in combinations.items():
+                    variables.extend(v)
+                    variables = list(set(variables))
+
+                parameters["variables"] = variables
+        else:
+            parameters["zoom_limits"] = _get_zoom_limits(dataset_id)
+
+
+def _get_valid_combinations(dataset_id):
     layer_name = path.make_unique_layer_name(path.VECTOR, dataset_id)
     storage_instance = storage.create(layer_name)
     return storage_instance.get_combinations(layer_name)
+
+
+def _get_zoom_limits(dataset_id):
+    layer_name = path.make_unique_layer_name(path.RASTER, dataset_id)
+    storage_instance = storage.create(layer_name)
+    return storage_instance.get_zoom_limits(layer_name)
 
 
 def _process_time_periods(parameters):

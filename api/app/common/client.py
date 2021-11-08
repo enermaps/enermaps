@@ -102,12 +102,14 @@ def get_areas():
     ]
 
 
-def get_geojson(layer_name, ignore_intersecting=False, pretty_print=False):
+def get_geojson(
+    layer_name, ignore_intersecting=False, target_area=None, pretty_print=False
+):
     """
     Fetch a geojson dataset layer from the enermaps server with a given id.
     """
     parameters = _parameters_from_layer_name(
-        layer_name, ignore_intersecting=ignore_intersecting
+        layer_name, ignore_intersecting=ignore_intersecting, target_area=target_area
     )
     return _get_geojson(parameters, pretty_print)
 
@@ -177,7 +179,9 @@ def get_area(id, pretty_print=False):
     return _get_geojson(parameters, pretty_print=pretty_print)
 
 
-def get_rasters(layer_name, ignore_intersecting=False, pretty_print=False):
+def get_rasters(
+    layer_name, ignore_intersecting=False, target_area=None, pretty_print=False
+):
     """
     Retrieve all the raster files of a layer, along with their geometry (if any)
     from the enermaps server
@@ -187,7 +191,7 @@ def get_rasters(layer_name, ignore_intersecting=False, pretty_print=False):
     headers = {"Authorization": "Bearer {}".format(DATASETS_SERVER_API_KEY)}
 
     parameters = _parameters_from_layer_name(
-        layer_name, ignore_intersecting=ignore_intersecting
+        layer_name, ignore_intersecting=ignore_intersecting, target_area=target_area
     )
 
     try:
@@ -261,7 +265,9 @@ def _get_geojson(parameters, pretty_print=False):
     return all_data
 
 
-def _parameters_from_layer_name(layer_name, ignore_intersecting=False):
+def _parameters_from_layer_name(
+    layer_name, ignore_intersecting=False, target_area=None
+):
     (type, id, variable, time_period, _) = path.parse_unique_layer_name(layer_name)
 
     parameters = {
@@ -297,6 +303,10 @@ def _parameters_from_layer_name(layer_name, ignore_intersecting=False):
                 parameters[k] = f"{v}"
             else:
                 parameters[k] = f"'{v}'"
+
+    # In case a custom target area was specified, add it to the parameters
+    if (target_area is not None) and not (ignore_intersecting):
+        parameters["intersecting"] = target_area
 
     return parameters
 

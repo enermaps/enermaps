@@ -88,7 +88,18 @@ $ docker-compose exec api /bin/bash -c 'flask update-dataset 3'
 Note that by default, the `update-dataset` command will respect the default area
 defined for the dataset in the database server. This is mainly for development
 purposes, as those datasets have GB of data and you only need a subset to work on
-them. To download all the dataset, use the `--all` option:
+them.
+
+To download a custom subset of the dataset, use the `--center="<latitude>,<longitude>"`
+and `--dimension=<dimension>` options (where latitude, longitude and dimension are in
+degrees). For instance, to download 102 raster files around Paris (from Brussels to
+Poitiers), do:
+
+```
+$ docker-compose exec api /bin/bash -c 'flask update-dataset --center="48.8,2.33" --dimension=5 35'
+```
+
+To download all the dataset, use the `--all` option (with caution!):
 
 ```
 $ docker-compose exec api /bin/bash -c 'flask update-dataset --all 35'

@@ -31,6 +31,7 @@ class BaseRasterStorage(object):
     PROJECTION_FILENAME = "projection.txt"
     GEOMETRIES_FILENAME = "geometries.json"
     BBOX_FILENAME = "bbox.json"
+    ZOOM_LIMITS_FILENAME = "zoom_limits.json"
 
     def get_root_dir(self, cache=False):
         raise NotImplementedError
@@ -43,13 +44,6 @@ class BaseRasterStorage(object):
 
     def get_file_path(self, layer_name, feature_id):
         return safe_join(self.get_dir(layer_name), feature_id)
-
-    def list_feature_ids(self, layer_name):
-        folder = self.get_dir(layer_name)
-        return [
-            x[len(folder) + 1 :]
-            for x in glob.glob(safe_join(folder, "**/*.tif"), recursive=True)
-        ]
 
     def get_projection_file(self, layer_name):
         (_, id, _, _, _) = path.parse_unique_layer_name(layer_name)
@@ -67,6 +61,11 @@ class BaseRasterStorage(object):
     def get_bbox_file(self, layer_name):
         return safe_join(
             self.get_dir(layer_name, cache=True), BaseRasterStorage.BBOX_FILENAME
+        )
+
+    def get_zoom_limits_file(self, layer_name):
+        return safe_join(
+            self.get_dir(layer_name, cache=True), BaseRasterStorage.ZOOM_LIMITS_FILENAME
         )
 
     def get_geometries(self, layer_name):
@@ -89,6 +88,14 @@ class BaseRasterStorage(object):
         filename = self.get_bbox_file(layer_name)
         if not os.path.exists(filename):
             return None
+
+        with open(filename, "r") as f:
+            return json.load(f)
+
+    def get_zoom_limits(self, layer_name):
+        filename = self.get_zoom_limits_file(layer_name)
+        if not os.path.exists(filename):
+            return {}
 
         with open(filename, "r") as f:
             return json.load(f)
@@ -123,6 +130,13 @@ class CMStorage(BaseRasterStorage):
 
     def get_dir(self, layer_name, cache=False):
         return safe_join(self.get_root_dir(), path.to_folder_path(layer_name))
+
+    def list_feature_ids(self, layer_name):
+        folder = self.get_dir(layer_name)
+        return [
+            x[len(folder) + 1 :]
+            for x in glob.glob(safe_join(folder, "**/*.tif"), recursive=True)
+        ]
 
     def get_projection_file(self, layer_name, feature_id):
         return safe_join(self.get_dir(layer_name), feature_id.replace(".tif", ".prj"))

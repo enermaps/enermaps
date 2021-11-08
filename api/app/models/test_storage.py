@@ -185,50 +185,6 @@ class TestRasterStorage(BaseApiTest):
                 f"{self.wms_cache_dir}/rasters/10/{ENCODED_VAR}/layer.tif",
             )
 
-    def testListFeatureIds(self):
-        with self.flask_app.app_context():
-            storage_instance = storage.RasterStorage()
-
-            layer_name = "raster/10"
-
-            folder = storage_instance.get_dir(layer_name)
-
-            os.makedirs(folder)
-            Path(os.path.join(folder, "FID1.tif")).touch()
-            Path(os.path.join(folder, "FID2.tif")).touch()
-
-            features = storage_instance.list_feature_ids(layer_name)
-
-            self.assertTrue(isinstance(features, list))
-            self.assertEqual(len(features), 2)
-            self.assertTrue("FID1.tif" in features)
-            self.assertTrue("FID2.tif" in features)
-
-    def testListFeatureIdsWithSubfolders(self):
-        with self.flask_app.app_context():
-            storage_instance = storage.RasterStorage()
-
-            layer_name = "raster/10"
-
-            folder = storage_instance.get_dir(layer_name)
-
-            os.makedirs(os.path.join(folder, "subfolder1"))
-            Path(os.path.join(folder, "subfolder1/FID1.tif")).touch()
-            Path(os.path.join(folder, "subfolder1/FID2.tif")).touch()
-
-            os.makedirs(os.path.join(folder, "subfolder2"))
-            Path(os.path.join(folder, "subfolder2/FID3.tif")).touch()
-            Path(os.path.join(folder, "subfolder2/FID4.tif")).touch()
-
-            features = storage_instance.list_feature_ids(layer_name)
-
-            self.assertTrue(isinstance(features, list))
-            self.assertEqual(len(features), 4)
-            self.assertTrue("subfolder1/FID1.tif" in features)
-            self.assertTrue("subfolder1/FID2.tif" in features)
-            self.assertTrue("subfolder2/FID3.tif" in features)
-            self.assertTrue("subfolder2/FID4.tif" in features)
-
     def testGetGeometries(self):
         with self.flask_app.app_context():
             storage_instance = storage.RasterStorage()
@@ -288,6 +244,37 @@ class TestRasterStorage(BaseApiTest):
 
             bbox = storage_instance.get_bbox(layer_name)
             self.assertTrue(bbox is None)
+
+    def testGetZoomLimits(self):
+        with self.flask_app.app_context():
+            storage_instance = storage.RasterStorage()
+
+            layer_name = "raster/10"
+
+            ZOOM_LIMITS = {
+                "raster/10": True,
+            }
+
+            os.makedirs(storage_instance.get_dir(layer_name))
+
+            filename = os.path.join(
+                storage_instance.get_dir(layer_name), "zoom_limits.json"
+            )
+            with open(filename, "w") as f:
+                json.dump(ZOOM_LIMITS, f)
+
+            zoom_limits = storage_instance.get_zoom_limits(layer_name)
+
+            self.assertEqual(zoom_limits, ZOOM_LIMITS)
+
+    def testGetZoomLimitsMissingFile(self):
+        with self.flask_app.app_context():
+            storage_instance = storage.RasterStorage()
+
+            layer_name = "raster/10"
+
+            zoom_limits = storage_instance.get_zoom_limits(layer_name)
+            self.assertEqual(zoom_limits, {})
 
 
 class TestRasterStorageWithoutCache(BaseApiTest):
@@ -454,6 +441,37 @@ class TestRasterStorageWithoutCache(BaseApiTest):
             bbox = storage_instance.get_bbox(layer_name)
             self.assertTrue(bbox is None)
 
+    def testGetZoomLimits(self):
+        with self.flask_app.app_context():
+            storage_instance = storage.RasterStorage()
+
+            layer_name = "raster/10"
+
+            ZOOM_LIMITS = {
+                "raster/10": True,
+            }
+
+            os.makedirs(storage_instance.get_dir(layer_name, cache=True))
+
+            filename = os.path.join(
+                storage_instance.get_dir(layer_name, cache=True), "zoom_limits.json"
+            )
+            with open(filename, "w") as f:
+                json.dump(ZOOM_LIMITS, f)
+
+            zoom_limits = storage_instance.get_zoom_limits(layer_name)
+
+            self.assertEqual(zoom_limits, ZOOM_LIMITS)
+
+    def testGetZoomLimitsMissingFile(self):
+        with self.flask_app.app_context():
+            storage_instance = storage.RasterStorage()
+
+            layer_name = "raster/10"
+
+            zoom_limits = storage_instance.get_zoom_limits(layer_name)
+            self.assertEqual(zoom_limits, {})
+
 
 class TestCMStorage(BaseApiTest):
     def testRootDir(self):
@@ -487,6 +505,48 @@ class TestCMStorage(BaseApiTest):
                 ),
                 f"{self.cm_outputs_dir}/some_name/01/23/45/67/01234567-0000-0000-0000-000000000000/result.tif",
             )
+
+    def testListFeatureIds(self):
+        with self.flask_app.app_context():
+            storage_instance = storage.CMStorage()
+            layer_name = "cm/some_name/01234567-0000-0000-0000-000000000000"
+
+            folder = storage_instance.get_dir(layer_name)
+
+            os.makedirs(folder)
+            Path(os.path.join(folder, "FID1.tif")).touch()
+            Path(os.path.join(folder, "FID2.tif")).touch()
+
+            features = storage_instance.list_feature_ids(layer_name)
+
+            self.assertTrue(isinstance(features, list))
+            self.assertEqual(len(features), 2)
+            self.assertTrue("FID1.tif" in features)
+            self.assertTrue("FID2.tif" in features)
+
+    def testListFeatureIdsWithSubfolders(self):
+        with self.flask_app.app_context():
+            storage_instance = storage.CMStorage()
+            layer_name = "cm/some_name/01234567-0000-0000-0000-000000000000"
+
+            folder = storage_instance.get_dir(layer_name)
+
+            os.makedirs(os.path.join(folder, "subfolder1"))
+            Path(os.path.join(folder, "subfolder1/FID1.tif")).touch()
+            Path(os.path.join(folder, "subfolder1/FID2.tif")).touch()
+
+            os.makedirs(os.path.join(folder, "subfolder2"))
+            Path(os.path.join(folder, "subfolder2/FID3.tif")).touch()
+            Path(os.path.join(folder, "subfolder2/FID4.tif")).touch()
+
+            features = storage_instance.list_feature_ids(layer_name)
+
+            self.assertTrue(isinstance(features, list))
+            self.assertEqual(len(features), 4)
+            self.assertTrue("subfolder1/FID1.tif" in features)
+            self.assertTrue("subfolder1/FID2.tif" in features)
+            self.assertTrue("subfolder2/FID3.tif" in features)
+            self.assertTrue("subfolder2/FID4.tif" in features)
 
     def testAsZip(self):
         with self.flask_app.app_context():
