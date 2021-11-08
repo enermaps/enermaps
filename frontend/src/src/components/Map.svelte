@@ -24,7 +24,7 @@
   import TopNav from './TopNav.svelte';
 
   import {areaSelectionStore, layersStore, areaSelectionLayerStore} from '../stores.js';
-  import {INITIAL_MAP_CENTER, INITIAL_ZOOM, BASE_LAYER_URL, BASE_LAYER_PARAMS} from '../settings.js';
+  import {INITIAL_MAP_CENTER, INITIAL_ZOOM, MIN_ZOOM_LIMIT, BASE_LAYER_URL, BASE_LAYER_PARAMS} from '../settings.js';
   import {WMS_URL} from '../client.js';
   import {recomputeLayer, markLayerAsRefreshing, markLayerAsRefreshed} from '../layers.js';
 
@@ -41,12 +41,15 @@
 
   let leftPanel = null;
 
+  let zoomLimitedLayersCount = 0;
+  let displayZoomWarning = false;
+
 
   onMount(async () => {
     console.log('Initialisation of the map');
 
     // To add the draw toolbar set the option drawControl: true in the map options.
-    map = L.map('map', {zoomControl: false});
+    map = L.map('map', {zoomControl: false, minZoom: 2});
     map.setView(INITIAL_MAP_CENTER, INITIAL_ZOOM);
 
     map.addLayer(baseLayersGroup);
@@ -62,12 +65,16 @@
     map.addControl(makeCMToggleControl()); // Button to open calculation module pane
     map.addControl(makeCMListControl());
     map.addControl(makeLeftPanel());
+
+    map.on('zoomend', updateZoomWarning);
   });
 
 
   function resizeMap() {
     if (map) {
       map.invalidateSize();
+    } else {
+      setTimeout(resizeMap, 100);
     }
   }
 
@@ -75,6 +82,14 @@
   $: {
     updateSelectionLayer($areaSelectionStore);
     updateOverlayLayers($layersStore);
+  }
+
+
+  function updateZoomWarning() {
+    if (map) {
+      displayZoomWarning = (zoomLimitedLayersCount > 0) &&
+                           (map.getZoom() < MIN_ZOOM_LIMIT);
+    }
   }
 
 
@@ -126,8 +141,14 @@
   function updateOverlayLayers(layers) {
     const layersToBePruned = new Set(overlaysGroup.getLayers());
 
+    zoomLimitedLayersCount = 0;
+
     for (let i = 0; i < layers.length; ++i) {
       const layer = layers[i];
+
+      if (layer.visible && layer.has_zoom_limit) {
+        zoomLimitedLayersCount++;
+      }
 
       if (layer.leaflet_layer !== null) {
         layersToBePruned.delete(layer.leaflet_layer);
@@ -145,6 +166,7 @@
                     layers: encodeURIComponent(layer.name),
                     format: 'image/png',
                     tileSize: 256,
+                    minZoom: (layer.has_zoom_limit ? MIN_ZOOM_LIMIT : 0),
                   },
               );
             } else {
@@ -168,6 +190,7 @@
                     layers: encodeURIComponent(layer.name),
                     format: 'image/png',
                     tileSize: 256,
+                    minZoom: (layer.has_zoom_limit ? MIN_ZOOM_LIMIT : 0),
                   },
               );
             } else {
@@ -226,6 +249,8 @@
     for (const leafletLayer of layersToBePruned) {
       overlaysGroup.removeLayer(leafletLayer);
     }
+
+    updateZoomWarning();
   }
 
 
@@ -313,6 +338,7 @@
     height: 100%;
     display: flex;
     box-sizing: border-box;
+    z-index: 0;
   }
 
   #findbox {
@@ -337,6 +363,26 @@
   :global(#findbox .search-button:hover) {
     background-position-y: -19px;
   }
+
+  .warning {
+    width: 300px;
+    position: fixed;
+    bottom: 10px;
+    z-index: 100;
+    left: calc((100vw - 300px) / 2);
+    text-align: center;
+    background-color: lightgoldenrodyellow;
+    border: 1px solid #333333;
+    padding: 4px;
+    border-radius: 8px;
+    font-size: 14px;
+    background-image: url(../images/warning_icon.png);
+    background-repeat: no-repeat;
+    padding-left: 32px;
+    background-size: 32px;
+    background-position-y: center;
+    background-position-x: 4px;
+  }
 </style>
 
 
@@ -345,4 +391,8 @@
 <div id="page">
   <TopNav><div id="findbox"> </div></TopNav>
   <div id="map"></div>
+
+  {#if displayZoomWarning}
+    <div class="warning">Some layers can't be displayed at this scale, zoom in to see them</div>
+  {/if}
 </div>
