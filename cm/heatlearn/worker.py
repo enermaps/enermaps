@@ -9,9 +9,15 @@ ADMISSIBLE_TILE_SIZES = [500, 300]
 
 app = cm_base.get_default_app("heatlearn")
 schema_path = cm_base.get_default_schema_path()
+input_layers_path = cm_base.get_default_input_layers_path()
 
 
-@app.task(base=cm_base.CMBase, bind=True, schema_path=schema_path)
+@app.task(
+    base=cm_base.CMBase,
+    bind=True,
+    schema_path=schema_path,
+    input_layers_path=input_layers_path,
+)
 def heat_learn(self, selection: dict, rasters: list, params: dict):
     """This is a calculation module that applies the HeatLearn model.
     If there is no raster, we raise a value error.

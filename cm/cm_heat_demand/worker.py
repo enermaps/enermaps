@@ -8,9 +8,15 @@ from heat_demand import processing
 
 app = cm_base.get_default_app("heat_demand")
 schema_path = cm_base.get_default_schema_path()
+input_layers_path = cm_base.get_default_input_layers_path()
 
 
-@app.task(base=cm_base.CMBase, bind=True, schema_path=schema_path)
+@app.task(
+    base=cm_base.CMBase,
+    bind=True,
+    schema_path=schema_path,
+    input_layers_path=input_layers_path,
+)
 def heat_demand(self, selection: dict, rasters: list, params: dict):
     if not rasters:
         raise ValueError("Raster list must be non-empty.")

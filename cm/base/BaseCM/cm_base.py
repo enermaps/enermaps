@@ -45,6 +45,20 @@ def get_default_schema_path():
     return schema_path
 
 
+def get_default_input_layers_path():
+    """return the input_layers.json relative to the caller.
+    We expect to find the input_layers.json file in the same directory as the worker.
+    """
+    filename = inspect.stack()[1].filename
+    dir_path = os.path.dirname(os.path.abspath(filename))
+    input_layers_path = os.path.join(dir_path, "input_layers.json")
+    if not os.path.isfile(input_layers_path):
+        raise FileNotFoundError(
+            "Cannot find input_layers.json file under the path " + input_layers_path
+        )
+    return input_layers_path
+
+
 class CMBase(Task):
     schema_path = ""
 
@@ -54,11 +68,18 @@ class CMBase(Task):
         signature = inspect.signature(self.__wrapped__)
         self.parameters = [p for p in signature.parameters]
         self.pretty_name = CMBase.format_function(self.__wrapped__)
+
         if self.schema_path:
             with open(self.schema_path) as fd:
                 self.schema = json.load(fd)
         else:
             self.schema = {}
+
+        if self.input_layers_path:
+            with open(self.input_layers_path) as fd:
+                self.input_layers = json.load(fd)
+        else:
+            self.input_layers = []
 
     @staticmethod
     def format_function(function):
@@ -88,6 +109,7 @@ class CMBase(Task):
         d["pretty_name"] = self.pretty_name
         d["name"] = self.name
         d["queue"] = self.queue
+        d["input_layers"] = self.input_layers
         return json.dumps(d)
 
     def post_raster(self, raster_name, raster_fd):
