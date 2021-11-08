@@ -48,6 +48,7 @@ MODELS = {
 }
 PIXEL_SIZE = 2.5
 HDD_MODEL = {"slope": -0.0002855045732455094, "intercept": 1.8116549365250931}
+MAX_AREA = 2e8  # prevent requests on selection areas larger than 200 km2
 
 
 def createLegend(
@@ -235,6 +236,8 @@ def heatlearn(
     boundary = gpd.GeoSeries(union_geometry)
     boundary = boundary.set_crs("EPSG:4326")
     boundary = boundary.to_crs("EPSG:3035")
+    if boundary.area.sum() > MAX_AREA:
+        raise ValueError("The selected area is too large.")
     boundary = gpd.GeoDataFrame(boundary)
     boundary = boundary.rename(columns={0: "geometry"}).set_geometry("geometry")
 
