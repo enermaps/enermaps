@@ -208,9 +208,6 @@
       title = dataset.title;
     }
 
-    const hasZoomLimit = (dataset.info.zoom_limits !== undefined) &&
-                         dataset.info.zoom_limits[layerName];
-
     const layerInfos = {
       dataset: dataset.ds_id,
       variable: variable,
@@ -218,7 +215,7 @@
 
     createLayer(
         layerName, labels, title, dataset.is_raster, dataset.is_tiled,
-        hasZoomLimit, null, layerInfos,
+        dataset.info.min_zoom_level, null, layerInfos,
     );
   }
 
