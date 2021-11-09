@@ -60,20 +60,12 @@ def process_parameters(parameters, dataset_id=None, is_raster=False):
                     variables = list(set(variables))
 
                 parameters["variables"] = variables
-        else:
-            parameters["zoom_limits"] = _get_zoom_limits(dataset_id)
 
 
 def _get_valid_combinations(dataset_id):
     layer_name = path.make_unique_layer_name(path.VECTOR, dataset_id)
     storage_instance = storage.create(layer_name)
     return storage_instance.get_combinations(layer_name)
-
-
-def _get_zoom_limits(dataset_id):
-    layer_name = path.make_unique_layer_name(path.RASTER, dataset_id)
-    storage_instance = storage.create(layer_name)
-    return storage_instance.get_zoom_limits(layer_name)
 
 
 def _process_time_periods(parameters):
