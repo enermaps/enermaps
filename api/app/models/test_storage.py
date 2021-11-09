@@ -245,37 +245,6 @@ class TestRasterStorage(BaseApiTest):
             bbox = storage_instance.get_bbox(layer_name)
             self.assertTrue(bbox is None)
 
-    def testGetZoomLimits(self):
-        with self.flask_app.app_context():
-            storage_instance = storage.RasterStorage()
-
-            layer_name = "raster/10"
-
-            ZOOM_LIMITS = {
-                "raster/10": True,
-            }
-
-            os.makedirs(storage_instance.get_dir(layer_name))
-
-            filename = os.path.join(
-                storage_instance.get_dir(layer_name), "zoom_limits.json"
-            )
-            with open(filename, "w") as f:
-                json.dump(ZOOM_LIMITS, f)
-
-            zoom_limits = storage_instance.get_zoom_limits(layer_name)
-
-            self.assertEqual(zoom_limits, ZOOM_LIMITS)
-
-    def testGetZoomLimitsMissingFile(self):
-        with self.flask_app.app_context():
-            storage_instance = storage.RasterStorage()
-
-            layer_name = "raster/10"
-
-            zoom_limits = storage_instance.get_zoom_limits(layer_name)
-            self.assertEqual(zoom_limits, {})
-
 
 class TestRasterStorageWithoutCache(BaseApiTest):
     def setUp(self):
@@ -440,37 +409,6 @@ class TestRasterStorageWithoutCache(BaseApiTest):
 
             bbox = storage_instance.get_bbox(layer_name)
             self.assertTrue(bbox is None)
-
-    def testGetZoomLimits(self):
-        with self.flask_app.app_context():
-            storage_instance = storage.RasterStorage()
-
-            layer_name = "raster/10"
-
-            ZOOM_LIMITS = {
-                "raster/10": True,
-            }
-
-            os.makedirs(storage_instance.get_dir(layer_name, cache=True))
-
-            filename = os.path.join(
-                storage_instance.get_dir(layer_name, cache=True), "zoom_limits.json"
-            )
-            with open(filename, "w") as f:
-                json.dump(ZOOM_LIMITS, f)
-
-            zoom_limits = storage_instance.get_zoom_limits(layer_name)
-
-            self.assertEqual(zoom_limits, ZOOM_LIMITS)
-
-    def testGetZoomLimitsMissingFile(self):
-        with self.flask_app.app_context():
-            storage_instance = storage.RasterStorage()
-
-            layer_name = "raster/10"
-
-            zoom_limits = storage_instance.get_zoom_limits(layer_name)
-            self.assertEqual(zoom_limits, {})
 
 
 class TestCMStorage(BaseApiTest):

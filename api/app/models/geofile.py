@@ -239,14 +239,6 @@ def save_raster_geometries(layer_name, rasters_list):
                 )
             )
 
-        bbox_area = (right - left) * (top - bottom)
-        limit_zoom = (bbox_area / len(geometries)) < 10.0
-
-        zoom_limits = storage_instance.get_zoom_limits(layer_name)
-        zoom_limits[layer_name] = limit_zoom
-
-        with open(storage_instance.get_zoom_limits_file(layer_name), "w") as f:
-            json.dump(zoom_limits, f)
     else:
         layer = load(layer_name)
         mapnik_layers = layer.as_mapnik_layers()

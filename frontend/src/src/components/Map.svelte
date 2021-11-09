@@ -24,7 +24,7 @@
   import TopNav from './TopNav.svelte';
 
   import {areaSelectionStore, layersStore, areaSelectionLayerStore} from '../stores.js';
-  import {INITIAL_MAP_CENTER, INITIAL_ZOOM, MIN_ZOOM_LIMIT, BASE_LAYER_URL, BASE_LAYER_PARAMS} from '../settings.js';
+  import {INITIAL_MAP_CENTER, INITIAL_ZOOM, BASE_LAYER_URL, BASE_LAYER_PARAMS} from '../settings.js';
   import {WMS_URL} from '../client.js';
   import {recomputeLayer, markLayerAsRefreshing, markLayerAsRefreshed} from '../layers.js';
 
@@ -41,7 +41,7 @@
 
   let leftPanel = null;
 
-  let zoomLimitedLayersCount = 0;
+  let minZoomLevel = 0;
   let displayZoomWarning = false;
 
 
@@ -87,8 +87,7 @@
 
   function updateZoomWarning() {
     if (map) {
-      displayZoomWarning = (zoomLimitedLayersCount > 0) &&
-                           (map.getZoom() < MIN_ZOOM_LIMIT);
+      displayZoomWarning = (map.getZoom() < minZoomLevel);
     }
   }
 
@@ -141,13 +140,13 @@
   function updateOverlayLayers(layers) {
     const layersToBePruned = new Set(overlaysGroup.getLayers());
 
-    zoomLimitedLayersCount = 0;
+    minZoomLevel = 0;
 
     for (let i = 0; i < layers.length; ++i) {
       const layer = layers[i];
 
-      if (layer.visible && layer.has_zoom_limit) {
-        zoomLimitedLayersCount++;
+      if (layer.visible && (layer.min_zoom_level > minZoomLevel)) {
+        minZoomLevel = layer.min_zoom_level;
       }
 
       if (layer.leaflet_layer !== null) {
@@ -166,7 +165,7 @@
                     layers: encodeURIComponent(layer.name),
                     format: 'image/png',
                     tileSize: 256,
-                    minZoom: (layer.has_zoom_limit ? MIN_ZOOM_LIMIT : 0),
+                    minZoom: layer.min_zoom_level,
                   },
               );
             } else {
@@ -178,6 +177,7 @@
                     format: 'image/png',
                     bounds: L.latLngBounds([-90, -180], [90, 180]),
                     pane: map.getPanes().tilePane,
+                    minZoom: layer.min_zoom_level,
                   },
               );
             }
@@ -190,7 +190,7 @@
                     layers: encodeURIComponent(layer.name),
                     format: 'image/png',
                     tileSize: 256,
-                    minZoom: (layer.has_zoom_limit ? MIN_ZOOM_LIMIT : 0),
+                    minZoom: layer.min_zoom_level,
                   },
               );
             } else {
@@ -202,6 +202,7 @@
                     format: 'image/png',
                     bounds: L.latLngBounds([-90, -180], [90, 180]),
                     pane: map.getPanes().tilePane,
+                    minZoom: layer.min_zoom_level,
                   },
               );
             }

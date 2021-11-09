@@ -17,7 +17,7 @@ def convert(parameters):
         if (field not in params) or (params[field] is None):
             params[field] = {}
 
-    for field in ("temporal_granularity", "start_at"):
+    for field in ("temporal_granularity", "start_at", "min_zoom_level"):
         if field not in params:
             params[field] = None
 
@@ -41,6 +41,7 @@ def convert(parameters):
         "start_at": params["start_at"],
         "end_at": params["end_at"],
         "default_parameters": parameters["default_parameters"],
+        "min_zoom_level": params["min_zoom_level"],
     }
 
 
@@ -59,20 +60,12 @@ def process_parameters(parameters, dataset_id=None, is_raster=False):
                     variables = list(set(variables))
 
                 parameters["variables"] = variables
-        else:
-            parameters["zoom_limits"] = _get_zoom_limits(dataset_id)
 
 
 def _get_valid_combinations(dataset_id):
     layer_name = path.make_unique_layer_name(path.VECTOR, dataset_id)
     storage_instance = storage.create(layer_name)
     return storage_instance.get_combinations(layer_name)
-
-
-def _get_zoom_limits(dataset_id):
-    layer_name = path.make_unique_layer_name(path.RASTER, dataset_id)
-    storage_instance = storage.create(layer_name)
-    return storage_instance.get_zoom_limits(layer_name)
 
 
 def _process_time_periods(parameters):
