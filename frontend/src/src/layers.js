@@ -8,7 +8,7 @@ import {getDatasetLayerLegend} from './client.js';
 
 // Create a new layer and put it at the top of the stack, so it is displayed last
 export function createLayer(
-    name, labels, title, isRaster, isTiled, hasZoomLimit, taskId, layerInfos,
+    name, labels, title, isRaster, isTiled, minZoomLevel, taskId, layerInfos,
 ) {
   const layers = get(layersStore);
 
@@ -18,13 +18,17 @@ export function createLayer(
     layer.effect = 'blink';
     layer.visible = true;
   } else {
+    if (minZoomLevel === null) {
+      minZoomLevel = 0;
+    }
+
     layer = {
       name: name,
       labels: labels,
       title: title,
       is_raster: isRaster,
       is_tiled: isTiled,
-      has_zoom_limit: hasZoomLimit,
+      min_zoom_level: minZoomLevel,
       visible: true,
       effect: 'new',
       leaflet_layer: null,
