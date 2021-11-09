@@ -17,7 +17,7 @@ def convert(parameters):
         if (field not in params) or (params[field] is None):
             params[field] = {}
 
-    for field in ("temporal_granularity", "start_at"):
+    for field in ("temporal_granularity", "start_at", "min_zoom_level"):
         if field not in params:
             params[field] = None
 
@@ -41,6 +41,7 @@ def convert(parameters):
         "start_at": params["start_at"],
         "end_at": params["end_at"],
         "default_parameters": parameters["default_parameters"],
+        "min_zoom_level": params["min_zoom_level"],
     }
 
 
