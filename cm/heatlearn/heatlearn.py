@@ -52,31 +52,33 @@ MAX_AREA = 2e8  # prevent requests on selection areas larger than 200 km2
 
 
 def createLegend(
-    preds: np.array, name: str = "Heating density", unit: str = "MWh", nb_class: int = 5
+    preds: np.array, name: str = "Heating density", unit: str = "MWh", nb_class: int = 4
 ) -> dict:
     """Prepare a legend dict in HotMaps format"""
     nb_class = min([nb_class, preds[~np.isnan(preds)].shape[0] - 1])
+
+    preds = preds[~np.isnan(preds)]
+
     if nb_class > 2:
-        color_scale = cm.get_cmap("plasma", nb_class).colors
-        color_scale[:, :-1] *= 255
-
-        breaks = jenkspy.jenks_breaks(preds[~np.isnan(preds)], nb_class=nb_class)
-
-        legend = {"name": name, "type": "custom", "symbology": []}
-        for i in range(len(breaks) - 1):
-            legend["symbology"].append(
-                {
-                    "red": float(color_scale[i, 0]),
-                    "green": float(color_scale[i, 1]),
-                    "blue": float(color_scale[i, 2]),
-                    "opacity": float(color_scale[i, 3]),
-                    "value": float(breaks[i]),
-                    "label": "≥ {} {}".format(int(round(breaks[i], 0)), unit),
-                }
-            )
+        breaks = jenkspy.jenks_breaks(preds, nb_class=nb_class)
     else:
-        legend = {}
-        print("No legend was created.", flush=True)
+        breaks = np.sort(preds)
+
+    color_scale = cm.get_cmap("plasma", len(breaks)).colors
+    color_scale[:, :-1] *= 255
+
+    legend = {"name": name, "type": "custom", "symbology": []}
+    for i in range(len(breaks)):
+        legend["symbology"].append(
+            {
+                "red": float(color_scale[i, 0]),
+                "green": float(color_scale[i, 1]),
+                "blue": float(color_scale[i, 2]),
+                "opacity": float(color_scale[i, 3]),
+                "value": float(breaks[i]),
+                "label": "≥ {} {}".format(int(round(breaks[i], 0)), unit),
+            }
+        )
     return legend
 
 
