@@ -84,6 +84,7 @@ class CMOutput(Schema):
         ),
         required=False,
     )
+    warnings = fields.Dict(keys=fields.Str(), values=fields.Str(), required=False)
 
 
 def validate(output: Dict) -> Dict:
