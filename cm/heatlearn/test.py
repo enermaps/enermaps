@@ -31,7 +31,9 @@ class MockTask:
 
 def mockGetHDD(polygon, year=2020):
     CH013 = pd.read_csv("CH013_HDD.csv", index_col="time", parse_dates=True)
-    return CH013.loc[CH013.index.year == year, :].values.tolist()[0]
+    response = CH013.loc[CH013.index.year == year, :].values.tolist()[0]
+    response.append({"Warning": ""})
+    return response
 
 
 class TestCM(unittest.TestCase):
