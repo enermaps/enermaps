@@ -14,6 +14,7 @@
   let graphs = {};
   let values = [];
   let legend = {};
+  const warnings = [];
   let parameters = [];
   let isTaskPending = true;
   let isTaskFailed = false;
@@ -39,6 +40,15 @@
           graphs = task.result.result.graphs;
           values = Object.entries(task.result.result.values);
           legend = task.result.result.legend;
+
+          if (task.result.result.warnings != null) {
+            for (const key of Object.keys(task.result.result.warnings)) {
+              warnings.push({
+                title: key,
+                details: task.result.result.warnings[key],
+              });
+            }
+          }
         }
 
         parameters = Object.entries(task.parameters.parameters);
@@ -161,6 +171,22 @@
     border: 1px solid black;
     display: inline-block;
   }
+
+  .warning {
+    display: block;
+    background-color: lightgoldenrodyellow;
+    padding: 2px;
+    background-image: url(../images/warning_icon.png);
+    background-repeat: no-repeat;
+    padding-left: 24px;
+    background-size: 16px;
+    background-position-y: center;
+    background-position-x: 4px;
+  }
+
+  .warning.first {
+    margin-top: 10px;
+  }
 </style>
 
 
@@ -212,6 +238,10 @@
         </dl>
 
         <Chart datasets={graphs}/>
+
+        {#each warnings as warning, index}
+          <div class="warning" class:first={index == 0}><strong>{warning.title}:</strong>&nbsp;{warning.details}</div>
+        {/each}
 
       {:else if activeTab === 'legend'}
         <dl>

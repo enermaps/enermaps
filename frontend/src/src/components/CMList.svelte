@@ -2,17 +2,29 @@
   import {onMount} from 'svelte';
   import {BASE_URL} from '../settings.js';
   import {getCMs} from '../client.js';
-
-  import {isCMPaneActiveStore} from '../stores.js';
+  import {areaSelectionLayerStore, selectedLayerStore, isCMPaneActiveStore} from '../stores.js';
   import CM from './CM.svelte';
 
 
   let cms = [];
+  let areaSelected = false;
+  let layerSelected = false;
 
 
   onMount(async () => {
     cms = await getCMs();
   });
+
+
+  $: {
+    areaSelected = false;
+    if ($areaSelectionLayerStore !== null) {
+      const selection = $areaSelectionLayerStore.getSelection();
+      areaSelected = (selection != null) && (selection.features.length > 0);
+    }
+
+    layerSelected = ($selectedLayerStore !== null);
+  }
 
 
   function closeCMPanel() {
@@ -64,6 +76,18 @@
     display: inline-block;
   }
 
+  #cm_list_header div.warning {
+    display: block;
+    background-color: lightgoldenrodyellow;
+    padding: 2px;
+    background-image: url(../images/warning_icon.png);
+    background-repeat: no-repeat;
+    padding-left: 24px;
+    background-size: 16px;
+    background-position-y: center;
+    background-position-x: 4px;
+  }
+
   #close_button_cm_list {
     display: inline-block;
     height: 20px;
@@ -88,6 +112,14 @@
     <div id="cm_list_header">
       <div id="close_button_cm_list" on:click={closeCMPanel}><img src='{BASE_URL}images/clear-icon.png' alt='close'></div>
       <div id="header"><h2>Calculation Modules</h2></div>
+
+      {#if !areaSelected}
+        <div class="warning">No area selected</div>
+      {/if}
+
+      {#if !layerSelected}
+        <div class="warning">No layer selected</div>
+      {/if}
     </div>
     <div id="list">
       {#each cms as cm (cm.name)}
