@@ -101,6 +101,7 @@
 
     if (desiredSelection == null) {
       selectionsGroup.clearLayers();
+      $areaSelectionLayerStore = null;
       return;
     }
 
