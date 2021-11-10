@@ -171,38 +171,12 @@ def getHDD(polygon, year=2020):
         df["HDD_nosummer"] = df.loc[
             df.index.isin([0, 1, 2, 3, 4, 8, 9, 10, 11]), "HDD"
         ]  # used for the model
-        response = (
-            df.groupby("fid").sum().mean()[["HDD", "HDD_nosummer"]].values.tolist()
-        )
-        response.append(
-            {
-                "Warning": (
-                    "The model has not been trained in this area. Please beware that"
-                    " the results might not be reliable."
-                )
-            }
-        )
-        return response
+        return df.groupby("fid").sum().mean()[["HDD", "HDD_nosummer"]].values.tolist()
     else:
-        # Find the NUTS3 code
-        r = requests.post(
-            POSTGREST_URL + POSTGREST_ENDPOINT,
-            headers=HEADERS,
-            json={
-                "parameters": {
-                    "data.ds_id": 0,
-                    "intersecting": "{}".format(polygon.wkt),
-                    "level": "{NUTS3}",
-                }
-            },
+        raise ValueError(
+            "Heating Degree Days are not available for this location. Please try to"
+            " select another area."
         )
-        if r.json()[0]["fid"] == "CH013":  # this is the Canton of Geneva
-            CH013 = pd.read_csv("CH013_HDD.csv", index_col="time", parse_dates=True)
-            response = CH013.loc[CH013.index.year == year, :].values.tolist()[0]
-            response.append({"Warning": ""})
-            return response
-        else:
-            raise ValueError("In this area Heating Degree Days are not available.")
 
 
 def getFeatures(gdf):
@@ -339,7 +313,20 @@ def heatlearn(
     clear_session()  # recover memory
 
     # Get HDD
-    HDD, HDD_nosummer, warnings = getHDD(union_geometry, year=year)
+    if boundary.to_crs("EPSG:4326").unary_union.within(
+        gpd.read_file("CH013.geojson").unary_union
+    ):
+        CH013 = pd.read_csv("CH013_HDD.csv", index_col="time", parse_dates=True)
+        HDD, HDD_nosummer = CH013.loc[CH013.index.year == year, :].values.tolist()[0]
+        warnings = {}
+    else:
+        HDD, HDD_nosummer = getHDD(union_geometry, year=year)
+        warnings = {
+            "Warning": (
+                "The model has not been trained in this area. Please beware that the"
+                " results might not be reliable."
+            )
+        }
     HDD_coeff = HDD_MODEL["slope"] * HDD_nosummer + HDD_MODEL["intercept"]
 
     # Adjust predictions
@@ -386,7 +373,7 @@ def heatlearn(
     ret["graphs"] = {}
     ret["geofiles"] = {"file": raster_name}
     ret["legend"] = createLegend(preds)
-    if len(warnings["Warning"]) > 0:
+    if len(warnings) > 0:
         ret["warnings"] = warnings
     ret["values"] = {
         "Annual heating demand [GWh]": int(np.round(np.sum(preds) / 1000, 0)),
