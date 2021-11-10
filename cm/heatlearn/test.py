@@ -1,9 +1,6 @@
 import json
 import os
 import unittest
-from unittest.mock import patch
-
-import pandas as pd
 
 import heatlearn
 
@@ -29,19 +26,8 @@ class MockTask:
         self.nb_rasters_posted += 1
 
 
-def mockGetHDD(polygon, year=2020):
-    CH013 = pd.read_csv("CH013_HDD.csv", index_col="time", parse_dates=True)
-    response = CH013.loc[CH013.index.year == year, :].values.tolist()[0]
-    response.append({"Warning": ""})
-    return response
-
-
 class TestCM(unittest.TestCase):
-    @patch(
-        "heatlearn.getHDD",
-        side_effect=mockGetHDD,
-    )
-    def test_rasterstats(self, getHDD_function):
+    def test_rasterstats(self):
         selection = load_geojson("ge_rive_droite_500.geojson")
         raster_paths = [get_testdata_path("200km_2p5m_N26E38_07_18.tif")]
 
