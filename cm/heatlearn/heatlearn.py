@@ -163,20 +163,26 @@ def getHDD(polygon, year=2020):
                 "There is a problem connecting to the EnerMaps API. Please try again"
                 " later."
             )
-        if len(r.json()) > 0:
-            df.append(pd.DataFrame(r.json()))
-        else:
-            raise ValueError(
-                "There is a problem retrieving the heating degree days. Try to change"
-                " the analysis area."
-            )
+
+        df.append(pd.DataFrame(r.json()))
     df = pd.concat(df, ignore_index=True)
     if df.shape[0] > 0:  # there are NUTS3 with HDD
         df["HDD"] = df["variables"].apply(lambda x: x["Heating degree days"])
         df["HDD_nosummer"] = df.loc[
             df.index.isin([0, 1, 2, 3, 4, 8, 9, 10, 11]), "HDD"
         ]  # used for the model
-        return df.groupby("fid").sum().mean()[["HDD", "HDD_nosummer"]].values.tolist()
+        response = (
+            df.groupby("fid").sum().mean()[["HDD", "HDD_nosummer"]].values.tolist()
+        )
+        response.append(
+            {
+                "Warning": (
+                    "The model has not been trained in this area. Please beware that"
+                    " the results might not be reliable."
+                )
+            }
+        )
+        return response
     else:
         # Find the NUTS3 code
         r = requests.post(
@@ -192,7 +198,9 @@ def getHDD(polygon, year=2020):
         )
         if r.json()[0]["fid"] == "CH013":  # this is the Canton of Geneva
             CH013 = pd.read_csv("CH013_HDD.csv", index_col="time", parse_dates=True)
-            return CH013.loc[CH013.index.year == year, :].values.tolist()[0]
+            response = CH013.loc[CH013.index.year == year, :].values.tolist()[0]
+            response.append({"Warning": ""})
+            return response
         else:
             raise ValueError("In this area Heating Degree Days are not available.")
 
@@ -331,7 +339,7 @@ def heatlearn(
     clear_session()  # recover memory
 
     # Get HDD
-    HDD, HDD_nosummer = getHDD(union_geometry, year=year)
+    HDD, HDD_nosummer, warnings = getHDD(union_geometry, year=year)
     HDD_coeff = HDD_MODEL["slope"] * HDD_nosummer + HDD_MODEL["intercept"]
 
     # Adjust predictions
@@ -378,6 +386,8 @@ def heatlearn(
     ret["graphs"] = {}
     ret["geofiles"] = {"file": raster_name}
     ret["legend"] = createLegend(preds)
+    if len(warnings["Warning"]) > 0:
+        ret["warnings"] = warnings
     ret["values"] = {
         "Annual heating demand [GWh]": int(np.round(np.sum(preds) / 1000, 0)),
         "Heating density [MWh/ha]": int(
