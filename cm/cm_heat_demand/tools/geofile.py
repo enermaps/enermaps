@@ -111,7 +111,7 @@ def write_raster(
 
     # define color bar value
     data_array_scaled = np.interp(
-        map_array, (map_array.min(), map_array.max()), (0, 255)
+        map_array, (map_array.min(), map_array.max()), (map_array.min(), map_array.max())
     )
 
     # Create GeoTIFF
@@ -132,14 +132,6 @@ def write_raster(
     # Write the band
     band = dst_ds.GetRasterBand(1)
     band.WriteArray(array=data_array_scaled)
-
-    # create the color table
-    color_table = gdal.ColorTable()
-    color_table.CreateColorRamp(
-        int(map_array.min()), (112, 153, 89), int(map_array.max()), (214, 193, 156)
-    )
-
-    band.SetRasterColorTable(color_table)
 
     driver = None
     band = None
