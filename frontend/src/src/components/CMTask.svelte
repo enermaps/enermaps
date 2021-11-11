@@ -134,6 +134,10 @@
     background-color: white;
   }
 
+  span.tab.last {
+    margin-right: 24px;
+  }
+
   dl {
     margin: 0px;
   }
@@ -158,6 +162,12 @@
   span.download.no-margin {
     right: 8px;
   }
+
+  span.download img {
+    width: 12px;
+    padding-top: 4px;
+  }
+
 
   span.close_button {
     position: absolute;
@@ -210,16 +220,17 @@
     <div class="container">
       <div class="tabs">
         <span class="tab" class:selected={activeTab === 'parameters'} on:click={() => (activeTab = 'parameters')}>Parameters</span>
-        <span class="tab" class:selected={activeTab === 'result'} on:click={() => (activeTab = 'result')}>Result</span>
+        <span class="tab" class:last={!legend} class:selected={activeTab === 'result'} on:click={() => (activeTab = 'result')}>Result</span>
         {#if legend}
-          <span class="tab" class:selected={activeTab === 'legend'} on:click={() => (activeTab = 'legend')}>Legend</span>
+          <span class="tab last" class:selected={activeTab === 'legend'} on:click={() => (activeTab = 'legend')}>Legend</span>
         {/if}
-        <span class="download" class:no-margin={!displayCloseButton} on:click={() => (download())}>🔗
-          <!-- <a href="{BASE_URL}api/cm/{task.cm.name}/task/{task.id}/download/"
-             title="Download those results" target="_blank">🔗</a> -->
+        <span class="download" class:no-margin={!displayCloseButton} on:click={() => (download())}>
+          <img src='{BASE_URL}images/download-icon.png' alt='download' title="Download the results">
         </span>
         {#if displayCloseButton }
-          <span class="close_button" on:click="{deleteTask(task)}"><img src='{BASE_URL}images/clear-icon.png' alt='close'></span>
+          <span class="close_button" on:click="{deleteTask(task)}">
+            <img src='{BASE_URL}images/clear-icon.png' alt='close'>
+          </span>
         {/if}
       </div>
 
