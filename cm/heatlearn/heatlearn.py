@@ -52,31 +52,33 @@ MAX_AREA = 2e8  # prevent requests on selection areas larger than 200 km2
 
 
 def createLegend(
-    preds: np.array, name: str = "Heating density", unit: str = "MWh", nb_class: int = 5
+    preds: np.array, name: str = "Heating density", unit: str = "MWh", nb_class: int = 4
 ) -> dict:
     """Prepare a legend dict in HotMaps format"""
     nb_class = min([nb_class, preds[~np.isnan(preds)].shape[0] - 1])
+
+    preds = preds[~np.isnan(preds)]
+
     if nb_class > 2:
-        color_scale = cm.get_cmap("plasma", nb_class).colors
-        color_scale[:, :-1] *= 255
-
-        breaks = jenkspy.jenks_breaks(preds[~np.isnan(preds)], nb_class=nb_class)
-
-        legend = {"name": name, "type": "custom", "symbology": []}
-        for i in range(len(breaks) - 1):
-            legend["symbology"].append(
-                {
-                    "red": float(color_scale[i, 0]),
-                    "green": float(color_scale[i, 1]),
-                    "blue": float(color_scale[i, 2]),
-                    "opacity": float(color_scale[i, 3]),
-                    "value": float(breaks[i]),
-                    "label": "≥ {} {}".format(int(round(breaks[i], 0)), unit),
-                }
-            )
+        breaks = jenkspy.jenks_breaks(preds, nb_class=nb_class)
     else:
-        legend = {}
-        print("No legend was created.", flush=True)
+        breaks = np.sort(preds)
+
+    color_scale = cm.get_cmap("plasma", len(breaks)).colors
+    color_scale[:, :-1] *= 255
+
+    legend = {"name": name, "type": "custom", "symbology": []}
+    for i in range(len(breaks)):
+        legend["symbology"].append(
+            {
+                "red": float(color_scale[i, 0]),
+                "green": float(color_scale[i, 1]),
+                "blue": float(color_scale[i, 2]),
+                "opacity": float(color_scale[i, 3]),
+                "value": float(breaks[i]),
+                "label": "≥ {} {}".format(int(round(breaks[i], 0)), unit),
+            }
+        )
     return legend
 
 
@@ -163,13 +165,8 @@ def getHDD(polygon, year=2020):
                 "There is a problem connecting to the EnerMaps API. Please try again"
                 " later."
             )
-        if len(r.json()) > 0:
-            df.append(pd.DataFrame(r.json()))
-        else:
-            raise ValueError(
-                "There is a problem retrieving the heating degree days. Try to change"
-                " the analysis area."
-            )
+
+        df.append(pd.DataFrame(r.json()))
     df = pd.concat(df, ignore_index=True)
     if df.shape[0] > 0:  # there are NUTS3 with HDD
         df["HDD"] = df["variables"].apply(lambda x: x["Heating degree days"])
@@ -178,23 +175,10 @@ def getHDD(polygon, year=2020):
         ]  # used for the model
         return df.groupby("fid").sum().mean()[["HDD", "HDD_nosummer"]].values.tolist()
     else:
-        # Find the NUTS3 code
-        r = requests.post(
-            POSTGREST_URL + POSTGREST_ENDPOINT,
-            headers=HEADERS,
-            json={
-                "parameters": {
-                    "data.ds_id": 0,
-                    "intersecting": "{}".format(polygon.wkt),
-                    "level": "{NUTS3}",
-                }
-            },
+        raise ValueError(
+            "Heating Degree Days are not available for this location. Please try to"
+            " select another area."
         )
-        if r.json()[0]["fid"] == "CH013":  # this is the Canton of Geneva
-            CH013 = pd.read_csv("CH013_HDD.csv", index_col="time", parse_dates=True)
-            return CH013.loc[CH013.index.year == year, :].values.tolist()[0]
-        else:
-            raise ValueError("In this area Heating Degree Days are not available.")
 
 
 def getFeatures(gdf):
@@ -331,7 +315,20 @@ def heatlearn(
     clear_session()  # recover memory
 
     # Get HDD
-    HDD, HDD_nosummer = getHDD(union_geometry, year=year)
+    if boundary.to_crs("EPSG:4326").unary_union.within(
+        gpd.read_file("CH013.geojson").unary_union
+    ):
+        CH013 = pd.read_csv("CH013_HDD.csv", index_col="time", parse_dates=True)
+        HDD, HDD_nosummer = CH013.loc[CH013.index.year == year, :].values.tolist()[0]
+        warnings = {}
+    else:
+        HDD, HDD_nosummer = getHDD(union_geometry, year=year)
+        warnings = {
+            "Warning": (
+                "The model has not been trained in this area. Please beware that the"
+                " results might not be reliable."
+            )
+        }
     HDD_coeff = HDD_MODEL["slope"] * HDD_nosummer + HDD_MODEL["intercept"]
 
     # Adjust predictions
@@ -378,6 +375,8 @@ def heatlearn(
     ret["graphs"] = {}
     ret["geofiles"] = {"file": raster_name}
     ret["legend"] = createLegend(preds)
+    if len(warnings) > 0:
+        ret["warnings"] = warnings
     ret["values"] = {
         "Annual heating demand [GWh]": int(np.round(np.sum(preds) / 1000, 0)),
         "Heating density [MWh/ha]": int(
