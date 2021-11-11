@@ -2,6 +2,7 @@
   import {onMount, createEventDispatcher, afterUpdate} from 'svelte';
   import {getDatasetsWithVariables, getDatasetLayerName} from '../client.js';
   import {createLayer} from '../layers.js';
+  import {BASE_URL} from '../settings.js';
 
 
   let availableDatasets = null;
@@ -337,6 +338,12 @@
     display: inline-block;
   }
 
+  td.openaire img {
+    height: 16px;
+    opacity: 0.7;
+    margin-left: 2px;
+  }
+
   .help {
     font-style: italic;
     color: rgb(128,128, 128);
@@ -373,8 +380,10 @@
               <tr class="dataset" title={dataset.title} on:click={() => toggleDataset(dataset)} class:open={dataset.open}>
                 <td class="arrow"><span>►</span></td>
                 <td class="title" colspan="3">{dataset.title}</td>
-                <td class="openair">
-                  <a href={dataset.openaireLink} title="Link to OpenAIRE metadata" target="_blank">&#128279;</a>
+                <td class="openaire">
+                  <a href={dataset.openaireLink} title="Link to OpenAIRE metadata and license" target="_blank">
+                    <img src='{BASE_URL}images/info-icon.png' alt="infos" />
+                  </a>
                 </td>
               </tr>
 
