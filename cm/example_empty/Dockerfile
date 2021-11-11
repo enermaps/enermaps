@@ -1,7 +1,17 @@
 FROM ubuntu:20.04
+
+# set timezone
+ENV TZ=Europe/Zurich
+RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
+
 RUN apt-get update && \
-    apt-get --yes install python3 python3-pip &&\
+    apt-get --yes install \
+        python3 \
+        python3-pip \
+        libgdal-dev \
+        && \
     rm -rf /var/cache/apt/archives/
+
 # choose the same name as the Docker service (by convention)
 WORKDIR cm-geofile
 # replace [example_empty] by your CM folder name
