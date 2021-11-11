@@ -111,7 +111,9 @@ def write_raster(
 
     # define color bar value
     data_array_scaled = np.interp(
-        map_array, (map_array.min(), map_array.max()), (map_array.min(), map_array.max())
+        map_array,
+        (map_array.min(), map_array.max()),
+        (map_array.min(), map_array.max()),
     )
 
     # Create GeoTIFF
