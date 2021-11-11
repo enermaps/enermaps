@@ -61,6 +61,7 @@ def processing(task, region: dict, raster: str, parameters: dict):
             task.post_raster(raster_name=raster_name, raster_fd=raster_fd)
 
         response = get_response(
+            map_array=filtered_map,
             total_potential=total_potential,
             total_heat_demand=total_heat_demand,
             areas_potential=areas_potential,
