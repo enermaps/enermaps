@@ -5,11 +5,10 @@ from typing import List, Optional, Text
 
 import pyproj
 import rasterio
+from BaseCM.cm_output import validate
 from rasterstats import zonal_stats
 from shapely.geometry import shape
 from shapely.ops import cascaded_union, transform
-
-from BaseCM.cm_output import validate
 
 GEOJSON_PROJ = "EPSG:4326"
 DEFAULT_STATS = ("min", "max", "mean", "median", "count")
