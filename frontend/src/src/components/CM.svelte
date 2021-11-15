@@ -61,6 +61,12 @@
               break;
             }
 
+            if (((entry.dataset === 'all_rasters') && layer.is_raster) ||
+                ((entry.dataset === 'all_vectors') && !layer.is_raster)) {
+              isEnabled = true;
+              break;
+            }
+
             if (entry.dataset === layer.layer_infos.dataset) {
               if ((layer.layer_infos.variable === null) ||
                   (entry.variables === undefined) ||
