@@ -5,17 +5,13 @@ ENV TZ=Europe/Zurich
 RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 
 RUN apt-get update && \
-    apt-get --yes install \
+    apt-get install --yes \
         python3 \
         python3-pip \
         libgdal-dev \
+        gdal-bin \
+        python3-gdal \
         && \
-    rm -rf /var/cache/apt/archives/
-    
-RUN \
-    apt-get install --yes \
-    gdal-bin \
-    python3-gdal && \
     rm -rf /var/cache/apt/archives/
 
 WORKDIR cm-heat-demand

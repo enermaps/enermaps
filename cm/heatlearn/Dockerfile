@@ -9,13 +9,9 @@ RUN apt-get update && \
         python3 \
         python3-pip \
         libgdal-dev \
+        libpq-dev \
+        gdal-bin \
         && \
-    rm -rf /var/cache/apt/archives/
-
-RUN chmod 1777 /tmp && \
-    apt-get update && \
-    apt-get --yes install libpq-dev &&\
-    apt-get --yes install gdal-bin &&\
     rm -rf /var/cache/apt/archives/
 
 ENV CPLUS_INCLUDE_PATH=/usr/include/gdal
