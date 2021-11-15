@@ -8,6 +8,5 @@ RUN pip3 install -r requirements.txt
 COPY base /tmp/base
 RUN cd /tmp/base && pip3 install .
 COPY cm_raster_statistics .
-RUN python3 settings.py
 RUN python3 test.py
 CMD ["python3", "worker.py"]
