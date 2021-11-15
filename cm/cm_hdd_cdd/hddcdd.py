@@ -9,27 +9,10 @@ import pandas as pd
 import rasterio
 from BaseCM.cm_output import validate
 
-GEOJSON_PROJ = "EPSG:4326"
-DEFAULT_STATS = ("min", "max", "mean", "median", "count")
-SCALED_STATS_PREFIX = ("min", "max", "mean", "median", "percentile_")
-CURRENT_FILE_DIR = os.path.dirname(os.path.abspath(__file__))
-
-CDF_POINTS = range(0, 101)
-
 DECIMALS = 3
 
 CURRENT_FILE_DIR = Path(__file__).parent
 TESTDATA_DIR = CURRENT_FILE_DIR / "testdata"
-
-
-def scale_stat(stats: dict, factor):
-    """From a list of stats, take the factor into account and
-    modify the stats accordingly.
-    """
-    for stat_name, stat in stats.items():
-        for scaled_stat_prefix in SCALED_STATS_PREFIX:
-            if stat and stat_name.startswith(scaled_stat_prefix):
-                stats[stat_name] = stat * factor
 
 
 def compute_centroid(geojson: Dict) -> Tuple[float, float]:
@@ -118,15 +101,6 @@ def extract_by_dir(
     return sr
 
 
-def dd_my_group(sr: pd.Series) -> pd.Series:
-    isplit = sr.index.str.split("_")
-    years = [yr for yr, _ in isplit]
-    mnths = [mnth for _, mnth in isplit]
-    yrgrp = sr.groupby(years)
-    mngrp = sr.groupby(mnths)
-    return mngrp, yrgrp
-
-
 def hdd_cdd_stats(
     geojson: Dict,
     refyear: int = 2050,
@@ -162,16 +136,14 @@ def hdd_cdd_stats(
     )
     logging.info(msg)
     # Compute the centroid of the geometry selected by the user
-    print(f"CENTROID: {compute_centroid(geojson)}")
     lon, lat = compute_centroid(geojson)
+    print(f"CENTROID: lon: {lon}, lat: {lat}")
     # Query the file-directory-netcdf structure for all the pixels involved
     hdd_path = get_datadir(
         datarepository=get_datarepodir(),
         sim_type=rcp,
         dd_type="hdd",
         Tb=t_base_h,
-        aggr_window="monthly",
-        method="average",
     )
     avg_hdds = extract_by_dir(gdir=hdd_path, lon=lon, lat=lat)
     cdd_path = get_datadir(
@@ -179,8 +151,6 @@ def hdd_cdd_stats(
         sim_type=rcp,
         dd_type="cdd",
         Tb=t_base_c,
-        aggr_window="monthly",
-        method="average",
     )
     avg_cdds = extract_by_dir(gdir=cdd_path, lon=lon, lat=lat)
     # end = time()
