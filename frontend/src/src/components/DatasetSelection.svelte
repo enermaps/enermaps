@@ -2,6 +2,7 @@
   import {onMount, createEventDispatcher, afterUpdate} from 'svelte';
   import {getDatasetsWithVariables, getDatasetLayerName} from '../client.js';
   import {createLayer} from '../layers.js';
+  import {BASE_URL} from '../settings.js';
 
 
   let availableDatasets = null;
@@ -13,6 +14,7 @@
   let rootElement = null;
   let datasetsContainer = null;
   let disableLayoutEvent = false;
+  let copyPopup = null;
 
   const dispatch = createEventDispatcher();
 
@@ -220,6 +222,65 @@
   }
 
 
+  async function copyGeoJSONUrlToClipboard(datasetId, variable, timePeriod, event) {
+    const dataset = availableDatasets.filter((dataset) => dataset.ds_id == datasetId)[0];
+
+    if (dataset.is_raster) {
+      return;
+    }
+
+    const layerName = await getDatasetLayerName(
+        datasetId, dataset.is_raster, variable, timePeriod,
+    );
+
+    // Create new temporary text element containing the value to copy
+    const el = document.createElement('textarea');
+    el.value = document.URL + 'api/datasets/geojson/' +
+               encodeURIComponent(layerName) + '/';
+
+    // Set non-editable to avoid focus and move outside of view
+    el.setAttribute('readonly', '');
+    el.style.position = 'absolute';
+    el.style.left = '-9999px';
+    document.body.appendChild(el);
+
+    // Select text inside element
+    el.select();
+
+    // Copy text to clipboard
+    document.execCommand('copy');
+
+    // Remove temporary element
+    document.body.removeChild(el);
+
+    // Show the popup
+    const rect = event.target.getBoundingClientRect();
+
+    if (copyPopup === null) {
+      copyPopup = document.createElement('div');
+      copyPopup.textContent = 'URL copied to the clipboard';
+      copyPopup.style.position = 'absolute';
+      copyPopup.style.left = (rect.right + 6) + 'px';
+      copyPopup.style.top = rect.top + 'px';
+      copyPopup.style.backgroundColor = 'lightgoldenrodyellow';
+      copyPopup.style.fontSize = '14px';
+      copyPopup.style.padding = '4px';
+      document.body.appendChild(copyPopup);
+    } else {
+      copyPopup.style.left = (rect.right + 6) + 'px';
+      copyPopup.style.top = rect.top + 'px';
+    }
+  }
+
+
+  function hideCopyPopup() {
+    if (copyPopup !== null) {
+      document.body.removeChild(copyPopup);
+      copyPopup = null;
+    }
+  }
+
+
   function isCombinationValid(dataset, variable, timePeriod) {
     if (dataset.info.valid_combinations == null) {
       return true;
@@ -337,6 +398,17 @@
     display: inline-block;
   }
 
+  td.openaire img {
+    height: 16px;
+    margin-left: 2px;
+  }
+
+  td.geojson img {
+    height: 16px;
+    margin-left: 2px;
+    cursor: pointer;
+  }
+
   .help {
     font-style: italic;
     color: rgb(128,128, 128);
@@ -373,8 +445,10 @@
               <tr class="dataset" title={dataset.title} on:click={() => toggleDataset(dataset)} class:open={dataset.open}>
                 <td class="arrow"><span>►</span></td>
                 <td class="title" colspan="3">{dataset.title}</td>
-                <td class="openair">
-                  <a href={dataset.openaireLink} title="Link to OpenAIRE metadata" target="_blank">&#128279;</a>
+                <td class="openaire">
+                  <a href={dataset.openaireLink} title="Link to OpenAIRE metadata and license" target="_blank">
+                    <img src='{BASE_URL}images/info-icon.png' alt="infos" />
+                  </a>
                 </td>
               </tr>
 
@@ -398,7 +472,16 @@
                             <td class="bullet"></td>
                             <td class="bullet">◦</td>
                             <td>{timePeriod}</td>
-                            <td></td>
+                            <td class="geojson">
+                              {#if !dataset.is_raster}
+                                <img src='{BASE_URL}images/copy-icon.png' alt="geojson link"
+                                     title="Copy the URL of the GeoJSON file"
+                                     on:click|stopPropagation={(event) => copyGeoJSONUrlToClipboard(
+                                       dataset.ds_id, variable, timePeriod, event,
+                                     )}
+                                     on:mouseleave={hideCopyPopup}/>
+                              {/if}
+                            </td>
                           </tr>
                         {/if}
                       {/each}
@@ -411,7 +494,17 @@
                       <td></td>
                       <td class="bullet">◦</td>
                       <td colspan="2">{variable}</td>
-                      <td></td>
+                      <td class="geojson">
+                        {#if !dataset.is_raster}
+                          <img src='{BASE_URL}images/copy-icon.png' alt="geojson link"
+                               title="Copy the URL of the GeoJSON file"
+                               on:click|stopPropagation={(event) => copyGeoJSONUrlToClipboard(
+                                 dataset.ds_id, variable,
+                                 dataset.info.const_time_period, event,
+                               )}
+                               on:mouseleave={hideCopyPopup}/>
+                        {/if}
+                      </td>
                     </tr>
                   {/each}
                 {:else if dataset.info.time_period_only}
@@ -421,7 +514,17 @@
                       <td></td>
                       <td class="bullet">◦</td>
                       <td colspan="2">{timePeriod}</td>
-                      <td></td>
+                      <td class="geojson">
+                        {#if !dataset.is_raster}
+                          <img src='{BASE_URL}images/copy-icon.png' alt="geojson link"
+                               title="Copy the URL of the GeoJSON file"
+                               on:click|stopPropagation={(event) => copyGeoJSONUrlToClipboard(
+                                 dataset.ds_id, dataset.info.const_variable,
+                                 timePeriod, event,
+                               )}
+                               on:mouseleave={hideCopyPopup}/>
+                        {/if}
+                      </td>
                     </tr>
                   {/each}
                 {:else}
@@ -439,7 +542,17 @@
                     {:else}
                       <td colspan="2">{dataset.title}</td>
                     {/if}
-                    <td></td>
+                    <td class="geojson">
+                      {#if !dataset.is_raster}
+                        <img src='{BASE_URL}images/copy-icon.png' alt="geojson link"
+                             title="Copy the URL of the GeoJSON file"
+                             on:click|stopPropagation={(event) => copyGeoJSONUrlToClipboard(
+                               dataset.ds_id, dataset.info.const_variable,
+                               dataset.info.const_time_period, event,
+                             )}
+                             on:mouseleave={hideCopyPopup}/>
+                      {/if}
+                    </td>
                   </tr>
                 {/if}
               {/if}

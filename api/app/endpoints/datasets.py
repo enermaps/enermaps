@@ -123,6 +123,17 @@ class Legend(Resource):
         return legend
 
 
+@api.route("/geojson/<path:layer_name>/")
+class GeoJSON(Resource):
+    def get(self, layer_name):
+        """Return the GeoJSON file corresponding to the layer"""
+        geojson = client.get_geojson(layer_name, ignore_intersecting=True)
+        if geojson is None:
+            abort(404)
+
+        return geojson
+
+
 @api.route("/areas/")
 class Areas(Resource):
     def get(self):

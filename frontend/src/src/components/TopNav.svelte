@@ -3,9 +3,12 @@
   import 'leaflet-search/dist/leaflet-search.src.js';
   import 'leaflet-search/dist/leaflet-search.src.css';
 
+
   let btn;
   let modal;
   let span;
+  let copyPopup = null;
+
 
   onMount(async () => {
     // Get the modal
@@ -29,6 +32,51 @@
       }
     };
   });
+
+
+  function copyWMSUrlToClipboard(event) {
+    // Create new temporary text element containing the value to copy
+    const el = document.createElement('textarea');
+    el.value = document.URL + 'api/wms';
+
+    // Set non-editable to avoid focus and move outside of view
+    el.setAttribute('readonly', '');
+    el.style.position = 'absolute';
+    el.style.left = '-9999px';
+    document.body.appendChild(el);
+
+    // Select text inside element
+    el.select();
+
+    // Copy text to clipboard
+    document.execCommand('copy');
+
+    // Remove temporary element
+    document.body.removeChild(el);
+
+    // Show the popup
+    const rect = event.target.getBoundingClientRect();
+
+    if (copyPopup === null) {
+      copyPopup = document.createElement('div');
+      copyPopup.textContent = 'URL copied to the clipboard';
+      copyPopup.style.position = 'absolute';
+      copyPopup.style.left = (rect.left - 10) + 'px';
+      copyPopup.style.top = (rect.bottom + 6) + 'px';
+      copyPopup.style.backgroundColor = 'lightgoldenrodyellow';
+      copyPopup.style.fontSize = '14px';
+      copyPopup.style.padding = '4px';
+      document.body.appendChild(copyPopup);
+    }
+  }
+
+
+  function hideCopyPopup() {
+    if (copyPopup !== null) {
+      document.body.removeChild(copyPopup);
+      copyPopup = null;
+    }
+  }
 </script>
 
 
@@ -173,8 +221,10 @@
   <a href="https://enermaps-wiki.herokuapp.com" target="_blank" class="link">Wiki</a>
   <a href="https://beta.enermaps.openaire.eu/" target="_blank" class="link">OpenAIRE</a>
   <a href="https://www.kialo.com/" target="_blank" class="link">Kialo</a>
-  <!-- Trigger/Open The Modal -->
+  <button class="link" title="Copy the URL of the WMS server to the clipboard"
+          on:click={copyWMSUrlToClipboard} on:mouseleave={hideCopyPopup}>WMS</button>
   <button id="myBtn" class="link">About</button>
+
   <slot id='slot'></slot>
 
   <!-- The Modal -->
