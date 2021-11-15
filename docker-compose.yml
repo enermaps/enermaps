@@ -68,6 +68,19 @@ services:
     env_file:
       .env
 
+  cm-refurbish:
+    build:
+      context: ./cm
+      dockerfile: cm_refurbish/Dockerfile
+    environment:
+      GEODB_DIR: /geodb
+      CM_OUTPUTS_DIR: /cm_outputs
+    volumes:
+      - geodb:/geodb:ro
+      - cm_outputs:/cm_outputs
+    env_file:
+      .env
+
   cm-multiply:
     build:
       context: ./cm
