@@ -18,6 +18,8 @@ import frictionless
 import pandas as pd
 import utilities
 
+from pyproj import CRS
+
 # Constants
 logging.basicConfig(level=logging.INFO)
 Z = None
@@ -120,6 +122,7 @@ def get(repository: str, dp: frictionless.package.Package, isForced: bool = Fals
                 "value": os.path.basename(new_dp["resources"][resource_idx]["path"]),
                 "variable": new_dp["resources"][resource_idx]["title"],
                 "start_at": start_at,
+                "crs": CRS.from_epsg(int(new_dp["resources"][resource_idx]["raster"]["epsg"])),
                 "z": Z,
                 "unit": unit,
                 "dt": DT,
@@ -216,11 +219,10 @@ if __name__ == "__main__":
             # Add legends
             legends = []
             for key in LEGENDS.keys():
-                df = pd.DataFrame()
-                df["vis_id"] = LEGENDS[key]["vis_id"]
-                df["legend"] = json.dumps(LEGENDS[key]["legend"])
-                legends.append(df)
-            legends_df = pd.concat(legends)
+                legends.append(
+                    (LEGENDS[key]["vis_id"], json.dumps(LEGENDS[key]["legend"]))
+                )
+            legends_df = pd.DataFrame(legends, columns=["vis_id", "legend"])
             utilities.toPostgreSQL(
                 legends_df,
                 DB_URL,

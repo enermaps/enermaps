@@ -135,7 +135,7 @@ def get(url: str, dp: frictionless.package.Package, force: bool = False):
 
     """
     ld = requests.get(url).json()
-    csv_file = ld["@graph"][-1]["accessURL"]
+    csv_file = ld["@graph"][0]["accessURL"]
     name = NAME
 
     # Inferring and completing metadata

@@ -321,18 +321,18 @@ def get(url: str, dp: frictionless.package.Package, force: bool = False):
             isChangedStats or isChangedDate
         ):  # Data integration will continue, regardless of force argument
             logging.info("Data has changed")
-            if utilities.isDFvalid(dp, new_dp):
+            if utilities.isDPvalid(dp, new_dp):
                 enermaps_data = prepare(new_dp)
         elif force:  # Data integration will continue, even if data has not changed
             logging.info("Forced update")
-            if utilities.isDFvalid(dp, new_dp):
+            if utilities.isDPvalid(dp, new_dp):
                 enermaps_data = prepare(new_dp)
         else:  # Data integration will stop here, returning Nones
             logging.info("Data has not changed. Use --force if you want to reupload.")
             return None, None, None
     else:  # New dataset
         dp = new_dp  # this is just for the sake of the schema control
-        if utilities.isDFvalid(dp, new_dp):
+        if utilities.isDPvalid(dp, new_dp):
             enermaps_data = prepare(new_dp)
 
     return enermaps_data, new_dp

@@ -175,7 +175,7 @@ if __name__ == "__main__":
     ].values[0]
     name = urllib.parse.quote_plus(
         datasets.loc[
-            datasets["di_script"] == script_name, "Title (with Hyperlink)"
+            datasets["di_script"] == script_name, "Title"
         ].values[0]
     )
     for ds_id in ds_ids:
