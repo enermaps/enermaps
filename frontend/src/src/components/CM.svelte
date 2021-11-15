@@ -43,34 +43,49 @@
 
     let isEnabled = false;
 
-    if (($selectedLayerStore != null) && areaSelected) {
-      const layer = getLayer($selectedLayerStore);
-
-      if (layer.layer_infos != null) {
-        for (const entry of cm.input_layers) {
-          if (entry.dataset === 'all') {
-            isEnabled = true;
-            break;
-          }
-
-          if (entry.dataset === layer.layer_infos.dataset) {
-            if ((layer.layer_infos.variable === null) ||
-                (entry.variables === undefined) ||
-                (entry.variables.length == 0)) {
-              isEnabled = true;
-              break;
-            }
-
-            if (entry.variables.indexOf(layer.layer_infos.variable) >= 0) {
-              isEnabled = true;
-              break;
-            }
-          }
+    if (areaSelected) {
+      for (const entry of cm.input_layers) {
+        if (entry.dataset === 'none') {
+          isEnabled = true;
+          break;
         }
       }
 
-      if (!isEnabled) {
-        callCMTooltip = 'The selected layer is not usable by this CM';
+      if (!isEnabled && ($selectedLayerStore != null)) {
+        const layer = getLayer($selectedLayerStore);
+
+        if (layer.layer_infos != null) {
+          for (const entry of cm.input_layers) {
+            if ((entry.dataset === 'all') || (entry.dataset === 'none')) {
+              isEnabled = true;
+              break;
+            }
+
+            if (((entry.dataset === 'all_rasters') && layer.is_raster) ||
+                ((entry.dataset === 'all_vectors') && !layer.is_raster)) {
+              isEnabled = true;
+              break;
+            }
+
+            if (entry.dataset === layer.layer_infos.dataset) {
+              if ((layer.layer_infos.variable === null) ||
+                  (entry.variables === undefined) ||
+                  (entry.variables.length == 0)) {
+                isEnabled = true;
+                break;
+              }
+
+              if (entry.variables.indexOf(layer.layer_infos.variable) >= 0) {
+                isEnabled = true;
+                break;
+              }
+            }
+          }
+        }
+
+        if (!isEnabled) {
+          callCMTooltip = 'The selected layer is not usable by this CM';
+        }
       }
     }
 
