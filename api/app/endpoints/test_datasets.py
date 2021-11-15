@@ -313,3 +313,30 @@ class RasterLayerNameTest(BaseApiTest):
     def testDeleteNotAllowed(self):
         response = self.client.delete("api/datasets/layer_name/raster/42/")
         self.assertEqual(response.status_code, 405)
+
+
+class GeoJSONTest(BaseApiTest):
+
+    GEOJSON = {
+        "type": "FeatureCollection",
+        "features": [
+            {"id": "FID1", "type": "Feature", "geometry": None, "properties": {}}
+        ],
+    }
+
+    @patch(
+        "app.common.client.get_geojson",
+        new=Mock(return_value=GEOJSON),
+    )
+    def testSuccess(self):
+        response = self.client.get("api/datasets/geojson/vector%2F42/")
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json, GeoJSONTest.GEOJSON)
+
+    @patch(
+        "app.common.client.get_geojson",
+        new=Mock(return_value=None),
+    )
+    def testFailure(self):
+        response = self.client.get("api/datasets/geojson/vector%2F42/")
+        self.assertEqual(response.status_code, 404)
