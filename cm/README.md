@@ -212,8 +212,12 @@ NB : As mentioned above, this file refers to the optional input parameter `param
 This file contains a list of dataset layers that the CM can work with. Each entry of the
 list is a dictionary with two fields, `dataset` and `variables`.
 
-`dataset` is the ID of the dataset. The special value `"all"` can be used to specify all
-the datasets.
+`dataset` is the ID of the dataset. The following special values are available:
+
+* `"all"` can be used to specify all the datasets
+* `"all_rasters"` can be used to specify all the raster datasets
+* `"all_vectors"` can be used to specify all the vector datasets
+* `"none"` can be used to indicates that the CM doesn't require any dataset at all
 
 `variables` is an array with the name of all the variables of the dataset accepted by the
 CM. If not specified, all the variables of the dataset are considered valid.
