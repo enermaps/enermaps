@@ -9,9 +9,15 @@ from hddcdd import hdd_cdd_stats
 
 app = cm_base.get_default_app("hddcdd")
 schema_path = cm_base.get_default_schema_path()
+input_layers_path = cm_base.get_default_input_layers_path()
 
 
-@app.task(base=cm_base.CMBase, bind=True, schema_path=schema_path)
+@app.task(
+    base=cm_base.CMBase,
+    bind=True,
+    schema_path=schema_path,
+    input_layers_path=input_layers_path,
+)
 def cm_hddcdd(self, selection: dict, rasters: list, params: dict):
     """This is a calculation module that multiplies the raster by an factor.
     If there is no raster, we raise a value error.
