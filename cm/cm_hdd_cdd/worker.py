@@ -26,7 +26,7 @@ def cm_hddcdd(self, selection: dict, rasters: list, params: dict):
     # print("Params:")
     # pprint(params)
 
-    # self.validate_params(params)
+    self.validate_params(params)
     res = hdd_cdd_stats(
         geojson=selection,
         refyear=params.get("reference year", 2050),
