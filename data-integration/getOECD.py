@@ -182,7 +182,7 @@ if __name__ == "__main__":
     name = urllib.parse.quote_plus(
         datasets.loc[
             datasets["di_script"] == os.path.basename(sys.argv[0]),
-            "Title (with Hyperlink)",
+            "Title",
         ].values[0]
     )
     for ds_id in ds_ids:
