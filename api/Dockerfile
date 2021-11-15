@@ -1,14 +1,18 @@
 FROM ubuntu:20.04
 
-ENV DEBIAN_FRONTEND="nointeractive" TZ="Europe/Zurich"
-RUN chmod 1777 /tmp && \
-    apt-get update && apt-get install --yes \
-    python3-mapnik \
-    python3-pip \
-    python3-gunicorn \
-    gunicorn \
-    libpq-dev \
-    python3-gdal && \
+# set timezone
+ENV TZ=Europe/Zurich
+RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
+
+RUN apt-get update && \
+    apt-get install --yes \
+        python3-mapnik \
+        python3-pip \
+        python3-gunicorn \
+        gunicorn \
+        libpq-dev \
+        python3-gdal \
+        && \
     rm -rf /var/cache/apt/archives/
 
 WORKDIR /api
