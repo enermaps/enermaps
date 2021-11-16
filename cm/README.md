@@ -186,6 +186,7 @@ Below is an example of the data schema expected by the library to build the form
 
 ```
 {
+  "$schema": "http://json-schema.org/draft-03/schema#",
   "type": "object",
   "properties": {
     "factor": {
@@ -200,6 +201,9 @@ As shown in the example above, generally the data entered by the user is numeric
 (see [documentation on JSON numeric variable type](https://json-schema.org/understanding-json-schema/reference/numeric.html)),
 but other types of data are supported by JSON schemas (see [documentation on JSON variable types]
 (https://json-schema.org/understanding-json-schema/reference/)).
+
+Please note that the schema have to start with this key/value combination: 
+```"$schema": "http://json-schema.org/draft-03/schema#"```.
 
 See the [GitHub repository](https://github.com/brutusin/json-forms) or
 [the demo website](http://brutusin.org/json-forms/) of the project for more information.
