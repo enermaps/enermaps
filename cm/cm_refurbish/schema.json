@@ -1,0 +1,135 @@
+{
+  "type": "object",
+  "properties": {
+    "building typology": {
+      "type": "string",
+      "title": "Building typology",
+      "description": "Building typology available at national level from: https://gitlab.com/hotmaps/building-stock",
+      "default": "Appartment blocks",
+      "required": true,
+      "enum": [
+        "Appartment blocks",
+        "Multifamily houses",
+        "Single family - Terraced houses"
+      ]
+    },
+    "reference year": {
+      "type": "integer",
+      "title": "Reference year",
+      "default": 2020
+    },
+    "scenario RCP": {
+      "type": "string",
+      "title": "Representative Concentration Pathway Scenarios",
+      "description": "A [Representative Concentration Pathway](https://en.wikipedia.org/wiki/Representative_Concentration_Pathway) (RCP) is a greenhouse gas concentration (not emissions) trajectory adopted by the IPCC.",
+      "default": "4.5",
+      "required": true,
+      "enum": [
+        "historical",
+        "4.5",
+        "8.5"
+      ]
+    },
+    "epoch of construction": {
+      "type": "string",
+      "default": "1960-1970"
+    },
+    "percentage basic refurbish rate": {
+      "type": "number",
+      "default": 10.0,
+      "minimum": 0.0,
+      "maximum": 100.0,
+      "required": true
+    },
+    "percentage advance refurbish rate": {
+      "type": "number",
+      "default": 5.0,
+      "minimum": 0.0,
+      "maximum": 100.0,
+      "required": true
+    },
+    "base temperature for HDD": {
+      "type": "number",
+      "title": "Base temperature for HDD",
+      "description": "...",
+      "default": 18.0,
+      "minimum": 10,
+      "maximum": 25,
+      "required": true,
+      "enum": [
+        10.0,
+        10.5,
+        11.0,
+        11.5,
+        12.0,
+        12.5,
+        13.0,
+        13.5,
+        14.0,
+        14.5,
+        15.0,
+        15.5,
+        16.0,
+        16.5,
+        17.0,
+        17.5,
+        18.0,
+        18.5,
+        19.0,
+        19.5,
+        20.0,
+        20.5,
+        21.0,
+        21.5,
+        22.0,
+        22.5,
+        23.0,
+        23.5,
+        24.0,
+        24.5
+      ]
+    },
+    "base temperature for CDD": {
+      "type": "number",
+      "title": "Base temperature for CDD",
+      "description": "...",
+      "default": 22.0,
+      "minimum": 15,
+      "maximum": 30,
+      "required": true,
+      "enum": [
+        15.0,
+        15.5,
+        16.0,
+        16.5,
+        17.0,
+        17.5,
+        18.0,
+        18.5,
+        19.0,
+        19.5,
+        20.0,
+        20.5,
+        21.0,
+        21.5,
+        22.0,
+        22.5,
+        23.0,
+        23.5,
+        24.0,
+        24.5,
+        25.0,
+        25.5,
+        26.0,
+        26.5,
+        27.0,
+        27.5,
+        28.0,
+        28.5,
+        29.0,
+        29.5,
+        30.0
+      ]
+    }
+  }
+}

@@ -73,11 +73,12 @@ services:
       context: ./cm
       dockerfile: cm_refurbish/Dockerfile
     environment:
-      GEODB_DIR: /geodb
-      CM_OUTPUTS_DIR: /cm_outputs
+      WMS_CACHE_DIR: /wms_cache
+    depends_on:
+      - redis
+    restart: always
     volumes:
-      - geodb:/geodb:ro
-      - cm_outputs:/cm_outputs
+      - wms_cache:/wms_cache:ro
     env_file:
       .env
 
