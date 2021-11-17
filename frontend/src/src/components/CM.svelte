@@ -3,7 +3,7 @@
   import {createTask} from '../tasks.js';
   import {createLayerSimple, getLayer} from '../layers.js';
   import CMTask from './CMTask.svelte';
-  import {areaSelectionLayerStore, selectedLayerStore, tasksStore} from '../stores.js';
+  import {areaSelectionLayerStore, selectedLayerStore, tasksStore, datasetsStore} from '../stores.js';
   import {getDataset} from '../datasets.js';
   import 'brutusin-json-forms';
 
@@ -27,52 +27,6 @@
   onMount(() => {
     form = BrutusinForms.create(cm.schema);
     form.render(formElement);
-
-    // Determine the requirement text to display for the CM
-    for (const entry of cm.input_layers) {
-      if (entry.dataset === 'none') {
-        layersText = 'Don\'t require any specific dataset';
-        break;
-      } else if (entry.dataset === 'all') {
-        layersText = 'Work on all datasets';
-        break;
-      } else if (entry.dataset === 'all_rasters') {
-        layersText = 'Work on all raster datasets';
-        break;
-      } else if (entry.dataset === 'all_vectors') {
-        layersText = 'Work on all vector datasets';
-        break;
-      }
-    }
-
-    if (layersText === null) {
-      layersDetails = [];
-
-      for (const entry of cm.input_layers) {
-        const dataset = getDataset(entry.dataset);
-        if (dataset === null) {
-          continue;
-        }
-
-        layersDetails.push({
-          dataset_id: dataset.ds_id,
-          dataset_title: dataset.title,
-          variables: entry.variables,
-        });
-      }
-
-      if (layersDetails.length > 1) {
-        layersText = 'Work on';
-        layersLinkText = layersDetails.length + ' datasets';
-      } else {
-        const dataset = getDataset(cm.input_layers[0].dataset);
-        if (dataset !== null) {
-          layersText = 'Work only on the dataset';
-          layersLinkText = dataset.title;
-          layersLinkDatasetId = dataset.ds_id;
-        }
-      }
-    }
   });
 
 
@@ -155,6 +109,54 @@
       const selects = formElement.getElementsByTagName('select');
       for (let i = 0; i < selects.length; i++) {
         selects[i].disabled = (isDisabled ? 'disabled' : undefined);
+      }
+    }
+
+    // Determine the requirement text to display for the CM (only once)
+    if ((layersText === null) && ($datasetsStore.length > 0)) {
+      for (const entry of cm.input_layers) {
+        if (entry.dataset === 'none') {
+          layersText = 'Don\'t require any specific dataset';
+          break;
+        } else if (entry.dataset === 'all') {
+          layersText = 'Work on all datasets';
+          break;
+        } else if (entry.dataset === 'all_rasters') {
+          layersText = 'Work on all raster datasets';
+          break;
+        } else if (entry.dataset === 'all_vectors') {
+          layersText = 'Work on all vector datasets';
+          break;
+        }
+      }
+
+      if (layersText === null) {
+        layersDetails = [];
+
+        for (const entry of cm.input_layers) {
+          const dataset = getDataset(entry.dataset);
+          if (dataset === null) {
+            continue;
+          }
+
+          layersDetails.push({
+            dataset_id: dataset.ds_id,
+            dataset_title: dataset.title,
+            variables: entry.variables,
+          });
+        }
+
+        if (layersDetails.length > 1) {
+          layersText = 'Work on';
+          layersLinkText = layersDetails.length + ' datasets';
+        } else {
+          const dataset = getDataset(cm.input_layers[0].dataset);
+          if (dataset !== null) {
+            layersText = 'Work only on the dataset';
+            layersLinkText = dataset.title;
+            layersLinkDatasetId = dataset.ds_id;
+          }
+        }
       }
     }
   }
