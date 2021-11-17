@@ -1,9 +1,10 @@
 <script>
   import {onMount} from 'svelte';
   import {createTask} from '../tasks.js';
-  import {getLayer} from '../layers.js';
+  import {createLayerSimple, getLayer} from '../layers.js';
   import CMTask from './CMTask.svelte';
-  import {areaSelectionLayerStore, selectedLayerStore, tasksStore} from '../stores.js';
+  import {areaSelectionLayerStore, selectedLayerStore, tasksStore, datasetsStore} from '../stores.js';
+  import {getDataset} from '../datasets.js';
   import 'brutusin-json-forms';
 
 
@@ -16,6 +17,11 @@
   let form = undefined;
   let callCMTooltip = '';
   let isCollapsed = false;
+  let layersText = null;
+  let layersLinkText = null;
+  let layersLinkDatasetId = null;
+  let layersDetails = null;
+  let layersDetailsDisplayed = false;
 
 
   onMount(() => {
@@ -41,12 +47,14 @@
       callCMTooltip = 'Call the CM ' + cm.pretty_name;
     }
 
+    // Determine if the CM is enabled given the current area/layer selection
     let isEnabled = false;
 
     if (areaSelected) {
       for (const entry of cm.input_layers) {
         if (entry.dataset === 'none') {
           isEnabled = true;
+          callCMTooltip = 'Call the CM ' + cm.pretty_name;
           break;
         }
       }
@@ -56,7 +64,7 @@
 
         if (layer.layer_infos != null) {
           for (const entry of cm.input_layers) {
-            if ((entry.dataset === 'all') || (entry.dataset === 'none')) {
+            if (entry.dataset === 'all') {
               isEnabled = true;
               break;
             }
@@ -91,6 +99,7 @@
 
     isDisabled = !isEnabled;
 
+    // Update the form elements
     if (formElement != null) {
       const inputs = formElement.getElementsByTagName('input');
       for (let i = 0; i < inputs.length; i++) {
@@ -102,11 +111,85 @@
         selects[i].disabled = (isDisabled ? 'disabled' : undefined);
       }
     }
+
+    // Determine the requirement text to display for the CM (only once)
+    if ((layersText === null) && ($datasetsStore.length > 0)) {
+      for (const entry of cm.input_layers) {
+        if (entry.dataset === 'none') {
+          layersText = 'Don\'t require any specific dataset';
+          break;
+        } else if (entry.dataset === 'all') {
+          layersText = 'Work on all datasets';
+          break;
+        } else if (entry.dataset === 'all_rasters') {
+          layersText = 'Work on all raster datasets';
+          break;
+        } else if (entry.dataset === 'all_vectors') {
+          layersText = 'Work on all vector datasets';
+          break;
+        }
+      }
+
+      if (layersText === null) {
+        layersDetails = [];
+
+        for (const entry of cm.input_layers) {
+          const dataset = getDataset(entry.dataset);
+          if (dataset === null) {
+            continue;
+          }
+
+          layersDetails.push({
+            dataset_id: dataset.ds_id,
+            dataset_title: dataset.title,
+            variables: entry.variables,
+          });
+        }
+
+        if (layersDetails.length > 1) {
+          layersText = 'Work on';
+          layersLinkText = layersDetails.length + ' datasets';
+        } else {
+          const dataset = getDataset(cm.input_layers[0].dataset);
+          if (dataset !== null) {
+            layersText = 'Work only on the dataset';
+            layersLinkText = dataset.title;
+            layersLinkDatasetId = dataset.ds_id;
+          }
+        }
+      }
+    }
   }
 
 
   function toggleCollapse() {
     isCollapsed = !isCollapsed;
+  }
+
+
+  function toggleLayersDetails() {
+    layersDetailsDisplayed = !layersDetailsDisplayed;
+  }
+
+
+  async function onDatasetClicked(datasetId, variable) {
+    const dataset = getDataset(datasetId);
+
+    let timePeriod = null;
+
+    if (variable == null) {
+      if (dataset.info.default_parameters.variable !== undefined) {
+        variable = dataset.info.default_parameters.variable;
+      } else if (dataset.info.variables.length > 0) {
+        variable = dataset.info.variables[0];
+      }
+    }
+
+    if (dataset.info.time_periods.length > 0) {
+      timePeriod = dataset.info.time_periods[0];
+    }
+
+    await createLayerSimple(dataset.ds_id, variable, timePeriod);
   }
 </script>
 
@@ -156,8 +239,38 @@
     background-color: darkgray;
   }
 
+  .cm_info {
+    font-style: italic;
+    color: rgb(69, 69, 101);
+    margin-top: 4px;
+  }
+
+  .cm_info span {
+    cursor: pointer;
+    color: rgb(0,100,200);
+  }
+
   h3 {
     margin: 0;
+  }
+
+  .layers-details {
+    position: fixed;
+    background-color: lightgray;
+    border: 1px solid #333333;
+    border-radius: 4px;
+    padding: 6px;
+    margin-left: 20px;
+    z-index: 1000;
+  }
+
+  .layers-details p {
+    margin-top: 0;
+  }
+
+  .layers-details ul {
+    margin-bottom: 0;
+    padding-left: 20px;
   }
 </style>
 
@@ -175,6 +288,47 @@
   </div>
 
   <div hidden="{isCollapsed}">
+    {#if layersLinkDatasetId}
+      <div class="cm_info">
+        {layersText}
+        {#if layersLinkText}
+          <span title="Add the dataset as a layer"
+                on:click={() => onDatasetClicked(layersLinkDatasetId, null)}>
+            {layersLinkText}
+          </span>
+        {/if}
+      </div>
+    {:else}
+      <div class="cm_info">
+        {layersText}
+        {#if layersLinkText}
+          <span title="Display the list of supported datasets" on:click={toggleLayersDetails}>{layersLinkText}</span>
+        {/if}
+        {#if layersDetailsDisplayed && layersDetails}
+          <div class="layers-details" on:click={toggleLayersDetails} on:mouseleave={toggleLayersDetails}>
+            <p>This CM requires one of the following datasets:</p>
+            <ul>
+              {#each layersDetails as details}
+                <li>
+                  {#if details.variables}
+                    {details.dataset_title}
+                    <ul>
+                    {#each details.variables as variable}
+                      <li>
+                        <span on:click={() => onDatasetClicked(details.dataset_id, variable)}>{variable}</span>
+                      </li>
+                    {/each}
+                    </ul>
+                  {:else}
+                    <span on:click={() => onDatasetClicked(details.dataset_id, null)}>{details.dataset_title}</span>
+                  {/if}
+                </li>
+              {/each}
+            </ul>
+          </div>
+        {/if}
+      </div>
+    {/if}
     <div class="cm_params" bind:this={formElement} />
     <div class="tasks">
       {#each [...tasks].reverse() as task (task.id)}
