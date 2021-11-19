@@ -116,16 +116,16 @@
     if ((layersText === null) && ($datasetsStore.length > 0)) {
       for (const entry of cm.input_layers) {
         if (entry.dataset === 'none') {
-          layersText = 'Don\'t require any specific dataset';
+          layersText = 'Doesn\'t require any specific dataset as input';
           break;
         } else if (entry.dataset === 'all') {
-          layersText = 'Work on all datasets';
+          layersText = 'Works on all datasets';
           break;
         } else if (entry.dataset === 'all_rasters') {
-          layersText = 'Work on all raster datasets';
+          layersText = 'Works on all raster datasets';
           break;
         } else if (entry.dataset === 'all_vectors') {
-          layersText = 'Work on all vector datasets';
+          layersText = 'Works on all vector datasets';
           break;
         }
       }
@@ -147,13 +147,13 @@
         }
 
         if (layersDetails.length > 1) {
-          layersText = 'Work on';
+          layersText = 'Works on';
           layersLinkText = layersDetails.length + ' datasets';
         } else {
           const dataset = getDataset(cm.input_layers[0].dataset);
           if (dataset !== null) {
-            layersText = 'Work only on the dataset';
-            layersLinkText = dataset.title;
+            layersText = 'Works only on the';
+            layersLinkText = dataset.title + ' dataset';
             layersLinkDatasetId = dataset.ds_id;
           }
         }
