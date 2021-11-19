@@ -1,7 +1,7 @@
 {
   "type": "object",
   "properties": {
-    "factor": {
+    "my_input": {
       "type": "number",
       "default": 1
     }

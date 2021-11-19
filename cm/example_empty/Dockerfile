@@ -13,7 +13,7 @@ RUN apt-get update && \
     rm -rf /var/cache/apt/archives/
 
 # choose the same name as the Docker service (by convention)
-WORKDIR cm-geofile
+WORKDIR example-empty
 # replace [example_empty] by your CM folder name
 COPY example_empty/requirements.txt requirements.txt
 RUN pip3 install -r requirements.txt

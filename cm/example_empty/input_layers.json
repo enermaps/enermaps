@@ -1,18 +1,5 @@
 [
     {
-        "dataset": 43
-    },
-    {
-        "dataset": 3,
-        "variables": [
-            "installed_capacity_MW",
-            "pumping_MW"
-        ]
-    },
-    {
-        "dataset": 4,
-        "variables": [
-            "capacity_p"
-        ]
+        "dataset": "all"
     }
 ]
