@@ -18,9 +18,9 @@ def cm_empty(self, selection: dict, rasters: list, params: dict):
     ret = dict()
     ret["graphs"] = {}
     ret["geofiles"] = {}
-    ret["values"] = {}
+    ret["values"] = {"input": params["my_input"]}
     ret["warnings"] = {
-        "Example CM": "This CM doesn't compute anything",
+        "Example CM": "This CM just returns the input.",
     }
     return validate(ret)
 
