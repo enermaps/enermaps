@@ -1,4 +1,5 @@
 {
+  "$schema": "http://json-schema.org/draft-03/schema#",
   "type": "object",
   "properties": {
     "building typology": {
@@ -12,6 +13,30 @@
         "Multifamily houses",
         "Single family - Terraced houses"
       ]
+    },
+    "start epoch of construction": {
+      "description": "Start epoch of construction year for the building to be refurbished",
+      "type": "integer",
+      "default": 1960
+    },
+    "end epoch of construction": {
+      "description": "End epoch of construction year for the building to be refurbished",
+      "type": "integer",
+      "default": 1969
+    },
+    "percentage basic refurbish rate": {
+      "type": "number",
+      "default": 10.0,
+      "minimum": 0.0,
+      "maximum": 100.0,
+      "required": true
+    },
+    "percentage advance refurbish rate": {
+      "type": "number",
+      "default": 5.0,
+      "minimum": 0.0,
+      "maximum": 100.0,
+      "required": true
     },
     "reference year": {
       "type": "integer",
@@ -29,24 +54,6 @@
         "4.5",
         "8.5"
       ]
-    },
-    "epoch of construction": {
-      "type": "string",
-      "default": "1960-1970"
-    },
-    "percentage basic refurbish rate": {
-      "type": "number",
-      "default": 10.0,
-      "minimum": 0.0,
-      "maximum": 100.0,
-      "required": true
-    },
-    "percentage advance refurbish rate": {
-      "type": "number",
-      "default": 5.0,
-      "minimum": 0.0,
-      "maximum": 100.0,
-      "required": true
     },
     "base temperature for HDD": {
       "type": "number",

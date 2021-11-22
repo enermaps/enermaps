@@ -8,7 +8,7 @@ from refurbish import ref_rate
 # from BaseCM import cm_input as cm_input
 
 
-app = cm_base.get_default_app("multiply")
+app = cm_base.get_default_app("refurbish")
 schema_path = cm_base.get_default_schema_path()
 input_layers_path = cm_base.get_default_input_layers_path()
 

@@ -101,7 +101,6 @@ def get_laus(
 
 def ref_rate(
     geojson: Dict,
-    epoch: str,
     bstype: str,
     start_year: int,
     end_year: int,
@@ -223,7 +222,7 @@ def ref_rate(
     ret["geofiles"] = {}
 
     ret["values"] = {
-        f"{demand_type} | {refurbish_type} | {epoch} | {building_type}": value
+        f"Savings on {demand_type} | {refurbish_type} | {epoch} | {building_type}": value
         for demand_type, data, refurbish_type in zip(
             ["heating", "heating", "cooling", "cooling"],
             [h_savings_ur, h_savings_ar, c_savings_ur, c_savings_ar],
