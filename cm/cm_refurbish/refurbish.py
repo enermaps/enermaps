@@ -4,12 +4,11 @@ from functools import lru_cache
 from pathlib import Path
 from typing import Dict
 
+import geopandas as gpd
 import pandas as pd
+from BaseCM.cm_output import validate
 from shapely import geometry
 from shapely.geometry import shape
-
-import geopandas as gpd
-from BaseCM.cm_output import validate
 
 CURRENT_FILE_DIR = Path(__file__).parent
 
