@@ -4,11 +4,12 @@ from functools import lru_cache
 from pathlib import Path
 from typing import Dict
 
-import geopandas as gpd
 import pandas as pd
-from BaseCM.cm_output import validate
 from shapely import geometry
 from shapely.geometry import shape
+
+import geopandas as gpd
+from BaseCM.cm_output import validate
 
 CURRENT_FILE_DIR = Path(__file__).parent
 
@@ -111,7 +112,9 @@ def ref_rate(
     t_base_h: float = 18.0,
     t_base_c: float = 22.0,
 ):
-    """The `ref_rate` returns a set of graphs and KPI based on the refurbish rate selected by the user for a specific:
+    """
+    The `ref_rate` returns a set of graphs and KPI based on the refurbish
+    rate selected by the user for a specific:
     * sector (residential, industrial, tertiary);
     * epoch of construction (1950-1960, 1961-1970, etc.);
     * building typology (single family house, multi family house, building block, etc.)
@@ -171,7 +174,8 @@ def ref_rate(
     tsel = (
         (tab["country"] == cntr_code.upper())
         & (tab["country"] == cntr_code.upper())
-        # & ((tab["start"].astype(int) >= start_year) | (tab["end"].astype(int) <= end_year))
+        # & ((tab["start"].astype(int) >= start_year)
+        # | (tab["end"].astype(int) <= end_year))
         & (tab["bstype"] == bstype)
     )
 
@@ -222,7 +226,12 @@ def ref_rate(
     ret["geofiles"] = {}
 
     ret["values"] = {
-        f"Savings on {demand_type} | {refurbish_type} | {epoch} | {building_type}": value
+        "Savings on {} | {} | {} | {}".format(
+            demand_type,
+            refurbish_type,
+            epoch,
+            building_type,
+        ): value
         for demand_type, data, refurbish_type in zip(
             ["heating", "heating", "cooling", "cooling"],
             [h_savings_ur, h_savings_ar, c_savings_ur, c_savings_ar],
