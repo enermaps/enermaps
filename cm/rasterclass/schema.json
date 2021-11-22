@@ -1,0 +1,9 @@
+{
+  "type": "object",
+  "properties": {
+    "class": {
+      "type": "number",
+      "default": 50
+    }
+  }
+}

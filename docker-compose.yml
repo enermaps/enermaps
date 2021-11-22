@@ -96,6 +96,20 @@ services:
     env_file:
       .env
 
+  cm-rasterclass:
+    build:
+      context: ./cm
+      dockerfile: rasterclass/Dockerfile
+    environment:
+      WMS_CACHE_DIR: /wms_cache
+    depends_on:
+      - redis
+    restart: always
+    volumes:
+      - wms_cache:/wms_cache:ro
+    env_file:
+      .env
+
   cm-heatlearn:
     build:
       context: ./
