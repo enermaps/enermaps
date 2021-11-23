@@ -22,6 +22,11 @@ Once EnerMaps launched, the frontend should be available on this adress : http:/
 * Building stock dataset from HotMaps (at national level)​
 * EU population or EU buildings footprint (as spatial proxy to scale down from NUTS0 to LAU2)
 
+To download the data sets execute:
+
+```bash
+$ python3 download.py
+```
 
 ### User inputs
 
