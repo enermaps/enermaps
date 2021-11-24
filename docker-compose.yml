@@ -12,6 +12,7 @@ services:
     volumes:
       - caddy-data:/data
       - caddy-config:/config
+      - ./stats:/var/log
     env_file:
       .env
 
