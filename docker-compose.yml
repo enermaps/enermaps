@@ -12,7 +12,7 @@ services:
     volumes:
       - caddy-data:/data
       - caddy-config:/config
-      - ./stats:/var/log
+      - ./stats/caddy-logs:/var/log
     env_file:
       .env
 
@@ -117,5 +117,6 @@ volumes:
   cm_outputs:
   caddy-data:
   caddy-config:
+  caddy-logs:
   redis-data:
   flower-data:
