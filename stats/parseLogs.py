@@ -129,7 +129,8 @@ def parseCADDYlog(log_file: str):
 
     # Parse timestamp
     log["timestamp"] = pd.to_datetime(log["ts"], unit="s")
-    log["timestamp"] = log["timestamp"].dt.tz_localize(LOCAL_TZ)
+    log["timestamp"] = log["timestamp"].dt.tz_localize("UTC")
+    log["timestamp"] = log["timestamp"].dt.tz_convert(LOCAL_TZ)
 
     selected = []
     for select in URIs:
