@@ -326,6 +326,7 @@ if __name__ == "__main__":
         caddylogs = []
 
         # PG files
+        pglog = pd.DataFrame()  # initialize
         log_files = sorted(
             glob.glob("{}*.csv".format(BASE_PATH_PG)), key=os.path.getmtime
         )
@@ -343,6 +344,7 @@ if __name__ == "__main__":
                     os.remove(log_file2)
 
         # Caddy files
+        caddylog = pd.DataFrame()  # initialize
         log_files = sorted(
             glob.glob("{}*.log".format(BASE_PATH_CADDY)), key=os.path.getmtime
         )
