@@ -59,6 +59,17 @@ CREATE TABLE public.visualization
     timestamp timestamp with time zone DEFAULT CURRENT_TIMESTAMP
 );
 
+CREATE TABLE public.stats
+(
+    index SERIAL PRIMARY KEY,
+    timestamp timestamp without time zone,
+    country char(2),
+    function varchar(500),
+    json_query jsonb,
+    source varchar(10),
+    ds_id integer
+);
+
 
 -- Foreign keys
 ALTER TABLE spatial

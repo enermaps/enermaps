@@ -15,7 +15,7 @@ services:
     stop_signal: SIGINT
     volumes:
       - db-data:/var/lib/postgresql/data
-      # - ./stats/pg-logs:/var/lib/postgresql/data/pg_log
+      - ./stats/pg-logs:/var/lib/postgresql/data/pg_log
       - ./:/db-backup
     env_file:
       .env-db
@@ -49,7 +49,11 @@ services:
     build:
       context: ./stats
     volumes:
-      - ./stats:/stats
+      - ./stats/pg-logs:/stats/pg-logs
+      - ./stats/caddy-logs:/stats/caddy-logs
+      - ./stats/parsed-logs:/stats/parsed-logs
+    env_file:
+      .env-db
 
 volumes:
   db-data:
