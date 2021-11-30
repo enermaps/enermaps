@@ -1,7 +1,7 @@
 :80
 log {
 	output file /var/log/caddy.log {
-		roll_size 10mb
+		roll_size 1mb
 		roll_keep 10000 # unlikely to be reached
 		roll_keep_for 24h # this is the important limit
 	}
