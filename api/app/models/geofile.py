@@ -468,6 +468,7 @@ class RasterLayer(Layer):
             layer = mapnik.Layer(feature_id)
             layer.datasource = mapnik.Gdal(file=raster_path, band=1)
             layer.queryable = False
+            layer.name = self.name
 
             if type == path.RASTER:
                 layer.srs = projection
@@ -631,6 +632,7 @@ class VectorLayer(Layer):
         layer.datasource = mapnik.GeoJSON(file=data[0])
         layer.srs = projection
         layer.queryable = True
+        layer.name = self.name
 
         return [layer]
 
