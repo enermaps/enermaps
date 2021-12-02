@@ -16,6 +16,7 @@ import json
 from flask import Response, abort, request
 from flask_restx import Namespace, Resource
 
+from app.common import path
 from app.models.wms import utils
 from app.models.wms.capabilities import get_capabilities
 from app.models.wms.map import get_map_image, get_mapnik_map_for_feature_info
@@ -70,7 +71,6 @@ class WMS(Resource):
         """Implement the GetFeatureInfo entrypoint for the WMS endpoint"""
         # TODO: fix this to output text, xml and json !
         # currently, only support application/json as mimetype
-
         if normalized_args["info_format"] != "application/json":
             abort(400, "this endpoint doesn't support non json return value")
 
@@ -89,11 +89,24 @@ class WMS(Resource):
         for layerindex, mapnick_layer in enumerate(mp.layers):
             mapnick_layer.queryable = True
 
+            (type, _, variable, _, _) = path.parse_unique_layer_name(mapnick_layer.name)
+
             position = utils.parse_position(normalized_args)
 
-            # carefull here, this is a WMS 1.1.1 query maybe ?
+            layer_features = []
+            variable_found = None
+
             featureset = mp.query_map_point(layerindex, position.x, position.y)
             for feature in featureset:
-                features["features"].append(json.loads(feature.to_geojson()))
+                geojson = json.loads(feature.to_geojson())
+                layer_features.append(geojson)
+
+                if (type == path.VECTOR) and not (variable_found):
+                    variable_found = ("properties" in geojson) and (
+                        f"__variable__{variable}" in geojson["properties"]
+                    )
+
+            if (type == path.AREA) or variable_found:
+                features["features"].extend(layer_features)
 
         return features
