@@ -26,21 +26,28 @@ const BaseMethods = {
         });
   },
 
-  showInfos: function(latlng, content) {
+  showInfos: function(title, latlng, content) {
     // Otherwise show the content in a popup, or something.
     if (!content || !content.features || (content.features.length == 0)) {
       return false;
     }
 
     let popupContent = '';
+    const allFields = {};
+
+    popupContent += '<h1>' + title + '</h1>';
 
     for (const feature of content.features) {
       const properties = feature.properties;
 
-      const variables = this._convertField(properties.variables);
-      const units = this._convertField(properties.units);
+      const variables = JSON.parse(properties.variables);
+      const units = JSON.parse(properties.units);
 
-      for (const [key, value] of Object.entries(variables)) {
+      const variableNames = Object.keys(variables).sort();
+
+      for (const key of variableNames) {
+        const value = variables[key];
+
         if (value !== null) {
           popupContent += '<tr>';
 
@@ -55,7 +62,7 @@ const BaseMethods = {
 
           if (key in units) {
             const unit = units[key];
-            if ((unit !== undefined) && (unit !== null)) {
+            if ((unit !== undefined) && (unit !== null) && (unit !== '-')) {
               td2.innerText += ' ' + unit;
             }
           }
@@ -67,30 +74,46 @@ const BaseMethods = {
       }
 
       if (properties.fields !== undefined) {
-        const fields = this._convertField(properties.fields);
+        const fields = JSON.parse(properties.fields);
 
         for (const [key, value] of Object.entries(fields)) {
-          if (value !== null) {
-            popupContent += '<tr>';
-
-            const td1 = document.createElement('td');
-            td1.className = 'name';
-            td1.innerText = key + ':';
-            popupContent += td1.outerHTML;
-
-            const td2 = document.createElement('td');
-            td2.className = 'value';
-            td2.innerText = value;
-            popupContent += td2.outerHTML;
-
-            popupContent += '</tr>';
+          if (allFields[key] === undefined) {
+            allFields[key] = value;
           }
         }
       }
     }
 
+    const fieldNames = Object.keys(allFields).sort();
+
+    for (const key of fieldNames) {
+      const value = allFields[key];
+
+      if (value !== null) {
+        popupContent += '<tr>';
+
+        const td1 = document.createElement('td');
+        td1.className = 'name';
+        td1.innerText = key + ':';
+        popupContent += td1.outerHTML;
+
+        const td2 = document.createElement('td');
+        td2.className = 'value';
+        td2.innerText = value;
+        popupContent += td2.outerHTML;
+
+        popupContent += '</tr>';
+      }
+    }
+
     if (popupContent.length != 0) {
-      L.popup({maxwidth: 500, maxHeight: 200, className: 'wms_feature_info'})
+      L.popup({
+        minWidth: 400,
+        maxWidth: 800,
+        minHeight: 300,
+        maxHeight: 500,
+        className: 'wms_feature_info',
+      })
           .setLatLng(latlng)
           .setContent('<table><tbody>' + popupContent + '</tbody></<table>')
           .openOn(this._map);
@@ -100,7 +123,9 @@ const BaseMethods = {
   },
 
   highlightArea: function(data) {
-    if (data.features[0].geometry.type == 'MultiPolygon') {
+    const geometryType = data.features[0].geometry.type;
+
+    if ((geometryType == 'MultiPolygon') || (geometryType == 'Polygon')) {
       this.selection = L.geoJSON(
           null,
           {
