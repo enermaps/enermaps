@@ -125,8 +125,8 @@ def parseCADDYlog(log_file: str):
     log["json_query"] = "{}"
     log.loc[log["function"].str.contains("?parameters", regex=False), "json_query"] = (
         log.loc[log["function"].str.contains("?parameters", regex=False), "function"]
-        .str.split("parameters=")
-        .str[-1]
+        .str.extract(r"(?<=parameters=)(.*)(?<=%7D)")
+        .values
     )
     log["json_query"] = log["json_query"].apply(lambda x: unquote(x))
     log["json_query"] = log["json_query"].str.replace("+", "", regex=False)
