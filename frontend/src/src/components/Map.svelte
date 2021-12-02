@@ -112,7 +112,19 @@
           ((layer.leaflet_layer instanceof L.TileLayer.QueryableLayer) ||
            (layer.leaflet_layer instanceof L.NonTiledLayer.QueryableLayer))) {
         const data = await layer.leaflet_layer.getFeatureInfo(point);
-        if (layer.leaflet_layer.showInfos(event.latlng, data)) {
+
+        let title;
+        if (layer.labels.dataset != null) {
+          title = layer.labels.dataset;
+
+          if (layer.labels.secondary != null) {
+            title += ' - ' + layer.labels.secondary;
+          }
+        } else {
+          title = layer.labels.primary;
+        }
+
+        if (layer.leaflet_layer.showInfos(title, event.latlng, data)) {
           layer.leaflet_layer.highlightArea(data);
           highlightedLayer = layer;
           break;
