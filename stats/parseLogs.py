@@ -3,6 +3,7 @@
 
 import argparse
 import glob
+import gzip
 import ipaddress
 import json
 import logging
@@ -88,8 +89,12 @@ def safelyJSONdecode(s: str):
 
 def parseCADDYlog(log_file: str):
     """Parse the original caddy log file."""
-    with open(log_file, "r") as f:
-        dicts = f.read().splitlines()
+    if log_file.endswith("gz"):
+        with gzip.open(log_file, "rb") as f:
+            dicts = f.read().splitlines()
+    else:
+        with open(log_file, "r") as f:
+            dicts = f.read().splitlines()
     dicts = [json.loads(x) for x in dicts]
     log = pd.DataFrame.from_records(dicts)
 
@@ -120,8 +125,8 @@ def parseCADDYlog(log_file: str):
     log["json_query"] = "{}"
     log.loc[log["function"].str.contains("?parameters", regex=False), "json_query"] = (
         log.loc[log["function"].str.contains("?parameters", regex=False), "function"]
-        .str.split("parameters=")
-        .str[-1]
+        .str.extract(r"(?<=parameters=)(.*)(?<=%7D)")
+        .values
     )
     log["json_query"] = log["json_query"].apply(lambda x: unquote(x))
     log["json_query"] = log["json_query"].str.replace("+", "", regex=False)
@@ -346,7 +351,7 @@ if __name__ == "__main__":
         # Caddy files
         caddylog = pd.DataFrame()  # initialize
         log_files = sorted(
-            glob.glob("{}*.log".format(BASE_PATH_CADDY)), key=os.path.getmtime
+            glob.glob("{}*.log*".format(BASE_PATH_CADDY)), key=os.path.getmtime
         )
         if args.skip_last:
             log_files = log_files[:-1]
