@@ -3,7 +3,6 @@
   import {areaSelectionStore, selectedLayerStore, isCMPaneActiveStore} from '../stores.js';
   import {getLayer} from '../layers.js';
   import {getTask, flashTask, SUCCESS_STATUS} from '../tasks.js';
-  import AreaSelection from './AreaSelection.svelte';
   import DatasetSelection from './DatasetSelection.svelte';
   import Layers from './Layers.svelte';
   import Details from './Details.svelte';
@@ -119,8 +118,10 @@
         layersPanel.setMaxHeight(height);
         layersContainer.style.top = rectDatasets.top + 'px';
       } else {
-        layersPanel.setMaxHeight(height - 42);
-        layersContainer.style.top = (rectDatasets.top + 42) + 'px';
+        const rectSelection = selectionControls.getBoundingClientRect();
+
+        layersPanel.setMaxHeight(height - (rectSelection.height + 10));
+        layersContainer.style.top = (rectSelection.bottom + 10) + 'px';
       }
 
       layersContainer.style.left = (rectDatasets.right + 10) + 'px';
@@ -159,11 +160,13 @@
 
   export function addSelectionControls(container) {
     selectionControls.appendChild(container);
+    recomputeLayout();
   }
 
 
   export function removeSelectionControls() {
     selectionControls.textContent = '';
+    recomputeLayout();
   }
 </script>
 
@@ -174,10 +177,6 @@
     top: 0;
     left: 250px;
     width: 32px;
-  }
-
-  .datasets {
-    margin-top: 10px;
   }
 
   .layers {
@@ -195,7 +194,6 @@
 <svelte:window on:resize={recomputeLayout}/>
 
 <div id="left_panel" bind:this={rootElement}>
-  <div class="area"><AreaSelection on:layout={recomputeLayout} /></div>
   <div class="selection" bind:this={selectionControls}></div>
   <div class="datasets" bind:this={datasetsContainer}>
     <DatasetSelection bind:this={datasetsPanel} on:layout={recomputeLayout} />

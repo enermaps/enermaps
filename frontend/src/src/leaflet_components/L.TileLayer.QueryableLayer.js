@@ -130,7 +130,7 @@ const BaseMethods = {
           null,
           {
             style: {
-              color: '#FFD700',
+              color: '#FF7800',
               weight: 2,
               opacity: 1,
             },
