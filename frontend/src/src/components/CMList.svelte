@@ -4,6 +4,7 @@
   import {getCMs} from '../client.js';
   import {areaSelectionLayerStore, selectedLayerStore, isCMPaneActiveStore} from '../stores.js';
   import CM from './CM.svelte';
+  import AreaSelection from './AreaSelection.svelte';
 
 
   let cms = [];
@@ -108,6 +109,7 @@
 
 <div id="calculation_modules_pane" hidden={!$isCMPaneActiveStore}
      on:click|stopPropagation on:dblclick|stopPropagation on:wheel|stopPropagation>
+
   <div id="calculation_modules_content">
     <div id="cm_list_header">
       <div id="close_button_cm_list" on:click={closeCMPanel}><img src='{BASE_URL}images/clear-icon.png' alt='close'></div>
@@ -120,6 +122,8 @@
       {#if !layerSelected}
         <div class="warning">No layer selected</div>
       {/if}
+
+      <AreaSelection />
     </div>
     <div id="list">
       {#each cms as cm (cm.name)}

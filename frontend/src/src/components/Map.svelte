@@ -23,7 +23,7 @@
   import CMList from './CMList.svelte';
   import TopNav from './TopNav.svelte';
 
-  import {areaSelectionStore, layersStore, areaSelectionLayerStore} from '../stores.js';
+  import {areaSelectionStore, layersStore, areaSelectionLayerStore, isCMPaneActiveStore} from '../stores.js';
   import {INITIAL_MAP_CENTER, INITIAL_ZOOM, BASE_LAYER_URL, BASE_LAYER_PARAMS} from '../settings.js';
   import {WMS_URL} from '../client.js';
   import {recomputeLayer, markLayerAsRefreshing, markLayerAsRefreshed} from '../layers.js';
@@ -83,6 +83,15 @@
 
 
   $: {
+    const isCMPaneActive = $isCMPaneActiveStore;
+
+    if (isCMPaneActive) {
+      if (highlightedLayer != null) {
+        highlightedLayer.leaflet_layer.resetHighlightedArea();
+        highlightedLayer = null;
+      }
+    }
+
     updateSelectionLayer($areaSelectionStore);
     updateOverlayLayers($layersStore);
   }
@@ -101,6 +110,10 @@
     if (highlightedLayer != null) {
       highlightedLayer.leaflet_layer.resetHighlightedArea();
       highlightedLayer = null;
+    }
+
+    if ($isCMPaneActiveStore) {
+      return;
     }
 
     const point = map.latLngToContainerPoint(event.latlng, map.getZoom());
@@ -135,6 +148,10 @@
 
 
   function updateSelectionLayer(desiredSelection) {
+    if (!$isCMPaneActiveStore) {
+      desiredSelection = null;
+    }
+
     if (selection === desiredSelection) {
       return;
     }
