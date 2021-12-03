@@ -1,3 +1,9 @@
+div.wms_feature_info h1
+{
+    font-size: 1.2em;
+}
+
+
 div.wms_feature_info td.name
 {
   font-weight: bold;

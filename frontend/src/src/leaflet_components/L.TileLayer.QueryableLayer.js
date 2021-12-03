@@ -1,18 +1,162 @@
 const BaseMethods = {
-  getFeatureInfo: function(evt) {
-    const point = this._map.latLngToContainerPoint(evt.latlng,
-        this._map.getZoom());
-
-    const url = this.getFeatureInfoUrl(point);
-    const showResults = L.Util.bind(this.showResults, this);
-    fetch(url).then((response) => response.json()).catch((error) => {
-      console.error('Error:', error);
-    }).then((data) => {
-      showResults(evt.latlng, data);
-    });
+  onError: function(err) {
+    console.log(err);
   },
 
-  getFeatureInfoUrl: function(point) {
+  getFeatureInfo: async function(point) {
+    const url = this._getFeatureInfoUrl(point);
+
+    return fetch(url)
+        .then((response) => {
+          if (response.ok) {
+            return response.json().catch((error) => {
+              console.error('Error:', error);
+              return null;
+            }).then((data) => {
+              return data;
+            });
+          } else {
+            console.error('Failed to retrieve the features');
+            return null;
+          }
+        })
+        .catch((error) => {
+          console.error('Error:', error.message);
+          return null;
+        });
+  },
+
+  showInfos: function(title, latlng, content) {
+    // Otherwise show the content in a popup, or something.
+    if (!content || !content.features || (content.features.length == 0)) {
+      return false;
+    }
+
+    let popupContent = '';
+    const allFields = {};
+
+    popupContent += '<h1>' + title + '</h1>';
+
+    for (const feature of content.features) {
+      const properties = feature.properties;
+
+      const variables = JSON.parse(properties.variables);
+      const units = JSON.parse(properties.units);
+
+      const variableNames = Object.keys(variables).sort();
+
+      for (const key of variableNames) {
+        const value = variables[key];
+
+        if (value !== null) {
+          popupContent += '<tr>';
+
+          const td1 = document.createElement('td');
+          td1.className = 'name';
+          td1.innerText = key + ':';
+          popupContent += td1.outerHTML;
+
+          const td2 = document.createElement('td');
+          td2.className = 'value';
+          td2.innerText = value;
+
+          if (key in units) {
+            const unit = units[key];
+            if ((unit !== undefined) && (unit !== null) && (unit !== '-')) {
+              td2.innerText += ' ' + unit;
+            }
+          }
+
+          popupContent += td2.outerHTML;
+
+          popupContent += '</tr>';
+        }
+      }
+
+      if (properties.fields !== undefined) {
+        const fields = JSON.parse(properties.fields);
+
+        for (const [key, value] of Object.entries(fields)) {
+          if (allFields[key] === undefined) {
+            allFields[key] = value;
+          }
+        }
+      }
+    }
+
+    const fieldNames = Object.keys(allFields).sort();
+
+    for (const key of fieldNames) {
+      const value = allFields[key];
+
+      if (value !== null) {
+        popupContent += '<tr>';
+
+        const td1 = document.createElement('td');
+        td1.className = 'name';
+        td1.innerText = key + ':';
+        popupContent += td1.outerHTML;
+
+        const td2 = document.createElement('td');
+        td2.className = 'value';
+        td2.innerText = value;
+        popupContent += td2.outerHTML;
+
+        popupContent += '</tr>';
+      }
+    }
+
+    if (popupContent.length != 0) {
+      L.popup({
+        minWidth: 400,
+        maxWidth: 800,
+        minHeight: 300,
+        maxHeight: 500,
+        className: 'wms_feature_info',
+      })
+          .setLatLng(latlng)
+          .setContent('<table><tbody>' + popupContent + '</tbody></<table>')
+          .openOn(this._map);
+    }
+
+    return true;
+  },
+
+  highlightArea: function(data) {
+    const geometryType = data.features[0].geometry.type;
+
+    if ((geometryType == 'MultiPolygon') || (geometryType == 'Polygon')) {
+      this.selection = L.geoJSON(
+          null,
+          {
+            style: {
+              color: '#FF7800',
+              weight: 2,
+              opacity: 1,
+            },
+          },
+      );
+
+      this.selection.setZIndex(this.zIndex + 1);
+
+      this.selection.addTo(this._map);
+
+      for (const feature of data.features) {
+        this.selection.addData(feature);
+      }
+    }
+  },
+
+  resetHighlightedArea: function() {
+    if (this.selection != null) {
+      this._map.removeLayer(this.selection);
+    }
+
+    this._map.closePopup();
+    this.selection = null;
+  },
+
+  _getFeatureInfoUrl: function(point) {
     // Construct a GetFeatureInfo request URL given a point
     // TODO this one is way trickier than it seems for WMS 1.1.1 vs 1.3.0,
     // currently the backend and the frontend understand that:
@@ -52,81 +196,7 @@ const BaseMethods = {
     return url + L.Util.getParamString(params, url, true);
   },
 
-  onError: function(err) {
-    console.log(err);
-  },
-
-  showResults: function(latlng, content) {
-    // Otherwise show the content in a popup, or something.
-    if (!content || !content.features) {
-      return;
-    }
-
-    let popupContent = '';
-    for (const feature of content.features) {
-      const properties = feature.properties;
-
-      const variables = this.convertField(properties.variables);
-      const units = this.convertField(properties.units);
-
-      for (const [key, value] of Object.entries(variables)) {
-        if (value !== null) {
-          popupContent += '<tr>';
-
-          const td1 = document.createElement('td');
-          td1.className = 'name';
-          td1.innerText = key + ':';
-          popupContent += td1.outerHTML;
-
-          const td2 = document.createElement('td');
-          td2.className = 'value';
-          td2.innerText = value;
-
-          if (key in units) {
-            const unit = units[key];
-            if ((unit !== undefined) && (unit !== null)) {
-              td2.innerText += ' ' + unit;
-            }
-          }
-
-          popupContent += td2.outerHTML;
-
-          popupContent += '</tr>';
-        }
-      }
-
-      if (properties.fields !== undefined) {
-        const fields = this.convertField(properties.fields);
-
-        for (const [key, value] of Object.entries(fields)) {
-          if (value !== null) {
-            popupContent += '<tr>';
-
-            const td1 = document.createElement('td');
-            td1.className = 'name';
-            td1.innerText = key + ':';
-            popupContent += td1.outerHTML;
-
-            const td2 = document.createElement('td');
-            td2.className = 'value';
-            td2.innerText = value;
-            popupContent += td2.outerHTML;
-
-            popupContent += '</tr>';
-          }
-        }
-      }
-    }
-
-    if (popupContent.length != 0) {
-      L.popup({maxwidth: 500, maxHeight: 200, className: 'wms_feature_info'})
-          .setLatLng(latlng)
-          .setContent('<table><tbody>' + popupContent + '</tbody></<table>')
-          .openOn(this._map);
-    }
-  },
-
-  convertField: function(value) {
+  _convertField: function(value) {
     // Fields containing JSON data (in string format) might be truncated (due to some
     // file format limitation), and thus not be valid JSON. We try to extract as many
     // info as possible from it anyway by building a valid JSON string.
@@ -161,36 +231,10 @@ const BaseMethods = {
 
 
 L.TileLayer.QueryableLayer = L.TileLayer.WMS.extend(BaseMethods).extend({
-  onAdd: function(map) {
-    // Triggered when the layer is added to a map.
-    //  Register a click listener, then do all the upstream WMS things
-    L.TileLayer.WMS.prototype.onAdd.call(this, map);
-    map.on('click', this.getFeatureInfo, this);
-  },
-
-  onRemove: function(map) {
-    // Triggered when the layer is removed from a map.
-    //   Unregister a click listener, then do all the upstream WMS things
-    L.TileLayer.WMS.prototype.onRemove.call(this, map);
-    map.off('click', this.getFeatureInfo, this);
-  },
 });
 
 
 L.NonTiledLayer.QueryableLayer = L.NonTiledLayer.WMS.extend(BaseMethods).extend({
-  onAdd: function(map) {
-    // Triggered when the layer is added to a map.
-    //  Register a click listener, then do all the upstream WMS things
-    L.NonTiledLayer.WMS.prototype.onAdd.call(this, map);
-    map.on('click', this.getFeatureInfo, this);
-  },
-
-  onRemove: function(map) {
-    // Triggered when the layer is removed from a map.
-    //   Unregister a click listener, then do all the upstream WMS things
-    L.NonTiledLayer.WMS.prototype.onRemove.call(this, map);
-    map.off('click', this.getFeatureInfo, this);
-  },
 });
 
 

@@ -23,7 +23,7 @@
   import CMList from './CMList.svelte';
   import TopNav from './TopNav.svelte';
 
-  import {areaSelectionStore, layersStore, areaSelectionLayerStore} from '../stores.js';
+  import {areaSelectionStore, layersStore, areaSelectionLayerStore, isCMPaneActiveStore} from '../stores.js';
   import {INITIAL_MAP_CENTER, INITIAL_ZOOM, BASE_LAYER_URL, BASE_LAYER_PARAMS} from '../settings.js';
   import {WMS_URL} from '../client.js';
   import {recomputeLayer, markLayerAsRefreshing, markLayerAsRefreshed} from '../layers.js';
@@ -33,6 +33,8 @@
 
   let selection = null;
   const selectionLayers = {};
+
+  let highlightedLayer = null;
 
   const cmOutputsGroup = L.layerGroup();
   const overlaysGroup = L.layerGroup();
@@ -67,6 +69,7 @@
     map.addControl(makeLeftPanel());
 
     map.on('zoomend', updateZoomWarning);
+    map.on('click', onMapClicked);
   });
 
 
@@ -80,6 +83,15 @@
 
 
   $: {
+    const isCMPaneActive = $isCMPaneActiveStore;
+
+    if (isCMPaneActive) {
+      if (highlightedLayer != null) {
+        highlightedLayer.leaflet_layer.resetHighlightedArea();
+        highlightedLayer = null;
+      }
+    }
+
     updateSelectionLayer($areaSelectionStore);
     updateOverlayLayers($layersStore);
   }
@@ -92,7 +104,54 @@
   }
 
 
+  async function onMapClicked(event) {
+    const layers = $layersStore;
+
+    if (highlightedLayer != null) {
+      highlightedLayer.leaflet_layer.resetHighlightedArea();
+      highlightedLayer = null;
+    }
+
+    if ($isCMPaneActiveStore) {
+      return;
+    }
+
+    const point = map.latLngToContainerPoint(event.latlng, map.getZoom());
+
+    for (let i = 0; i < layers.length; ++i) {
+      const layer = layers[i];
+
+      if (layer.visible && (layer.leaflet_layer !== null) &&
+          ((layer.leaflet_layer instanceof L.TileLayer.QueryableLayer) ||
+           (layer.leaflet_layer instanceof L.NonTiledLayer.QueryableLayer))) {
+        const data = await layer.leaflet_layer.getFeatureInfo(point);
+
+        let title;
+        if (layer.labels.dataset != null) {
+          title = layer.labels.dataset;
+
+          if (layer.labels.secondary != null) {
+            title += ' - ' + layer.labels.secondary;
+          }
+        } else {
+          title = layer.labels.primary;
+        }
+
+        if (layer.leaflet_layer.showInfos(title, event.latlng, data)) {
+          layer.leaflet_layer.highlightArea(data);
+          highlightedLayer = layer;
+          break;
+        }
+      }
+    }
+  }
+
+
   function updateSelectionLayer(desiredSelection) {
+    if (!$isCMPaneActiveStore) {
+      desiredSelection = null;
+    }
+
     if (selection === desiredSelection) {
       return;
     }
@@ -121,7 +180,7 @@
             },
         );
 
-        layer.setZIndex(1000);
+        layer.setZIndex(10000);
 
         selectionLayers[desiredSelection] = layer;
       }
@@ -234,7 +293,7 @@
           }
         }
 
-        layer.leaflet_layer.setZIndex(layers.length - i);
+        layer.leaflet_layer.setZIndex((layers.length - i) * 10);
 
         if (!overlaysGroup.hasLayer(layer.leaflet_layer)) {
           console.log('[Map] Add overlay layer: ' + layer.name);
@@ -243,12 +302,24 @@
       } else if (layer.leaflet_layer !== null) {
         if (overlaysGroup.hasLayer(layer.leaflet_layer)) {
           console.log('[Map] Remove overlay layer: ' + layer.name);
+
+          if (layer === highlightedLayer) {
+            highlightedLayer.leaflet_layer.resetHighlightedArea();
+            highlightedLayer = null;
+          }
+
           overlaysGroup.removeLayer(layer.leaflet_layer);
         }
       }
     }
 
     for (const leafletLayer of layersToBePruned) {
+      if ((highlightedLayer !== null) &&
+          (leafletLayer === highlightedLayer.leaflet_layer)) {
+        highlightedLayer.leaflet_layer.resetHighlightedArea();
+        highlightedLayer = null;
+      }
+
       overlaysGroup.removeLayer(leafletLayer);
     }
 

@@ -11,6 +11,18 @@ const BaseMethods = {
     }
   },
 
+  clearSelection: function() {
+    if (this.selection != null) {
+      this._map.removeLayer(this.selection);
+      this.selection = null;
+    }
+
+    this.createSelectionLayer();
+
+    const areaSelectionLayer = get(areaSelectionLayerStore);
+    areaSelectionLayerStore.set(areaSelectionLayer);
+  },
+
   getFeatureInfo: function(evt) {
     const point = this._map.latLngToContainerPoint(evt.latlng,
         this._map.getZoom());
@@ -100,19 +112,30 @@ const BaseMethods = {
     const areaSelectionLayer = get(areaSelectionLayerStore);
     areaSelectionLayerStore.set(areaSelectionLayer);
   },
+
+  createSelectionLayer: function() {
+    if (this.selection == null) {
+      this.selection = L.geoJSON(
+          null,
+          {
+            style: {
+              color: '#3388FF',
+              weight: 2,
+              opacity: 1,
+            },
+          },
+      );
+    }
+
+    this.selection.addTo(this._map);
+  },
 };
 
 
 L.TileLayer.NutsLayer = L.TileLayer.WMS.extend(BaseMethods).extend({
   onAdd: function(map) {
-    this.selection = L.geoJSON();
-    const myStyle = {
-      color: '#ff7800',
-      weight: 10,
-      opacity: 1,
-    };
-    this.selection.style = myStyle;
-    this.selection.addTo(this._map);
+    this.createSelectionLayer();
+
     // Triggered when the layer is added to a map.
     //   Register a click listener, then do all the upstream WMS things
     L.TileLayer.WMS.prototype.onAdd.call(this, map);
@@ -125,21 +148,14 @@ L.TileLayer.NutsLayer = L.TileLayer.WMS.extend(BaseMethods).extend({
     L.TileLayer.WMS.prototype.onRemove.call(this, map);
     map.off('click', this.getFeatureInfo, this);
     this._map.removeLayer(this.selection);
-    this.selection = undefined;
   },
 });
 
 
 L.NonTiledLayer.NutsLayer = L.NonTiledLayer.WMS.extend(BaseMethods).extend({
   onAdd: function(map) {
-    this.selection = L.geoJSON();
-    const myStyle = {
-      color: '#ff7800',
-      weight: 10,
-      opacity: 1,
-    };
-    this.selection.style = myStyle;
-    this.selection.addTo(this._map);
+    this.createSelectionLayer();
+
     // Triggered when the layer is added to a map.
     //   Register a click listener, then do all the upstream WMS things
     L.NonTiledLayer.WMS.prototype.onAdd.call(this, map);
@@ -152,7 +168,6 @@ L.NonTiledLayer.NutsLayer = L.NonTiledLayer.WMS.extend(BaseMethods).extend({
     L.NonTiledLayer.WMS.prototype.onRemove.call(this, map);
     map.off('click', this.getFeatureInfo, this);
     this._map.removeLayer(this.selection);
-    this.selection = undefined;
   },
 });
 
