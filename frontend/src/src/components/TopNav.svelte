@@ -4,36 +4,22 @@
   import 'leaflet-search/dist/leaflet-search.src.js';
   import 'leaflet-search/dist/leaflet-search.src.css';
 
+  import Dialog from './Dialog.svelte';
   import About from '../popups/About.svelte';
 
 
-  let btn;
-  let modal;
-  let span;
+  let aboutDialog = null;
   let copyPopup = null;
 
 
   onMount(async () => {
-    // Get the modal
-    modal = document.getElementById('myModal');
-    // Get the button that opens the modal
-    btn = document.getElementById('myBtn');
-    // Get the <span> element that closes the modal
-    span = document.getElementsByClassName('close')[0];
-    // When the user clicks the button, open the modal
-    btn.onclick = function() {
-      modal.style.display = 'block';
+    const aboutButton = document.getElementById('btn_about');
+
+    aboutButton.onclick = function() {
+      aboutDialog.show();
     };
-    // When the user clicks on <span> (x), close the modal
-    span.onclick = function() {
-      modal.style.display = 'none';
-    };
-    // When the user clicks anywhere outside of the modal, close it
-    window.onclick = function(event) {
-      if (event.target == modal) {
-        modal.style.display = 'none';
-      }
-    };
+
+    aboutDialog.show();
   });
 
 
@@ -142,70 +128,6 @@
     box-sizing: border-box;
   }
 
-  /* The Modal (background) */
-  .modal {
-    display: none; /* Hidden by default */
-    position: fixed; /* Stay in place */
-    z-index: 99999999; /* Sit on top */
-    padding-top: 100px; /* Location of the box */
-    left: 0;
-    top: 0;
-    width: 100%; /* Full width */
-    height: 100%; /* Full height */
-    overflow: auto; /* Enable scroll if needed */
-    background-color: rgb(0,0,0); /* Fallback color */
-    background-color: rgba(0,0,0,0.5); /* Black w/ opacity */
-  }
-
-  /* Modal Content */
-  .modal-content {
-    position: relative;
-    background-color: #eff4fa;
-    margin: auto;
-    padding: 0;
-    border: 1px solid #888;
-    width: 60%;
-    box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2),0 6px 20px 0 rgba(0,0,0,0.19);
-  }
-
-  /* The Close Button */
-  .close {
-    color: #27275b;
-    font-size: 40px;
-    position:absolute;
-    height: 50px;
-    width: 50px;
-    line-height: 50px;
-
-    display: flex !important;
-    align-items: center; /* Vertical center alignment */
-    justify-content: center; /* Horizontal center alignment */
-  }
-
-  .close:hover,
-  .close:focus {
-    text-decoration: none;
-    cursor: pointer;
-  }
-
-  .modal-header {
-    padding: 0px 45px;
-    background-color: #eff4fa;
-    color: #27275b;
-    width: 100%;
-    cursor: default;
-  }
-
-  .modal-body {
-    padding: 0px 60px;
-    background-color: #eff4fa;
-    color: #27275b;
-    width: 100%;
-    text-align: justify;
-    text-justify: inter-word;
-    cursor: default;
-  }
-
   button, button:hover {
     font-family: inherit;
     border: 0;
@@ -226,22 +148,12 @@
   <a href="https://www.kialo.com/" target="_blank" class="link">Kialo</a>
   <button class="link" title="Copy the URL of the WMS server to the clipboard"
           on:click={copyWMSUrlToClipboard} on:mouseleave={hideCopyPopup}>WMS</button>
-  <button id="myBtn" class="link">About</button>
+  <button id="btn_about" class="link">About</button>
 
   <slot id='slot'></slot>
 
-  <!-- The Modal -->
-  <div id="myModal" class="modal">
-    <!-- Modal content -->
-    <div class="modal-content">
-      <div class="close">&times;</div>
-      <div class="modal-header">
-        <h2 >About EnerMaps</h2>
-      </div>
-      <div class="modal-body">
-        <About />
-      </div>
-    </div>
-  </div>
+  <Dialog title="About EnerMaps" bind:this={aboutDialog}>
+    <About />
+  </Dialog>
 
 </div>
