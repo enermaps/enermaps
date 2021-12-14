@@ -1,7 +1,10 @@
 <script >
   import {onMount} from 'svelte';
+
   import 'leaflet-search/dist/leaflet-search.src.js';
   import 'leaflet-search/dist/leaflet-search.src.css';
+
+  import About from '../popups/About.svelte';
 
 
   let btn;
@@ -236,19 +239,7 @@
         <h2 >About EnerMaps</h2>
       </div>
       <div class="modal-body">
-        <p>
-          EnerMaps Open Data Management Tool aims to improve data management and
-          accessibility in the field of energy research for the renewable energy industry.
-        </p>
-        <p>
-          EnerMaps’ tool accelerates and facilitates the energy transition offering a
-          qualitative and user-friendly digital platform to the energy professionals.
-        </p>
-        <p>
-          The EnerMaps project has received funding from the European Union’s Horizon
-          2020 research and innovation program under grant agreement N°884161.
-        </p>
-        <p>
+        <About />
       </div>
     </div>
   </div>
