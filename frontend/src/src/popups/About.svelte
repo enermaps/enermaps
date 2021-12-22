@@ -29,9 +29,8 @@
 
 <p>
   The EnerMaps Open Data Management Tool aims to improve data management and
-  accessibility in the field of energy research for the renewable energy industry.
+  accessibility in the field of energy research for the energy industry and regulators.
 </p>
-
 <p>
   EnerMaps’ tool accelerates and facilitates the energy transition offering a
   qualitative and user-friendly digital platform to the energy professionals.
@@ -41,7 +40,6 @@
   More information on the project can be found here:
   <a href="https://enermaps.eu/">https://enermaps.eu/</a>
 </p>
-
 <p>
   <strong>EnerMaps Wiki:</strong> For details about tool functionalities as well as
   the manual for using the calculation modules, please refer to the EnerMaps Wiki:
@@ -67,7 +65,8 @@
   <strong>Disclaimer:</strong> The data and tools provided on this website are
   indicative and for research purposes only. No responsibility is taken for the
   accuracy of included data, figures and results or for using them for unintended
-  purposes.
+  purposes. In accordance with article 5.1(e) of the General Data Protection Regulation,
+  the IP addresses are collected for statistical purposes only.
 </p>
 
 <div class="europe-logo">
