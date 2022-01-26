@@ -11,7 +11,7 @@ RUN apt-get update && \
         python3-gunicorn \
         gunicorn \
         libpq-dev \
-        python3-gdal \
+        gdal-bin \
         && \
     rm -rf /var/cache/apt/archives/
 
