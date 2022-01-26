@@ -19,7 +19,7 @@ from matplotlib import cm
 from rasterio.mask import mask
 from shapely import wkt
 from shapely.geometry import Polygon, shape
-from shapely.ops import cascaded_union
+from shapely.ops import unary_union
 from tensorflow.keras.backend import clear_session
 from tensorflow.keras.models import load_model
 
@@ -216,7 +216,7 @@ def heatlearn(
         geometry = feature["geometry"]
         geoshape = shape(geometry)
         geometries.append(geoshape)
-    union_geometry = cascaded_union(geometries)
+    union_geometry = unary_union(geometries)
     boundary = gpd.GeoSeries(union_geometry)
     boundary = boundary.set_crs("EPSG:4326")
     boundary = boundary.to_crs("EPSG:3035")

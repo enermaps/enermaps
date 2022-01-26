@@ -4,7 +4,7 @@ scipy==1.6.2
 rasterio==1.1.8
 varname==0.6.3
 requests==2.25.1
-shapely==1.7.1
+shapely==1.8.0
 pyproj==3.0.0.post1
 rasterstats==0.15.0
 jenkspy==0.2.0

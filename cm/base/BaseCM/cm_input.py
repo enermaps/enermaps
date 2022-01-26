@@ -7,7 +7,7 @@ import rasterio
 import shapely
 from rasterstats import zonal_stats
 from shapely.geometry import shape
-from shapely.ops import cascaded_union, transform
+from shapely.ops import transform, unary_union
 
 from BaseCM.cm_output import validate
 
@@ -67,7 +67,7 @@ def validate_selection(
         geoshape = shape(geometry)
         projected_shape = transform(project, geoshape)
         geometries.append(projected_shape)
-    merged_geometries = cascaded_union(geometries)
+    merged_geometries = unary_union(geometries)
     stats = zonal_stats(merged_geometries, raster, affine=src.transform, stats="count")
 
     try:
