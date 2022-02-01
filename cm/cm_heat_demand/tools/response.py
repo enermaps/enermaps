@@ -42,8 +42,10 @@ def get_response(
 
         # Areas potential
         if areas_potential.size > 0:
-            base_dictionary["graphs"]["Areas potentials (GWh)"] = dict()
-            base_dictionary["graphs"]["Areas potentials (GWh)"]["type"] = "bar"
+            base_dictionary["graphs"] = list()
+            base_dictionary["graphs"].append(dict())
+            base_dictionary["graphs"][0]["Areas potentials (GWh)"] = dict()
+            base_dictionary["graphs"][0]["Areas potentials (GWh)"]["type"] = "bar"
 
             generator = [element for element in areas_potential if element > 0]
             generator.sort(reverse=True)
@@ -52,7 +54,7 @@ def get_response(
                 for index, value in enumerate(generator)
             ]
 
-            base_dictionary["graphs"]["Areas potentials (GWh)"]["values"] = values
+            base_dictionary["graphs"][0]["Areas potentials (GWh)"]["values"] = values
 
         return base_dictionary
 

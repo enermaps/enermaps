@@ -248,7 +248,9 @@
           {/each}
         </dl>
 
-        <Chart datasets={graphs}/>
+        {#each graphs as graph}
+            <Chart datasets={graph}/>
+        {/each}
 
         {#each warnings as warning, index}
           <div class="warning" class:first={index == 0}><strong>{warning.title}:</strong>&nbsp;{warning.details}</div>

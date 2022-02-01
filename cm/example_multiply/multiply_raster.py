@@ -90,11 +90,12 @@ def rasterstats(geojson, raster_path, factor, stat_types: Optional[List[Text]] =
 
     stat_done = time()
     ret = dict()
-    ret["graphs"] = {}
+    ret["graphs"] = list()
     if graph:
-        ret["graphs"]["cdf"] = {}
-        ret["graphs"]["cdf"]["type"] = "xy"
-        ret["graphs"]["cdf"]["values"] = graph
+        ret["graphs"].append(dict())
+        ret["graphs"][0]["cdf"] = {}
+        ret["graphs"][0]["cdf"]["type"] = "xy"
+        ret["graphs"][0]["cdf"]["values"] = graph
     ret["geofiles"] = {}
     ret["values"] = stat
 
