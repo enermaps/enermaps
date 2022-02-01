@@ -5,7 +5,7 @@ from os.path import abspath, dirname, exists, isdir, isfile, join
 
 import numpy as np
 
-from . import geofile
+from BaseCM import cm_raster as geofile
 from .settings import TESTDATA_DIR
 
 
