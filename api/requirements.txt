@@ -7,4 +7,7 @@ celery==5.0.2
 redis==3.5.3
 OWSLib==0.20.0
 psycopg2==2.8.6
+numpy==1.22.1
+pandas==1.4.0
 seaborn==0.11.1
+gdal==3.0.4

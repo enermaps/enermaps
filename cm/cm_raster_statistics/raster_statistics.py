@@ -8,7 +8,7 @@ import rasterio
 from BaseCM.cm_output import validate
 from rasterstats import zonal_stats
 from shapely.geometry import shape
-from shapely.ops import cascaded_union, transform
+from shapely.ops import transform, unary_union
 
 GEOJSON_PROJ = "EPSG:4326"
 DEFAULT_STATS = ("min", "max", "mean", "median", "count")
@@ -77,7 +77,7 @@ def rasterstats(geojson, raster_path, factor, stat_types: Optional[List[Text]] =
         geoshape = shape(geometry)
         projected_shape = transform(project, geoshape)
         geometries.append(projected_shape)
-    merged_geometries = cascaded_union(geometries)
+    merged_geometries = unary_union(geometries)
     stats = zonal_stats(
         merged_geometries, raster_path, affine=src.transform, stats=stat_types
     )
