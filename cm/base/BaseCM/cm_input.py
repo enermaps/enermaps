@@ -76,7 +76,7 @@ def validate_selection(
         raise StatNotComputeError(f"Statistics not compute: {stats}")
 
     response = dict()
-    response["graphs"] = {}
+    response["graphs"] = []
     response["geofiles"] = {}
     response["values"] = {}
     selection_valid = False

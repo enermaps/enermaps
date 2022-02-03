@@ -49,14 +49,17 @@ class BarGraph(Schema):
 class CMOutput(Schema):
     """Class that defines the CM output value schema."""
 
-    graphs = fields.Dict(
-        keys=fields.Str(),
-        values=Union(
-            [
-                fields.Nested(BarGraph()),
-                fields.Nested(LineGraph()),
-                fields.Nested(XYGraph()),
-            ]
+    graphs = fields.List(
+        fields.Dict(
+            keys=fields.Str(),
+            values=Union(
+                [
+                    fields.Nested(BarGraph()),
+                    fields.Nested(LineGraph()),
+                    fields.Nested(XYGraph()),
+                ]
+            ),
+            required=True,
         ),
         required=True,
     )

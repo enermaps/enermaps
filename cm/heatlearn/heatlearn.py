@@ -372,7 +372,7 @@ def heatlearn(
 
     # Dict return response
     ret = dict()
-    ret["graphs"] = {}
+    ret["graphs"] = []
     ret["geofiles"] = {"file": raster_name}
     ret["legend"] = createLegend(preds)
     if len(warnings) > 0:
