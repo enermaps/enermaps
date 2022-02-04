@@ -1,7 +1,7 @@
 import numpy as np
 from scipy.ndimage import binary_dilation, binary_erosion, measurements
 
-from .geofile import read_raster
+from BaseCM.cm_raster import read_raster
 
 
 class MapSizeError(Exception):
