@@ -11,4 +11,3 @@ pandas==1.4.0
 seaborn==0.11.1
 gdal==3.0.4
 numpy==1.22.1
-
