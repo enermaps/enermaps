@@ -12,6 +12,7 @@ services:
     volumes:
       - caddy-data:/data
       - caddy-config:/config
+      - ./stats/caddy-logs:/var/log
     env_file:
       .env
 
@@ -111,10 +112,26 @@ services:
       - .env
       - .env-db-server
 
+  cm-dhexppot:
+    build:
+      context: ./cm
+      dockerfile: ./cm_dhexppot/Dockerfile
+    environment:
+      WMS_CACHE_DIR: /wms_cache
+    depends_on:
+      - redis
+    restart: always
+    volumes:
+      - wms_cache:/wms_cache:ro
+    env_file:
+      - .env
+      - .env-db-server
+
 volumes:
   wms_cache:
   cm_outputs:
   caddy-data:
   caddy-config:
+  caddy-logs:
   redis-data:
   flower-data:
