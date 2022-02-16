@@ -1,124 +1,141 @@
 {
-	"$schema": "http://json-schema.org/draft-03/schema#",
-	"type": "object",
-	"properties": {
-		"country": {
-			"type": "string",
-			"title": "Country",
-			"description": "is used to querry cost coefficient factors.",
-			"default": "DE",
-			"enum": [
-				"AT", "BE", "BG",
-				"CY", "CZ", "DE",
-				"DK", "EE", "EL",
-				"ES", "FI", "FR",
-				"HR", "HU", "IE",
-				"IT", "LT", "LU",
-				"LV", "MT", "NL",
-				"PL", "PT", "RO",
-				"SE", "SI", "SK",
-				"UK",
-				]
-		},
-		"scenario": {
-			"title": "Scenario",
-			"type": "string",
-			"default": "-",
-			},
-		"distribution_grid_cost_ceiling": {
-			"type": "number",
-			"title": "Grid cost ceiling",
-			"description": "The cost in EUR/MWh from which the average grid cost in each coherent area may not exceed.",
-			"default": 30,
-			"minimum": 10,
-			"maximum": 100,
-			},
-		"pix_threshold": {
-			"type": "number",
-			"title": "Minimum heat demand in hectare",
-			"description": "Minimum heat demand in each hectare of potential district heating area in MWh/(ha*year).",
-			"default": 50,
-			"minimum": 20,
-			"maximum": 1000000000,
-			},
-		"DH_threshold": {
-			"type": "number",
-			"title": "Minimum heat demand in a potential district heating area",
-			"description": "Minimum heat demand in a potential district heating area in GWh/year.",
-			"default": 30,
-			"minimum": 1,
-			"maximum": 1000000000,
-			},
-		"start_year": {
-			"type": "integer",
-			"title": "Start year of investment",
-			"description": "Start year for the investment on district heating grid.",
-			"default": 2021,
-			"minimum": 2000,
-			"maximum": 2100,
-			},
-		"last_year": {
-			"type": "integer",
-			"title": "Last year of investment",
-			"description": "Start year for the investment on district heating grid.",
-			"default": 2035,
-			"minimum": 2000,
-			"maximum": 2100,
-			},
-		"st_dh_connection_rate": {
-			"type": "number",
-			"title": "Starting district heating market share",
-			"description": "District heating market share at the beginning of the investment period.",
-			"default": 0.20,
-			"minimum": 0,
-			"maximum": 1,
-			},
-		"end_dh_connection_rate": {
-			"type": "number",
-			"title": "Final district heating market share",
-			"description": "District heating market share at the end of the investment period.",
-			"default": 0.20,
-			"minimum": 0,
-			"maximum": 1,
-			},
-		"depreciation_period": {
-			"type": "integer",
-			"title": "Depreciation period",
-			"description": "Depreciation period referring to the lifetime of the distribution pipes in years",
-			"default": 40,
-			"minimum": 1,
-			"maximum": 200,
-			},
-		"interest": {
-			"type": "integer",
-			"title": "Interest rate",
-			"description": "Interest rate",
-			"default": 0.03,
-			"minimum": 0,
-			"maximum": 1,
-			},
-		"use_default_cost_factors": {
-			"type": "boolean",
-			"title": "Use default for both construction cost constant and coefficient",
-			"description": "If Ture, the default value for the selected country will be used. Else the provided values for both construction cost constant and coefficient will be used.",
-			"default": "TRUE",
-			},
-		"c1": {
-			"type": "number",
-			"title": "Construction cost constant",
-			"description": "Construction cost constant in EUR/m.",
-			"default": 349,
-			"minimum": 0.1,
-			"maximum": 10000,
-			},
-		"c2": {
-			"type": "number",
-			"title": "Construction cost coefficient",
-			"description": "Construction cost coefficient in EUR/m2.",
-			"default": 4213,
-			"minimum": 0.1,
-			"maximum": 100000,
-			},
-
-	},
+  "$schema": "http://json-schema.org/draft-03/schema#",
+  "type": "object",
+  "properties": {
+    "country": {
+      "type": "string",
+      "title": "Country",
+      "description": "is used to querry cost coefficient factors.",
+      "default": "DE",
+      "enum": [
+        "AT",
+        "BE",
+        "BG",
+        "CY",
+        "CZ",
+        "DE",
+        "DK",
+        "EE",
+        "EL",
+        "ES",
+        "FI",
+        "FR",
+        "HR",
+        "HU",
+        "IE",
+        "IT",
+        "LT",
+        "LU",
+        "LV",
+        "MT",
+        "NL",
+        "PL",
+        "PT",
+        "RO",
+        "SE",
+        "SI",
+        "SK",
+        "UK"
+      ]
+    },
+    "scenario": {
+      "title": "Scenario",
+      "type": "string",
+      "default": "-"
+    },
+    "distribution_grid_cost_ceiling": {
+      "type": "number",
+      "title": "Grid cost ceiling",
+      "description": "The cost in EUR/MWh from which the average grid cost in each coherent area may not exceed.",
+      "default": 30,
+      "minimum": 10,
+      "maximum": 100
+    },
+    "pix_threshold": {
+      "type": "number",
+      "title": "Minimum heat demand in hectare",
+      "description": "Minimum heat demand in each hectare of potential district heating area in MWh/(ha*year).",
+      "default": 50,
+      "minimum": 20,
+      "maximum": 1000000000
+    },
+    "DH_threshold": {
+      "type": "number",
+      "title": "Minimum heat demand in a potential district heating area",
+      "description": "Minimum heat demand in a potential district heating area in GWh/year.",
+      "default": 30,
+      "minimum": 1,
+      "maximum": 1000000000
+    },
+    "start_year": {
+      "type": "integer",
+      "title": "Start year of investment",
+      "description": "Start year for the investment on district heating grid.",
+      "default": 2021,
+      "minimum": 2000,
+      "maximum": 2100
+    },
+    "last_year": {
+      "type": "integer",
+      "title": "Last year of investment",
+      "description": "Start year for the investment on district heating grid.",
+      "default": 2035,
+      "minimum": 2000,
+      "maximum": 2100
+    },
+    "st_dh_connection_rate": {
+      "type": "number",
+      "title": "Starting district heating market share",
+      "description": "District heating market share at the beginning of the investment period.",
+      "default": 0.2,
+      "minimum": 0,
+      "maximum": 1
+    },
+    "end_dh_connection_rate": {
+      "type": "number",
+      "title": "Final district heating market share",
+      "description": "District heating market share at the end of the investment period.",
+      "default": 0.2,
+      "minimum": 0,
+      "maximum": 1
+    },
+    "depreciation_period": {
+      "type": "integer",
+      "title": "Depreciation period",
+      "description": "Depreciation period referring to the lifetime of the distribution pipes in years",
+      "default": 40,
+      "minimum": 1,
+      "maximum": 200
+    },
+    "interest": {
+      "type": "integer",
+      "title": "Interest rate",
+      "description": "Interest rate",
+      "default": 0.03,
+      "minimum": 0,
+      "maximum": 1
+    },
+    "use_default_cost_factors": {
+      "type": "boolean",
+      "title": "Use default for both construction cost constant and coefficient",
+      "description": "If Ture, the default value for the selected country will be used. Else the provided values for both construction cost constant and coefficient will be used.",
+      "default": true
+    },
+    "c1": {
+      "type": "number",
+      "title": "Construction cost constant",
+      "description": "Construction cost constant in EUR/m.",
+      "default": 349,
+      "minimum": 0.1,
+      "maximum": 10000
+    },
+    "c2": {
+      "type": "number",
+      "title": "Construction cost coefficient",
+      "description": "Construction cost coefficient in EUR/m2.",
+      "default": 4213,
+      "minimum": 0.1,
+      "maximum": 100000
+    }
+  }
 }

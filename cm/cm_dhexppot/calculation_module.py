@@ -110,7 +110,7 @@ def res_calculation(region: dict, inRasterHDM_large, inRasterGFA_large, params):
         'Total DH service pipe length (km)': np.sum(result_dict['trench_len_dist [km]']),
     }
     #logging.info("We took {!s} to deploy the model".format(pred_done - start))
-    validate(ret)
+    #validate(ret)
     return ret
     #####################################################################
 

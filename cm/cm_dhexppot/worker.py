@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-
+from os.path import isfile, splitext
 import BaseCM.cm_base as cm_base
 import BaseCM.cm_input as cm_input
 
@@ -22,8 +22,8 @@ def DHexpPot(self, selection: dict, rasters: list, params: dict):
     If there is no raster, we raise a value error.
     If there are many rasters, we select the first one.
     """
-    if not rasters:
-        raise ValueError("Raster list must be non-empty.")
+    if len(rasters) < 2:
+        raise ValueError("CM needs two raster inputs.")
     if "features" not in selection:
         raise ValueError("The selection must be a feature set.")
     if not selection["features"]:
@@ -35,7 +35,7 @@ def DHexpPot(self, selection: dict, rasters: list, params: dict):
         name, extension = splitext(raster)
         if not isfile(raster) or extension.lower() not in [".tif", ".tiff"]:
             raise TypeError(f"The file path is not correct: {raster}")
-
+    print(rasters)
     region = cm_input.merged_polygons(selection=selection)
     result = res_calculation(region=region, inRasterHDM_large=rasters[0], inRasterGFA_large=rasters[1], parameters=params)
     return result
