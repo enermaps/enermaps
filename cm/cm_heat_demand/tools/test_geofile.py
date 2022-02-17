@@ -4,8 +4,8 @@ from os import remove
 from os.path import abspath, dirname, exists, isdir, isfile, join
 
 import numpy as np
+from BaseCM import cm_raster as geofile
 
-from . import geofile
 from .settings import TESTDATA_DIR
 
 
