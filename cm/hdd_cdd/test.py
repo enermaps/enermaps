@@ -5,6 +5,7 @@ import unittest
 from copy import deepcopy
 
 import geopandas as gpd
+from BaseCM.cm_hddcdd import TESTDATA_DIR
 
 import hddcdd as hc
 
@@ -183,6 +184,6 @@ class TestCM(unittest.TestCase):
 
 if __name__ == "__main__":
     orig_repo = os.environ.get("CM_HDD_CDD_REPOSITORY", None)
-    os.environ["CM_HDD_CDD_REPOSITORY"] = hc.TESTDATA_DIR.as_posix()
+    os.environ["CM_HDD_CDD_REPOSITORY"] = TESTDATA_DIR.as_posix()
     unittest.main()
     os.environ["CM_HDD_CDD_REPOSITORY"] = orig_repo
