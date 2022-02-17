@@ -1,11 +1,12 @@
 #!/usr/bin/env python3
+import json
 import logging as log
 import os
 import sys
 import tarfile
 from functools import lru_cache
 from pathlib import Path
-from typing import Dict, Tuple
+from typing import Any, Dict, List, Tuple
 
 import numpy as np
 import pandas as pd
@@ -21,23 +22,112 @@ CURRENT_FILE_DIR = Path(__file__).parent
 TESTDATA_DIR = CURRENT_FILE_DIR / "testdata" / "hddcddrepo"
 
 
+def get_data_dir() -> Path:
+    return Path(os.environ["CM_HDD_CDD_DIR"])
+
+
+def get_data_repository() -> Path:
+    return Path(os.environ["CM_HDD_CDD_REPOSITORY"])
+
+
+def get_years() -> List[int]:
+    repo = get_data_repository()
+    return sorted(set([int(gtif.name.split("_")[0]) for gtif in repo.glob("**/*.tif")]))
+
+
+def get_scenarios() -> List[str]:
+    repo = get_data_repository()
+    return sorted([scn.name for scn in repo.iterdir()])
+
+
+def get_base_temperature(ddtype: str) -> List[str]:
+    repo = get_data_repository()
+    folder = repo / "historical" / ddtype
+    return sorted([float(tb.name) for tb in folder.iterdir()])
+
+
+def get_hddcdd_schema(save: bool = False, schema_path: Path = None) -> Dict[str, Any]:
+    yrs = get_years()
+    refyr = dict(
+        type="integer",
+        title="Reference year",
+        description="",
+        default=2020,
+        minimum=min(yrs),
+        maximum=max(yrs),
+        enum=yrs,
+    )
+    scenarios = get_scenarios()
+    scens = dict(
+        type="string",
+        title="Representative Concentration Pathway Scenarios",
+        description=(
+            "A Representative Concentration"
+            " Pathway(https://en.wikipedia.org/wiki/Representative_Concentration_Pathway)"
+            " (RCP) is a greenhouse gas concentration (not emissions) trajectory"
+            " adopted by the IPCC"
+        ),
+        default=scenarios[0],
+        enum=scenarios,
+    )
+    htemps = get_base_temperature("hdd")
+    htemp = dict(
+        type="number",
+        title="Base temperature for HDD",
+        description="",
+        default=htemps[int(len(htemps) / 2)],
+        minimum=min(htemps),
+        maximum=max(htemps),
+        enum=htemps,
+    )
+    ctemps = get_base_temperature("cdd")
+    ctemp = dict(
+        type="number",
+        title="Base temperature for CDD",
+        description="",
+        default=ctemps[int(len(ctemps) / 2)],
+        minimum=min(ctemps),
+        maximum=max(ctemps),
+        enum=ctemps,
+    )
+    props = {
+        "reference year": refyr,
+        "scenario RCP": scens,
+        "base temperature for HDD": htemp,
+        "base temperature for CDD": ctemp,
+    }
+    schema = dict(type="object", properties=props)
+
+    if save is True:
+        if schema_path is None:
+            cmpath = CURRENT_FILE_DIR.parent.parent.resolve()
+            schema_path = cmpath / "hdd_cdd" / "schema.json"
+
+        with open(schema_path.as_posix(), mode="w") as schfile:
+            json.dump(schema, schfile, indent=2, sort_keys=True)
+    return schema
+
+
 def download_data():
     # export CM_HDD_CDD_REPOSITORY=/tmp/hddcddrepo
     # export INPUT_DATA_DIR=/tmp
-    repo = Path(os.environ["CM_HDD_CDD_REPOSITORY"])
+    #  /cm_inputs/hdd-cdd/
+    rdir = get_data_dir()
+    #  /cm_inputs/hdd-cdd/hdd-cdd-main/data
+    repo = get_data_repository()
     print(f"data repository => {repo}")
-    os.makedirs(repo.as_posix(), exist_ok=True)
+    os.makedirs(rdir.as_posix(), exist_ok=True)
 
     hist = repo / "historical"
     if hist.exists():
         print(
-            f"The directory {repo} already exists, the dataset is not going to be"
+            f"The directory {hist} already exists, the dataset is not going to be"
             " downloaded."
         )
     else:
         print("Downloading the HDDs and CDDs dataset")
         url = "https://gitlab.inf.unibz.it/URS/enermaps/hdd-cdd/-/archive/main/hdd-cdd-main.tar.gz"
-        zpath = repo / "hdd-cdd-main.tar.gz"
+        zpath = rdir / "hdd-cdd-main.tar.gz"
         http = urllib3.PoolManager()
         with http.request("GET", url, preload_content=False) as req, open(
             zpath, "b+w"
@@ -45,25 +135,8 @@ def download_data():
             zdata.write(req.read())
         print(f"Extracting {zpath}")
         with tarfile.open(zpath) as zfile:
-            zfile.extractall(repo)
+            zfile.extractall(rdir)
         os.remove(zpath)
-        # wget = sub.Popen(
-        #     [
-        #         "wget",
-        #         "-O",
-        #         f"{repo}/hdd-cdd-main.tar.gz",
-        #         "https://gitlab.inf.unibz.it/URS/enermaps/hdd-cdd/-/archive/main/hdd-cdd-main.tar.gz",
-        #     ]
-        # )
-        # if wget.wait():
-        #     print("Not able to download the data sets")
-        #     sys.exit(1)
-        # extr = sub.Popen(["tar", "-xf", f"{repo}/hdd-cdd-main.tar.gz", "-C", f"{repo}"])
-        # if extr.returncode:
-        #     print("Not able to extract the data sets")
-        #     sys.exit(1)
-        # os.remove(f"{repo}/hdd-cdd-main.tar.gz")
-
     print("done!")
     sys.exit(0)
 
@@ -184,7 +257,7 @@ def extract_by_dir(
                 )
             val = gx.read()[0][yp, xp]
             logging.info(
-                f"{gfi.name}@{lon:.{DECIMALS}f}({cx:.{DECIMALS}f}),{lat:.{DECIMALS}f}({cy:.{DECIMALS}f}):"
+                f"{gfi}@{lon:.{DECIMALS}f}({cx:.{DECIMALS}f}),{lat:.{DECIMALS}f}({cy:.{DECIMALS}f}):"
                 f" {yp}, {xp} => {val}"
             )
             res.append(val)

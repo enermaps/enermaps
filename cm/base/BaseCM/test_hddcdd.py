@@ -44,6 +44,29 @@ GEOJSON = {
 
 
 class TestCM(unittest.TestCase):
+    def test__get_years(self):
+        years = hc.get_years()
+        self.assertEqual(years, [2021])
+
+    def test__get_scenarios(self):
+        scenarios = hc.get_scenarios()
+        self.assertEqual(scenarios, ["historical"])
+
+    def test__get_base_temperature(self):
+        tbase = hc.get_base_temperature("hdd")
+        self.assertEqual(tbase, [15.0])
+
+    def test__get_hddcdd_schema(self):
+        schema = hc.get_hddcdd_schema(save=False)
+        self.assertIn("properties", schema)
+        props = schema["properties"]
+        for _, val in props.items():
+            for key in ("type", "title", "description", "default", "enum"):
+                self.assertIn(key, val)
+        from pprint import pprint
+
+        pprint(schema)
+
     def test__compute_centroid(self):
         gj = deepcopy(GEOJSON)
         geo = gpd.GeoDataFrame.from_features(gj["features"], crs="EPSG:4326").geometry
