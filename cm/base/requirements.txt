@@ -10,4 +10,6 @@ geojson==2.5.0
 shapely==1.8.0
 rasterstats==0.16.0
 requests==2.26.0
+pandas==1.4.1
+geopandas==0.10.2
 pyproj==3.3.0

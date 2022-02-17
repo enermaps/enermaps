@@ -7,8 +7,11 @@ setup(
     name="BaseCM",
     version="0.0.1",
     author="enermaps devloppers",
-    description="Base module for elements used accross "
-    "calculation modules of the enermaps project",
+    description=(
+        "Base module for elements used accross "
+        "calculation modules of the enermaps project"
+    ),
     packages=find_packages(),
     install_requires=requirements,
+    include_package_data=True,
 )
