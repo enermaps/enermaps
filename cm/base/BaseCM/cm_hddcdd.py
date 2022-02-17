@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# -*- coding: utf-8 -*-
 import json
 import logging as log
 import os
@@ -47,16 +48,16 @@ def get_base_temperature(ddtype: str) -> List[str]:
 
 
 def get_hddcdd_schema(save: bool = False, schema_path: Path = None) -> Dict[str, Any]:
-    yrs = get_years()
-    refyr = dict(
-        type="integer",
-        title="Reference year",
-        description="",
-        default=2020,
-        minimum=min(yrs),
-        maximum=max(yrs),
-        enum=yrs,
-    )
+    # yrs = get_years()
+    # refyr = dict(
+    #     type="integer",
+    #     title="Reference year",
+    #     description="",
+    #     default=2020,
+    #     minimum=min(yrs),
+    #     maximum=max(yrs),
+    #     enum=yrs,
+    # )
     scenarios = get_scenarios()
     scens = dict(
         type="string",
@@ -91,7 +92,7 @@ def get_hddcdd_schema(save: bool = False, schema_path: Path = None) -> Dict[str,
         enum=ctemps,
     )
     props = {
-        "reference year": refyr,
+        # "reference year": refyr,
         "scenario RCP": scens,
         "base temperature for HDD": htemp,
         "base temperature for CDD": ctemp,
@@ -238,29 +239,33 @@ def extract_by_dir(
     # define the file pattern to match
     pattern = f"{refyear}_{refmonth}.tif"
 
-    # TODO: convert lat, lon to EPSG:3035 coords
+    # Convert lat, lon to EPSG:3035 coords
     # cx, cy = reproj(lat, lon)
     cx, cy = reproj(src_x=lat, src_y=lon, src_crs="EPSG:4326", dst_crs="EPSG:3035")
-    for gfi in gdir.iterdir():
-        if gfi.match(pattern):
-            idx.append(gfi.name[:-4].replace("_", "-"))
-            try:
-                gx = __datasets[gfi.as_posix()]
-            except KeyError:
-                gx = rasterio.open(gfi)
-                __datasets[gfi.as_posix()] = gx
-            yp, xp = gx.index(cx, cy)
-            if yp < 0 or xp < 0:
-                raise ValueError(
-                    f"Negative row|col index, row_index={yp}, col_index={xp}"
-                    f"@{lon:.{DECIMALS}f}({cx:.{DECIMALS}f}),{lat:.{DECIMALS}f}({cy:.{DECIMALS}f})"
+    if not gdir.exists():
+        res, idx = [], []
+        yp, xp = -1, -1
+    else:
+        for gfi in gdir.iterdir():
+            if gfi.match(pattern):
+                idx.append(gfi.name[:-4].replace("_", "-"))
+                try:
+                    gx = __datasets[gfi.as_posix()]
+                except KeyError:
+                    gx = rasterio.open(gfi)
+                    __datasets[gfi.as_posix()] = gx
+                yp, xp = gx.index(cx, cy)
+                if yp < 0 or xp < 0:
+                    raise ValueError(
+                        f"Negative row|col index, row_index={yp}, col_index={xp}"
+                        f"@{lon:.{DECIMALS}f}({cx:.{DECIMALS}f}),{lat:.{DECIMALS}f}({cy:.{DECIMALS}f})"
+                    )
+                val = gx.read()[0][yp, xp]
+                logging.info(
+                    f"{gfi}@{lon:.{DECIMALS}f}({cx:.{DECIMALS}f}),{lat:.{DECIMALS}f}({cy:.{DECIMALS}f}):"
+                    f" {yp}, {xp} => {val}"
                 )
-            val = gx.read()[0][yp, xp]
-            logging.info(
-                f"{gfi}@{lon:.{DECIMALS}f}({cx:.{DECIMALS}f}),{lat:.{DECIMALS}f}({cy:.{DECIMALS}f}):"
-                f" {yp}, {xp} => {val}"
-            )
-            res.append(val)
+                res.append(val)
     sr = pd.Series(np.array(res), index=idx, name=f"yp={yp},xp={xp}")
     sr.sort_index(inplace=True)
     return sr
