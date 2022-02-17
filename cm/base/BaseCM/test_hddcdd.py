@@ -43,7 +43,7 @@ GEOJSON = {
 }
 
 
-class TestCM(unittest.TestCase):
+class TestHddCddSharedFunctions(unittest.TestCase):
     def test__get_years(self):
         years = hc.get_years()
         self.assertEqual(years, [2021])
@@ -63,9 +63,6 @@ class TestCM(unittest.TestCase):
         for _, val in props.items():
             for key in ("type", "title", "description", "default", "enum"):
                 self.assertIn(key, val)
-        from pprint import pprint
-
-        pprint(schema)
 
     def test__compute_centroid(self):
         gj = deepcopy(GEOJSON)
@@ -185,12 +182,8 @@ class TestCM(unittest.TestCase):
             sr_yr,
             pd.Series(
                 name="yp=309,xp=283",
-                index=[
-                    "2021-01",
-                ],
-                data=[
-                    41,
-                ],
+                index=["2021-01"],
+                data=[41],
                 dtype="uint8",
             ),
         )
