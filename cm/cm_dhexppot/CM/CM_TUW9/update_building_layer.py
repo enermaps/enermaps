@@ -10,15 +10,15 @@ import time
 from osgeo import ogr
 from osgeo import osr
 import pandas as pd
-path = os.path.dirname(os.path.dirname(os.path.dirname(os.path.
-                                                       abspath(__file__))))
+
+path = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 if path not in sys.path:
     sys.path.append(path)
-'''
+"""
 This module creates a shapefile with attributes which exist in the input
 shapefile of shp2csv.py module and assigns the calculated values to the
 features of this shapefile.
-'''
+"""
 
 
 def update_building_lyr(inputCSV, inShapefile, outShapefile, epsg=3035):
@@ -31,7 +31,7 @@ def update_building_lyr(inputCSV, inShapefile, outShapefile, epsg=3035):
     csv_cols = ifile.columns.values
     col_dtype = ifile.dtypes.values
     # Get the input layer
-    driver = ogr.GetDriverByName('ESRI Shapefile')
+    driver = ogr.GetDriverByName("ESRI Shapefile")
 
     inDataSource = driver.Open(inShapefile)
     inLayer = inDataSource.GetLayer()
@@ -47,8 +47,9 @@ def update_building_lyr(inputCSV, inShapefile, outShapefile, epsg=3035):
     geom_typ_dict = {1: ogr.wkbPoint, 2: ogr.wkbLineString, 3: ogr.wkbPolygon}
     if geom_typ not in list(geom_typ_dict.keys()):
         raise Exception("Geometry type of the input layer is not supported!")
-    outLayer = outDataSource.CreateLayer("Building_lyr_updated", srs,
-                                         geom_type=geom_typ_dict[geom_typ])
+    outLayer = outDataSource.CreateLayer(
+        "Building_lyr_updated", srs, geom_type=geom_typ_dict[geom_typ]
+    )
     for i, item in enumerate(csv_cols):
         # shapefile's field name should not exceed 10 characters. O.W. warning
         # will be printed. To avoid waning, the following is applied:
@@ -70,8 +71,10 @@ def update_building_lyr(inputCSV, inShapefile, outShapefile, epsg=3035):
         # get the input geometry
         for i, item in enumerate(csv_cols):
             if i > 0:
-                outFeature.SetField(outLayerDefn.GetFieldDefn(i-1).GetNameRef(),
-                                    (ifile[item].values)[fid])
+                outFeature.SetField(
+                    outLayerDefn.GetFieldDefn(i - 1).GetNameRef(),
+                    (ifile[item].values)[fid],
+                )
         geom = inFeature.GetGeometryRef()
         outFeature.SetGeometry(geom)
         outLayer.CreateFeature(outFeature)

@@ -2,8 +2,9 @@ import numpy as np
 import os
 import pandas as pd
 import uuid
-#from joblib import Parallel, delayed
-from CM.CM_TUW0.rem_mk_dir import rm_mk_dir, rm_dir #, copy_dir
+
+# from joblib import Parallel, delayed
+from CM.CM_TUW0.rem_mk_dir import rm_mk_dir, rm_dir  # , copy_dir
 from CM.CM_TUW40.f1_main_call import main
 from CM.CM_TUW40.f4_results_summary import summary
 from initialize import Param, Out_File_Path
@@ -17,10 +18,14 @@ from tools.geofile import clip_raster, get_projection, write_raster
 from tools.response import get_response
 
 
-#nr_cores = 10
+# nr_cores = 10
+
 
 def createLegend(
-    preds: np.array, name: str = "Potential district heating areas", unit: str = "-", nb_class: int = 2
+    preds: np.array,
+    name: str = "Potential district heating areas",
+    unit: str = "-",
+    nb_class: int = 2,
 ) -> dict:
     """Prepare a legend dict in HotMaps format"""
     nb_class = min([nb_class, preds[~np.isnan(preds)].shape[0] - 1])
@@ -53,8 +58,10 @@ def logfile(P, OFP):
     P_attr_dict = vars(P)
     col_width = 5 + max(len(key) for key in P_attr_dict.keys())
     for key in P_attr_dict.keys():
-        logging_text = logging_text + "".join(key.ljust(col_width) + str(P_attr_dict[key]).ljust(col_width) + '\n')
-    with open(OFP.logfile, 'w') as f:
+        logging_text = logging_text + "".join(
+            key.ljust(col_width) + str(P_attr_dict[key]).ljust(col_width) + "\n"
+        )
+    with open(OFP.logfile, "w") as f:
         f.write(logging_text)
 
 
@@ -70,8 +77,9 @@ def unify_excels(output_directory):
                     init_df = False
                 else:
                     df = df.append(tmp_df, ignore_index=True)
-    out_xlsx = os.path.join(output_directory, 'summary_all.xlsx')
+    out_xlsx = os.path.join(output_directory, "summary_all.xlsx")
     df.to_excel(out_xlsx, index=False)
+
 
 def res_calculation(region: dict, inRasterHDM_large, inRasterGFA_large, params):
     P = Param(params)
@@ -93,26 +101,47 @@ def res_calculation(region: dict, inRasterHDM_large, inRasterGFA_large, params):
     # Dict return response
     ret = dict()
     ret["graphs"] = {}
-    #ret["geofiles"] = {"file": OFP.coh_area_bool}
-    #ret["legend"] = createLegend(np.arange(2))
+    # ret["geofiles"] = {"file": OFP.coh_area_bool}
+    # ret["legend"] = createLegend(np.arange(2))
     ret["geofiles"] = {}
     ret["values"] = {
-        'Starting connection rate (%)': result_dict['st_conn_rate [%]'],
-        'End connection rate (%)': result_dict['end_conn_rate [%]'],
-        'Grid cost ceiling (EUR/MWh)': result_dict['grid_cost_ceiling [EUR/MWh]'],
-        'Start year - Heat demand in DH areas (GWh)': np.sum(result_dict['demand_st [GWh]']),
-        'End year - Heat demand in areas (GWh)': np.sum(result_dict['demand_end [GWh]']),
-        'Start year - Heat coverage by DH areas (GWh)': np.sum(result_dict['dhPot_%s [GWh]' % P.start_year]),
-        'End year - Heat coverage by DH areas (GWh)': np.sum(result_dict['dhPot_%s [GWh]' % P.last_year]),
-        'Total supplied heat by DH over the investment period (TWh)': np.sum(result_dict['supplied_heat_over_investment_period [TWh]']),
-        'Average DH grid cost in DH areas (EUR/MWh)': np.round_((np.sum(result_dict['gridCost [MEUR]'])/np.sum(result_dict['supplied_heat_over_investment_period [TWh]'])), 2),
-        'Total DH distribution grid length (km)': np.sum(result_dict['trench_len_dist [km]']),
-        'Total DH service pipe length (km)': np.sum(result_dict['trench_len_dist [km]']),
+        "Starting connection rate (%)": result_dict["st_conn_rate [%]"],
+        "End connection rate (%)": result_dict["end_conn_rate [%]"],
+        "Grid cost ceiling (EUR/MWh)": result_dict["grid_cost_ceiling [EUR/MWh]"],
+        "Start year - Heat demand in DH areas (GWh)": np.sum(
+            result_dict["demand_st [GWh]"]
+        ),
+        "End year - Heat demand in areas (GWh)": np.sum(
+            result_dict["demand_end [GWh]"]
+        ),
+        "Start year - Heat coverage by DH areas (GWh)": np.sum(
+            result_dict["dhPot_%s [GWh]" % P.start_year]
+        ),
+        "End year - Heat coverage by DH areas (GWh)": np.sum(
+            result_dict["dhPot_%s [GWh]" % P.last_year]
+        ),
+        "Total supplied heat by DH over the investment period (TWh)": np.sum(
+            result_dict["supplied_heat_over_investment_period [TWh]"]
+        ),
+        "Average DH grid cost in DH areas (EUR/MWh)": np.round_(
+            (
+                np.sum(result_dict["gridCost [MEUR]"])
+                / np.sum(result_dict["supplied_heat_over_investment_period [TWh]"])
+            ),
+            2,
+        ),
+        "Total DH distribution grid length (km)": np.sum(
+            result_dict["trench_len_dist [km]"]
+        ),
+        "Total DH service pipe length (km)": np.sum(
+            result_dict["trench_len_dist [km]"]
+        ),
     }
-    #logging.info("We took {!s} to deploy the model".format(pred_done - start))
-    #validate(ret)
+    # logging.info("We took {!s} to deploy the model".format(pred_done - start))
+    # validate(ret)
     return ret
     #####################################################################
+
 
 """
 if __name__ == "__main__":

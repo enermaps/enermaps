@@ -4,8 +4,8 @@ import numpy as np
 import pandas as pd
 import geopandas as gpd
 from scipy.ndimage import measurements
-path = os.path.dirname(os.path.dirname(os.path.dirname(os.path.
-                                                       abspath(__file__))))
+
+path = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 if path not in sys.path:
     sys.path.append(path)
 from CM.CM_TUW1.read_raster import raster_array as RA
@@ -42,13 +42,12 @@ def summary(P, OFP, struct=np.ones((3, 3))):
     total_dist_pipe_length[zero_elements] = 0
     total_serv_pipe_length[zero_elements] = 0
 
-    #labels, nr_coherent = measurements.label(total_pipe_length_arr.astype(bool).astype(int), structure=struct)
+    # labels, nr_coherent = measurements.label(total_pipe_length_arr.astype(bool).astype(int), structure=struct)
     nr_coherent = int(np.max(labels_org))
     index, fp = np.unique(labels_org, return_counts=True)
     # exclude zero
     index = index[1:].astype(int)
     fp = fp[1:]
-
 
     floorArea_st = measure_sum(gfa_cut_st_arr, labels_org, index)
     floorArea_end = measure_sum(gfa_cut_end_arr, labels_org, index)
@@ -64,35 +63,37 @@ def summary(P, OFP, struct=np.ones((3, 3))):
     q_spec_cost2 = np.round_(q_inv / tot_dist_pipe_len, 2)
     nr_rows = len(index)
     d = {
-        'country': np.array([P.country] * nr_rows),
-        'st_conn_rate [%]': np.array([P.st_dh_connection_rate] * nr_rows),
-        'end_conn_rate [%]': np.array([P.end_dh_connection_rate] * nr_rows),
-        'grid_cost_ceiling [EUR/MWh]': np.array([P.distribution_grid_cost_ceiling] * nr_rows),
-        'Label': index,
-        'demand_st [GWh]': demand_st / 1e3,
-        'demand_end [GWh]': demand_end / 1e3,
-        'gfa_st [ha]': floorArea_st / 1e4,
-        'gfa_end [ha]': floorArea_end / 1e4,
-        'footprint_dh_area [ha]': fp,
-        'dhPot_%s [GWh]' % P.start_year: demand_st * P.st_dh_connection_rate * 1e-3,
-        'dhPot_%s [GWh]' % P.last_year: demand_end * P.end_dh_connection_rate * 1e-3,
-        'maxDHdem [GWh]': q_max * 1e-3,
-        'supplied_heat_over_investment_period [TWh]': np.round_(q * 1e-6, 3),
-        'gridCost [MEUR]': q_inv / 1e6,
-        'spCostEn [EUR/MWh]': q_spec_cost1,
-        'spCostMet (wo. serv. pipe) [EUR/m]': q_spec_cost2,
-        'trench_len_dist [km]': tot_dist_pipe_len / 1e3,
-        'trench_len_serv [km]': tot_serv_pipe_len / 1e3,
+        "country": np.array([P.country] * nr_rows),
+        "st_conn_rate [%]": np.array([P.st_dh_connection_rate] * nr_rows),
+        "end_conn_rate [%]": np.array([P.end_dh_connection_rate] * nr_rows),
+        "grid_cost_ceiling [EUR/MWh]": np.array(
+            [P.distribution_grid_cost_ceiling] * nr_rows
+        ),
+        "Label": index,
+        "demand_st [GWh]": demand_st / 1e3,
+        "demand_end [GWh]": demand_end / 1e3,
+        "gfa_st [ha]": floorArea_st / 1e4,
+        "gfa_end [ha]": floorArea_end / 1e4,
+        "footprint_dh_area [ha]": fp,
+        "dhPot_%s [GWh]" % P.start_year: demand_st * P.st_dh_connection_rate * 1e-3,
+        "dhPot_%s [GWh]" % P.last_year: demand_end * P.end_dh_connection_rate * 1e-3,
+        "maxDHdem [GWh]": q_max * 1e-3,
+        "supplied_heat_over_investment_period [TWh]": np.round_(q * 1e-6, 3),
+        "gridCost [MEUR]": q_inv / 1e6,
+        "spCostEn [EUR/MWh]": q_spec_cost1,
+        "spCostMet (wo. serv. pipe) [EUR/m]": q_spec_cost2,
+        "trench_len_dist [km]": tot_dist_pipe_len / 1e3,
+        "trench_len_serv [km]": tot_serv_pipe_len / 1e3,
     }
     df = pd.DataFrame(data=d)
     df.to_csv(OFP.output_csv, index=False)
 
     if nr_coherent > 0:
         gdf = gpd.read_file(OFP.output_shp2)
-        gdf = gdf.drop(columns=['Dem_DhArea', 'fillColor', 'color', 'opacity'])
-        gdf['Label'] = gdf['Label'].values.astype(int)
+        gdf = gdf.drop(columns=["Dem_DhArea", "fillColor", "color", "opacity"])
+        gdf["Label"] = gdf["Label"].values.astype(int)
         # gdf2 = gdf.merge(df, on='Label', how='left', lsuffix='l_')
-        gdf2 = gdf.merge(df, on='Label')
+        gdf2 = gdf.merge(df, on="Label")
         gdf = None
         gdf2.to_file(OFP.output_shp2)
 

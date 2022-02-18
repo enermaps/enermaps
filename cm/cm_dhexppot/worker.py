@@ -37,7 +37,12 @@ def DHexpPot(self, selection: dict, rasters: list, params: dict):
             raise TypeError(f"The file path is not correct: {raster}")
     print(rasters)
     region = cm_input.merged_polygons(selection=selection)
-    result = res_calculation(region=region, inRasterHDM_large=rasters[0], inRasterGFA_large=rasters[1], parameters=params)
+    result = res_calculation(
+        region=region,
+        inRasterHDM_large=rasters[0],
+        inRasterGFA_large=rasters[1],
+        parameters=params,
+    )
     return result
 
 

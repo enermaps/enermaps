@@ -1,8 +1,8 @@
 import os
 import sys
 import numpy as np
-path = os.path.dirname(os.path.dirname(os.path.dirname(os.path.
-                                                       abspath(__file__))))
+
+path = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 if path not in sys.path:
     sys.path.append(path)
 from CM.CM_TUW40.f2_investment import dh_demand

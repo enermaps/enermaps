@@ -13,11 +13,11 @@ from osgeo import ogr
 from osgeo import osr
 import pandas as pd
 import shutil
-path = os.path.dirname(os.path.dirname(os.path.dirname(os.path.
-                                                       abspath(__file__))))
+
+path = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 if path not in sys.path:
     sys.path.append(path)
-'''
+"""
 - This code only should be run when the specific demand values of the countries
 were changed. Otherwise, the corresponding outputs exist in the data warehouse.
 Subsequent to running this code, the obtained rasters should be input to the
@@ -31,13 +31,18 @@ purposes.
 - In the input CSV file, the name of columns corresponding to the specific
 demand MUST be "Residential" and "Service". This is because the other modules
 use the outputs of this module and expect these names for the outputs.
-'''
+"""
 
 
-def gdal_rasterize(vector_fn, raster_fn, targetfield, pixel_size=100,
-                   NoData_value=0, extention=(944000, 6503000,
-                                              942000, 5414000),
-                   OutputRasterSRS=3035):
+def gdal_rasterize(
+    vector_fn,
+    raster_fn,
+    targetfield,
+    pixel_size=100,
+    NoData_value=0,
+    extention=(944000, 6503000, 942000, 5414000),
+    OutputRasterSRS=3035,
+):
     # Open the data source and read in the extent
     source_ds = ogr.Open(vector_fn)
     source_layer = source_ds.GetLayer()
@@ -46,9 +51,10 @@ def gdal_rasterize(vector_fn, raster_fn, targetfield, pixel_size=100,
     # Create the destination data source
     x_res = int((x_max - x_min) / pixel_size)
     y_res = int((y_max - y_min) / pixel_size)
-    driver = gdal.GetDriverByName('GTiff')
-    target_ds = driver.Create(raster_fn, x_res, y_res, 1,
-                              gdal.GDT_Float32, ['compress=LZW'])
+    driver = gdal.GetDriverByName("GTiff")
+    target_ds = driver.Create(
+        raster_fn, x_res, y_res, 1, gdal.GDT_Float32, ["compress=LZW"]
+    )
     target_ds.SetGeoTransform((x_min, pixel_size, 0, y_max, 0, -pixel_size))
     outRasterSRS = osr.SpatialReference()
     outRasterSRS.ImportFromEPSG(OutputRasterSRS)
@@ -58,8 +64,9 @@ def gdal_rasterize(vector_fn, raster_fn, targetfield, pixel_size=100,
     # Rasterize
     # Note: the part --> options=["ATTRIBUTE=%s" %targetfield] MUST NOT
     # follow PEP 8. If you change it (with adding space, it won't work.
-    gdal.RasterizeLayer(target_ds, [1], source_layer,
-                        options=["ATTRIBUTE=%s" %targetfield])
+    gdal.RasterizeLayer(
+        target_ds, [1], source_layer, options=["ATTRIBUTE=%s" % targetfield]
+    )
     target_ds = None
     source_layer = None
     source_ds = None
@@ -67,18 +74,18 @@ def gdal_rasterize(vector_fn, raster_fn, targetfield, pixel_size=100,
 
 
 def specific_demand(inShp, inCSV, outRasterPath, epsg=3035):
-    '''
+    """
     This function reads the input CSV file and save the specific demand values
     into the EU28 shapefile. The obtained shapefile is passed to the rasterize
     function to generate a raster for specific demand values both for
     residential and service sectors.
-    '''
-    temp_dir = os.getcwd() + os.sep + 'temp'
+    """
+    temp_dir = os.getcwd() + os.sep + "temp"
     if not os.path.exists(temp_dir):
         os.mkdir(temp_dir)
-    outShapefile = temp_dir + os.sep + 'EnergyUseEU28.shp'
+    outShapefile = temp_dir + os.sep + "EnergyUseEU28.shp"
     # target fields are fields in CSV that are used to create raster with them
-    targetfield = ['Residential', 'Service']
+    targetfield = ["Residential", "Service"]
     # dictionary for determination of field types. For easing purposes, integer
     # values are also translated to real values. Do NOT CHANGE IT!
     dict_df = {str: ogr.OFTString, int: ogr.OFTReal, float: ogr.OFTReal}
@@ -93,8 +100,7 @@ def specific_demand(inShp, inCSV, outRasterPath, epsg=3035):
     outDriver = ogr.GetDriverByName("ESRI Shapefile")
     # Create the output shapefile
     outDataSource = outDriver.CreateDataSource(outShapefile)
-    outLayer = outDataSource.CreateLayer("Useful_Demand", srs,
-                                         geom_type=ogr.wkbPolygon)
+    outLayer = outDataSource.CreateLayer("Useful_Demand", srs, geom_type=ogr.wkbPolygon)
     # read CSV fields
     df = pd.read_csv(inCSV).values
     # read the headers (first row of each column)
@@ -123,8 +129,7 @@ def specific_demand(inShp, inCSV, outRasterPath, epsg=3035):
         if temp2.size > 0:
             for j in range(len(fieldNames)):
                 temp = df[temp2[0, 0], j]
-                outFeature.SetField(outLayerDefn.GetFieldDefn(j).GetNameRef(),
-                                    temp)
+                outFeature.SetField(outLayerDefn.GetFieldDefn(j).GetNameRef(), temp)
             geom = inFeature.GetGeometryRef()
             outFeature.SetGeometry(geom)
             # Add new feature to output Layer
@@ -138,6 +143,9 @@ def specific_demand(inShp, inCSV, outRasterPath, epsg=3035):
         name = field
         if len(field) > 10:
             field = field[0:10]
-        gdal_rasterize(outShapefile, outRasterPath + os.sep + 'CM19_' + name +
-                       'UsefulDemand.tif', field)
+        gdal_rasterize(
+            outShapefile,
+            outRasterPath + os.sep + "CM19_" + name + "UsefulDemand.tif",
+            field,
+        )
     shutil.rmtree(temp_dir)
