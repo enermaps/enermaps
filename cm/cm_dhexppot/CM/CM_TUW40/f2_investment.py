@@ -81,16 +81,16 @@ def dh_demand(P, OFP, dA_slope=0.0486, dA_intercept=0.0007, dataType="float32"):
     pr_upper = (PR_sparse > np.exp(-2)).astype(int)
     pr_lower = (PR_sparse <= np.exp(-2)).astype(int)
     L = 1 / (
-        pr_lower * np.exp(2) * adjustment_factor / PR_sparse + pr_upper * np.exp(4)
+            pr_lower * np.exp(2) * adjustment_factor / PR_sparse + pr_upper * np.exp(4)
     )
     L_servicePipes = 1 / (
-        pr_lower * np.exp(2) * adjustment_factor / PR_sparse
-        + pr_upper
-        * np.exp(
-            pr_upper
-            * (np.log(PR_sparse) + 3.5)
-            / (0.7737 + 0.18559 * np.log(PR_sparse))
-        )
+            pr_lower * np.exp(2) * adjustment_factor / PR_sparse
+            + pr_upper
+            * np.exp(
+        pr_upper
+        * (np.log(PR_sparse) + 3.5)
+        / (0.7737 + 0.18559 * np.log(PR_sparse))
+    )
     )
     # initialize the variables
     q = 0
@@ -98,13 +98,9 @@ def dh_demand(P, OFP, dA_slope=0.0486, dA_intercept=0.0007, dataType="float32"):
     q_tot = np.copy(sparseDemand)
     q_max = np.zeros_like(q_tot)
     for i in range(horizon):
-        q_tot = sparseDemand * energy_reduction_factor_sparse**i
-        q_new = q_tot * (
-            float(P.st_dh_connection_rate)
-            + i
-            * (float(P.end_dh_connection_rate) - float(P.st_dh_connection_rate))
-            / (horizon - 1)
-        )
+        q_tot = sparseDemand * energy_reduction_factor_sparse ** i
+        q_new = q_tot * (float(P.st_dh_connection_rate) + i * (
+                float(P.end_dh_connection_rate) - float(P.st_dh_connection_rate)) / (horizon - 1))
         # q_new is a non-zero sparse matrix. The development of demand can be
         # checked by comparing just one element of q_new with q_max.
         q_max = np.max((q_max, q_new), axis=0)
@@ -136,13 +132,13 @@ def dh_demand(P, OFP, dA_slope=0.0486, dA_intercept=0.0007, dataType="float32"):
     ] = 0.02
     dA_servicePipes[
         (
-            (linearHeatDensity_servicePipes < 1.5).astype(int) * (dA > 0.02).astype(int)
+                (linearHeatDensity_servicePipes < 1.5).astype(int) * (dA > 0.02).astype(int)
         ).astype(bool)
     ] = 0.02
     dA_servicePipes[
         (
-            (linearHeatDensity_servicePipes >= 1.5).astype(int)
-            * (dA > 0.03).astype(int)
+                (linearHeatDensity_servicePipes >= 1.5).astype(int)
+                * (dA > 0.03).astype(int)
         ).astype(bool)
     ] = 0.03
     dA_servicePipes[elements] = 0
@@ -157,7 +153,7 @@ def dh_demand(P, OFP, dA_slope=0.0486, dA_intercept=0.0007, dataType="float32"):
     # investment in EUR/GJ
     investment_dist = 1e-4 * reinvestment_factor * abs_investment_dist / q
     investment_servicePipes = (
-        1e-4 * reinvestment_factor * abs_investment_servicePipes / q
+            1e-4 * reinvestment_factor * abs_investment_servicePipes / q
     )
     investment = investment_dist + investment_servicePipes
     q[elements] = 0
