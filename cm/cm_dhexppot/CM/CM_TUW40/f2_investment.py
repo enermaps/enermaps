@@ -157,7 +157,7 @@ def dh_demand(P, OFP, dA_slope=0.0486, dA_intercept=0.0007, dataType="float32"):
     # investment in EUR/GJ
     investment_dist = 1e-4 * reinvestment_factor * abs_investment_dist / q
     investment_servicePipes = (
-            1e-4 * reinvestment_factor * abs_investment_servicePipes / q
+        1e-4 * reinvestment_factor * abs_investment_servicePipes / q
     )
     investment = investment_dist + investment_servicePipes
     q[elements] = 0
