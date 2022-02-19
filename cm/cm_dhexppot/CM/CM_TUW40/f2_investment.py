@@ -98,12 +98,12 @@ def dh_demand(P, OFP, dA_slope=0.0486, dA_intercept=0.0007, dataType="float32"):
     q_tot = np.copy(sparseDemand)
     q_max = np.zeros_like(q_tot)
     for i in range(horizon):
-        q_tot = sparseDemand * energy_reduction_factor_sparse ** i
+        q_tot = sparseDemand * energy_reduction_factor_sparse**i
         q_new = q_tot * (
-                float(P.st_dh_connection_rate)
-                + i
-                * (float(P.end_dh_connection_rate) - float(P.st_dh_connection_rate))
-                / (horizon - 1)
+            float(P.st_dh_connection_rate)
+            + i
+            * (float(P.end_dh_connection_rate) - float(P.st_dh_connection_rate))
+            / (horizon - 1)
         )
         # q_new is a non-zero sparse matrix. The development of demand can be
         # checked by comparing just one element of q_new with q_max.
