@@ -81,16 +81,16 @@ def dh_demand(P, OFP, dA_slope=0.0486, dA_intercept=0.0007, dataType="float32"):
     pr_upper = (PR_sparse > np.exp(-2)).astype(int)
     pr_lower = (PR_sparse <= np.exp(-2)).astype(int)
     L = 1 / (
-            pr_lower * np.exp(2) * adjustment_factor / PR_sparse + pr_upper * np.exp(4)
+        pr_lower * np.exp(2) * adjustment_factor / PR_sparse + pr_upper * np.exp(4)
     )
     L_servicePipes = 1 / (
-            pr_lower * np.exp(2) * adjustment_factor / PR_sparse
-            + pr_upper
-            * np.exp(
-        pr_upper
-        * (np.log(PR_sparse) + 3.5)
-        / (0.7737 + 0.18559 * np.log(PR_sparse))
-    )
+        pr_lower * np.exp(2) * adjustment_factor / PR_sparse
+        + pr_upper
+        * np.exp(
+            pr_upper
+            * (np.log(PR_sparse) + 3.5)
+            / (0.7737 + 0.18559 * np.log(PR_sparse))
+        )
     )
     # initialize the variables
     q = 0
@@ -136,13 +136,13 @@ def dh_demand(P, OFP, dA_slope=0.0486, dA_intercept=0.0007, dataType="float32"):
     ] = 0.02
     dA_servicePipes[
         (
-                (linearHeatDensity_servicePipes < 1.5).astype(int) * (dA > 0.02).astype(int)
+            (linearHeatDensity_servicePipes < 1.5).astype(int) * (dA > 0.02).astype(int)
         ).astype(bool)
     ] = 0.02
     dA_servicePipes[
         (
-                (linearHeatDensity_servicePipes >= 1.5).astype(int)
-                * (dA > 0.03).astype(int)
+            (linearHeatDensity_servicePipes >= 1.5).astype(int)
+            * (dA > 0.03).astype(int)
         ).astype(bool)
     ] = 0.03
     dA_servicePipes[elements] = 0

@@ -46,7 +46,7 @@ def calc_index(
     """
     pixWidth = abs(pixWidth)
     pixHeight = abs(pixHeight)
-    fminx = fminy = 10**10
+    fminx = fminy = 10 ** 10
     fmaxx = fmaxy = 0
     # Get boundaries
     fminx = min(fminx_, fminx)
