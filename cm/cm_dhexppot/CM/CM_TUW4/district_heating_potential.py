@@ -9,12 +9,7 @@ import sys
 import time
 
 import numpy as np
-from scipy.ndimage import (
-    binary_dilation,
-    binary_erosion,
-    binary_fill_holes,
-    measurements,
-)
+from scipy.ndimage import *
 
 from CM.CM_TUW1.read_raster import raster_array as RA
 
