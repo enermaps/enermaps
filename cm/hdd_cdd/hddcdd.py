@@ -1,13 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 import logging as log
-
-from BaseCM.cm_hddcdd import (
-    compute_centroid,
-    extract_by_dir,
-    get_datadir,
-    get_datarepodir,
-)
+from BaseCM import cm_hddcdd
 from BaseCM.cm_output import validate
 
 logging = log.getLogger("cm-hdd_cdd")
@@ -43,27 +37,27 @@ def hdd_cdd_stats(
     )
     logging.info(msg)
     # Compute the centroid of the geometry selected by the user
-    lon, lat = compute_centroid(geo)
+    lon, lat = cm_hddcdd.compute_centroid(geo)
     logging.info(f"CENTROID: lon: {lon}, lat: {lat}")
     # Query the file-directory-netcdf structure for all the pixels involved
-    hdd_path = get_datadir(
-        datarepository=get_datarepodir(),
+    hdd_path = cm_hddcdd.get_datadir(
+        datarepository=cm_hddcdd.get_datarepodir(),
         sim_type=rcp,
         dd_type="hdd",
         Tb=t_base_h,
     )
     # extract, cast to int from uint8 and transform * 10
-    avg_hdds = extract_by_dir(gdir=hdd_path, lon=lon, lat=lat)
+    avg_hdds = cm_hddcdd.extract_by_dir(gdir=hdd_path, lon=lon, lat=lat)
     hdds = avg_hdds.astype(int) * 10
 
-    cdd_path = get_datadir(
-        datarepository=get_datarepodir(),
+    cdd_path = cm_hddcdd.get_datadir(
+        datarepository=cm_hddcdd.get_datarepodir(),
         sim_type=rcp,
         dd_type="cdd",
         Tb=t_base_c,
     )
     # extract, cast to int from uint8 and transform * 10
-    avg_cdds = extract_by_dir(gdir=cdd_path, lon=lon, lat=lat)
+    avg_cdds = cm_hddcdd.extract_by_dir(gdir=cdd_path, lon=lon, lat=lat)
     cdds = avg_cdds.astype(int) * 10
 
     # add yearly stats
