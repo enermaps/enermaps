@@ -72,9 +72,6 @@ class TestHddCddSharedFunctions(unittest.TestCase):
         self.assertAlmostEqual(cy, round(45.56383191, ndigits=hc.DECIMALS))
 
     def test__reproj(self):
-        # https://epsg.io/transform#s_srs=4326&t_srs=3035&x=11.0132789&y=45.5228261
-        # (lat, lon)
-        # (45.5228261, 11.0132789) => (4400277.98, 2490583.97)
         cx, cy = hc.reproj(
             src_y=11.013279, src_x=45.522826, src_crs="EPSG:4326", dst_crs="EPSG:3035"
         )
