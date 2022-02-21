@@ -4,7 +4,6 @@ from tempfile import TemporaryDirectory
 
 import numpy as np
 import pandas as pd
-
 from BaseCM.cm_output import validate
 
 # from joblib import Parallel, delayed
