@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 import logging as log
+
 from BaseCM import cm_hddcdd
 from BaseCM.cm_output import validate
 
