@@ -1,10 +1,11 @@
 import os
 
-import geopandas as gpd
 import numpy as np
 import pandas as pd
 from joblib import Parallel, delayed
 from shapely.ops import nearest_points
+
+import geopandas as gpd
 
 nr_cores = 10
 
