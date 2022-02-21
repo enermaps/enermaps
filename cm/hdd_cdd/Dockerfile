@@ -52,7 +52,7 @@ RUN echo "-----\nInstalling BaseCM" \
 ## Download required data and layers
 ## ---------------------------------
 ## by default use the python function to download the missing data
-RUN python3 -c "from BaseCM import cm_hddcdd as hc; hc.download_data()"
+RUN python3 download.py
 
 ## if you neet to check if you are using the latest version of the tests
 ## uncomment the following lines:
@@ -78,12 +78,7 @@ RUN python3 -c "from BaseCM import cm_hddcdd as hc; hc.download_data()"
 ## Generate the schema.json file
 ## -----------------------------
 # extract from the data set the main parameters and save them on the schema.json
-RUN python3 -c "from pprint import pprint; \
-    from pathlib import Path; \
-    from BaseCM import cm_hddcdd as hc; \
-    schema = hc.get_hddcdd_schema(save=True, schema_path=Path('schema.json')); \
-    print('Generated schema:'); \
-    pprint(schema)"
+RUN python3 schema.py
 
 ## -------------
 ## Execute tests

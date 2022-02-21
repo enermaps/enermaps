@@ -48,16 +48,6 @@ def get_base_temperature(ddtype: str) -> List[str]:
 
 
 def get_hddcdd_schema(save: bool = False, schema_path: Path = None) -> Dict[str, Any]:
-    # yrs = get_years()
-    # refyr = dict(
-    #     type="integer",
-    #     title="Reference year",
-    #     description="",
-    #     default=2020,
-    #     minimum=min(yrs),
-    #     maximum=max(yrs),
-    #     enum=yrs,
-    # )
     scenarios = get_scenarios()
     scens = dict(
         type="string",
@@ -110,11 +100,15 @@ def get_hddcdd_schema(save: bool = False, schema_path: Path = None) -> Dict[str,
 
 
 def download_data():
-    # export CM_HDD_CDD_REPOSITORY=/tmp/hddcddrepo
-    # export INPUT_DATA_DIR=/tmp
-    #  /cm_inputs/hdd-cdd/
+    """Download HDDS and CDDs data.
+
+    The function use the environmental variables:
+    * `CM_HDD_CDD_REPOSITORY`
+    * `INPUT_DATA_DIR`
+
+    to define the path to the data repository.
+    """
     rdir = get_data_dir()
-    #  /cm_inputs/hdd-cdd/hdd-cdd-main/data
     repo = get_data_repository()
     print(f"data repository => {repo}")
     os.makedirs(rdir.as_posix(), exist_ok=True)
@@ -208,6 +202,13 @@ def get_datadir(
 def reproj(
     src_x: float, src_y: float, src_crs: str = "EPSG:4326", dst_crs: str = "EPSG:3035"
 ) -> Tuple[float, float]:
+    """Reproject from one reference system to another.
+
+    >>> # see: https://epsg.io/transform#s_srs=4326&t_srs=3035&x=11.0132789&y=45.5228261
+    >>> # (lat, lon)
+    >>> [f"{c:.2f}" for c in reproj(45.5228261, 11.0132789)]
+    ["4400277.98", "2490583.97"]
+    """
     trans = pyproj.Transformer.from_crs(src_crs, dst_crs)
     cy, cx = trans.transform(src_x, src_y)
     return (cx, cy)
