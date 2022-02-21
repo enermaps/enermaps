@@ -1,13 +1,15 @@
 import os
-import time
 import sys
+import time
+
 from osgeo import gdal
+
+from CM.CM_TUW1.read_raster import raster_array as RA
+from CM.CM_TUW22.clip import clip_raster as cr
 
 path = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 if path not in sys.path:
     sys.path.append(path)
-from CM.CM_TUW22.clip import clip_raster as cr
-from CM.CM_TUW1.read_raster import raster_array as RA
 
 
 def main(

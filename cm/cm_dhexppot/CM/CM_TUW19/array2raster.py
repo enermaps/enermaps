@@ -6,9 +6,9 @@ Created on August 14 2018
 import os
 import sys
 import time
+
 import numpy as np
-from osgeo import gdal
-from osgeo import osr
+from osgeo import gdal, osr
 
 path = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 if path not in sys.path:

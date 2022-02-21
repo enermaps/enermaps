@@ -4,10 +4,10 @@ Created on July 26 2017
 
 @author: fallahnejad@eeg.tuwien.ac.at
 """
-from math import ceil
 import os
 import sys
 import time
+from math import ceil
 
 path = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 if path not in sys.path:

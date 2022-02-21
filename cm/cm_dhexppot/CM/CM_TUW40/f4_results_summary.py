@@ -1,14 +1,16 @@
 import os
 import sys
+
 import numpy as np
 import pandas as pd
-import geopandas as gpd
 from scipy.ndimage import measurements
+
+import geopandas as gpd
+from CM.CM_TUW1.read_raster import raster_array as RA
 
 path = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 if path not in sys.path:
     sys.path.append(path)
-from CM.CM_TUW1.read_raster import raster_array as RA
 
 
 def measure_sum(arr, labels, index, factor=1):

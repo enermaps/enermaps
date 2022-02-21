@@ -1,20 +1,19 @@
 import os
 import sys
 
-# from docutils.io import InputError
-from osgeo import gdalnumeric
-from osgeo import ogr
-from PIL import Image
-from PIL import ImageDraw
 import numpy as np
 import pandas as pd
+# from docutils.io import InputError
+from osgeo import gdalnumeric, ogr
+from PIL import Image, ImageDraw
+
+import CM.CM_TUW19.run_cm as CM19
+import CM.CM_TUW21.run_cm as CM21
 
 # import pdb
 path = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 if path not in sys.path:
     sys.path.append(path)
-import CM.CM_TUW19.run_cm as CM19
-import CM.CM_TUW21.run_cm as CM21
 
 
 def saveCSVorSHP(

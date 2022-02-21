@@ -7,14 +7,16 @@ Created on July 6 2017
 # from docutils.io import InputError
 import os
 import sys
+import time
+
 import numpy as np
 import pandas as pd
-import time
+
+import CM.CM_TUW19.run_cm as CM19
 
 path = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 if path not in sys.path:
     sys.path.append(path)
-import CM.CM_TUW19.run_cm as CM19
 
 """
 Functions:

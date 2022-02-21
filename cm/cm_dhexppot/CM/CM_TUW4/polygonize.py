@@ -1,15 +1,15 @@
-import numpy as np
 import os
-from osgeo import gdal
-from osgeo import ogr
-from osgeo import osr
 import sys
+
+import numpy as np
+from osgeo import gdal, ogr, osr
 from scipy.ndimage import measurements
+
+from CM.CM_TUW1.read_raster import raster_array as RA
 
 path = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 if path not in sys.path:
     sys.path.append(path)
-from CM.CM_TUW1.read_raster import raster_array as RA
 
 
 def rgba(minimum, maximum, value, a=0.5):

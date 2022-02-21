@@ -8,13 +8,14 @@ import os
 import sys
 import time
 
+from CM.CM_TUW9.bottom_up_hdm import zonStat_selectedArea as zs
+from CM.CM_TUW9.shp2csv import shp2csv
+from CM.CM_TUW9.specific_demand import specific_demand
+from CM.CM_TUW9.update_building_layer import update_building_lyr as update
+
 path = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 if path not in sys.path:
     sys.path.append(path)
-from CM.CM_TUW9.bottom_up_hdm import zonStat_selectedArea as zs
-from CM.CM_TUW9.specific_demand import specific_demand
-from CM.CM_TUW9.shp2csv import shp2csv
-from CM.CM_TUW9.update_building_layer import update_building_lyr as update
 
 """ This module calls other calculation modules for the BUHDM"""
 verbose = False

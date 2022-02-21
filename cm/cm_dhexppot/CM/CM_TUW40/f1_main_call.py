@@ -1,12 +1,14 @@
 import os
 import sys
+
 import numpy as np
+
+from CM.CM_TUW40.f2_investment import dh_demand
+from CM.CM_TUW40.f3_coherent_areas import distribuition_costs
 
 path = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 if path not in sys.path:
     sys.path.append(path)
-from CM.CM_TUW40.f2_investment import dh_demand
-from CM.CM_TUW40.f3_coherent_areas import distribuition_costs
 
 
 def main(P, OFP):

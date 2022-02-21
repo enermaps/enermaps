@@ -1,6 +1,6 @@
 import os
-import numpy as np
 
+import numpy as np
 
 # c1 [EUR/m], c2 [EUR/m2]
 c1_default, c2_default = 212, 4464

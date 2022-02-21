@@ -7,9 +7,9 @@ Created on July 6 2017
 import os
 import sys
 import time
-from osgeo import ogr
-from osgeo import osr
+
 import pandas as pd
+from osgeo import ogr, osr
 
 path = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 if path not in sys.path:

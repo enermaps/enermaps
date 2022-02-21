@@ -4,13 +4,14 @@ Created on Jul 26, 2017
 @author: simulant
 """
 import os
-import time
 import sys
+import time
+
+from CM.CM_TUW20.indexing import calc_index
 
 path = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 if path not in sys.path:
     sys.path.append(path)
-from CM.CM_TUW20.indexing import calc_index
 
 
 def main(

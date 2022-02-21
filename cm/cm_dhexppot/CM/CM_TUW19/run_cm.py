@@ -4,14 +4,16 @@ Created on Jul 26, 2017
 @author: simulant
 """
 import os
-import time
 import sys
+import time
+
 import numpy as np
+
+import CM.CM_TUW19.array2raster as A2R
 
 path = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 if path not in sys.path:
     sys.path.append(path)
-import CM.CM_TUW19.array2raster as A2R
 
 
 def main(

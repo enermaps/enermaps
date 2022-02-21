@@ -7,10 +7,11 @@ import os
 import sys
 import time
 
+import CM.CM_TUW9.main_block as mb
+
 path = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 if path not in sys.path:
     sys.path.append(path)
-import CM.CM_TUW9.main_block as mb
 
 
 def main(process_bool, inputValues):

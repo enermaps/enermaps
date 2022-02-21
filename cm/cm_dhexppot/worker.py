@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 from os.path import isfile, splitext
+
 import BaseCM.cm_base as cm_base
 import BaseCM.cm_input as cm_input
-
 from calculation_module import res_calculation
-from initialize import Param, Out_File_Path
+from initialize import Out_File_Path, Param
 
 app = cm_base.get_default_app("DHexpPot")
 schema_path = cm_base.get_default_schema_path()

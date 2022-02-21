@@ -6,12 +6,11 @@ Created on July 6 2017
 """
 import os
 import sys
-import pandas as pd
-import numpy as np
-from osgeo import gdal
-from osgeo import ogr
-from osgeo import osr
 import time
+
+import numpy as np
+import pandas as pd
+from osgeo import gdal, ogr, osr
 
 path = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 if path not in sys.path:

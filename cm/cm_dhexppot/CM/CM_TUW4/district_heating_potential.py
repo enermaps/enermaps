@@ -7,16 +7,16 @@ Created on July 11 2017
 import os
 import sys
 import time
+
 import numpy as np
-from scipy.ndimage import binary_dilation
-from scipy.ndimage import binary_erosion
-from scipy.ndimage import binary_fill_holes
-from scipy.ndimage import measurements
+from scipy.ndimage import (binary_dilation, binary_erosion, binary_fill_holes,
+                           measurements)
+
+from CM.CM_TUW1.read_raster import raster_array as RA
 
 path = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 if path not in sys.path:
     sys.path.append(path)
-from CM.CM_TUW1.read_raster import raster_array as RA
 
 """
 The input for this calculation module is "heat density map" with [MWh/ha]
