@@ -17,9 +17,12 @@ input_layers_path = cm_base.get_default_input_layers_path()
     input_layers_path=input_layers_path,
 )
 def hdd_cdd(self, selection: dict, rasters: list, params: dict):
-    """This is a calculation module that multiplies the raster by an factor.
-    If there is no raster, we raise a value error.
-    If there are many rasters, we select the first one.
+    """This is a calculation module that compute the centroid
+    of the selected region and query a set of rasters with the
+    Heating and Cooling Degree Days computed from the CORDEX
+    dataset.
+    CM support only a single feature selection, in case of
+    multiple selection it raise an error.
     """
     features = selection["features"]
     if len(features) > 1:
