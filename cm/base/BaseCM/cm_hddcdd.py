@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
+import atexit
 import json
 import logging as log
 import os
-import sys
 import tarfile
 from functools import lru_cache
 from pathlib import Path
@@ -132,8 +132,6 @@ def download_data():
         with tarfile.open(zpath) as zfile:
             zfile.extractall(rdir)
         os.remove(zpath)
-    print("done!")
-    sys.exit(0)
 
 
 def compute_centroid(geo) -> Tuple[float, float]:
@@ -245,7 +243,6 @@ def extract_by_dir(
     cx, cy = reproj(src_x=lat, src_y=lon, src_crs="EPSG:4326", dst_crs="EPSG:3035")
     if not gdir.exists():
         res, idx = [], []
-        yp, xp = -1, -1
     else:
         for gfi in gdir.iterdir():
             if gfi.match(pattern):
@@ -255,18 +252,31 @@ def extract_by_dir(
                 except KeyError:
                     gx = rasterio.open(gfi)
                     __datasets[gfi.as_posix()] = gx
-                yp, xp = gx.index(cx, cy)
-                if yp < 0 or xp < 0:
+                    # properly close the rasterio once the service is shutdown
+                    atexit.register(lambda x: x.close(), gx)
+                # check that point is within the raster bounds
+                if (not gx.bounds.left <= cx <= gx.bounds.right) and (
+                    gx.bounds.bottom <= cy <= gx.bounds.top
+                ):
                     raise ValueError(
-                        f"Negative row|col index, row_index={yp}, col_index={xp}"
-                        f"@{lon:.{DECIMALS}f}({cx:.{DECIMALS}f}),{lat:.{DECIMALS}f}({cy:.{DECIMALS}f})"
+                        f"Point coordinates out of raster bounds {gx.bounds}"
+                        f"@{lon:.{DECIMALS}f}({cx:.{DECIMALS}f}),"
+                        f"{lat:.{DECIMALS}f}({cy:.{DECIMALS}f})"
                     )
-                val = gx.read()[0][yp, xp]
+                val = next(
+                    gx.sample(
+                        [
+                            (cx, cy),
+                        ]
+                    )
+                )[0]
                 logging.info(
-                    f"{gfi}@{lon:.{DECIMALS}f}({cx:.{DECIMALS}f}),{lat:.{DECIMALS}f}({cy:.{DECIMALS}f}):"
-                    f" {yp}, {xp} => {val}"
+                    f"{gfi}@{lon:.{DECIMALS}f}({cx:.{DECIMALS}f}),"
+                    f"{lat:.{DECIMALS}f}({cy:.{DECIMALS}f}): {val}"
                 )
                 res.append(val)
-    sr = pd.Series(np.array(res), index=idx, name=f"yp={yp},xp={xp}")
+    sr = pd.Series(
+        np.array(res), index=idx, name=f"cx={cx:.{DECIMALS}f},cy={cy:.{DECIMALS}f}"
+    )
     sr.sort_index(inplace=True)
     return sr
