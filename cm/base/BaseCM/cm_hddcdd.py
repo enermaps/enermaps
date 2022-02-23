@@ -5,6 +5,7 @@ import json
 import logging as log
 import os
 import tarfile
+from collections import OrderedDict as odict
 from functools import lru_cache
 from pathlib import Path
 from typing import Any, Dict, List, Tuple
@@ -48,8 +49,12 @@ def get_base_temperature(ddtype: str) -> List[str]:
 
 
 def get_hddcdd_schema(save: bool = False, schema_path: Path = None) -> Dict[str, Any]:
+    schema = odict()
+    schema["$schema"] = "http://json-schema.org/draft-03/schema#"
+    schema["type"] = "object"
+
     scenarios = get_scenarios()
-    scens = dict(
+    scens = odict(
         type="string",
         title="Representative Concentration Pathway Scenarios",
         description=(
@@ -61,8 +66,9 @@ def get_hddcdd_schema(save: bool = False, schema_path: Path = None) -> Dict[str,
         default=scenarios[0],
         enum=scenarios,
     )
+
     htemps = get_base_temperature("hdd")
-    htemp = dict(
+    htemp = odict(
         type="number",
         title="Base temperature for HDD",
         description="",
@@ -71,8 +77,9 @@ def get_hddcdd_schema(save: bool = False, schema_path: Path = None) -> Dict[str,
         maximum=max(htemps),
         enum=htemps,
     )
+
     ctemps = get_base_temperature("cdd")
-    ctemp = dict(
+    ctemp = odict(
         type="number",
         title="Base temperature for CDD",
         description="",
@@ -81,13 +88,15 @@ def get_hddcdd_schema(save: bool = False, schema_path: Path = None) -> Dict[str,
         maximum=max(ctemps),
         enum=ctemps,
     )
-    props = {
-        # "reference year": refyr,
-        "scenario RCP": scens,
-        "base temperature for HDD": htemp,
-        "base temperature for CDD": ctemp,
-    }
-    schema = dict(type="object", properties=props)
+
+    schema["properties"] = odict(
+        [
+            # "reference year": refyr,
+            ("scenario RCP", scens),
+            ("base temperature for HDD", htemp),
+            ("base temperature for CDD", ctemp),
+        ]
+    )
 
     if save is True:
         if schema_path is None:
@@ -95,7 +104,7 @@ def get_hddcdd_schema(save: bool = False, schema_path: Path = None) -> Dict[str,
             schema_path = cmpath / "hdd_cdd" / "schema.json"
 
         with open(schema_path.as_posix(), mode="w") as schfile:
-            json.dump(schema, schfile, indent=2, sort_keys=True)
+            json.dump(schema, schfile, indent=2)
     return schema
 
 
