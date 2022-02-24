@@ -277,14 +277,22 @@ payload = {
         }
     ],
     "values": {
-        "Savings on cooling\nadvance refurbish\nMultifamily houses\n1946-1960\nMidClim": 1146.9056405653903,
-        "Savings on cooling\nadvance refurbish\nMultifamily houses\n1961-1975\nMidClim": 1021.571928938795,
-        "Savings on cooling\nusual refurbish\nMultifamily houses\n1946-1960\nMidClim": 5344.646940889375,
-        "Savings on cooling\nusual refurbish\nMultifamily houses\n1961-1975\nMidClim": 4685.113895750577,
-        "Savings on heating\nadvance refurbish\nMultifamily houses\n1946-1960\nMidClim": 642267.1587166189,
-        "Savings on heating\nadvance refurbish\nMultifamily houses\n1961-1975\nMidClim": 572080.2802057252,
-        "Savings on heating\nusual refurbish\nMultifamily houses\n1946-1960\nMidClim": 2993002.2868980514,
-        "Savings on heating\nusual refurbish\nMultifamily houses\n1961-1975\nMidClim": 2623663.781620323,
+        "Savings on cooling\nadvance refurbish\nMultifamily houses"
+        "\n1946-1960\nMidClim": 1146.9056405653903,
+        "Savings on cooling\nadvance refurbish\nMultifamily houses"
+        "\n1961-1975\nMidClim": 1021.571928938795,
+        "Savings on cooling\nusual refurbish\nMultifamily houses"
+        "\n1946-1960\nMidClim": 5344.646940889375,
+        "Savings on cooling\nusual refurbish\nMultifamily houses"
+        "\n1961-1975\nMidClim": 4685.113895750577,
+        "Savings on heating\nadvance refurbish\nMultifamily houses"
+        "\n1946-1960\nMidClim": 642267.1587166189,
+        "Savings on heating\nadvance refurbish\nMultifamily houses"
+        "\n1961-1975\nMidClim": 572080.2802057252,
+        "Savings on heating\nusual refurbish\nMultifamily houses"
+        "\n1946-1960\nMidClim": 2993002.2868980514,
+        "Savings on heating\nusual refurbish\nMultifamily houses"
+        "\n1961-1975\nMidClim": 2623663.781620323,
     },
 }
 

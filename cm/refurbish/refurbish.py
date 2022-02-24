@@ -436,7 +436,8 @@ def prepare_output(
     ret = dict()
     ret["graphs"] = [
         {
-            f"Savings on {savings_type} | {refurbish_type} | {building_type} | {zone}": dict(
+            f"Savings on {savings_type} | {refurbish_type}"
+            f" | {building_type} | {zone}": dict(
                 type="bar",
                 values=[
                     (e, v) for _, (e, v) in vals.loc[:, ["epoch", "savings"]].iterrows()
@@ -459,7 +460,8 @@ def prepare_output(
     ret["geofiles"] = {}
 
     ret["values"] = {
-        f"Savings on {savings_type}\n{refurbish_type}\n{building_type}\n{epoch}\n{zone}": savings
+        f"Savings on {savings_type}\n{refurbish_type}"
+        f"\n{building_type}\n{epoch}\n{zone}": savings
         for _, (
             savings_type,
             zone,
