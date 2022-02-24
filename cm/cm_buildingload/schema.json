@@ -1,0 +1,221 @@
+{
+  "type": "object",
+  "properties": {
+    "gross floor area": {
+      "type": "number",
+      "title": "Gross floor area - external structure",
+      "description": "Gross floor area of the building (external dimensions)",
+      "default": 100.0,
+      "minimum": 1.0,
+      "maximum": 99999.0,
+      "required": true
+    },
+    "number of stories": {
+      "type": "number",
+      "title": "Number of stories",
+      "description": "Number of stories of the building",
+      "default": 1,
+      "minimum": 1,
+      "maximum": 30,
+      "required": true
+    },
+    "building type": {
+      "type": "string",
+      "title": "Building type",
+      "description": "MFH: Multi-family house; SFH: Single-family house; TH: Terraced house",
+      "default": "SFH",
+      "required": true,
+      "enum": ["MFH",
+        "SFH",
+        "TH"
+      ]
+    },
+    "construction year": {
+      "type": "number",
+      "title": "Construction year",
+      "description": "Year of construction to define the building class",
+      "default": 2020,
+      "minimum": 0,
+      "maximum": 9999,
+      "required": true
+    },
+    "set temperature for heating": {
+      "type": "number",
+      "title": "Set temperature for heating",
+      "description": "Temperature for when heating is activated",
+      "default": 20.0,
+      "minimum": 10,
+      "maximum": 25,
+      "required": true
+    },
+    "set temperature for cooling": {
+      "type": "number",
+      "title": "Set temperature for cooling",
+      "description": "Temperature for when cooling is activated",
+      "default": 26.0,
+      "minimum": 15,
+      "maximum": 30,
+      "required": true
+    },
+    "day": {
+      "type": "string",
+      "title": "Day",
+      "description": "Day of week for results (only relevant if model length is set to day)",
+      "default": "Monday",
+      "required": true,
+      "enum": ["Monday",
+        "Tuesday",
+        "Wednesday",
+        "Thursday",
+        "Friday",
+        "Saturday",
+        "Sunday"]
+    },
+    "week": {
+      "type": "string",
+      "title": "Week",
+      "description": "Week of month for results (only relevant if model length is set to day or week). Note: Week begins on the Monday of the selected week",
+      "default": "Week 1",
+      "required": true,
+      "enum": ["Week 1",
+        "Week 2",
+        "Week 3"]
+    },
+    "month": {
+      "type": "string",
+      "title": "Month",
+      "description": "Month for calculation (not relevant if year is selected for model length)",
+      "default": "January",
+      "required": true,
+      "enum": ["January",
+        "February",
+        "March",
+        "April",
+        "May",
+        "June",
+        "July",
+        "August",
+        "September",
+        "October",
+        "November",
+        "December"]
+    },
+    "model length": {
+      "type": "string",
+      "title": "Model length",
+      "description": "Model length for calculation (Note: Calculation times are very long for month (3-5 mins) and year (~10 mins))",
+      "default": "Day",
+      "required": false,
+      "enum": ["Day",
+        "Week",
+        "Month",
+        "Year"]
+    },
+    "roof type and orientation": {
+      "type": "string",
+      "title": "Roof type and orientation",
+      "description": "0: gable roof, north/south orientation; 1: gable roof, east/west orientation; 2: skillion roof, north orientation; 3: skillion roof, east orientation; 4: skillion roof, south orientation; 5: skillion roof, west orientation; 6: flat roof, horizontal orientation",
+      "default": "0",
+      "required": false,
+      "enum": ["0",
+        "1",
+        "2",
+        "3",
+        "4",
+        "5",
+        "6"]
+    },
+    "roof pitch": {
+      "type": "number",
+      "title": "Roof pitch (degrees)",
+      "description": "Angle of roof (if flat roof type is selected, roof pitch will automatically be 0 degrees",
+      "default": 30.0,
+      "minimum": 0.0,
+      "maximum": 90.0,
+      "required": false
+    },
+    "wall to floor ratio": {
+      "type": "number",
+      "title": "Wall to floor ratio",
+      "description": "Ratio of wall area to gross floor area",
+      "default": 1.3,
+      "minimum": 0.5,
+      "maximum": 2.0,
+      "required": false
+    },
+    "building ratio length": {
+      "type": "number",
+      "title": "Length for building shape ratio (length:width)",
+      "description": "Length for building length to width ratio (length/width), where the facade side is a width side. Note: Corresponds to next option",
+      "default": 1,
+      "minimum": 1,
+      "maximum": 10,
+      "required": false
+    },
+    "building ratio width": {
+      "type": "number",
+      "title": "Width for building shape ratio (length:width)",
+      "description": "Width for building length to width ratio (length/width), where the facade side a width side. Note: Corresponds to previous option",
+      "default": 1,
+      "minimum": 1,
+      "maximum": 10,
+      "required": false
+    },
+    "facade orientation": {
+      "type": "string",
+      "title": "Facade orientation",
+      "description": "Direction where facade is facing",
+      "default": "north",
+      "required": false,
+      "enum": ["north",
+        "east",
+        "south",
+        "west"]
+    },
+    "area of door": {
+      "type": "number",
+      "title": "Area of door",
+      "description": "Area of door (m2)",
+      "default": 2.0,
+      "minimum": 1.0,
+      "maximum": 10.0,
+      "required": false
+    },
+    "area of front-facing windows": {
+      "type": "number",
+      "title": "Area of front-facing windows (as % of wall)",
+      "description": "Percentage of wall that is covered by windows on the facade side",
+      "default": 10.0,
+      "minimum": 0.0,
+      "maximum": 99.99,
+      "required": false
+    },
+    "area of rear-facing windows": {
+      "type": "number",
+      "title": "Area of rear-facing windows (as % of wall)",
+      "description": "Percentage of wall that is covered by windows on the back side",
+      "default": 10.0,
+      "minimum": 0.0,
+      "maximum": 99.99,
+      "required": false
+    },
+    "area of side 1 windows": {
+      "type": "number",
+      "title": "Area of left side windows (as % of wall)",
+      "description": "Percentage of wall that is covered by windows for left side wall",
+      "default": 10.0,
+      "minimum": 0.0,
+      "maximum": 99.99,
+      "required": false
+    },
+    "area of side 2 windows": {
+      "type": "number",
+      "title": "Area of right side windows (as % of wall)",
+      "description": "Percentage of wall that is covered by windows for right side wall",
+      "default": 10.0,
+      "minimum": 0.0,
+      "maximum": 99.99,
+      "required": false
+    }
+  }
+}
