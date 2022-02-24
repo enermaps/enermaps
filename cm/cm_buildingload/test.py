@@ -8,40 +8,25 @@ import pandas as pd
 import buildingload
 
 GEOJSON = {
-  "type": "FeatureCollection",
-  "features": [
-    {
-      "type": "Feature",
-      "properties": {},
-      "geometry": {
-        "type": "Polygon",
-        "coordinates": [
-          [
-            [
-              11.351151466369629,
-              46.493872168136285
-            ],
-            [
-              11.361966133117676,
-              46.493872168136285
-            ],
-            [
-              11.361966133117676,
-              46.50081463609722
-            ],
-            [
-              11.351151466369629,
-              46.50081463609722
-            ],
-            [
-              11.351151466369629,
-              46.493872168136285
-            ]
-          ]
-        ]
-      }
-    }
-  ]
+    "type": "FeatureCollection",
+    "features": [
+        {
+            "type": "Feature",
+            "properties": {},
+            "geometry": {
+                "type": "Polygon",
+                "coordinates": [
+                    [
+                        [11.351151466369629, 46.493872168136285],
+                        [11.361966133117676, 46.493872168136285],
+                        [11.361966133117676, 46.50081463609722],
+                        [11.351151466369629, 46.50081463609722],
+                        [11.351151466369629, 46.493872168136285],
+                    ]
+                ],
+            },
+        }
+    ],
 }
 
 
@@ -55,8 +40,8 @@ class TestCM(unittest.TestCase):
     def test__compute_centroid(self):
         gj = deepcopy(GEOJSON)
         cx, cy = buildingload.compute_centroid(gj)
-        #self.assertAlmostEqual(cx, round(11.35548, ndigits=buildingload.DECIMALS))
-        #self.assertAlmostEqual(cy, round(46.49665, ndigits=buildingload.DECIMALS))
+        # self.assertAlmostEqual(cx, round(11.35548, ndigits=buildingload.DECIMALS))
+        # self.assertAlmostEqual(cy, round(46.49665, ndigits=buildingload.DECIMALS))
 
         # remove geometry => raise an error
         gj["features"][0].pop("geometry")
@@ -66,9 +51,9 @@ class TestCM(unittest.TestCase):
     def test__countrycode(self):
         gj = deepcopy(GEOJSON)
         country_code = buildingload.countrycode(
-#            geojson=gj,
+            # geojson=gj,
             lat=46.49665,
-            lon=11.35548
+            lon=11.35548,
         )
 
     def test__buildingload(self):
@@ -95,7 +80,7 @@ class TestCM(unittest.TestCase):
             window_front_proportion=10.0,
             window_back_proportion=25.0,
             window_side_1_proportion=25.0,
-            window_side_2_proportion=25.0
+            window_side_2_proportion=25.0,
         )
         from pprint import pprint
 
