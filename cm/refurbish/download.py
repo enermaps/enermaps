@@ -14,8 +14,10 @@ logging.setLevel(log.DEBUG)
 def download_building_stock():
     csv_path = rf.path_building_stock()
     if not csv_path.exists():
-        csv_url = "https://gitlab.com" \
-                  "/hotmaps/building-stock/-/raw/master/data/building_stock.csv"
+        csv_url = (
+            "https://gitlab.com"
+            "/hotmaps/building-stock/-/raw/master/data/building_stock.csv"
+        )
         http = urllib3.PoolManager()
         logging.info(
             f"Downloading building stock data\n  - from: {csv_url}\n  - to: {csv_path}"
@@ -34,8 +36,10 @@ def download_building_stock():
 def download_population():
     pop_path = rf.path_population()
     if not pop_path.exists():
-        pop_url = "https://gisco-services.ec.europa.eu" \
-                  "/distribution/v2/lau/geojson/LAU_RG_01M_2020_4326.geojson"
+        pop_url = (
+            "https://gisco-services.ec.europa.eu"
+            "/distribution/v2/lau/geojson/LAU_RG_01M_2020_4326.geojson"
+        )
         http = urllib3.PoolManager()
         logging.info(
             f"Downloading population data\n  - from: {pop_url}\n  - to: {pop_path}"
@@ -52,8 +56,10 @@ def download_population():
 def download_tabula_Umean():
     tab_path = rf.path_tabula_Umean()
     if not tab_path.exists():
-        tab_url = "https://gitlab.inf.unibz.it" \
-                  "/URS/enermaps/tabula/-/raw/main/data/tabula-umean.csv"
+        tab_url = (
+            "https://gitlab.inf.unibz.it"
+            "/URS/enermaps/tabula/-/raw/main/data/tabula-umean.csv"
+        )
         http = urllib3.PoolManager()
         logging.info(
             f"Downloading tabula data\n  - from: {tab_url}\n  - to: {tab_path}"
