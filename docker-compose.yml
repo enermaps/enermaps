@@ -85,6 +85,22 @@ services:
     env_file:
       .env
 
+  cm-refurbish:
+    build:
+      context: ./cm
+      dockerfile: refurbish/Dockerfile
+    environment:
+      WMS_CACHE_DIR: /wms_cache
+      INPUT_DATA_DIR: /cm_inputs
+    depends_on:
+      - redis
+    restart: always
+    volumes:
+      - wms_cache:/wms_cache:ro
+      - cm_inputs:/cm_inputs:rw
+    env_file:
+      .env
+
   cm-multiply:
     build:
       context: ./cm
