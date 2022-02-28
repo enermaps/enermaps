@@ -64,8 +64,8 @@
 
     // Add the map controls
     map.addControl(makeSearchControl()); // Search tools
-    map.addControl(makeCMToggleControl()); // Button to open calculation module pane
-    //map.addControl(makeCMListControl());
+    // map.addControl(makeCMToggleControl()); // Button to open calculation module pane
+    // map.addControl(makeCMListControl());
     map.addControl(makeLeftPanel());
 
     map.on('zoomend', updateZoomWarning);
@@ -341,7 +341,7 @@
   }
 
 
-  function makeCMToggleControl() {
+  // function makeCMToggleControl() {
     const CMToggleControl = L.control({position: 'topright'});
     CMToggleControl.onAdd = (map) => {
       const div = L.DomUtil.create('div');
@@ -352,7 +352,7 @@
   }
 
 
-  function makeCMListControl() {
+  // function makeCMListControl() {
     const CMToggleControl = L.control({position: 'topright'});
     CMToggleControl.onAdd = (map) => {
       const div = L.DomUtil.create('div');
