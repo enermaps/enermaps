@@ -5,7 +5,7 @@ html, body {
 }
 
 body {
-	color: #27275b;
+	color: #293790;
 	margin: 0;
 	padding: 0px;
 	box-sizing: border-box;
@@ -13,7 +13,7 @@ body {
 }
 
 .leaflet-touch .leaflet-bar {
-	border: 1px solid #27275b !important;
+	border: 1px solid #293790 !important;
 	border-radius: 0px !important;
 	background-color: #eff4fa !important;
 }
@@ -45,7 +45,7 @@ body {
 }
 
 .leaflet-control-search .search-tooltip {
-	scrollbar-color: #27275b !important;
+	scrollbar-color: #293790 !important;
     scrollbar-width: thin !important;
 }
 
@@ -71,7 +71,7 @@ input, select, textarea {
 	font-size: inherit;
 	padding: 0.4em;
 	box-sizing: border-box;
-	border: 1px solid #27275b;
+	border: 1px solid #293790;
 	border-radius: 0px;
 }
 
@@ -92,7 +92,7 @@ button {
 	padding: 2px;
 	margin: 0 0 0 0;
 	box-sizing: border-box;
-	border: 1px solid #27275b;
+	border: 1px solid #293790;
 	border-radius: 4px;
 	cursor: pointer;
 }

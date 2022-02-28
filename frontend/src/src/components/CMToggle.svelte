@@ -13,7 +13,7 @@
     width: 100%;
     display: block;
     cursor: pointer;
-    color: #27275b;
+    color: #293790;
     font-size: 22px;
   }
 
@@ -30,7 +30,7 @@
     background-color: #eff4fa;
     padding: 4px;
     border-radius: 4px;
-    border: 1px solid #27275b;
+    border: 1px solid #293790;
     cursor: pointer;
   }
 </style>

@@ -71,7 +71,7 @@
 
 <style>
   #topnav {
-    background-color: #27275b;
+    background-color: #293790;
     overflow: visible;
     padding: 8px 20px;
     display: inline-block;
@@ -139,20 +139,20 @@
 
 <div id="topnav">
   <div class="top">
-    <div id='logo'> <img src='images/logo.png' alt='EnerMaps'> </div>
-    <div id='title'>EnerMaps</div>
+    <div id='logo'> <img src='images/logo.png' alt='historeno'> </div>
+    <div id='title'>historeno</div>
   </div>
 
-  <a href="https://enermaps-wiki.herokuapp.com" target="_blank" class="link">Wiki</a>
-  <a href="https://beta.enermaps.openaire.eu/" target="_blank" class="link">OpenAIRE</a>
-  <a href="https://www.kialo.com/" target="_blank" class="link">Kialo</a>
+  <a href="https://enermaps-wiki.herokuapp.com" target="_blank" class="link">1</a>
+  <a href="https://beta.enermaps.openaire.eu/" target="_blank" class="link">2</a>
+  <a href="https://www.kialo.com/" target="_blank" class="link">3</a>
   <button class="link" title="Copy the URL of the WMS server to the clipboard"
-          on:click={copyWMSUrlToClipboard} on:mouseleave={hideCopyPopup}>WMS</button>
-  <button id="btn_about" class="link">About</button>
+          on:click={copyWMSUrlToClipboard} on:mouseleave={hideCopyPopup}>4</button>
+  <button id="btn_about" class="link">5</button>
 
   <slot id='slot'></slot>
 
-  <Dialog title="About EnerMaps" bind:this={aboutDialog}>
+  <Dialog title="About Historeno" bind:this={aboutDialog}>
     <About />
   </Dialog>
 
