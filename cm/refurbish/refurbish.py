@@ -40,9 +40,16 @@ BS2YEARS = {
 }
 
 
+@lru_cache(maxsize=1)
+def path_cm_dir() -> Path:
+    pth = Path(os.environ["CM_REFURBISH_DIR"]).resolve()
+    os.makedirs(pth, exist_ok=True)
+    return pth
+
+
 def path_building_stock() -> Path:
     """Return the path to the building stock dataset."""
-    return cm_hddcdd.get_data_dir() / os.environ.get("BUILSTK", "building_stock.csv")
+    return path_cm_dir() / os.environ.get("BUILSTK", "building_stock.csv")
 
 
 @lru_cache()
@@ -68,9 +75,7 @@ def get_building_stock() -> pd.DataFrame:
 
 def path_population() -> Path:
     """Return the path to the population dataset."""
-    return cm_hddcdd.get_data_dir() / os.environ.get(
-        "POPGJSN", "LAU_RG_01M_2020_4326.geojson"
-    )
+    return path_cm_dir() / os.environ.get("POPGJSN", "LAU_RG_01M_2020_4326.geojson")
 
 
 @lru_cache()
@@ -89,7 +94,7 @@ def get_population_centroids() -> gpd.GeoDataFrame:
 
 def path_tabula_Umean() -> Path:
     """Return the path to TABULA/Episcope dataset."""
-    return cm_hddcdd.get_data_dir() / os.environ.get("TABULAX", "tabula-umean.csv")
+    return path_cm_dir() / os.environ.get("TABULAX", "tabula-umean.csv")
 
 
 @lru_cache()

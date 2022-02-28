@@ -24,6 +24,7 @@ RUN apt-get update \
 ENV INPUT_DATA_DIR="/cm_inputs"
 ENV CM_HDD_CDD_DIR="${INPUT_DATA_DIR}/hdd-cdd"
 ENV CM_HDD_CDD_REPOSITORY="${INPUT_DATA_DIR}/hdd-cdd/hdd-cdd-main/data"
+ENV CM_REFURBISH_DIR="${INPUT_DATA_DIR}/refurbish"
 ENV POPGJSN="LAU_RG_01M_2020_4326.geojson"
 ENV BUILSTK="building_stock.csv"
 ENV TABULAX="tabula-umean.csv"
