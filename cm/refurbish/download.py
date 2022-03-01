@@ -81,19 +81,19 @@ def download_datasets():
 
     # download the datasets required by the refurbish CM.
     bstk_path = rf.path_building_stock()
-    print(f"{bstk_path}: {bstk_path.exists()}")
+    logging.info(f"{bstk_path}: {bstk_path.exists()}")
     download_building_stock()
-    print(f"{bstk_path}: {bstk_path.exists()}")
+    logging.info(f"{bstk_path}: {bstk_path.exists()}")
 
     pop_path = rf.path_population()
-    print(f"{pop_path}: {pop_path.exists()}")
+    logging.info(f"{pop_path}: {pop_path.exists()}")
     download_population()
-    print(f"{bstk_path}: {bstk_path.exists()}")
+    logging.info(f"{pop_path}: {pop_path.exists()}")
 
     tab_path = rf.path_tabula_Umean()
-    print(f"{tab_path}: {tab_path.exists()}")
+    logging.info(f"{tab_path}: {tab_path.exists()}")
     download_tabula_Umean()
-    print(f"{bstk_path}: {bstk_path.exists()}")
+    logging.info(f"{tab_path}: {tab_path.exists()}")
 
 
 if __name__ == "__main__":

@@ -12,8 +12,10 @@ RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 ## -------------------------
 RUN apt-get update \
     && apt-get --yes install \
+    git \
     python3 \
     python3-pip \
+    gdal-bin \
     libgdal-dev \
     && rm -rf /var/cache/apt/archives/
 

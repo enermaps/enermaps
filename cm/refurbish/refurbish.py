@@ -8,7 +8,10 @@ import geopandas as gpd
 import pandas as pd
 from BaseCM import cm_hddcdd
 from BaseCM.cm_output import validate
+from resutils import unit
 from shapely import geometry
+
+import download
 
 logging = log.getLogger("cm-refurbish")
 logging.setLevel(log.DEBUG)
@@ -55,6 +58,10 @@ def path_building_stock() -> Path:
 @lru_cache()
 def get_building_stock() -> pd.DataFrame:
     """Return building_stock dataframe"""
+    pth = path_building_stock()
+    if not pth.exists():
+        logging.warning(f"file: {pth} not found... start downloading it")
+        download.download_population()
     logging.info(f"Reading building_stock data from: {path_building_stock()}")
     bs = pd.read_csv(path_building_stock(), sep="|", index_col=0)
     # fix label adding a space
@@ -82,7 +89,11 @@ def path_population() -> Path:
 def get_population() -> gpd.GeoDataFrame:
     """Return building_stock dataframe"""
     logging.info(f"Reading population data from: {path_population()}")
-    return gpd.read_file(path_population(), crs="EPSG:4326")
+    pth = path_population()
+    if not pth.exists():
+        logging.warning(f"file: {pth} not found... start downloading it")
+        download.download_population()
+    return gpd.read_file(pth, crs="EPSG:4326")
 
 
 @lru_cache()
@@ -100,7 +111,11 @@ def path_tabula_Umean() -> Path:
 @lru_cache()
 def get_tabula_Umean() -> pd.DataFrame:
     """Return building_stock dataframe"""
-    tab = pd.read_csv(path_tabula_Umean(), sep="|", index_col=0)
+    pth = path_tabula_Umean()
+    if not pth.exists():
+        logging.warning(f"file: {pth} not found... start downloading it")
+        download.download_population()
+    tab = pd.read_csv(pth, sep="|", index_col=0)
     # harmonize building types
     tab["bstype"] = ""
     for label, vals in BS2TABULA.items():
@@ -437,12 +452,15 @@ def prepare_output(
     warnings: List[Tuple[str, str]] = None,
 ) -> Dict[str, Any]:
     """Transform the CM results into the platform's payload"""
+    ys = yrly_savings.copy()
+    yarr, ulabel, _ = unit.best_unit(ys["savings"], "Wh")
+    ys["savings"] = yarr
     # prepare the CM output
     ret = dict()
     ret["graphs"] = [
         {
-            f"Savings on {savings_type} | {refurbish_type}"
-            f" | {building_type} | {zone}": dict(
+            f"Savings on {savings_type} | {refurbish_type} | "
+            f"{building_type} | {zone} | [{ulabel}]": dict(
                 type="bar",
                 values=[
                     (e, v) for _, (e, v) in vals.loc[:, ["epoch", "savings"]].iterrows()
@@ -453,7 +471,7 @@ def prepare_output(
                 refurbish_type,
                 building_type,
                 zone,
-            ), vals in yrly_savings.groupby(
+            ), vals in ys.groupby(
                 ["savings_type", "refurbish_type", "building_type", "zone"]
             )
         },
@@ -465,8 +483,8 @@ def prepare_output(
     ret["geofiles"] = {}
 
     ret["values"] = {
-        f"Savings on {savings_type}\n{refurbish_type}"
-        f"\n{building_type}\n{epoch}\n{zone}": savings
+        f"Savings on {savings_type}\n{refurbish_type}\n"
+        f"{building_type}\n{epoch}\n{zone} [{ulabel}]": savings
         for _, (
             savings_type,
             zone,
@@ -474,7 +492,7 @@ def prepare_output(
             epoch,
             building_type,
             savings,
-        ) in yrly_savings.iterrows()
+        ) in ys.iterrows()
     }
 
     ret["values"].update({k: v for k, v in warnings})

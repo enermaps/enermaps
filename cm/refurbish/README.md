@@ -51,6 +51,7 @@ As an output, we get the following data :
 $ PYTHONPATH="../base" \
     CM_HDD_CDD_REPOSITORY="../hdd_cdd/data" \
     CM_HDD_CDD_DIR="data/" \
+    CM_REFURBISH_DIR="data" \
     BUILSTK="building_stock.csv" \
     POPGJSN="LAU_RG_01M_2020_4326.geojson" \
     TABULAX="tabula-umean.csv" \
@@ -63,8 +64,8 @@ $ PYTHONBREAKPOINT="ipdb.set_trace" \
     PYTHONPATH="../base" \
     CM_HDD_CDD_REPOSITORY="../hdd_cdd/data" \
     CM_HDD_CDD_DIR="data/" \
+    CM_REFURBISH_DIR="data" \
     BUILSTK="building_stock.csv" \
     POPGJSN="LAU_RG_01M_2020_4326.geojson" \
-    TABULAX="tabula-umean.csv" \
     python test.py
 ```

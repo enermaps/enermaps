@@ -246,58 +246,64 @@ payload = {
     "geofiles": {},
     "graphs": [
         {
-            "Savings on cooling | advance refurbish | Multifamily houses | MidClim": {
+            "Savings on cooling | advance refurbish | Multifamily houses"
+            " | MidClim | [kWh]": {
                 "type": "bar",
                 "values": [
-                    ("1946-1960", 1146.9056405653903),
-                    ("1961-1975", 1021.571928938795),
+                    ("1946-1960", 1.1469056405653903),
+                    ("1961-1975", 1.021571928938795),
                 ],
             },
-            "Savings on cooling | usual refurbish | Multifamily houses | MidClim": {
+            "Savings on cooling | usual refurbish | Multifamily houses"
+            " | MidClim | [kWh]": {
                 "type": "bar",
                 "values": [
-                    ("1946-1960", 5344.646940889375),
-                    ("1961-1975", 4685.113895750577),
+                    ("1946-1960", 5.344646940889375),
+                    ("1961-1975", 4.685113895750577),
                 ],
             },
-            "Savings on heating | advance refurbish | Multifamily houses | MidClim": {
+            "Savings on heating | advance refurbish | Multifamily houses"
+            " | MidClim | [kWh]": {
                 "type": "bar",
                 "values": [
-                    ("1946-1960", 642267.1587166189),
-                    ("1961-1975", 572080.2802057252),
+                    ("1946-1960", 642.267158716619),
+                    ("1961-1975", 572.0802802057252),
                 ],
             },
-            "Savings on heating | usual refurbish | Multifamily houses | MidClim": {
+            "Savings on heating | usual refurbish | Multifamily houses"
+            " | MidClim | [kWh]": {
                 "type": "bar",
                 "values": [
-                    ("1946-1960", 2993002.2868980514),
-                    ("1961-1975", 2623663.781620323),
+                    ("1946-1960", 2993.0022868980514),
+                    ("1961-1975", 2623.6637816203233),
                 ],
             },
         }
     ],
     "values": {
         "Savings on cooling\nadvance refurbish\nMultifamily houses"
-        "\n1946-1960\nMidClim": 1146.9056405653903,
+        "\n1946-1960\nMidClim [kWh]": 1.1469056405653903,
         "Savings on cooling\nadvance refurbish\nMultifamily houses"
-        "\n1961-1975\nMidClim": 1021.571928938795,
+        "\n1961-1975\nMidClim [kWh]": 1.021571928938795,
         "Savings on cooling\nusual refurbish\nMultifamily houses"
-        "\n1946-1960\nMidClim": 5344.646940889375,
+        "\n1946-1960\nMidClim [kWh]": 5.344646940889375,
         "Savings on cooling\nusual refurbish\nMultifamily houses"
-        "\n1961-1975\nMidClim": 4685.113895750577,
+        "\n1961-1975\nMidClim [kWh]": 4.685113895750577,
         "Savings on heating\nadvance refurbish\nMultifamily houses"
-        "\n1946-1960\nMidClim": 642267.1587166189,
+        "\n1946-1960\nMidClim [kWh]": 642.267158716619,
         "Savings on heating\nadvance refurbish\nMultifamily houses"
-        "\n1961-1975\nMidClim": 572080.2802057252,
+        "\n1961-1975\nMidClim [kWh]": 572.0802802057252,
         "Savings on heating\nusual refurbish\nMultifamily houses"
-        "\n1946-1960\nMidClim": 2993002.2868980514,
+        "\n1946-1960\nMidClim [kWh]": 2993.0022868980514,
         "Savings on heating\nusual refurbish\nMultifamily houses"
-        "\n1961-1975\nMidClim": 2623663.781620323,
+        "\n1961-1975\nMidClim [kWh]": 2623.6637816203233,
     },
 }
 
 
 class TestCM(unittest.TestCase):
+    maxDiff = None
+
     def test__get_refurbish_schema(self):
         schema = get_refurbish_schema(save=False)
         self.assertIn("properties", schema)
