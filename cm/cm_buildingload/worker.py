@@ -53,8 +53,8 @@ def buildingload(self, selection: dict, rasters: list, params: dict):
         W=params.get("building ratio width", 1),
         facade_orientation=params.get("facade orientation"),
         a_door_1=params.get("area of door", 2.0),
-        window_front_proportion=params.get("area of front-facing windows", 10.0),
-        window_back_proportion=params.get("area of rear-facing windows", 25.0),
+        window_front_proportion=params.get("area of front facing windows", 10.0),
+        window_back_proportion=params.get("area of rear facing windows", 25.0),
         window_side_1_proportion=params.get("area of side 1 windows", 25.0),
         window_side_2_proportion=params.get("area of side 2 windows", 25.0),
     )
