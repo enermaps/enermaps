@@ -189,6 +189,7 @@
       "default": 10.0,
       "minimum": 0.0,
       "maximum": 99.99,
+      "required": false
     },
     "area of rear facing windows": {
       "type": "number",
@@ -197,6 +198,7 @@
       "default": 10.0,
       "minimum": 0.0,
       "maximum": 99.99,
+      "required": false
     },
     "area of side 1 windows": {
       "type": "number",
