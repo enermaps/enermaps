@@ -182,7 +182,7 @@
       "maximum": 10.0,
       "required": false
     },
-    "area of front-facing windows": {
+    "area of front facing windows": {
       "type": "number",
       "title": "Area of front-facing windows (as % of wall)",
       "description": "Percentage of wall that is covered by windows on the facade side",
@@ -191,7 +191,7 @@
       "maximum": 99.99,
       "required": false
     },
-    "area of rear-facing windows": {
+    "area of rear facing windows": {
       "type": "number",
       "title": "Area of rear-facing windows (as % of wall)",
       "description": "Percentage of wall that is covered by windows on the back side",
