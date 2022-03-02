@@ -3,7 +3,7 @@
 from BaseCM import cm_base as cm_base
 from BaseCM import cm_input as cm_input
 
-import buildingload
+import buildingload as cm
 
 # from BaseCM import cm_input as cm_input
 app = cm_base.get_default_app("buildingload")
@@ -34,7 +34,7 @@ def buildingload(self, selection: dict, rasters: list, params: dict):
     self.validate_params(params)
 
     res = cm.buildingload(
-        task=self,
+ #       task=self,
         geojson=selection,
         gfa_external=params.get("gross floor area", 100.0),
         n_stories=params.get("number of stories", 1),
@@ -52,7 +52,7 @@ def buildingload(self, selection: dict, rasters: list, params: dict):
         L=params.get("building ratio length", 1),
         W=params.get("building ratio width", 1),
         facade_orientation=params.get("facade orientation"),
-        a_door_1=params.get("area of door", 2.0),
+        a_door=params.get("area of door", 2.0),
         window_front_proportion=params.get("area of front facing windows", 10.0),
         window_back_proportion=params.get("area of rear facing windows", 25.0),
         window_side_1_proportion=params.get("area of side 1 windows", 25.0),
