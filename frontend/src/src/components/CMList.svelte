@@ -46,7 +46,7 @@
     top: -10px;
     padding: 5px;
     border-radius: 0px;
-    border: 1px solid #27275b;
+    border: 1px solid #293790;
     background-color: #eff4fa;
     width: 30vw;
     min-width: 280px;
