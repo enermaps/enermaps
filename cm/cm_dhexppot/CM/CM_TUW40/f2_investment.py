@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import os
 import sys
 
@@ -100,7 +101,8 @@ def dh_demand(P, OFP, d_a_slope=0.0486, d_a_intercept=0.0007, data_type="float32
     q_max = np.zeros_like(q_tot)
     q_new = 0
     for i in range(horizon):
-        q_tot = sparse_demand * energy_reduction_factor_sparse ** i
+        erfs = energy_reduction_factor_sparse ** i
+        q_tot = sparse_demand * erfs
         tmp1 = float(P.st_dh_connection_rate)
         tmp2 = i * (float(P.end_dh_connection_rate) - float(P.st_dh_connection_rate))
         q_new = q_tot * (tmp1 + tmp2 / (horizon - 1))
