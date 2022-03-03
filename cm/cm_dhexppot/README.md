@@ -1,5 +1,16 @@
 # DHexpPot
 
+-------------------------
+-	How the CM works (very brief summary)
+-	The input data (with default values):
+o	Form parameters 
+o	Necessary layers (specifying their ID)
+-	The results expected:
+o	Indicators 
+o	Charts 
+o	Layers 
+-	References to the dedicated Wiki page
+-------------------------
 
 
 ## How it works
