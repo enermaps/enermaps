@@ -69,8 +69,7 @@ class Param:
 
     def warnings(self):
         print(
-            "Note: HDM & GFA obtained from Invert/EE-Lab scenario: %s"
-            % self.invert_scenario
+            "Note: HDM & GFA obtained from Invert/EE-Lab scenario: %s" % self.scenario
         )
         print(
             "Note: Values of constant cost coefficients obtained from sEEnergies"
@@ -84,7 +83,7 @@ class Param:
         )
         print(
             "Note: Base year for the HDM and GFA datasets is 2015 (Hotmaps default"
-            " datasets). Calculaiton is done for years %s to %s"
+            " datasets). Calculation is done for years %s to %s"
             % (self.start_year, self.last_year)
         )
         print(
@@ -104,7 +103,8 @@ class Param:
 
 
 class Out_File_Path(Param):
-    def __init__(self, directory, param, in_raster_hdm, in_raster_gfa):
+    def __init__(self, directory, param, in_raster_hdm, in_raster_gfa, params):
+        super().__init__(params)
         self.inRasterHDM_st = in_raster_hdm
         self.inRasterHDM_end = in_raster_hdm
         self.inRasterGFA_st = in_raster_gfa
