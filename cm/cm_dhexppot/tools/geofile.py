@@ -45,7 +45,8 @@ def clip_raster(src: str, shapes: dict, dst: str, quiet: bool = True):
         json.dump(shapes, file)
 
     command = (
-        f'gdalwarp -of GTIFF -cutline {cutline} -crop_to_cutline -dstnodata 0 "{src}" "{dst}"'
+        f'gdalwarp -of GTIFF -cutline {cutline} -crop_to_cutline -dstnodata 0 "{src}"'
+        f' "{dst}"'
     )
     if quiet:
         command += " -q"
@@ -58,7 +59,6 @@ def clip_raster(src: str, shapes: dict, dst: str, quiet: bool = True):
     clipped_raster = read_raster(dst, return_geo_transform=False)
     if np.max(clipped_raster) == 0:
         raise RasterNotOverlappedError("Map return is empty.")
-
 
 
 def read_raster(raster: str, return_geo_transform: bool = True):
