@@ -37,13 +37,15 @@ def clip_raster(src: str, shapes: dict, dst: str, quiet: bool = True):
     Output :
         * projection : projection of the clipped raster.
     """
+    if not isfile(src):
+        raise FileNotFoundError(f"The src file does not existed: {src}")
 
     (fd, cutline) = tempfile.mkstemp()
     with open(fd, "w") as file:
         json.dump(shapes, file)
 
     command = (
-        f'gdalwarp -cutline {cutline} -crop_to_cutline -dstnodata 0 "{src}" "{dst}"'
+        f'gdalwarp -of GTIFF -cutline {cutline} -crop_to_cutline -dstnodata 0 "{src}" "{dst}"'
     )
     if quiet:
         command += " -q"
@@ -51,12 +53,12 @@ def clip_raster(src: str, shapes: dict, dst: str, quiet: bool = True):
     system(command=command)
     remove(cutline)
 
+    if not isfile(dst):
+        raise FileNotFoundError(f"The result file has not been created: {dst}")
     clipped_raster = read_raster(dst, return_geo_transform=False)
     if np.max(clipped_raster) == 0:
         raise RasterNotOverlappedError("Map return is empty.")
 
-    if not isfile(dst):
-        raise FileNotFoundError(f"The result file has not been created: {dst}")
 
 
 def read_raster(raster: str, return_geo_transform: bool = True):

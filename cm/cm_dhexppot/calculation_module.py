@@ -1,7 +1,8 @@
+import logging
 import os
 import uuid
 from tempfile import TemporaryDirectory
-
+from BaseCM import cm_raster
 import numpy as np
 import pandas as pd
 from BaseCM.cm_output import validate
@@ -81,62 +82,68 @@ def unify_excels(output_directory):
 
 def res_calculation(region: dict, inRasterHDM_large, inRasterGFA_large, params):
     P = Param(params)
-    uid = uuid.uuid1()
-    directory = "tmp/{}".format(uid)
-    os.mkdir(directory)
-    inRasterHDM = os.path.join(directory, "hdm.tif")
-    inRasterGFA = os.path.join(directory, "gfa.tif")
-    clip_raster(inRasterHDM_large, region, inRasterHDM)
-    clip_raster(inRasterGFA_large, region, inRasterGFA)
-    OFP = Out_File_Path(directory, P, inRasterHDM, inRasterGFA)
-    # print("#"*15 + country + ' - Case: ', P.case)
-    # P.warnings()
-    rm_mk_dir(OFP.dstDir)
-    logfile(P, OFP)
-    main(P, OFP)
-    result_dict = summary(P, OFP)
-    #####################################################################
-    # Dict return response
-    ret = dict()
-    ret["graphs"] = {}
-    # ret["geofiles"] = {"file": OFP.coh_area_bool}
-    # ret["legend"] = createLegend(np.arange(2))
-    ret["geofiles"] = {}
-    ret["values"] = {
-        "Starting connection rate (%)": result_dict["st_conn_rate [%]"],
-        "End connection rate (%)": result_dict["end_conn_rate [%]"],
-        "Grid cost ceiling (EUR/MWh)": result_dict["grid_cost_ceiling [EUR/MWh]"],
-        "Start year - Heat demand in DH areas (GWh)": np.sum(
-            result_dict["demand_st [GWh]"]
-        ),
-        "End year - Heat demand in areas (GWh)": np.sum(
-            result_dict["demand_end [GWh]"]
-        ),
-        "Start year - Heat coverage by DH areas (GWh)": np.sum(
-            result_dict["dhPot_%s [GWh]" % P.start_year]
-        ),
-        "End year - Heat coverage by DH areas (GWh)": np.sum(
-            result_dict["dhPot_%s [GWh]" % P.last_year]
-        ),
-        "Total supplied heat by DH over the investment period (TWh)": np.sum(
-            result_dict["supplied_heat_over_investment_period [TWh]"]
-        ),
-        "Average DH grid cost in DH areas (EUR/MWh)": np.round_(
-            (
-                np.sum(result_dict["gridCost [MEUR]"])
-                / np.sum(result_dict["supplied_heat_over_investment_period [TWh]"])
-            ),
-            2,
-        ),
-        "Total DH distribution grid length (km)": np.sum(
-            result_dict["trench_len_dist [km]"]
-        ),
-        "Total DH service pipe length (km)": np.sum(
-            result_dict["trench_len_dist [km]"]
-        ),
-    }
-    # logging.info("We took {!s} to deploy the model".format(pred_done - start))
-    # validate(ret)
+    # uid = uuid.uuid1()
+    # directory = os.path.join("tmp", "{}".format(uid))
+    # os.mkdir(directory)
+    current_dir = os.path.dirname(os.path.abspath(__file__))
+    with TemporaryDirectory(dir=current_dir) as directory:
+        if not os.path.isdir(directory) or not os.path.exists(directory):
+            raise NotADirectoryError(f"Directory not created : {directory}")
+        else:
+            logging.info(msg=f"Dir created : {directory}")
+        inRasterHDM = os.path.join(directory, "hdm.tif")
+        inRasterGFA = os.path.join(directory, "gfa.tif")
+        clip_raster(inRasterHDM_large, region, inRasterHDM)
+        clip_raster(inRasterGFA_large, region, inRasterGFA)
+        OFP = Out_File_Path(directory, P, inRasterHDM, inRasterGFA)
+        # print("#"*15 + country + ' - Case: ', P.case)
+        # P.warnings()
+        rm_mk_dir(OFP.dstDir)
+        logfile(P, OFP)
+        main(P, OFP)
+        result_dict = summary(P, OFP)
+        #####################################################################
+        # Dict return response
+        ret = dict()
+        ret["graphs"] = []
+        # ret["geofiles"] = {"file": OFP.coh_area_bool}
+        # ret["legend"] = createLegend(np.arange(2))
+        ret["geofiles"] = {}
+        ret["values"] = {
+            "Starting connection rate (%)": 1,#result_dict["st_conn_rate [%]"],
+        #    "End connection rate (%)": result_dict["end_conn_rate [%]"],
+        #    "Grid cost ceiling (EUR/MWh)": result_dict["grid_cost_ceiling [EUR/MWh]"],
+        #     "Start year - Heat demand in DH areas (GWh)": np.sum(
+        #         result_dict["demand_st [GWh]"]
+        #     ),
+        #     "End year - Heat demand in areas (GWh)": np.sum(
+        #         result_dict["demand_end [GWh]"]
+        #     ),
+        #     "Start year - Heat coverage by DH areas (GWh)": np.sum(
+        #         result_dict["dhPot_%s [GWh]" % P.start_year]
+        #     ),
+        #     "End year - Heat coverage by DH areas (GWh)": np.sum(
+        #         result_dict["dhPot_%s [GWh]" % P.last_year]
+        #     ),
+        #     "Total supplied heat by DH over the investment period (TWh)": np.sum(
+        #         result_dict["supplied_heat_over_investment_period [TWh]"]
+        #     ),
+        #     "Average DH grid cost in DH areas (EUR/MWh)": np.round_(
+        #         (
+        #             np.sum(result_dict["gridCost [MEUR]"])
+        #             / np.sum(result_dict["supplied_heat_over_investment_period [TWh]"])
+        #         ),
+        #         2,
+        #     ),
+        #     "Total DH distribution grid length (km)": np.sum(
+        #         result_dict["trench_len_dist [km]"]
+        #     ),
+        #     "Total DH service pipe length (km)": np.sum(
+        #         result_dict["trench_len_dist [km]"]
+        #     ),
+        }
+        # logging.info("We took {!s} to deploy the model".format(pred_done - start))
+    validate(ret)
     return ret
     #####################################################################
 

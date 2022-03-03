@@ -23,8 +23,11 @@ def DHexpPot(self, selection: dict, rasters: list, params: dict):
     If there is no raster, we raise a value error.
     If there are many rasters, we select the first one.
     """
+    if params["Second map"] == "Heat density map":
+        second_layer = "43/2015/SGVhdCBkZW5zaXR5IG1hcCAoZmluYWwgZW5lcmd5IGRlbWFuZCBmb3IgaGVhdGluZyBhbmQgREhXKSBvZiBidWlsZGluZ3MgaW4gRVUyOCArIFN3aXR6ZXJsYW5kLCBOb3J3YXkgYW5kIEljZWxhbmQgZm9yIHRoZSB5ZWFyIDIwMTU=/heat_tot_curr_density_band1.tif"
+        rasters.append(second_layer)
     if len(rasters) < 2:
-        raise ValueError("CM needs two raster inputs.")
+        raise ValueError(f"CM needs two raster inputs.")
     if "features" not in selection:
         raise ValueError("The selection must be a feature set.")
     if not selection["features"]:
@@ -40,9 +43,9 @@ def DHexpPot(self, selection: dict, rasters: list, params: dict):
     region = cm_input.merged_polygons(selection=selection)
     result = res_calculation(
         region=region,
-        inRasterHDM_large=rasters[0],
-        inRasterGFA_large=rasters[1],
-        parameters=params,
+        inRasterHDM_large=cm_input.get_raster_path(rasters[0]),
+        inRasterGFA_large=cm_input.get_raster_path(rasters[1]),
+        params=params,
     )
     return result
 

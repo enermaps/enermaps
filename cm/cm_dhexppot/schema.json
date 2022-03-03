@@ -2,6 +2,11 @@
   "$schema": "http://json-schema.org/draft-03/schema#",
   "type": "object",
   "properties": {
+    "Second map": {
+      "title": "Second map",
+      "type": "string",
+      "enum": ["Heat density map"]
+    },
     "country": {
       "type": "string",
       "title": "Country",
