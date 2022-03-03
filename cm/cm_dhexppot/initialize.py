@@ -67,40 +67,6 @@ class Param:
             + str(self.distribution_grid_cost_ceiling)
         )
 
-    def warnings(self):
-        print(
-            "Note: HDM & GFA obtained from Invert/EE-Lab scenario: %s" % self.scenario
-        )
-        print(
-            "Note: Values of constant cost coefficients obtained from sEEnergies"
-            " D4.5.\n      The values for FR, HR, HU were not published due to"
-            " confidentiality issues."
-        )
-        print(
-            "Note: Only DH areas with annual demand of above %s GWh are considered in"
-            " the calculation"
-            % self.DH_threshold
-        )
-        print(
-            "Note: Base year for the HDM and GFA datasets is 2015 (Hotmaps default"
-            " datasets). Calculation is done for years %s to %s"
-            % (self.start_year, self.last_year)
-        )
-        print(
-            "Note: In the start year (%s), coherent DH areas should have annual heat"
-            " demand of above %s GWh and all their belonging pixels should have a heat"
-            " density of above %s MWh/ha"
-            % (self.start_year, self.DH_threshold, self.pix_threshold)
-        )
-        print(
-            "Note: It is assumed that plot ratio does not change significantly in the"
-            " future."
-        )
-        print(
-            "Note: Calculation is done for pixels in which hdm_st, hdm_end and"
-            " plot_ratio are non_zero"
-        )
-
 
 class Out_File_Path(Param):
     def __init__(self, directory, param, in_raster_hdm, in_raster_gfa, params):
