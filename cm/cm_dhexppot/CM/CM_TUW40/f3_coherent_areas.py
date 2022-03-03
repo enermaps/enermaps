@@ -5,7 +5,6 @@ import numpy as np
 from scipy.ndimage import measurements
 
 import CM.CM_TUW4.district_heating_potential as DHP
-from CM.CM_TUW0.rem_mk_dir import rm_file
 from CM.CM_TUW1.read_raster import raster_array
 from CM.CM_TUW4.polygonize import polygonize
 from CM.CM_TUW19 import run_cm as CM19
@@ -29,9 +28,9 @@ def distribuition_costs(P, OFP, struct=np.ones((3, 3))):
     In this code, the highest priority is given to the coherent areas with highest demand.
     """
 
-    increased_total_investment = (
-        P.investment_increasing_factor * P.total_investment_annuity
-    )
+    # increased_total_investment = (
+    #     P.investment_increasing_factor * P.total_investment_annuity
+    # )
     invest_Euro_arr = raster_array(OFP.invest_Euro)
     supplied_heat_horizon = raster_array(OFP.supplied_heat_during_investment_period)
     maxDHdem = raster_array(OFP.maxDHdem)

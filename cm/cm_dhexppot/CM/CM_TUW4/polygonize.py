@@ -1,5 +1,6 @@
 import os
 import sys
+
 import numpy as np
 from osgeo import gdal, ogr, osr
 from scipy.ndimage import measurements
@@ -107,7 +108,7 @@ def add_label_field(
         outFeature = ogr.Feature(outLayerDefn)
         try:
             geom_label = label_list.index((x, y))
-        except:
+        except ValueError:
             nearest_dist = 1000
             for p, point in enumerate(label_list):
                 x_temp, y_temp = point
@@ -129,7 +130,7 @@ def add_label_field(
                 color_map[dem_legend_index[geom_label]],
             )
             outFeature.SetField(outLayerDefn.GetFieldDefn(4).GetNameRef(), "0.5")
-        except:
+        except ValueError:
             outFeature.SetField(outLayerDefn.GetFieldDefn(1).GetNameRef(), "-")
             outFeature.SetField(outLayerDefn.GetFieldDefn(2).GetNameRef(), "-")
             outFeature.SetField(outLayerDefn.GetFieldDefn(3).GetNameRef(), "-")

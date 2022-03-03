@@ -1,12 +1,11 @@
 import os
 import sys
-import time
 
 import numpy as np
 
 import CM.CM_TUW4.district_heating_potential as DHP
 import CM.CM_TUW19.run_cm as CM19
-from CM.CM_TUW0.rem_mk_dir import rm_file, rm_mk_dir
+from CM.CM_TUW0.rem_mk_dir import rm_file
 from CM.CM_TUW4.polygonize import polygonize
 
 path = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))

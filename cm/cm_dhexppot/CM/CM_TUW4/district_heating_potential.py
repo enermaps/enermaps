@@ -1,29 +1,15 @@
 # -*- coding: utf-8 -*-
-"""
-Created on July 11 2017
-
-@author: fallahnejad@eeg.tuwien.ac.at
-"""
 import os
 import sys
-import time
 
 import numpy as np
-from scipy.ndimage import *
+from scipy.ndimage import binary_dilation, binary_erosion, measurements
 
 from CM.CM_TUW1.read_raster import raster_array as RA
 
 path = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 if path not in sys.path:
     sys.path.append(path)
-
-"""
-The input for this calculation module is "heat density map" with [MWh/ha]
-unit. The output of this calculation module is set of connected pixels to
-which the potential of that connected pixels in [GWh] is assigned.
-pixel_threshold in [MWh/ha]
-DH_threshold in [GWh/year]
-"""
 
 
 def DHRegions(DH, DH_threshold):

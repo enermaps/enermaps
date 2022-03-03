@@ -1,13 +1,7 @@
 # -*- coding: utf-8 -*-
-"""
-Created on June 8 2017
-
-@author: fallahnejad@eeg.tuwien.ac.at
-"""
 import os
 import shutil
 import sys
-import time
 
 import numpy as np
 import pandas as pd
@@ -16,21 +10,6 @@ from osgeo import gdal, ogr, osr
 path = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 if path not in sys.path:
     sys.path.append(path)
-"""
-- This code only should be run when the specific demand values of the countries
-were changed. Otherwise, the corresponding outputs exist in the data warehouse.
-Subsequent to running this code, the obtained rasters should be input to the
-other codes within CM_TUW9.
-- This code reads the CSV file containing specific demand values of buildings
-in each EU country [kWh/m2/a] and creates a shapefile with a NUTS3 code field
-as well as all demand columns within the CSV file. The first row of the CSV
-file should be the header. For this purpose, an empty EU Shapefile is required.
-Subsequently, the obtained shapefile is rasterized for further calculation
-purposes.
-- In the input CSV file, the name of columns corresponding to the specific
-demand MUST be "Residential" and "Service". This is because the other modules
-use the outputs of this module and expect these names for the outputs.
-"""
 
 
 def gdal_rasterize(

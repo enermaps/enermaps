@@ -1,12 +1,6 @@
 # -*- coding: utf-8 -*-
-"""
-Created on July 6 2017
-
-@author: fallahnejad@eeg.tuwien.ac.at
-"""
 import os
 import sys
-import time
 
 import pandas as pd
 from osgeo import ogr, osr
@@ -14,11 +8,6 @@ from osgeo import ogr, osr
 path = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 if path not in sys.path:
     sys.path.append(path)
-"""
-This module creates a shapefile with attributes which exist in the input
-shapefile of shp2csv.py module and assigns the calculated values to the
-features of this shapefile.
-"""
 
 
 def update_building_lyr(inputCSV, inShapefile, outShapefile, epsg=3035):

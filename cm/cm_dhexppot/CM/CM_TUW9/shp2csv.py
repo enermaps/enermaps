@@ -1,12 +1,6 @@
 # -*- coding: utf-8 -*-
-"""
-Created on July 6 2017
-
-@author: fallahnejad@eeg.tuwien.ac.at
-"""
 import os
 import sys
-import time
 
 import numpy as np
 import pandas as pd
@@ -15,32 +9,6 @@ from osgeo import gdal, ogr, osr
 path = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 if path not in sys.path:
     sys.path.append(path)
-"""
-- The user can select a region which is potentially larger than his/her
-uploaded layer. An upper hand module should combine the uploaded layer with the
-default building layer and submit a shapefile covering the "selected region by
-user" to this module.
-- This code expects that the default layer provides information regarding
-number of floors as well.
-- The demand of each building, if applicable, should be entered in kWh.
-- Column "Type" should be either "0" for residential or "1" for service sector
-- if the user no Type field for his/her own shapefile provides, all buildings
-within his/her shapefile will be considered as residential. For the regions
-coming from OSM, the OSM usage will be attributed to the Type.
-- OSM building usage is also expected to be input as 0 and 1.
-- The output CSV file only includes the data which are relevant for the BUHDM.
-###############################################################################
-Explanation of indexing in this code:
-shape fields: [a  b  c  d  e  f  g  h  i  j]
-fieldList :   [j  f  i  d]
-fIndex:       [9 -1  5  8  -1 3 -1 -1 -1 -1]
-newFieldList  [0  2  3  5]
-###############################################################################
-Units of input/output data:
-    GFA: [m2]
-    demand: [kWh/a]
-    spec_demand: [kWh/m2]
-"""
 
 
 def indexing(UsefulDemandRaster, X, Y):
@@ -55,10 +23,10 @@ def indexing(UsefulDemandRaster, X, Y):
     arrUsefulDemand = band1.ReadAsArray()
     # find the indices which are out of range of the raster
     h, w = arrUsefulDemand.shape
-    l = yIndex.size
+    ll = yIndex.size
     # define specific demand array with the same length as l and fill it with
     # NaN
-    spec_demand = np.empty(l)
+    spec_demand = np.empty(ll)
     outRangeY = np.concatenate(
         (np.argwhere(yIndex < 0), np.argwhere(yIndex >= h)), axis=0
     )
@@ -66,7 +34,7 @@ def indexing(UsefulDemandRaster, X, Y):
         (np.argwhere(xIndex < 0), np.argwhere(xIndex >= w)), axis=0
     )
     outRange = np.union1d(outRangeY, outRangeX)
-    IndexInRange = np.setdiff1d(np.arange(l), outRange)
+    IndexInRange = np.setdiff1d(np.arange(ll), outRange)
     # fill elements which are in range
     spec_demand[IndexInRange] = arrUsefulDemand[
         yIndex[IndexInRange], xIndex[IndexInRange]

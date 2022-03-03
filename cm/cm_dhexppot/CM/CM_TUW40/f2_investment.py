@@ -2,9 +2,7 @@ import os
 import sys
 
 import numpy as np
-from osgeo import gdal
 
-from CM.CM_TUW0.rem_mk_dir import rm_file
 from CM.CM_TUW1.read_raster import raster_array as RA
 from CM.CM_TUW19 import run_cm as CM19
 

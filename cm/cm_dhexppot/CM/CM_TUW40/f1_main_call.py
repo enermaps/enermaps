@@ -1,8 +1,6 @@
 import os
 import sys
 
-import numpy as np
-
 from CM.CM_TUW40.f2_investment import dh_demand
 from CM.CM_TUW40.f3_coherent_areas import distribuition_costs
 

@@ -5,9 +5,7 @@ Created on August 14 2018
 """
 import os
 import sys
-import time
 
-import numpy as np
 from osgeo import gdal, osr
 
 path = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))

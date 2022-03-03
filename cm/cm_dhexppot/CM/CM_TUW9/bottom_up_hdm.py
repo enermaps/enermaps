@@ -1,13 +1,6 @@
 # -*- coding: utf-8 -*-
-"""
-Created on July 6 2017
-
-@author: fallahnejad@eeg.tuwien.ac.at
-"""
-# from docutils.io import InputError
 import os
 import sys
-import time
 
 import numpy as np
 import pandas as pd
@@ -17,14 +10,6 @@ import CM.CM_TUW19.run_cm as CM19
 path = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 if path not in sys.path:
     sys.path.append(path)
-
-"""
-Functions:
-- zonStat_selectedArea: Reads a CSV file containing demand values with [kWh]
-unit as well as X-Y coordinates in EPSG: 3035 coordinate for each building;
-Calculates demand in every 1ha pixel and export a heat density array [MWh/ha]
-to the array2raster function.
-"""
 
 
 def zonStat_selectedArea(
