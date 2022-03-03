@@ -47,12 +47,14 @@ class Param:
         self.total_investment_annuity = np.inf
         self.investment_increasing_factor = 1
         self.start_year = params["start_year"]
+        if params["start_year"] > params["last_year"]:
+            params["last_year"] = params["start_year"] + 1
         self.last_year = params["last_year"]
         self.st_dh_connection_rate = params["st_dh_connection_rate"]
         self.end_dh_connection_rate = params["end_dh_connection_rate"]
         self.depreciation_period = params["depreciation_period"]
         self.interest = params["interest"]
-        if params["use_default_cost_factors"] == True:
+        if params["use_default_cost_factors"] is True:
             self.c1, self.c2 = const_coeff[self.country]
         else:
             self.c1 = params["c1"]
@@ -71,27 +73,33 @@ class Param:
             % self.invert_scenario
         )
         print(
-            "Note: Values of constant cost coefficients obtained from sEEnergies D4.5.\n"
-            "      The values for FR, HR, HU were not published due to confidentiality issues."
+            "Note: Values of constant cost coefficients obtained from sEEnergies"
+            " D4.5.\n      The values for FR, HR, HU were not published due to"
+            " confidentiality issues."
         )
         print(
-            "Note: Only DH areas with annual demand of above %s GWh are considered in the calculation"
+            "Note: Only DH areas with annual demand of above %s GWh are considered in"
+            " the calculation"
             % self.DH_threshold
         )
         print(
-            "Note: Base year for the HDM and GFA datasets is 2015 (Hotmaps default datasets). "
-            "Calculaiton is done for years %s to %s" % (self.start_year, self.last_year)
+            "Note: Base year for the HDM and GFA datasets is 2015 (Hotmaps default"
+            " datasets). Calculaiton is done for years %s to %s"
+            % (self.start_year, self.last_year)
         )
         print(
-            "Note: In the start year (%s), coherent DH areas should have annual heat demand of above %s GWh and all "
-            "their belonging pixels should have a heat density of above %s MWh/ha"
+            "Note: In the start year (%s), coherent DH areas should have annual heat"
+            " demand of above %s GWh and all their belonging pixels should have a heat"
+            " density of above %s MWh/ha"
             % (self.start_year, self.DH_threshold, self.pix_threshold)
         )
         print(
-            "Note: It is assumed that plot ratio does not change significantly in the future."
+            "Note: It is assumed that plot ratio does not change significantly in the"
+            " future."
         )
         print(
-            "Note: Calculation is done for pixels in which hdm_st, hdm_end and plot_ratio are non_zero"
+            "Note: Calculation is done for pixels in which hdm_st, hdm_end and"
+            " plot_ratio are non_zero"
         )
 
 

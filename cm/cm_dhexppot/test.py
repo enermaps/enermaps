@@ -1,9 +1,7 @@
 import json
 import os
-import unittest
 
-import pandas as pd
-
+# import unittest
 from calculation_module import res_calculation
 
 CURRENT_FILE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -48,12 +46,11 @@ def test_dhexppot():
     hdm_raster_paths = get_testdata_path("test_hdm_vienna.tif")
     gfa_raster_paths = get_testdata_path("test_gfa_vienna.tif")
     params = createParams(True)
-    res_test_1 = res_calculation(selection, hdm_raster_paths, gfa_raster_paths, params)
-    print(res_test_1)
+    res_calculation(selection, hdm_raster_paths, gfa_raster_paths, params)
     """
     params = createParams(False)
     res_test_2 = res_calculation(selection: dict, hdm_raster_paths, gfa_raster_paths, params)
-    
+
     print(stats["values"]["maxDHdem [GWh]"], flush=True)
     self.assertEqual(
         stats["values"]["maxDHdem [GWh]"],

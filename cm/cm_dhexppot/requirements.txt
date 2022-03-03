@@ -7,3 +7,5 @@ jenkspy==0.2.0
 numpy==1.19.5
 scipy==1.6.3
 rasterstats==0.14.0
+jenkspy==0.2.0
+matplotlib==3.4.2
