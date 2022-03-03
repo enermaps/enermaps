@@ -54,8 +54,7 @@ def res_calculation(region: dict, in_raster_hdm_large, in_raster_gfa_large, para
         in_raster_gfa = os.path.join(directory, "gfa.tif")
         clip_raster(in_raster_hdm_large, region, in_raster_hdm)
         clip_raster(in_raster_gfa_large, region, in_raster_gfa)
-        OFP = Out_File_Path(directory, P, in_raster_hdm, in_raster_gfa)
-        # P.warnings()
+        OFP = Out_File_Path(directory, in_raster_hdm, in_raster_gfa, params)
         rm_mk_dir(OFP.dstDir)
         logfile(P, OFP)
         main(P, OFP)
@@ -67,49 +66,5 @@ def res_calculation(region: dict, in_raster_hdm_large, in_raster_gfa_large, para
             result_dict,
             OFP.inv_sum,
         )
-        """
-        #####################################################################
-        # Dict return response
-        ret = dict()
-        ret["graphs"] = []
-        ret["geofiles"] = {"areas": OFP.inv_sum}
-        ret["legend"] = get_legend(RA(OFP.inv_sum, dType="float32"))
-        print(ret["legend"])
-
-        ret["values"] = {
-            "Starting connection rate (%)": 100 * P.st_dh_connection_rate,
-           "End connection rate (%)": 100 * P.end_dh_connection_rate,
-           "Grid cost ceiling (EUR/MWh)": P.distribution_grid_cost_ceiling,
-            "Start year - Heat demand in DH areas (GWh)": round(float(np.sum(
-                result_dict["demand_st [GWh]"]
-            )), 1),
-            "End year - Heat demand in areas (GWh)": round(float(np.sum(
-                result_dict["demand_end [GWh]"]
-            )), 1),
-            "Start year - Heat coverage by DH areas (GWh)": round(float(np.sum(
-                result_dict["dhPot_%s [GWh]" % P.start_year]
-            )), 1),
-            "End year - Heat coverage by DH areas (GWh)": round(float(np.sum(
-                result_dict["dhPot_%s [GWh]" % P.last_year]
-            )), 1),
-            "Total supplied heat by DH over the investment period (TWh)": round(float(np.sum(
-                result_dict["supplied_heat_over_investment_period [TWh]"]
-            )), 1),
-            "Average DH grid cost in DH areas (EUR/MWh)": float(np.round_(
-                (
-                    np.sum(result_dict["gridCost [MEUR]"])
-                    / np.sum(result_dict["supplied_heat_over_investment_period [TWh]"])
-                ),
-                2,
-            )),
-            "Total DH distribution grid length (km)": round(float(np.sum(
-                result_dict["trench_len_dist [km]"]
-            )), 1),
-            "Total DH service pipe length (km)": round(float(np.sum(
-                result_dict["trench_len_dist [km]"]
-            )), 1),
-        }
-        """
-        # logging.info("We took {!s} to deploy the model".format(pred_done - start))
     validate(response)
     return response

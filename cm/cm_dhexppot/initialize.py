@@ -69,13 +69,13 @@ class Param:
 
 
 class Out_File_Path(Param):
-    def __init__(self, directory, param, in_raster_hdm, in_raster_gfa, params):
+    def __init__(self, directory, in_raster_hdm, in_raster_gfa, params):
         super().__init__(params)
         self.inRasterHDM_st = in_raster_hdm
         self.inRasterHDM_end = in_raster_hdm
         self.inRasterGFA_st = in_raster_gfa
         self.inRasterGFA_end = in_raster_gfa
-        self.dstDir = os.path.join(directory, param.case)
+        self.dstDir = os.path.join(directory, self.case)
         self.maxDHdem = os.path.join(self.dstDir, "max_dh_demand_in_year.tif")
         self.supplied_heat_during_investment_period = os.path.join(
             self.dstDir, "total_supplied_heat_during_investment_period.tif"
