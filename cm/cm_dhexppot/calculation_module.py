@@ -1,13 +1,13 @@
 import logging
 import os
-import uuid
+import sys
+path = os.path.dirname(os.path.abspath(__file__))
+if path not in sys.path:
+    sys.path.append(path)
 from tempfile import TemporaryDirectory
-from BaseCM import cm_raster
 import numpy as np
 import pandas as pd
-from BaseCM.cm_output import validate
-
-# from joblib import Parallel, delayed
+#from BaseCM.cm_output import validate
 from CM.CM_TUW0.rem_mk_dir import rm_dir, rm_mk_dir  # , copy_dir
 from CM.CM_TUW40.f1_main_call import main
 from CM.CM_TUW40.f4_results_summary import summary
@@ -17,9 +17,8 @@ from tools.areas import get_areas
 from tools.geofile import clip_raster, get_projection, write_raster
 from tools.response import get_response
 
-# nr_cores = 10
 
-
+'''
 def createLegend(
     preds: np.array,
     name: str = "Potential district heating areas",
@@ -50,7 +49,7 @@ def createLegend(
         legend = {}
         print("No legend was created.", flush=True)
     return legend
-
+'''
 
 def logfile(P, OFP):
     logging_text = "\n\n"
@@ -80,23 +79,19 @@ def unify_excels(output_directory):
     df.to_excel(out_xlsx, index=False)
 
 
-def res_calculation(region: dict, inRasterHDM_large, inRasterGFA_large, params):
+def res_calculation(region: dict, in_raster_hdm_large, in_raster_gfa_large, params):
     P = Param(params)
-    # uid = uuid.uuid1()
-    # directory = os.path.join("tmp", "{}".format(uid))
-    # os.mkdir(directory)
     current_dir = os.path.dirname(os.path.abspath(__file__))
     with TemporaryDirectory(dir=current_dir) as directory:
         if not os.path.isdir(directory) or not os.path.exists(directory):
             raise NotADirectoryError(f"Directory not created : {directory}")
         else:
             logging.info(msg=f"Dir created : {directory}")
-        inRasterHDM = os.path.join(directory, "hdm.tif")
-        inRasterGFA = os.path.join(directory, "gfa.tif")
-        clip_raster(inRasterHDM_large, region, inRasterHDM)
-        clip_raster(inRasterGFA_large, region, inRasterGFA)
-        OFP = Out_File_Path(directory, P, inRasterHDM, inRasterGFA)
-        # print("#"*15 + country + ' - Case: ', P.case)
+        in_raster_hdm = os.path.join(directory, "hdm.tif")
+        in_raster_gfa = os.path.join(directory, "gfa.tif")
+        clip_raster(in_raster_hdm_large, region, in_raster_hdm)
+        clip_raster(in_raster_gfa_large, region, in_raster_gfa)
+        OFP = Out_File_Path(directory, P, in_raster_hdm, in_raster_gfa)
         # P.warnings()
         rm_mk_dir(OFP.dstDir)
         logfile(P, OFP)
@@ -110,66 +105,38 @@ def res_calculation(region: dict, inRasterHDM_large, inRasterGFA_large, params):
         # ret["legend"] = createLegend(np.arange(2))
         ret["geofiles"] = {}
         ret["values"] = {
-            "Starting connection rate (%)": 1,#result_dict["st_conn_rate [%]"],
-        #    "End connection rate (%)": result_dict["end_conn_rate [%]"],
-        #    "Grid cost ceiling (EUR/MWh)": result_dict["grid_cost_ceiling [EUR/MWh]"],
-        #     "Start year - Heat demand in DH areas (GWh)": np.sum(
-        #         result_dict["demand_st [GWh]"]
-        #     ),
-        #     "End year - Heat demand in areas (GWh)": np.sum(
-        #         result_dict["demand_end [GWh]"]
-        #     ),
-        #     "Start year - Heat coverage by DH areas (GWh)": np.sum(
-        #         result_dict["dhPot_%s [GWh]" % P.start_year]
-        #     ),
-        #     "End year - Heat coverage by DH areas (GWh)": np.sum(
-        #         result_dict["dhPot_%s [GWh]" % P.last_year]
-        #     ),
-        #     "Total supplied heat by DH over the investment period (TWh)": np.sum(
-        #         result_dict["supplied_heat_over_investment_period [TWh]"]
-        #     ),
-        #     "Average DH grid cost in DH areas (EUR/MWh)": np.round_(
-        #         (
-        #             np.sum(result_dict["gridCost [MEUR]"])
-        #             / np.sum(result_dict["supplied_heat_over_investment_period [TWh]"])
-        #         ),
-        #         2,
-        #     ),
-        #     "Total DH distribution grid length (km)": np.sum(
-        #         result_dict["trench_len_dist [km]"]
-        #     ),
-        #     "Total DH service pipe length (km)": np.sum(
-        #         result_dict["trench_len_dist [km]"]
-        #     ),
+            "Starting connection rate (%)": P.st_dh_connection_rate,
+           "End connection rate (%)": P.end_dh_connection_rate,
+           "Grid cost ceiling (EUR/MWh)": P.distribution_grid_cost_ceiling,
+            "Start year - Heat demand in DH areas (GWh)": float(np.sum(
+                result_dict["demand_st [GWh]"]
+            )),
+            "End year - Heat demand in areas (GWh)": float(np.sum(
+                result_dict["demand_end [GWh]"]
+            )),
+            "Start year - Heat coverage by DH areas (GWh)": float(np.sum(
+                result_dict["dhPot_%s [GWh]" % P.start_year]
+            )),
+            "End year - Heat coverage by DH areas (GWh)": float(np.sum(
+                result_dict["dhPot_%s [GWh]" % P.last_year]
+            )),
+            "Total supplied heat by DH over the investment period (TWh)": float(np.sum(
+                result_dict["supplied_heat_over_investment_period [TWh]"]
+            )),
+            "Average DH grid cost in DH areas (EUR/MWh)": float(np.round_(
+                (
+                    np.sum(result_dict["gridCost [MEUR]"])
+                    / np.sum(result_dict["supplied_heat_over_investment_period [TWh]"])
+                ),
+                2,
+            )),
+            "Total DH distribution grid length (km)": float(np.sum(
+                result_dict["trench_len_dist [km]"]
+            )),
+            "Total DH service pipe length (km)": float(np.sum(
+                result_dict["trench_len_dist [km]"]
+            )),
         }
         # logging.info("We took {!s} to deploy the model".format(pred_done - start))
-    validate(ret)
+    #validate(ret)
     return ret
-    #####################################################################
-
-
-"""
-if __name__ == "__main__":
-    output_directory = '/media/SSD3.5TB/workspace_mostafa/mostafa_projects/outputs/res_hc_pathways'
-    output_directory = '/media/SSD3.5TB/workspace_mostafa/mostafa_projects/outputs/kea_bw'
-    country_path_dict = dict()
-    for directory, foldernames, filenames in os.walk(output_directory):
-        # find the right directory
-        flag = False
-        for fname in filenames:
-            if "Energy_TOTAL_" in fname:
-                flag = True
-        if flag == False:
-            continue
-        country = directory.split("/")[-2][-2::]
-        country = directory.split("/")[-1][-2::]
-        '''
-        if country != 'DK':
-            continue
-        '''
-        country_path_dict[country] = directory
-    # parallel computing
-    Parallel(n_jobs=nr_cores)(delayed(res_calculation)(key, country_path_dict[key]) for key in country_path_dict.keys())
-    unify_excels(output_directory)
-    print('finished!')
-"""

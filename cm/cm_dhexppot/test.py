@@ -49,6 +49,7 @@ def test_dhexppot():
     gfa_raster_paths = get_testdata_path("test_gfa_vienna.tif")
     params = createParams(True)
     res_test_1 = res_calculation(selection, hdm_raster_paths, gfa_raster_paths, params)
+    print(res_test_1)
     """
     params = createParams(False)
     res_test_2 = res_calculation(selection: dict, hdm_raster_paths, gfa_raster_paths, params)

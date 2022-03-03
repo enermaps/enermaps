@@ -24,8 +24,8 @@ def DHexpPot(self, selection: dict, rasters: list, params: dict):
     If there are many rasters, we select the first one.
     """
     if params["Second map"] == "Heat density map":
-        second_layer = "43/2015/SGVhdCBkZW5zaXR5IG1hcCAoZmluYWwgZW5lcmd5IGRlbWFuZCBmb3IgaGVhdGluZyBhbmQgREhXKSBvZiBidWlsZGluZ3MgaW4gRVUyOCArIFN3aXR6ZXJsYW5kLCBOb3J3YXkgYW5kIEljZWxhbmQgZm9yIHRoZSB5ZWFyIDIwMTU=/heat_tot_curr_density_band1.tif"
-        rasters.append(second_layer)
+        hdm_layer = "43/2015/SGVhdCBkZW5zaXR5IG1hcCAoZmluYWwgZW5lcmd5IGRlbWFuZCBmb3IgaGVhdGluZyBhbmQgREhXKSBvZiBidWlsZGluZ3MgaW4gRVUyOCArIFN3aXR6ZXJsYW5kLCBOb3J3YXkgYW5kIEljZWxhbmQgZm9yIHRoZSB5ZWFyIDIwMTU=/heat_tot_curr_density_band1.tif "
+        rasters = [hdm_layer] + rasters
     if len(rasters) < 2:
         raise ValueError(f"CM needs two raster inputs.")
     if "features" not in selection:
@@ -39,7 +39,11 @@ def DHexpPot(self, selection: dict, rasters: list, params: dict):
         name, extension = splitext(raster)
         if not isfile(raster) or extension.lower() not in [".tif", ".tiff"]:
             raise TypeError(f"The file path is not correct: {raster}")
-    print(rasters)
+
+    print('\n\n')
+    print(cm_input.get_raster_path(rasters[0]))
+    print(cm_input.get_raster_path(rasters[1]))
+    print('\n\n')
     region = cm_input.merged_polygons(selection=selection)
     result = res_calculation(
         region=region,

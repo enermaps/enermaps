@@ -122,6 +122,7 @@ class Out_File_Path(Param):
         )
         self.inv_sum = os.path.join(self.dstDir, "specific_investment_total.tif")
         self.output_shp1 = os.path.join(self.dstDir, "tmp_shape.shp")
-        self.output_shp2 = os.path.join(self.dstDir, "gis_summary.shp")
+        self.output_shp2 = os.path.join(self.dstDir, "tmp_summary.shp")
+        self.output_geojson = os.path.join(self.dstDir, "gis_summary.geojson")
         self.output_csv = os.path.join(self.dstDir, "summary.csv")
         self.logfile = os.path.join(self.dstDir, "info.log")

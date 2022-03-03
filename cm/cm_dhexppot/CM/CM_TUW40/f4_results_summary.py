@@ -1,8 +1,8 @@
 import os
 import sys
-
 import geopandas as gpd
 import numpy as np
+from osgeo import ogr
 import pandas as pd
 from scipy.ndimage import measurements
 
@@ -97,6 +97,8 @@ def summary(P, OFP, struct=np.ones((3, 3))):
         # gdf2 = gdf.merge(df, on='Label', how='left', lsuffix='l_')
         gdf2 = gdf.merge(df, on="Label")
         gdf = None
-        gdf2.to_file(OFP.output_shp2)
-
+        gdf2.to_file(OFP.output_geojson, driver='GeoJSON')
+        out_driver = ogr.GetDriverByName("ESRI Shapefile")
+        if os.path.exists(OFP.output_shp2):
+            out_driver.DeleteDataSource(OFP.output_shp2)
     return d
