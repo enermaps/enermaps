@@ -42,7 +42,14 @@ def unify_excels(output_directory):
     df.to_excel(out_xlsx, index=False)
 
 
-def res_calculation(region: dict, in_raster_hdm_large, in_raster_gfa_large, params, task, not_test_mode: bool = True):
+def res_calculation(
+    region: dict,
+    in_raster_hdm_large,
+    in_raster_gfa_large,
+    params,
+    task,
+    not_test_mode: bool = True,
+):
     P = Param(params)
     current_dir = os.path.dirname(os.path.abspath(__file__))
     with TemporaryDirectory(dir=current_dir) as directory:
