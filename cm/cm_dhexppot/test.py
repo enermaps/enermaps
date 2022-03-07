@@ -20,6 +20,7 @@ def load_geojson(test_filename):
 
 def createParams(use_default_cost_factors):
     params = dict()
+    params["output_layer_selection"] = "Specific network costs"
     params["scenario"] = "Test scenario"
     params["country"] = "AT"
     params["distribution_grid_cost_ceiling"] = 20

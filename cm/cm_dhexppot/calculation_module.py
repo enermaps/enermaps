@@ -6,7 +6,6 @@ import pandas as pd
 from BaseCM.cm_output import validate
 
 from CM.CM_TUW0.rem_mk_dir import rm_mk_dir
-from CM.CM_TUW1.read_raster import raster_array as RA
 from CM.CM_TUW40.f1_main_call import main
 from CM.CM_TUW40.f4_results_summary import summary
 from initialize import Out_File_Path, Param
@@ -66,17 +65,21 @@ def res_calculation(
         logfile(P, OFP)
         main(P, OFP)
         result_dict = summary(P, OFP)
+        output_layer_selection_dict = {
+            "Specific network costs": OFP.inv_sum,
+            "Potential district heating areas": OFP.coh_area_bool,
+        }
+        output_layer = output_layer_selection_dict[P.output_layer_selection]
         if not_test_mode:
-            if os.path.isfile(OFP.inv_sum):
-                with open(OFP.inv_sum, mode="rb") as raster_fd:
+            if os.path.isfile(output_layer):
+                with open(output_layer, mode="rb") as raster_fd:
                     task.post_raster(raster_name="result.tif", raster_fd=raster_fd)
             else:
-                raise FileExistsError(f"File doest not exist : {OFP.inv_sum}")
+                raise FileExistsError(f"File doest not exist : {output_layer}")
         response = get_response(
-            RA(OFP.inv_sum, dType="float32"),
             P,
             result_dict,
-            OFP.inv_sum,
+            output_layer,
         )
     validate(response)
     return response
