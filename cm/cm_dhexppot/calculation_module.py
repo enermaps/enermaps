@@ -42,7 +42,7 @@ def unify_excels(output_directory):
     df.to_excel(out_xlsx, index=False)
 
 
-def res_calculation(region: dict, in_raster_hdm_large, in_raster_gfa_large, params):
+def res_calculation(region: dict, in_raster_hdm_large, in_raster_gfa_large, params, task, not_test_mode: bool = True):
     P = Param(params)
     current_dir = os.path.dirname(os.path.abspath(__file__))
     with TemporaryDirectory(dir=current_dir) as directory:
@@ -59,7 +59,12 @@ def res_calculation(region: dict, in_raster_hdm_large, in_raster_gfa_large, para
         logfile(P, OFP)
         main(P, OFP)
         result_dict = summary(P, OFP)
-
+        if not_test_mode:
+            if os.path.isfile(OFP.inv_sum):
+                with open(OFP.inv_sum, mode="rb") as raster_fd:
+                    task.post_raster(raster_name="result.tif", raster_fd=raster_fd)
+            else:
+                raise FileExistsError(f"File doest not exist : {OFP.inv_sum}")
         response = get_response(
             RA(OFP.inv_sum, dType="float32"),
             P,

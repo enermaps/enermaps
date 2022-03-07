@@ -51,6 +51,7 @@ def DHexpPot(self, selection: dict, rasters: list, params: dict):
         in_raster_hdm_large=cm_input.get_raster_path(rasters[0]),
         in_raster_gfa_large=cm_input.get_raster_path(rasters[1]),
         params=params,
+        task=self,
     )
     return result
 
