@@ -627,7 +627,8 @@ def buildingload(
     df = pd.DataFrame(columns=cols, index=timestamp_list)
     current_timestamp = start_date
     current_index = 0
-
+    Qh_results = []
+    Qc_results = []
     # Initial theta_m_t value
     theta_m_t = 12
     # Initial theta_air
@@ -637,11 +638,13 @@ def buildingload(
     theta_m_tp_list.append(theta_m_t)  # EJW mtp
     # RC simulation
     while current_timestamp <= end_date:
-
+        
         print(current_timestamp)
         # df.dmt[current_index] = current_timestamp.time().strftime('%H:%M:%S')
         df.dmt[current_index] = current_timestamp.time().strftime("%b %d %H:%M:%S")
         df.dmt[current_index] = str(df.dmt[current_index])
+        Qh_tuple = ()
+        Qc_tuple = ()
         print("Loading weather variables")
         # Set weather variables
         # Outside dry bulb temperature (K)
@@ -967,6 +970,10 @@ def buildingload(
             df.Q_HC_nd[current_index] = 0
             df.Q_H_nd[current_index] = 0
             df.Q_C_nd[current_index] = 0
+            Qh_tuple = (current_index, df.Q_H_nd[current_index])
+            Qc_tuple = (current_index, df.Q_C_nd[current_index])
+            Qh_results.append(Qh_tuple)
+            Qc_results.append(Qc_tuple)
             Q_int = phi_int * 0.036
             Q_sol = phi_sol * 0.036
             df.theta_m_t[current_index] = theta_m_t_0
@@ -1042,6 +1049,10 @@ def buildingload(
             df.Q_HC_nd[current_index] = phi_HC_nd_ac / 1000
             df.Q_H_nd[current_index] = max(0, float(df.Q_HC_nd[current_index]))
             df.Q_C_nd[current_index] = abs(min(0, float(df.Q_HC_nd[current_index])))
+            Qh_tuple = (current_index, df.Q_H_nd[current_index])
+            Qc_tuple = (current_index, df.Q_C_nd[current_index])
+            Qh_results.append(Qh_tuple)
+            Qc_results.append(Qc_tuple)
             Q_int = phi_int * 0.036
             Q_sol = phi_sol * 0.036
             df.theta_m_t[current_index] = theta_m_t_10
@@ -1112,6 +1123,10 @@ def buildingload(
         # Cooling
         df.Q_C_nd[current_index] = abs(min(0, float(df.Q_HC_nd[current_index])))
 
+        Qh_tuple = (current_index, df.Q_H_nd[current_index])
+        Qc_tuple = (current_index, df.Q_C_nd[current_index])
+        Qh_results.append(Qh_tuple)
+        Qc_results.append(Qc_tuple)
         # Other (EJW: also add to unrestricted if statement)
         # Internal and solar heat gains (MJ)
         Q_int = phi_int * 0.036
@@ -1131,17 +1146,26 @@ def buildingload(
     results_lite = {"Date": df.dmt, "SH": df.Q_H_nd, "SC": df.Q_C_nd}
     df_results = pd.DataFrame(results_lite)
     # df_results.to_csv('Output/output'+'_'+time.strftime("%Y%m%d-%H%M%S")+'.csv')
+    Qh_sum = sum([pair[1] for pair in Qh_results])
+    Qc_sum = sum([pair[1] for pair in Qc_results])
+    #list_results = [(k, v) for k, v in results_lite.items()]
 
     ret = dict()
-    ret["graphs"] = {}
-    ret["graphs"]["Space Heating Demand"] = {}
-    ret["graphs"]["Space Heating Demand"]["type"] = "line"
-    ret["graphs"]["Space Heating Demand"]["values"] = df_results["SH"]
-    ret["graphs"]["Space Heating Demand"]["values"] = df_results["SC"]
+    #ret["graphs"] = [{"Space Heating Demand":{"type":"line","values":Qh_results}}]
+    #ret["graphs"] = [{"Space Cooling Demand":{"type":"line","values":Qc_results}}]
+    ret["values"] = [
+        {"Total space heating demand (kW)": Qh_sum},
+        {"Total space cooling demand (kW)": Qc_sum}
+    ]
+    ret["graphs"] = [
+        {"Space Heating Demand": {"type": "line", "values": Qh_results},
+        },
+        {"Space Heating Demand": {"type": "line", "values": Qh_results}
+            },
+    ]
+    ret["geofiles"] = {}
 
-    ret["values"] = {"Total space heating demand (kW)": sum(df_results["SH"])}
-
-    # validate(ret)
+    validate(ret)
     return ret
 
 
