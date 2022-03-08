@@ -37,6 +37,7 @@ def get_default_schema_path():
     """
     filename = inspect.stack()[1].filename
     dir_path = os.path.dirname(os.path.abspath(filename))
+    print(dir_path)
     schema_path = os.path.join(dir_path, "schema.json")
     if not os.path.isfile(schema_path):
         raise FileNotFoundError(
