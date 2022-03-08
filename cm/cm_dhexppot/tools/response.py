@@ -6,7 +6,6 @@ from matplotlib import cm as colormap
 
 
 def get_response(
-    map_array,
     P,
     result_dict,
     raster_name,
@@ -131,31 +130,31 @@ def get_response(
 
     def get_legend(
         base_dictionary: dict,
-        map_array: np.array,
-        legend_name: str = "Network Costs",
-        unit: str = "EUR/MWh",
-        nb_class: int = 5,
+        leg_dict: dict,
         colormap_name: str = "viridis",
     ) -> dict:
         """Prepare a legend dict in HotMaps format"""
+        legend_name = leg_dict["legend_name"]
+        unit = leg_dict["unit"]
+        nb_class = leg_dict["nb_class"]
         if not isinstance(nb_class, int):
             raise TypeError(f"{nb_class} type is not 'int'.")
         if not isinstance(colormap_name, str):
             raise TypeError(f"{colormap_name} type is not 'str'.")
         if not isinstance(legend_name, str):
             raise TypeError(f"{legend_name} type is not 'str'")
-        listify_array = map_array[~np.isnan(map_array)]
-        listify_array = np.unique(listify_array)
-        listify_array = np.array([0, 15, 22, 29, 35, 50]).astype(int)
-        nb_class = min([nb_class, listify_array.shape[0] - 1])
-        if nb_class > 2:
+        # listify_array = map_array_leg[~np.isnan(map_array_leg)]
+        # listify_array = np.unique(listify_array)
+        # nb_class = min([nb_class, listify_array.shape[0] - 1])
+        legend = {"name": legend_name, "type": "custom", "symbology": []}
+        if nb_class == 5:
+            listify_array = np.array([0, 15, 22, 29, 35, 50]).astype(int)
             color_scale = colormap.get_cmap(name=colormap_name, lut=nb_class).colors
             color_scale[:, :-1] *= 255
             breaks = jenkspy.jenks_breaks(listify_array, nb_class=nb_class)
             logging.info("=== BREAKS ===")
             logging.error(breaks)
             logging.error(listify_array)
-            legend = {"name": legend_name, "type": "custom", "symbology": []}
             for enum, i in enumerate(range(len(breaks) - 1)):
                 legend["symbology"].append(
                     {
@@ -169,16 +168,47 @@ def get_response(
                 )
                 # if enum == 0:
                 #     legend["symbology"][0]["value"] = 1**-6
+        elif nb_class == 2:
+            legend["symbology"] = legend["symbology"] + [
+                {
+                    "red": 222,
+                    "green": 235,
+                    "blue": 247,
+                    "opacity": float(0.8),
+                    "value": 0,
+                    "label": "0 := No DH area",
+                },
+                {
+                    "red": 49,
+                    "green": 130,
+                    "blue": 189,
+                    "opacity": float(0.8),
+                    "value": 1,
+                    "label": "1 := Potential DH area",
+                },
+            ]
         else:
             legend = {}
             print("No legend was created.", flush=True)
         base_dictionary["legend"] = legend
         return base_dictionary
 
+    legend_dict = {
+        "Specific network costs": {
+            "legend_name": "Network Costs",
+            "unit": "EUR/MWh",
+            "nb_class": 5,
+        },
+        "Potential district heating areas": {
+            "legend_name": "Potential DH areas",
+            "unit": "-",
+            "nb_class": 2,
+        },
+    }
     response = dict()
     # response = get_graphs(response, areas_potential)
     response["graphs"] = []
     response = get_indicators(response, P, result_dict)
     response = get_geofiles(response, raster_name)
-    response = get_legend(response, map_array)
+    response = get_legend(response, legend_dict[P.output_layer_selection])
     return response

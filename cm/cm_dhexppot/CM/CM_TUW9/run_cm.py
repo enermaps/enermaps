@@ -29,9 +29,7 @@ if __name__ == "__main__":
     eu_shp = project_path + os.sep + "AT.shp"
     spec_demand_csv = project_path + os.sep + "useful demand.csv"
     UsefulDemandRasterPath = project_path
-    ResidentialUsefulDemand = (
-        project_path + os.sep + "ResidentialUseful" "Demand_AT.tif"
-    )
+    ResidentialUsefulDemand = project_path + os.sep + "ResidentialUsefulDemand_AT.tif"
     ServiceUsefulDemand = project_path + os.sep + "ServiceUsefulDemand_AT.tif"
     UsefulDemandRaster = [ResidentialUsefulDemand, ServiceUsefulDemand]
     inShapefile = project_path + os.sep + "Sample_OSM_Building_Lyr.shp"
@@ -39,7 +37,7 @@ if __name__ == "__main__":
     if not os.path.exists(output_dir):
         os.mkdir(output_dir)
     outCSV = output_dir + os.sep + "CM9_building_strd_info.csv"
-    outShapefile = output_dir + os.sep + "CM9_updated_building_" "footprint_AT.shp"
+    outShapefile = output_dir + os.sep + "CM9_updated_building_footprint_AT.shp"
     heatDensityRaster = output_dir + os.sep + "CM9_Heat_Density_Map.tif"
     process_bool = (process1, process2, process3)
     inputValues = (

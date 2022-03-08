@@ -38,6 +38,7 @@ const_coeff = {
 
 class Param:
     def __init__(self, params):
+        self.output_layer_selection = params["output_layer_selection"]
         self.scenario = params["scenario"]
         self.country = params["country"]
         self.distribution_grid_cost_ceiling = params["distribution_grid_cost_ceiling"]

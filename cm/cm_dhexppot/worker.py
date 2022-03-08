@@ -23,13 +23,15 @@ def DHexpPot(self, selection: dict, rasters: list, params: dict):
     If there are many rasters, we select the first one.
     """
     if params["Required map"] == "Heat density map":
-        hdm_layer = (
-            "43/2015"
-            "/SGVhdCBkZW5zaXR5IG1hcCAoZmluYWwgZW5lcmd5IGRlbWFuZCBmb"
-            "3IgaGVhdGluZyBhbmQgREhXKSBvZiBidWlsZGluZ3MgaW4gRVUyOCA"
-            "rIFN3aXR6ZXJsYW5kLCBOb3J3YXkgYW5kIEljZWxhbmQgZm9yIHRoZ"
-            "SB5ZWFyIDIwMTU=/heat_tot_curr_density_band1.tif"
-        )
+        hdm_layer = "43/heat_tot_curr_density_band1.tif"
+        # layer path for local test :
+        # hdm_layer = (
+        #     "43/2015"
+        #     "/SGVhdCBkZW5zaXR5IG1hcCAoZmluYWwgZW5lcmd5IGRlbWFuZCBmb"
+        #     "3IgaGVhdGluZyBhbmQgREhXKSBvZiBidWlsZGluZ3MgaW4gRVUyOCA"
+        #     "rIFN3aXR6ZXJsYW5kLCBOb3J3YXkgYW5kIEljZWxhbmQgZm9yIHRoZ"
+        #     "SB5ZWFyIDIwMTU=/heat_tot_curr_density_band1.tif"
+        # )
         rasters = [hdm_layer] + rasters
     if len(rasters) < 2:
         raise ValueError("CM needs two raster inputs.")
