@@ -140,6 +140,7 @@ def check_refyears(
     hdd_valid_refyears = cm_hddcdd.get_valid_years(hdd_path)
     if refyear not in hdd_valid_refyears:
         raise ValueError(
+            f"Reference years selected : {refyear} \n "
             f"For the selected scenario {rcp}, valid reference years for HDDs are:"
             f" {hdd_valid_refyears}"
         )
