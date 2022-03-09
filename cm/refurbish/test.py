@@ -407,6 +407,16 @@ class TestCM(unittest.TestCase):
         self.assertEqual(laus.index[0], 77189)
         self.assertEqual(laus.loc[:, "LAU_ID"].iloc[0], "023038")
 
+    def test__check_refyears(self):
+        # run without exceptions
+        rf.check_refyears(refyear=2021, rcp="historical", t_base_h=15.0, t_base_c=26.0)
+
+        with self.assertRaises(ValueError) as msg:
+            bsyear, beyear = rf.check_refyears(
+                refyear=3000, rcp="historical", t_base_h=15.0, t_base_c=26.0
+            )
+        self.assertIn("[2021]", str(msg.exception))
+
     def test__find_years_range(self):
         bsyear, beyear = rf.find_years_range(
             df=rf.get_building_stock(),
@@ -419,6 +429,46 @@ class TestCM(unittest.TestCase):
         )
         self.assertEqual(bsyear, 1945)
         self.assertEqual(beyear, 1969)
+
+        with self.assertRaises(ValueError) as msg:
+            bsyear, beyear = rf.find_years_range(
+                df=rf.get_building_stock(),
+                country_code="CH",
+                bstype="Appartment blocks",
+                start_year=1960,
+                end_year=1969,
+                start_col="start",
+                end_col="end",
+            )
+        self.assertIn("CH", str(msg.exception))
+
+        with self.assertRaises(ValueError) as msg:
+            bsyear, beyear = rf.find_years_range(
+                df=rf.get_tabula_Umean(),
+                country_code="CY",
+                bstype="Appartment blocks",
+                start_year=1960,
+                end_year=1969,
+                start_col="start",
+                end_col="end",
+                country_col="country",
+                bstype_col="bstype",
+            )
+        self.assertIn("CY", str(msg.exception))
+
+        bsyear, beyear = rf.find_years_range(
+            df=rf.get_tabula_Umean(),
+            country_code="SI",
+            bstype="Appartment blocks",
+            start_year=1960,
+            end_year=1969,
+            start_col="start",
+            end_col="end",
+            country_col="country",
+            bstype_col="bstype",
+        )
+        self.assertEqual(bsyear, 1946)
+        self.assertEqual(beyear, 1970)
 
     def test__hc_surface(self):
         heating_m2, cooling_m2 = rf.hc_sruface(

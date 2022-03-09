@@ -125,6 +125,39 @@ def get_tabula_Umean() -> pd.DataFrame:
     return tab
 
 
+def check_refyears(
+    refyear: int = 2050,
+    rcp: str = "4.5",
+    t_base_h: float = 18.0,
+    t_base_c: float = 22.0,
+):
+    hdd_path = cm_hddcdd.get_datadir(
+        datarepository=cm_hddcdd.get_datarepodir(),
+        sim_type=rcp,
+        dd_type="hdd",
+        Tb=t_base_h,
+    )
+    hdd_valid_refyears = cm_hddcdd.get_valid_years(hdd_path)
+    if refyear not in hdd_valid_refyears:
+        raise ValueError(
+            f"For the selected scenario {rcp}, valid reference years for HDDs are:"
+            f" {hdd_valid_refyears}"
+        )
+
+    cdd_path = cm_hddcdd.get_datadir(
+        datarepository=cm_hddcdd.get_datarepodir(),
+        sim_type=rcp,
+        dd_type="cdd",
+        Tb=t_base_c,
+    )
+    cdd_valid_refyears = cm_hddcdd.get_valid_years(cdd_path)
+    if refyear not in cdd_valid_refyears:
+        raise ValueError(
+            f"For the selected scenario {rcp}, valid reference years for CDDs are:"
+            f" {cdd_valid_refyears}"
+        )
+
+
 def get_laus(
     user_selection: geometry.Polygon, lau: gpd.GeoDataFrame, centroids: gpd.GeoDataFrame
 ):
@@ -164,12 +197,31 @@ def find_years_range(
     bstype_col: str = "btype",
 ) -> Tuple[int, int]:
     """Return a tuple with the start and end year of dataframe classes"""
-    sel = df.loc[
-        (
-            (df[country_col].str.lower() == country_code.lower())
-            & (df[bstype_col] == bstype)
+    country_codes = sorted(df[country_col].drop_duplicates().str.lower().values)
+    if country_code.lower() not in country_codes:
+        # IndexError: index 0 is out of bounds for axis 0 with size 0
+        # raise a more useful/interpretable message to the user
+        raise ValueError(
+            f"No data are available for this country ({country_code}). "  # nosec B608
+            "Please select another area from the following countries: "
+            f"{country_codes}."  # nosec B608
         )
-    ]
+    # select countries
+    selc = df.loc[(df[country_col].str.lower() == country_code.lower())]
+
+    bstypes = sorted(selc[bstype_col].drop_duplicates().str.lower().values)
+    if bstype.lower() not in bstypes:
+        # IndexError: index 0 is out of bounds for axis 0 with size 0
+        # raise a more useful/interpretable message to the user
+        raise ValueError(
+            f"No data are available for the selected country ("  # nosec B608
+            f"{country_code}) and building typology ({bstype})."  # nosec B608
+            " Please select another area from the following building "
+            f"typologies: {bstypes}."  # nosec B608
+        )
+    # apply bstype filter
+    sel = selc.loc[(selc[bstype_col] == bstype)]
+
     syears = (
         sel[start_col]
         .drop_duplicates()
@@ -186,8 +238,16 @@ def find_years_range(
         .sort_values()
         .reset_index(drop=True)
     )
-    start_valid = syears[syears.loc[syears > start_year].index[0] - 1]
-    end_valid = eyears[eyears.loc[eyears < end_year].index[-1] + 1]
+
+    if start_year > syears.loc[syears.index[-1]]:
+        start_valid = syears.loc[syears.index[-1]]
+    else:
+        start_valid = syears[syears.loc[syears > start_year].index[0] - 1]
+
+    if end_year < eyears.loc[eyears.index[0]]:
+        end_valid = eyears.loc[eyears.index[0]]
+    else:
+        end_valid = eyears[eyears.loc[eyears < end_year].index[-1] + 1]
     return start_valid, end_valid
 
 
@@ -453,7 +513,13 @@ def prepare_output(
 ) -> Dict[str, Any]:
     """Transform the CM results into the platform's payload"""
     ys = yrly_savings.copy()
-    yarr, ulabel, _ = unit.best_unit(ys["savings"], "Wh")
+    logging.debug(f"ys.savings :: {ys['savings']}")
+    if (ys["savings"] > 0).sum() == 0:
+        # all the values are 0
+        yarr, ulabel = ys["savings"], "Wh"
+    else:
+        # there are values in the arrays, scale to the best unit
+        yarr, ulabel, _ = unit.best_unit(ys["savings"], "Wh")
     ys["savings"] = yarr
     # prepare the CM output
     ret = dict()
@@ -509,8 +575,8 @@ def ref_rate(
     perc_advance: float,
     refyear: int = 2050,
     rcp: str = "4.5",
-    t_base_h: float = 18.0,
-    t_base_c: float = 22.0,
+    t_base_h: float = 15.0,
+    t_base_c: float = 24.0,
 ):
     """
     The `ref_rate` returns a set of graphs and KPI based on the refurbish
@@ -530,6 +596,8 @@ def ref_rate(
         raise ValueError(
             "The sum of percentage of basic and advance refurbish must be <= 100."
         )
+    # check reference year for HDDS
+    check_refyears(refyear=refyear, rcp=rcp, t_base_h=t_base_h, t_base_c=t_base_c)
     # start reading the data
     # transform dict to shapely geometry
     user_selection = geo
@@ -647,7 +715,7 @@ def ref_rate(
         warnings.append(
             (
                 "WARNING: "
-                "Some HDDs months are missing, please select another reference year",
+                "Some CDDs months are missing, please select another reference year",
                 0,
             )
         )
