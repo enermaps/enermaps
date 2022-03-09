@@ -46,8 +46,8 @@ def refurbish_rate(self, selection: dict, rasters: list, params: dict):
         perc_advance=params.get("percentage advance refurbish rate", 5.0),
         refyear=params.get("reference year", 2050),
         rcp=params.get("scenario RCP", "historical"),
-        t_base_h=params.get("base temperature for HDD", 18.0),
-        t_base_c=params.get("base temperature for CDD", 22.0),
+        t_base_h=params.get("base temperature for HDD", 15.0),
+        t_base_c=params.get("base temperature for CDD", 24.0),
     )
     return res
 
