@@ -66,11 +66,14 @@ RUN python3 download.py
 ## from: https://gitlab.inf.unibz.it/URS/enermaps/hdd-cdd/-/archive/main/hdd-cdd-main.tar.gz
 ## extract the files and copy the `data`folder in `cm/hdd_cdd/` and then
 ## uncomment the next command:
-# RUN mkdir -p /cm_inputs/hdd-cdd/hdd-cdd-main/ \
-#     && cp -R data /cm_inputs/hdd-cdd/hdd-cdd-main/ \
-#     && ls -l /cm_inputs/hdd-cdd/hdd-cdd-main/data/rcp45/cdd/26.0/monthly/average \
-#     && rm -R data
-
+# RUN mkdir -p /cm_inputs/hdd-cdd/hdd-cdd-main/data \
+#     && mkdir -p /cm_inputs/refurbish
+# COPY hdd_cdd/data /cm_inputs/hdd-cdd/hdd-cdd-main/data
+# COPY refurbish/data/building_stock.csv /cm_inputs/refurbish
+# COPY refurbish/data/LAU_RG_01M_2020_4326.geojson /cm_inputs/refurbish
+# COPY refurbish/data/tabula-umean.csv /cm_inputs/refurbish
+# RUN ls -l /cm_inputs/hdd-cdd/hdd-cdd-main/ \
+#     && ls -l /cm_inputs/refurbish
 
 ## -----------------------------
 ## Generate the schema.json file
