@@ -154,6 +154,7 @@ def check_refyears(
     cdd_valid_refyears = cm_hddcdd.get_valid_years(cdd_path)
     if refyear not in cdd_valid_refyears:
         raise ValueError(
+            f"Reference years selected : {refyear} \n "
             f"For the selected scenario {rcp}, valid reference years for CDDs are:"
             f" {cdd_valid_refyears}"
         )
