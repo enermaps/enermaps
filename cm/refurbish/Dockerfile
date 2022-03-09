@@ -51,7 +51,7 @@ COPY base /tmp/base
 # RUN echo "-----" && head -n 50 /tmp/base/BaseCM/cm_hddcdd.py && echo "-----"
 # RUN echo "-----" && head -n 50 /tmp/base/BaseCM/test_hddcdd.py && echo "-----"
 RUN echo "-----\nInstalling BaseCM" \
-    && cd /tmp/base && python3 setup.py install \
+    && cd /tmp/base && pip3 install . \
     && python3 test.py \
     && echo "-----\n"
 
