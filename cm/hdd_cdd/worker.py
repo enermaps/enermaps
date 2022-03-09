@@ -16,7 +16,7 @@ input_layers_path = cm_base.get_default_input_layers_path()
     schema_path=schema_path,
     input_layers_path=input_layers_path,
 )
-def hdd_cdd(self, selection: dict, rasters: list, params: dict):
+def heating_and_cooling_degree_days(self, selection: dict, rasters: list, params: dict):
     """This is a calculation module that compute the centroid
     of the selected region and query a set of rasters with the
     Heating and Cooling Degree Days computed from the CORDEX
