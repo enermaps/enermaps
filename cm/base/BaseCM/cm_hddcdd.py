@@ -5,6 +5,7 @@ import json
 import logging as log
 import os
 import tarfile
+from collections import Counter
 from collections import OrderedDict as odict
 from functools import lru_cache
 from pathlib import Path
@@ -219,6 +220,17 @@ def reproj(
     trans = pyproj.Transformer.from_crs(src_crs, dst_crs)
     cy, cx = trans.transform(src_x, src_y)
     return (cx, cy)
+
+
+@lru_cache()
+def get_valid_years(
+    gdir: Path,
+):
+    years = [
+        int(gfi.name.split("_")[0]) for gfi in gdir.iterdir() if gfi.match("*_*.tif")
+    ]
+    cyears = Counter(years)
+    return sorted([yr for yr, cnt in cyears.most_common() if cnt == 12])
 
 
 @lru_cache()
