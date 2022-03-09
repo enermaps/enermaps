@@ -8,6 +8,8 @@ from typing import Any, Dict
 
 from BaseCM import cm_hddcdd as hc
 
+import refurbish as rf
+
 
 def get_refurbish_schema(
     save: bool = False, schema_path: Path = None
@@ -29,6 +31,16 @@ def get_refurbish_schema(
         enum=yrs,
     )
     props["reference year"] = ref_yr
+
+    bstypes = sorted([bt for bt, tab in rf.BS2TABULA.items() if len(tab)])
+    btype = odict(
+        type="string",
+        title="building typology",
+        description="Building typology class",
+        default=bstypes[0],
+        enum=bstypes,
+    )
+    props["building typology"] = btype
 
     start_yr = odict(
         type="integer",
