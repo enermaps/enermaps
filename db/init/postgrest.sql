@@ -384,6 +384,7 @@ CREATE OR REPLACE FUNCTION enermaps_set_legend(parameters text, legend text)
     $$
     LANGUAGE plpgsql;
 -- Set rights
+GRANT USAGE ON SCHEMA public TO legend_editor;
 GRANT EXECUTE ON FUNCTION enermaps_set_legend(parameters text, legend text) to legend_editor;
 GRANT SELECT, UPDATE ON public.data TO legend_editor;
 GRANT SELECT, INSERT ON public.visualization TO legend_editor;

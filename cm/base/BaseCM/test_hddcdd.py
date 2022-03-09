@@ -108,7 +108,7 @@ class TestHddCddSharedFunctions(unittest.TestCase):
         pd.testing.assert_series_equal(
             sr,
             pd.Series(
-                name="yp=309,xp=283",
+                name="cx=4402936.389,cy=2495176.259",
                 index=[
                     "2021-01",
                     "2021-02",
@@ -143,7 +143,7 @@ class TestHddCddSharedFunctions(unittest.TestCase):
         pd.testing.assert_series_equal(
             sr_yr,
             pd.Series(
-                name="yp=309,xp=283",
+                name="cx=4402936.389,cy=2495176.259",
                 index=[
                     "2021-01",
                     "2021-02",
@@ -178,7 +178,7 @@ class TestHddCddSharedFunctions(unittest.TestCase):
         pd.testing.assert_series_equal(
             sr_yr,
             pd.Series(
-                name="yp=309,xp=283",
+                name="cx=4402936.389,cy=2495176.259",
                 index=["2021-01"],
                 data=[41],
                 dtype="uint8",

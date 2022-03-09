@@ -1,10 +1,12 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
+import atexit
 import json
 import logging as log
 import os
-import sys
 import tarfile
+from collections import Counter
+from collections import OrderedDict as odict
 from functools import lru_cache
 from pathlib import Path
 from typing import Any, Dict, List, Tuple
@@ -48,8 +50,12 @@ def get_base_temperature(ddtype: str) -> List[str]:
 
 
 def get_hddcdd_schema(save: bool = False, schema_path: Path = None) -> Dict[str, Any]:
+    schema = odict()
+    schema["$schema"] = "http://json-schema.org/draft-03/schema#"
+    schema["type"] = "object"
+
     scenarios = get_scenarios()
-    scens = dict(
+    scens = odict(
         type="string",
         title="Representative Concentration Pathway Scenarios",
         description=(
@@ -61,8 +67,9 @@ def get_hddcdd_schema(save: bool = False, schema_path: Path = None) -> Dict[str,
         default=scenarios[0],
         enum=scenarios,
     )
+
     htemps = get_base_temperature("hdd")
-    htemp = dict(
+    htemp = odict(
         type="number",
         title="Base temperature for HDD",
         description="",
@@ -71,8 +78,9 @@ def get_hddcdd_schema(save: bool = False, schema_path: Path = None) -> Dict[str,
         maximum=max(htemps),
         enum=htemps,
     )
+
     ctemps = get_base_temperature("cdd")
-    ctemp = dict(
+    ctemp = odict(
         type="number",
         title="Base temperature for CDD",
         description="",
@@ -81,13 +89,15 @@ def get_hddcdd_schema(save: bool = False, schema_path: Path = None) -> Dict[str,
         maximum=max(ctemps),
         enum=ctemps,
     )
-    props = {
-        # "reference year": refyr,
-        "scenario RCP": scens,
-        "base temperature for HDD": htemp,
-        "base temperature for CDD": ctemp,
-    }
-    schema = dict(type="object", properties=props)
+
+    schema["properties"] = odict(
+        [
+            # "reference year": refyr,
+            ("scenario RCP", scens),
+            ("base temperature for HDD", htemp),
+            ("base temperature for CDD", ctemp),
+        ]
+    )
 
     if save is True:
         if schema_path is None:
@@ -95,7 +105,7 @@ def get_hddcdd_schema(save: bool = False, schema_path: Path = None) -> Dict[str,
             schema_path = cmpath / "hdd_cdd" / "schema.json"
 
         with open(schema_path.as_posix(), mode="w") as schfile:
-            json.dump(schema, schfile, indent=2, sort_keys=True)
+            json.dump(schema, schfile, indent=2)
     return schema
 
 
@@ -132,8 +142,6 @@ def download_data():
         with tarfile.open(zpath) as zfile:
             zfile.extractall(rdir)
         os.remove(zpath)
-    print("done!")
-    sys.exit(0)
 
 
 def compute_centroid(geo) -> Tuple[float, float]:
@@ -215,6 +223,17 @@ def reproj(
 
 
 @lru_cache()
+def get_valid_years(
+    gdir: Path,
+):
+    years = [
+        int(gfi.name.split("_")[0]) for gfi in gdir.iterdir() if gfi.match("*_*.tif")
+    ]
+    cyears = Counter(years)
+    return sorted([yr for yr, cnt in cyears.most_common() if cnt == 12])
+
+
+@lru_cache()
 def extract_by_dir(
     gdir: Path,
     lon: float,
@@ -245,7 +264,6 @@ def extract_by_dir(
     cx, cy = reproj(src_x=lat, src_y=lon, src_crs="EPSG:4326", dst_crs="EPSG:3035")
     if not gdir.exists():
         res, idx = [], []
-        yp, xp = -1, -1
     else:
         for gfi in gdir.iterdir():
             if gfi.match(pattern):
@@ -255,18 +273,31 @@ def extract_by_dir(
                 except KeyError:
                     gx = rasterio.open(gfi)
                     __datasets[gfi.as_posix()] = gx
-                yp, xp = gx.index(cx, cy)
-                if yp < 0 or xp < 0:
+                    # properly close the rasterio once the service is shutdown
+                    atexit.register(lambda x: x.close(), gx)
+                # check that point is within the raster bounds
+                if (not gx.bounds.left <= cx <= gx.bounds.right) and (
+                    gx.bounds.bottom <= cy <= gx.bounds.top
+                ):
                     raise ValueError(
-                        f"Negative row|col index, row_index={yp}, col_index={xp}"
-                        f"@{lon:.{DECIMALS}f}({cx:.{DECIMALS}f}),{lat:.{DECIMALS}f}({cy:.{DECIMALS}f})"
+                        f"Point coordinates out of raster bounds {gx.bounds}"
+                        f"@{lon:.{DECIMALS}f}({cx:.{DECIMALS}f}),"
+                        f"{lat:.{DECIMALS}f}({cy:.{DECIMALS}f})"
                     )
-                val = gx.read()[0][yp, xp]
+                val = next(
+                    gx.sample(
+                        [
+                            (cx, cy),
+                        ]
+                    )
+                )[0]
                 logging.info(
-                    f"{gfi}@{lon:.{DECIMALS}f}({cx:.{DECIMALS}f}),{lat:.{DECIMALS}f}({cy:.{DECIMALS}f}):"
-                    f" {yp}, {xp} => {val}"
+                    f"{gfi}@{lon:.{DECIMALS}f}({cx:.{DECIMALS}f}),"
+                    f"{lat:.{DECIMALS}f}({cy:.{DECIMALS}f}): {val}"
                 )
                 res.append(val)
-    sr = pd.Series(np.array(res), index=idx, name=f"yp={yp},xp={xp}")
+    sr = pd.Series(
+        np.array(res), index=idx, name=f"cx={cx:.{DECIMALS}f},cy={cy:.{DECIMALS}f}"
+    )
     sr.sort_index(inplace=True)
     return sr
