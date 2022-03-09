@@ -18,10 +18,15 @@ def get_raster_path(raster_name):
     """Returns the path to the raster file based on the raster name."""
     if "RASTER_CACHE_DIR" in os.environ:
         raster_dir = os.environ["RASTER_CACHE_DIR"]
+        parts = raster_name.split("/")
+        for i in range(1, len(parts)):
+            raster_path = os.path.join(raster_dir, parts[0], "/".join(parts[-i:]))
+            if os.path.exists(raster_path):
+                break
     else:
         raster_dir = os.path.join(os.environ["WMS_CACHE_DIR"], "rasters")
+        raster_path = os.path.join(raster_dir, raster_name)
 
-    raster_path = os.path.join(raster_dir, raster_name)
     return raster_path
 
 
