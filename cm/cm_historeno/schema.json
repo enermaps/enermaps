@@ -1,0 +1,9 @@
+{
+  "type": "object",
+  "properties": {
+    "my_input": {
+      "type": "number",
+      "default": 1
+    }
+  }
+}
