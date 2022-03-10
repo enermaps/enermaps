@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
-from BaseCM import cm_base as cm_base
-
 import buildingload as cm
+from BaseCM import cm_base as cm_base
 
 # from BaseCM import cm_input as cm_input
 app = cm_base.get_default_app("buildingload")
@@ -32,6 +31,7 @@ def buildingload(self, selection: dict, rasters: list, params: dict):
 
     res = cm.buildingload(
         geojson=selection,
+        country_code=params.get("country"),
         gfa_external=params.get("gross floor area", 100.0),
         n_stories=params.get("number of stories", 1),
         building_type=params.get("building type"),

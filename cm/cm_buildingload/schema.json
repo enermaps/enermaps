@@ -2,6 +2,35 @@
   "$schema": "http://json-schema.org/draft-03/schema#",
   "type": "object",
   "properties": {
+    "country": {
+      "type": "string",
+      "title": "Country",
+      "description": "Country whose building typology will be used.",
+      "default": "IT",
+      "required": true,
+      "enum": [
+        "AT",
+        "BA",
+        "BE",
+        "BG",
+        "CY",
+        "CZ",
+        "DE",
+        "DK",
+        "ES",
+        "FR",
+        "GB",
+        "GR",
+        "HU",
+        "IE",
+        "IT",
+        "NL",
+        "NO",
+        "PL",
+        "RS",
+        "SE",
+        "SI"]
+    },
     "gross floor area": {
       "type": "number",
       "title": "Gross floor area - external structure",
@@ -104,13 +133,12 @@
     "model length": {
       "type": "string",
       "title": "Model length",
-      "description": "Model length for calculation (Note: Calculation times are very long for month (3-5 mins) and year (~10 mins))",
+      "description": "Model length for calculation (Note: Calculation times are long for month (3-5 mins)",
       "default": "Day",
       "required": false,
       "enum": ["Day",
         "Week",
-        "Month",
-        "Year"]
+        "Month"]
     },
     "roof type and orientation": {
       "type": "string",

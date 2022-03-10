@@ -4,6 +4,7 @@ import unittest
 from copy import deepcopy
 
 import buildingload
+import pandas as pd
 
 GEOJSON = {
     "type": "FeatureCollection",
@@ -45,19 +46,20 @@ class TestCM(unittest.TestCase):
         gj["features"][0].pop("geometry")
         with self.assertRaises(ValueError):
             buildingload.compute_centroid(gj)
-
-    # def test__countrycode(self):
-    #     gj = deepcopy(GEOJSON)
-    #     country_code = buildingload.countrycode(
-    #         # geojson=gj,
-    #         lat=46.49665,
-    #         lon=11.35548,
-    #     )
-
+    """
+    def test__countrycode(self):
+        gj = deepcopy(GEOJSON)
+        country_code = buildingload.countrycode(
+            # geojson=gj,
+            lat=46.49665,
+            lon=11.35548,
+        )
+    """
     def test__buildingload(self):
         gj = deepcopy(GEOJSON)
         res = buildingload.buildingload(
             geojson=gj,
+            country_code="IT",
             building_type="SFH",
             construction_year=2020,
             gfa_external=100.0,
