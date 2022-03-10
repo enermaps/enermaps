@@ -1,8 +1,6 @@
 #!/usr/bin/env python3
-# from pprint import pprint
 import buildingload as cm
 from BaseCM import cm_base as cm_base
-from BaseCM import cm_input as cm_input
 
 # from BaseCM import cm_input as cm_input
 app = cm_base.get_default_app("buildingload")
@@ -21,9 +19,7 @@ def buildingload(self, selection: dict, rasters: list, params: dict):
     If there is no raster, we raise a value error.
     If there are many rasters, we select the first one.
     """
-    # Validate the raster used
-    if not rasters:
-        raise ValueError("Raster list must be non-empty.")
+
     # Validate the selection used
     if "features" not in selection:
         raise ValueError("The selection must be a feature set.")
@@ -33,7 +29,6 @@ def buildingload(self, selection: dict, rasters: list, params: dict):
     self.validate_params(params)
 
     res = cm.buildingload(
-        #       task=self,
         geojson=selection,
         country_code=params.get("country"),
         gfa_external=params.get("gross floor area", 100.0),
