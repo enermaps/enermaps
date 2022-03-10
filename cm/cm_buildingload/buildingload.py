@@ -3,10 +3,8 @@
 @author: ewilczynski
 """
 import datetime
-# import rasterio
 import logging
 import math
-import time
 from pathlib import Path
 from typing import Dict, Tuple
 
@@ -638,7 +636,6 @@ def buildingload(
     theta_m_tp_list.append(theta_m_t)  # EJW mtp
     # RC simulation
     while current_timestamp <= end_date:
-        
         print(current_timestamp)
         # df.dmt[current_index] = current_timestamp.time().strftime('%H:%M:%S')
         df.dmt[current_index] = current_timestamp.time().strftime("%b %d %H:%M:%S")
@@ -1148,20 +1145,20 @@ def buildingload(
     # df_results.to_csv('Output/output'+'_'+time.strftime("%Y%m%d-%H%M%S")+'.csv')
     Qh_sum = sum([pair[1] for pair in Qh_results])
     Qc_sum = sum([pair[1] for pair in Qc_results])
-    #list_results = [(k, v) for k, v in results_lite.items()]
+    # list_results = [(k, v) for k, v in results_lite.items()]
 
     ret = dict()
-    #ret["graphs"] = [{"Space Heating Demand":{"type":"line","values":Qh_results}}]
-    #ret["graphs"] = [{"Space Cooling Demand":{"type":"line","values":Qc_results}}]
-    ret["values"] = [
-        {"Total space heating demand (kW)": Qh_sum},
-        {"Total space cooling demand (kW)": Qc_sum}
-    ]
+    # ret["graphs"] = [{"Space Heating Demand":{"type":"line","values":Qh_results}}]
+    # ret["graphs"] = [{"Space Cooling Demand":{"type":"line","values":Qc_results}}]
+    ret["values"] = {
+        "Total space heating demand (kW)": Qh_sum,
+        "Total space cooling demand (kW)": Qc_sum,
+    }
     ret["graphs"] = [
-        {"Space Heating Demand": {"type": "line", "values": Qh_results},
+        {
+            "Space Heating Demand": {"type": "line", "values": Qh_results},
         },
-        {"Space Heating Demand": {"type": "line", "values": Qh_results}
-            },
+        {"Space Heating Demand": {"type": "line", "values": Qh_results}},
     ]
     ret["geofiles"] = {}
 
