@@ -38,6 +38,16 @@
         "UK"
       ]
     },
+	"output_layer_selection": {
+      "type": "string",
+      "title": "Select output layer for visualisation",
+      "description": "Expected output layer for showing in the front-end.",
+      "default": "Specific network costs",
+      "enum": [
+        "Specific network costs",
+        "Potential district heating areas"
+      ]
+    },						   
     "scenario": {
       "title": "Add scenario name",
       "type": "string",
