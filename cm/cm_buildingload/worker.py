@@ -16,7 +16,8 @@ input_layers_path = cm_base.get_default_input_layers_path()
     input_layers_path=input_layers_path,
 )
 def buildingload(self, selection: dict, rasters: list, params: dict):
-    """This is a calculation module that simulates a building's space heating and cooling demand.
+    """This is a calculation module that simulates a building's
+    space heating and cooling demand.
     If there is no raster, we raise a value error.
     If there are many rasters, we select the first one.
     """

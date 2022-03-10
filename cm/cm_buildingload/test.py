@@ -1,9 +1,7 @@
 import json
-import os
+
 import unittest
 from copy import deepcopy
-
-import pandas as pd
 
 import buildingload
 
@@ -48,13 +46,13 @@ class TestCM(unittest.TestCase):
         with self.assertRaises(ValueError):
             buildingload.compute_centroid(gj)
 
-    def test__countrycode(self):
-        gj = deepcopy(GEOJSON)
-        country_code = buildingload.countrycode(
-            # geojson=gj,
-            lat=46.49665,
-            lon=11.35548,
-        )
+    # def test__countrycode(self):
+    #     gj = deepcopy(GEOJSON)
+    #     country_code = buildingload.countrycode(
+    #         # geojson=gj,
+    #         lat=46.49665,
+    #         lon=11.35548,
+    #     )
 
     def test__buildingload(self):
         gj = deepcopy(GEOJSON)

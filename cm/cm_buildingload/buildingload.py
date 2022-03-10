@@ -4,7 +4,6 @@
 """
 import datetime
 import logging
-import math
 from pathlib import Path
 from typing import Dict, Tuple
 
@@ -14,7 +13,7 @@ import pvlib
 import shapefile
 import xarray as xr
 from BaseCM.cm_output import validate
-from shapely.geometry import MultiPolygon, Point, Polygon
+from shapely.geometry import Point, Polygon
 
 DECIMALS = 3
 CURRENT_FILE_DIR = Path(__file__).parent
@@ -107,13 +106,13 @@ def countrycode(
         # country_name = country_list[index]
         country_code = countrycode_list[index]
 
-        if p1.within(poly) == True:
+        if p1.within(poly) is True:
             id_country = True
             break
         else:
             index += 1
 
-    if id_country == True:
+    if id_country is True:
         return country_code
     else:
         print("Location not in compatible location")
@@ -219,9 +218,11 @@ def buildingload(
         "F_sh_hor": df_tabula_row["F_sh_hor"],
         # Reduction factor external shading, vertical orientations
         "F_sh_vert": df_tabula_row["F_sh_vert"],
-        # Form factor for radiation between the element and the sky for unshaded horizontal roof
+        # Form factor for radiation between the element
+        # and the sky for unshaded horizontal roof
         "F_r_hor": 1.0,
-        # Form factor for radiation between the element and the sky for unshaded vertical roof
+        # Form factor for radiation between the element
+        # and the sky for unshaded vertical roof
         "F_r_vert": 0.5,
         # U value of wall 1
         "u_wall_1": df_tabula_row["U_Wall_1"],
@@ -261,9 +262,11 @@ def buildingload(
         "n_air_use": df_tabula_row["n_air_use"],
         # Dimensionless absorption coefficient for solar radiation of the opaque part
         "alpha_S_c": 0.6,
-        # Average difference between the external air temperature and the apparent sky temperature (degC)
+        # Average difference between the external air temperature
+        # and the apparent sky temperature (degC)
         "delta_theta_er": 11,
-        # Arithmetic average of the surface temperature and the sky temperature (degC)
+        # Arithmetic average of the surface temperature
+        # and the sky temperature (degC)
         "theta_ss": 11,
         # Stefan-Boltzmann constant (W/(m^2 * K^4))
         "SB_constant": 5.67 * (10 ** -8),
@@ -283,20 +286,22 @@ def buildingload(
         "u_wall_south": df_tabula_row["U_Wall_1"],
         "u_wall_west": df_tabula_row["U_Wall_1"],
     }
-    global a_window_north, a_window_south, a_window_west, a_window_east, a_door_1, a_roof_1, a_roof_2, a_wall_north, a_wall_south, a_wall_east, a_wall_west
+    global a_window_north, a_window_south, a_window_west, a_window_east, a_door_1
+    global a_roof_1, a_roof_2, a_wall_north, a_wall_south, a_wall_east, a_wall_west
 
     # User defined:
     # Interior gross floor area
-    # / Create logic to match with tabula structure due to use of other values (e.g., roof area)
+    # / Create logic to match with tabula structure
+    # due to use of other values (e.g., roof area)
     gfa_interior = gfa_external * pm["gfa_parameter"] * n_stories
 
     # Configure external elements
     # Orientation values
-    orientation_lib = ["north", "east", "south", "west"]
 
     # Calculate external wall area
     a_wall_ext = w_f_r * gfa_external * n_stories
-    # Calculate building external wall areas based on shape (NOTE: wall side_1 is left wall when facing facade)
+    # Calculate building external wall areas based
+    # on shape (NOTE: wall side_1 is left wall when facing facade)
     a_external_front = ((W / (L + W)) * a_wall_ext) / 2
     a_external_back = ((W / (L + W)) * a_wall_ext) / 2
     a_external_side_1 = ((L / (L + W)) * a_wall_ext) / 2
@@ -465,8 +470,10 @@ def buildingload(
     air_volume = pm["h_room"] * A_f
     # Temperature adjustment factor for the air flow element
     b_ve = 1
-    # Time fraction of operation of the air flow element (f_ve_t = 1 assumes element is always operating)
-    # E.g. If only operating from 8.00 to 18.00, then f_ve_t = 10 hours/24 hours = 0.417
+    # Time fraction of operation of the air flow element
+    # (f_ve_t = 1 assumes element is always operating)
+    # E.g. If only operating from 8.00 to 18.00,
+    # then f_ve_t = 10 hours/24 hours = 0.417
     f_ve_t = 1
     # Airflow rate of the air flow element (m3/s)
     q_ve = n_air_total / 3600 * air_volume
@@ -496,7 +503,8 @@ def buildingload(
     H_tr_ms = H_ms
     H_tr_em = H_em
 
-    # External radiative heat transfer coefficient for opaque and glazed surfaces (W/(m²K))
+    # External radiative heat transfer coefficient
+    # for opaque and glazed surfaces (W/(m²K))
     h_r_op = 4 * pm["epsilon_op"] * pm["SB_constant"] * ((pm["theta_ss"] + 273) ** 3)
     h_r_gl = 4 * pm["epsilon_gl"] * pm["SB_constant"] * ((pm["theta_ss"] + 273) ** 3)
 
@@ -620,7 +628,7 @@ def buildingload(
         "dmt",
     ]
     n_timesteps = int(time_length.total_seconds() / delta.total_seconds())
-    year = start_date.year
+    # year = start_date.year
     timestamp_list = [(start_date + x * delta) for x in range(0, n_timesteps + 1)]
     df = pd.DataFrame(columns=cols, index=timestamp_list)
     current_timestamp = start_date
@@ -630,8 +638,8 @@ def buildingload(
     # Initial theta_m_t value
     theta_m_t = 12
     # Initial theta_air
-    theta_air_ac = 12
-    theta_air = theta_air_ac
+    # theta_air_ac = 12
+    # theta_air = theta_air_ac
     theta_m_tp_list = []
     theta_m_tp_list.append(theta_m_t)  # EJW mtp
     # RC simulation
@@ -651,9 +659,9 @@ def buildingload(
         df.t_outside_t2m_degC[current_index] = t_outside_t2m - 273.15
         # Outside dew point temperature (K)
         df.t_outside_d2m[current_index] = df_weather.d2m[current_index]
-        t_outside_d2m = df.t_outside_d2m[current_index]
+        # t_outside_d2m = df.t_outside_d2m[current_index]
         # Outside dew point temperature (deg C)
-        t_outside_d2m_degC = t_outside_d2m - 273.15
+        # t_outside_d2m_degC = t_outside_d2m - 273.15
         # Relative humidity
         df.humidity[current_index] = df_weather.r[current_index]
         # Surface pressure
@@ -673,8 +681,8 @@ def buildingload(
         print("    Finished loading weather variables")
         print("Getting values from pvlib")
         # Convert lat/long to radians for pvlib
-        latitude_radians = math.radians(user_lat)
-        longitude_radians = math.radians(user_long)
+        # latitude_radians = math.radians(user_lat)
+        # longitude_radians = math.radians(user_long)
         # Solar position
         df.solar_position[current_index] = pvlib.solarposition.get_solarposition(
             current_timestamp,
@@ -686,7 +694,7 @@ def buildingload(
         solar_position = df.solar_position[current_index]
         # Solar altitude
         df.solar_altitude[current_index] = solar_position["apparent_elevation"]
-        solar_altitude = df.solar_altitude[current_index]
+        # solar_altitude = df.solar_altitude[current_index]
         # Solar azimuth
         df.solar_azimuth[current_index] = solar_position["azimuth"]
         solar_azimuth = df.solar_azimuth[current_index]
@@ -707,7 +715,8 @@ def buildingload(
 
         print("Calculating solar gains")
 
-        # Calculates values for the form factor for radiation between the unshaded roof and the sky
+        # Calculates values for the form factor for radiation
+        # between the unshaded roof and the sky
         F_r_roof = 1 - roof_pitch / 180
         # Solar radiation and gains results storage
         phi_sol_results = []
@@ -732,7 +741,9 @@ def buildingload(
             globals()[f"I_sol_{i}"] = float(I_sol_element["poa_global"].fillna(0))
             i_sol_results.append(float(globals()[f"I_sol_{i}"]))
 
-        global i_sol_window_north, i_sol_window_east, i_sol_window_west, i_sol_window_south, i_sol_door_1, i_sol_roof_1, i_sol_roof_2, i_sol_wall_north, i_sol_wall_south, i_sol_wall_east, i_sol_wall_west
+        global i_sol_window_north, i_sol_window_east, i_sol_window_west
+        global i_sol_window_south, i_sol_door_1, i_sol_roof_1, i_sol_roof_2
+        global i_sol_wall_north, i_sol_wall_south, i_sol_wall_east, i_sol_wall_west
         i_sol_window_north = float(i_sol_results[0])
         i_sol_window_east = float(i_sol_results[1])
         i_sol_window_south = float(i_sol_results[2])
@@ -746,7 +757,7 @@ def buildingload(
         i_sol_wall_west = float(i_sol_results[3])
 
         for i in element:
-            element_name_a = "a_" + i
+            # element_name_a = "a_" + i
             element_area = globals()[f"a_{i}"]
             g_gl = pm["F_w"] * pm["g_gl_n"]
             if (
@@ -755,8 +766,8 @@ def buildingload(
                 | (i == "window_south")
                 | (i == "window_west")
             ):
-                element_name_i_sol = "i_sol_" + i
-                i_sol_window = element_name_i_sol
+                # element_name_i_sol = "i_sol_" + i
+                # i_sol_window = element_name_i_sol
                 # Shading reduction factor for movable shading provisions
                 F_sh_gl = pm["F_sh_vert"]
                 element_u = pm["u_window_1"]
@@ -800,8 +811,8 @@ def buildingload(
                     globals()[f"phi_sol_{i}"] = 0
                 phi_sol_results.append(float(globals()[f"phi_sol_{i}"]))
             elif (i == "roof_1") | (i == "roof_2"):
-                element_name_i_sol = "i_sol_" + i
-                i_sol_roof = element_name_i_sol
+                # element_name_i_sol = "i_sol_" + i
+                # i_sol_roof = element_name_i_sol
                 element_name_u = "u_" + i
                 element_u = pm[element_name_u]
                 element_r = pm["R_S_e_op"]
@@ -859,8 +870,10 @@ def buildingload(
         # INTERNAL GAINS
         # From Table G.8
         # Check if weekday or weekend (Monday-Friday = 0-4, Saturday-Sunday = 5-6)
-        # Adjust heat flow rate from occupants and appliances in living room and kitchen (hf_Oc_A_LRK)
-        # Adjust heat flow rate from occupants and appliances in other rooms (e.g. bedrooms) (hf_Oc_A_Oth)
+        # Adjust heat flow rate from occupants and
+        # appliances in living room and kitchen (hf_Oc_A_LRK)
+        # Adjust heat flow rate from occupants and
+        # appliances in other rooms (e.g. bedrooms) (hf_Oc_A_Oth)
         df.day_of_week[current_index] = df.index[current_index].weekday()
         df.hour_of_day[current_index] = df.index[current_index].hour
         day_of_week = df.index[current_index].weekday()
@@ -902,7 +915,8 @@ def buildingload(
             hf_Oc_A_LRK = 2
             hf_Oc_A_Oth = 6
 
-        # Heat flow rate for metabolic heat from occupants and dissipated heat from appliances (W)
+        # Heat flow rate for metabolic heat from occupants
+        # and dissipated heat from appliances (W)
         phi_int_Oc_A = (hf_Oc_A_LRK + hf_Oc_A_Oth) * A_f
         # Heat flow rate from internal sources (W)
         df.phi_int[current_index] = float(phi_int_Oc_A)
@@ -956,7 +970,7 @@ def buildingload(
             H_tr_is * theta_s_0 + H_ve_adj * theta_sup + phi_ia + phi_HC_nd_0
         ) / (H_tr_is + H_ve_adj)
         theta_air_0 = float(df.theta_air_0[current_index])
-        theta_op_0 = 0.3 * theta_air_0 + 0.7 * theta_s_0
+        # theta_op_0 = 0.3 * theta_air_0 + 0.7 * theta_s_0
 
         if (float(theta_air_0) >= theta_int_H_set) & (
             float(theta_air_0) <= theta_int_C_set
@@ -971,8 +985,8 @@ def buildingload(
             Qc_tuple = (current_index, df.Q_C_nd[current_index])
             Qh_results.append(Qh_tuple)
             Qc_results.append(Qc_tuple)
-            Q_int = phi_int * 0.036
-            Q_sol = phi_sol * 0.036
+            # Q_int = phi_int * 0.036
+            # Q_sol = phi_sol * 0.036
             df.theta_m_t[current_index] = theta_m_t_0
             theta_m_t = theta_m_t_0
             theta_m_tp_list.clear()  # EJW mtp
@@ -1030,8 +1044,9 @@ def buildingload(
             H_tr_is * theta_s_10 + H_ve_adj * theta_sup + phi_ia + phi_HC_nd_10
         ) / (H_tr_is + H_ve_adj)
         theta_air_10 = float(df.theta_air_10[current_index])
-        theta_op_10 = 0.3 * theta_air_10 + 0.7 * theta_s_10
-        # Unrestricted heating/cooling, phi_HC_nd_un, is positive for heating and negative for cooling
+        # theta_op_10 = 0.3 * theta_air_10 + 0.7 * theta_s_10
+        # Unrestricted heating/cooling, phi_HC_nd_un,
+        # is positive for heating and negative for cooling
         phi_HC_nd_un = (phi_HC_nd_10 * (theta_air_set - theta_air_0)) / (
             theta_air_10 - theta_air_0
         )
@@ -1042,7 +1057,9 @@ def buildingload(
             phi_HC_nd_ac = float(phi_HC_nd_un)
             df.theta_air_ac[current_index] = theta_air_set
             df.theta_air[current_index] = df.theta_air_ac[current_index]
-            # The energy need (MJ) for heating or cooling for a given hour, Q_HC_nd, is positive in the case of heating need and negative in the case of cooling need
+            # The energy need (MJ) for heating or cooling for a given hour,
+            # Q_HC_nd, is positive in the case of heating need
+            # and negative in the case of cooling need
             df.Q_HC_nd[current_index] = phi_HC_nd_ac / 1000
             df.Q_H_nd[current_index] = max(0, float(df.Q_HC_nd[current_index]))
             df.Q_C_nd[current_index] = abs(min(0, float(df.Q_HC_nd[current_index])))
@@ -1050,8 +1067,8 @@ def buildingload(
             Qc_tuple = (current_index, df.Q_C_nd[current_index])
             Qh_results.append(Qh_tuple)
             Qc_results.append(Qc_tuple)
-            Q_int = phi_int * 0.036
-            Q_sol = phi_sol * 0.036
+            # Q_int = phi_int * 0.036
+            # Q_sol = phi_sol * 0.036
             df.theta_m_t[current_index] = theta_m_t_10
             theta_m_t = theta_m_t_10
             theta_m_tp_list.clear()  # EJW mtp
@@ -1110,10 +1127,12 @@ def buildingload(
         df.theta_air_ac[current_index] = (
             H_tr_is * theta_s + H_ve_adj * theta_sup + phi_ia + phi_HC_nd
         ) / (H_tr_is + H_ve_adj)
-        theta_air_ac = float(df.theta_air_ac[current_index])
+        # theta_air_ac = float(df.theta_air_ac[current_index])
         df.theta_air[current_index] = df.theta_air_ac[current_index]
-        theta_op = 0.3 * theta_air_ac + 0.7 * theta_s
-        # The energy need (kW) for heating or cooling for a given hour, Q_HC_nd, is positive in the case of heating need and negative in the case of cooling need
+        # theta_op = 0.3 * theta_air_ac + 0.7 * theta_s
+        # The energy need (kW) for heating or cooling for a given hour,
+        # Q_HC_nd, is positive in the case of heating need
+        # and negative in the case of cooling need
         df.Q_HC_nd[current_index] = phi_HC_nd_ac / 1000
         # Heating
         df.Q_H_nd[current_index] = max(0, float(df.Q_HC_nd[current_index]))
@@ -1126,8 +1145,8 @@ def buildingload(
         Qc_results.append(Qc_tuple)
         # Other (EJW: also add to unrestricted if statement)
         # Internal and solar heat gains (MJ)
-        Q_int = phi_int * 0.036
-        Q_sol = phi_sol * 0.036
+        # Q_int = phi_int * 0.036
+        # Q_sol = phi_sol * 0.036
 
         print("<<<End calculation for timestep, Case 2 or 4>>>")
 
@@ -1136,20 +1155,26 @@ def buildingload(
 
     print("LOADING RESULTS")
     # Results
-    # results = {'Date': df.index.strftime('%d/%m %H:%M:%S'), 'Hour of day':df.hour_of_day,'Day of week':df.day_of_week,'Outside temperature (DegC)':df.t_outside_t2m_degC,'Actual internal temperature (DegC)':df.theta_air,'Heating demand':df.Q_H_nd,'Cooling demand':df.Q_C_nd,'phi_int':df.phi_int,'phi_sol':df.phi_sol,'i_sol':df.i_sol,'theta_air_0':df.theta_air_0,'theta_air_10':df.theta_air_10,'theta_m_tp':df.theta_m_tp, 'theta_m_t':df.theta_m_t}
+    # results = {'Date': df.index.strftime('%d/%m %H:%M:%S'),
+    # 'Hour of day':df.hour_of_day,'Day of week':df.day_of_week,
+    # 'Outside temperature (DegC)':df.t_outside_t2m_degC,
+    # 'Actual internal temperature (DegC)':df.theta_air,
+    # 'Heating demand':df.Q_H_nd,'Cooling demand':df.Q_C_nd,
+    # 'phi_int':df.phi_int,'phi_sol':df.phi_sol,
+    # 'i_sol':df.i_sol,'theta_air_0':df.theta_air_0,
+    # 'theta_air_10':df.theta_air_10,'theta_m_tp':df.theta_m_tp,
+    # 'theta_m_t':df.theta_m_t}
     # df_results = pd.DataFrame(results)
     # df_results.to_csv('Output/output'+'_'+time.strftime("%Y%m%d-%H%M%S")+'.csv')
     # daymonthtime = df.index.time().strftime('%H:%M:%S')
-    results_lite = {"Date": df.dmt, "SH": df.Q_H_nd, "SC": df.Q_C_nd}
-    df_results = pd.DataFrame(results_lite)
+    # results_lite = {"Date": df.dmt, "SH": df.Q_H_nd, "SC": df.Q_C_nd}
+    # df_results = pd.DataFrame(results_lite)
     # df_results.to_csv('Output/output'+'_'+time.strftime("%Y%m%d-%H%M%S")+'.csv')
     Qh_sum = sum([pair[1] for pair in Qh_results])
     Qc_sum = sum([pair[1] for pair in Qc_results])
     # list_results = [(k, v) for k, v in results_lite.items()]
 
     ret = dict()
-    # ret["graphs"] = [{"Space Heating Demand":{"type":"line","values":Qh_results}}]
-    # ret["graphs"] = [{"Space Cooling Demand":{"type":"line","values":Qc_results}}]
     ret["values"] = {
         "Total space heating demand (kW)": Qh_sum,
         "Total space cooling demand (kW)": Qc_sum,
