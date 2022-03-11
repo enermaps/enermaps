@@ -64,6 +64,22 @@ def get_response(
         Output :
             * base_dictionary : updated dictionary.
         """
+        
+        if np.sum(
+                            result_dict["supplied_heat_over_investment_period [TWh]"]
+                        ) > 0:
+                        
+            ave_dh_grid_costs = np.round_(
+                        (
+                            np.sum(result_dict["gridCost [MEUR]"])
+                            / np.sum(
+                                result_dict["supplied_heat_over_investment_period [TWh]"]
+                            )
+                        ),
+                        2,
+                    )
+        else:
+            ave_dh_grid_costs = 0
 
         base_dictionary["values"] = {
             "Starting connection rate (%)": 100 * P.st_dh_connection_rate,
@@ -88,15 +104,7 @@ def get_response(
                 1,
             ),
             "Average DH grid cost in DH areas (EUR/MWh)": float(
-                np.round_(
-                    (
-                        np.sum(result_dict["gridCost [MEUR]"])
-                        / np.sum(
-                            result_dict["supplied_heat_over_investment_period [TWh]"]
-                        )
-                    ),
-                    2,
-                )
+                ave_dh_grid_costs
             ),
             "Total DH distribution grid length (km)": round(
                 float(np.sum(result_dict["trench_len_dist [km]"])), 1
@@ -209,6 +217,11 @@ def get_response(
     # response = get_graphs(response, areas_potential)
     response["graphs"] = []
     response = get_indicators(response, P, result_dict)
-    response = get_geofiles(response, raster_name)
-    response = get_legend(response, legend_dict[P.output_layer_selection])
+    if np.sum(result_dict["supplied_heat_over_investment_period [TWh]"]) > 0:
+        response = get_geofiles(response, raster_name)
+        response = get_legend(response, legend_dict[P.output_layer_selection])
+    else:
+        response["geofiles"] = dict()
+        #response["legend"] = dict()
+        
     return response
