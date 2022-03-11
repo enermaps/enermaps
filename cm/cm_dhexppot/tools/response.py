@@ -64,20 +64,16 @@ def get_response(
         Output :
             * base_dictionary : updated dictionary.
         """
-        
-        if np.sum(
-                            result_dict["supplied_heat_over_investment_period [TWh]"]
-                        ) > 0:
-                        
+
+        if np.sum(result_dict["supplied_heat_over_investment_period [TWh]"]) > 0:
+
             ave_dh_grid_costs = np.round_(
-                        (
-                            np.sum(result_dict["gridCost [MEUR]"])
-                            / np.sum(
-                                result_dict["supplied_heat_over_investment_period [TWh]"]
-                            )
-                        ),
-                        2,
-                    )
+                (
+                    np.sum(result_dict["gridCost [MEUR]"])
+                    / np.sum(result_dict["supplied_heat_over_investment_period [TWh]"])
+                ),
+                2,
+            )
         else:
             ave_dh_grid_costs = 0
 
@@ -103,9 +99,7 @@ def get_response(
                 ),
                 1,
             ),
-            "Average DH grid cost in DH areas (EUR/MWh)": float(
-                ave_dh_grid_costs
-            ),
+            "Average DH grid cost in DH areas (EUR/MWh)": float(ave_dh_grid_costs),
             "Total DH distribution grid length (km)": round(
                 float(np.sum(result_dict["trench_len_dist [km]"])), 1
             ),
@@ -222,6 +216,6 @@ def get_response(
         response = get_legend(response, legend_dict[P.output_layer_selection])
     else:
         response["geofiles"] = dict()
-        #response["legend"] = dict()
-        
+        # response["legend"] = dict()
+
     return response
