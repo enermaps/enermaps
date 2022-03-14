@@ -12,6 +12,7 @@ schema_path = cm_base.get_default_schema_path()
 input_layers_path = cm_base.get_default_input_layers_path()
 wiki = "https://enermaps-wiki.herokuapp.com/en/Refurbish.md"
 
+
 @app.task(
     base=cm_base.CMBase,
     bind=True,
