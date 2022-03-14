@@ -9,6 +9,7 @@ from calculation_module import res_calculation
 app = cm_base.get_default_app("DH_Economic_Assessment")
 schema_path = cm_base.get_default_schema_path()
 input_layers_path = cm_base.get_default_input_layers_path()
+wiki = "https://enermaps-wiki.herokuapp.com/en/sample.md"
 
 
 @app.task(
@@ -16,6 +17,7 @@ input_layers_path = cm_base.get_default_input_layers_path()
     bind=True,
     schema_path=schema_path,
     input_layers_path=input_layers_path,
+    wiki=wiki,
 )
 def DH_Economic_Assessment(self, selection: dict, rasters: list, params: dict):
     """This calculation module calculates the DH potentials.

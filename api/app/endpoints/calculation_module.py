@@ -38,6 +38,7 @@ class CMList(Resource):
             ret["parameters"] = cm.parameters
             ret["schema"] = cm.schema
             ret["input_layers"] = cm.input_layers
+            ret["wiki"] = cm.wiki
             return ret
 
         return [cm_as_dict(cm) for cm in cms.values()]

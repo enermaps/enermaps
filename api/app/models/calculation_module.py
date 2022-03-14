@@ -69,6 +69,7 @@ class CalculationModule:
         self.__doc__ = kwargs.get(
             "doc", "no documentation available for this calculation module"
         )
+        self.wiki = kwargs.get("wiki", "https://enermaps-wiki.herokuapp.com/en/Home")
 
     def call(self, *args, **kwargs):
         """Call the calculation module and return the created task id as a string.

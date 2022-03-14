@@ -8,6 +8,7 @@ from hddcdd import hdd_cdd_stats
 app = cm_base.get_default_app("hddcdd")
 schema_path = cm_base.get_default_schema_path()
 input_layers_path = cm_base.get_default_input_layers_path()
+wiki = "https://enermaps-wiki.herokuapp.com/en/HeatingCoolingScenarios.md"
 
 
 @app.task(
