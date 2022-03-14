@@ -1,6 +1,6 @@
 flask-restx==0.5.1
 lxml==4.6.5
-Pillow==9.0.0
+Pillow==9.0.1
 requests==2.25.1
 celery==5.2.2
 redis==3.5.3
