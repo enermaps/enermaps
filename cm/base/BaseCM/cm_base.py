@@ -111,6 +111,7 @@ class CMBase(Task):
         d["name"] = self.name
         d["queue"] = self.queue
         d["input_layers"] = self.input_layers
+        d["wiki"] = self.wiki
         return json.dumps(d)
 
     def post_raster(self, raster_name, raster_fd):

@@ -10,13 +10,14 @@ from refurbish import ref_rate
 app = cm_base.get_default_app("refurbish")
 schema_path = cm_base.get_default_schema_path()
 input_layers_path = cm_base.get_default_input_layers_path()
-
+wiki = "https://enermaps-wiki.herokuapp.com/en/Refurbish.md"
 
 @app.task(
     base=cm_base.CMBase,
     bind=True,
     schema_path=schema_path,
     input_layers_path=input_layers_path,
+    wiki=wiki,
 )
 def refurbish_rate(self, selection: dict, rasters: list, params: dict):
     """This is a calculation module compute the centroid

@@ -9,6 +9,7 @@ from heat_demand import processing
 app = cm_base.get_default_app("heat_demand")
 schema_path = cm_base.get_default_schema_path()
 input_layers_path = cm_base.get_default_input_layers_path()
+wiki = "https://enermaps-wiki.herokuapp.com/en/HeatDemand.md"
 
 
 @app.task(
@@ -16,6 +17,7 @@ input_layers_path = cm_base.get_default_input_layers_path()
     bind=True,
     schema_path=schema_path,
     input_layers_path=input_layers_path,
+    wiki=wiki,
 )
 def heat_demand(self, selection: dict, rasters: list, params: dict):
     if not rasters:
