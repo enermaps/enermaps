@@ -103,8 +103,11 @@ def get_areas():
 
 
 def get_geojson(
-    layer_name, ignore_intersecting=False, target_area=None, pretty_print=False,
-    row_limit=1000
+    layer_name,
+    ignore_intersecting=False,
+    target_area=None,
+    pretty_print=False,
+    row_limit=1000,
 ):
     """
     Fetch a geojson dataset layer from the enermaps server with a given id.
