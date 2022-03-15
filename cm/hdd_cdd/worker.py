@@ -5,7 +5,7 @@ from BaseCM import cm_base as cm_base
 
 from hddcdd import hdd_cdd_stats
 
-app = cm_base.get_default_app("hddcdd")
+app = cm_base.get_default_app("hdd_cdd")
 schema_path = cm_base.get_default_schema_path()
 input_layers_path = cm_base.get_default_input_layers_path()
 wiki = "https://enermaps-wiki.herokuapp.com/en/HeatingCoolingScenarios.md"
@@ -16,6 +16,7 @@ wiki = "https://enermaps-wiki.herokuapp.com/en/HeatingCoolingScenarios.md"
     bind=True,
     schema_path=schema_path,
     input_layers_path=input_layers_path,
+    wiki=wiki,
 )
 def heating_and_cooling_degree_days(self, selection: dict, rasters: list, params: dict):
     """This is a calculation module that compute the centroid
