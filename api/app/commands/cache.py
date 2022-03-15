@@ -31,8 +31,9 @@ def update_all_datasets():
 @click.option("-c", "--center", default=None)
 @click.option("-d", "--dimension", default=5.0)
 @click.option("-p", "--prettyprint", is_flag=True)
+@click.option("-l", "--rowlimit", default=1000)
 @with_appcontext
-def update_dataset(ds_id, all, center, dimension, prettyprint):
+def update_dataset(ds_id, all, center, dimension, prettyprint, rowlimit):
     datasets = client.get_dataset_list(disable_filtering=True)
     datasets = [x for x in datasets if x["ds_id"] == int(ds_id)]
 
@@ -63,6 +64,7 @@ def update_dataset(ds_id, all, center, dimension, prettyprint):
             ignore_intersecting=all,
             target_area=target_area,
             pretty_print=prettyprint,
+            row_limit=rowlimit,
         )
     else:
         current_app.logger.info("Dataset not found")
