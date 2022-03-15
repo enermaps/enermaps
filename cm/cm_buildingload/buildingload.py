@@ -173,7 +173,7 @@ def buildingload(
     humidity_join = df_humidity_loc["r"]
     df_weather = df_weather_loc.join(humidity_join)
 
-    #country_code = countrycode(lon=lon, lat=lat)
+    # country_code = countrycode(lon=lon, lat=lat)
 
     # Unrestricted heating power (W/m2)
     heating_power = 10
