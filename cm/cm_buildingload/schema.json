@@ -87,30 +87,6 @@
       "maximum": 30,
       "required": true
     },
-    "day": {
-      "type": "string",
-      "title": "Day",
-      "description": "Day of week for results (only relevant if model length is set to day)",
-      "default": "Monday",
-      "required": true,
-      "enum": ["Monday",
-        "Tuesday",
-        "Wednesday",
-        "Thursday",
-        "Friday",
-        "Saturday",
-        "Sunday"]
-    },
-    "week": {
-      "type": "string",
-      "title": "Week",
-      "description": "Week of month for results (only relevant if model length is set to day or week). Note: Week begins on the Monday of the selected week",
-      "default": "Week 1",
-      "required": true,
-      "enum": ["Week 1",
-        "Week 2",
-        "Week 3"]
-    },
     "month": {
       "type": "string",
       "title": "Month",
@@ -133,12 +109,11 @@
     "model length": {
       "type": "string",
       "title": "Model length",
-      "description": "Model length for calculation (Note: Calculation times are long for month (3-5 mins)",
-      "default": "Day",
+      "description": "Model length for calculation (Note: Calculation times are ~1min for month and ~12min for year)",
+      "default": "Month",
       "required": false,
-      "enum": ["Day",
-        "Week",
-        "Month"]
+      "enum": ["Month",
+        "Year"]
     },
     "roof type and orientation": {
       "type": "string",
