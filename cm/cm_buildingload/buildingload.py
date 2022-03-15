@@ -14,6 +14,7 @@ import shapefile
 import xarray as xr
 from BaseCM.cm_output import validate
 from shapely.geometry import Point, Polygon
+from dateutil.relativedelta import relativedelta
 
 DECIMALS = 3
 CURRENT_FILE_DIR = Path(__file__).parent
@@ -449,8 +450,6 @@ def buildingload(
     # Maximum heating and cooling power EJW OK?
     phi_H_max = float("inf")
     phi_C_max = -float("inf")
-    # phi_H_max = 100
-    # phi_C_max = -100
 
     # Conditioned floor area (m2)
     A_f = gfa_interior
@@ -510,7 +509,7 @@ def buildingload(
     h_r_gl = 4 * pm["epsilon_gl"] * pm["SB_constant"] * ((pm["theta_ss"] + 273) ** 3)
 
     # start_date = datetime.datetime(2017,1,1,0) #EJW change to 2017
-    # end_date = datetime.datetime(2017,1,31,23) #EJW change to 2017
+    #end_date = datetime.datetime(2017,1,31,23) #EJW change to 2017
 
     year_set = 2017
     month_lib = {
@@ -585,11 +584,13 @@ def buildingload(
     elif user_model_length == "Month":
         start_date = datetime.datetime(year_set, month_lib[user_month], 1, 0)
         end_date = (
-            start_date + datetime.timedelta(Month=1) - datetime.timedelta(hours=1)
+            start_date + relativedelta(months=1) - datetime.timedelta(hours=1)
         )
     else:
-        start_date = datetime.datetime(year_set, month_lib[user_month], 1, 0)
-        end_date = datetime.datetime(year_set, month_lib[user_month], 31, 23)
+        start_date = datetime.datetime(year_set, month_lib["January"], 1, 0)
+        end_date = datetime.datetime(year_set, month_lib["December"], 31, 23)
+
+    df_weather = df_weather.loc[start_date:end_date]
 
     delta = datetime.timedelta(hours=1)
     time_length = end_date - start_date
@@ -637,10 +638,10 @@ def buildingload(
     Qh_results = []
     Qc_results = []
     # Initial theta_m_t value
-    theta_m_t = 12
+    theta_m_t = 0
     # Initial theta_air
-    # theta_air_ac = 12
-    # theta_air = theta_air_ac
+    #theta_air_ac = 12
+    #theta_air = theta_air_ac
     theta_m_tp_list = []
     theta_m_tp_list.append(theta_m_t)  # EJW mtp
     # RC simulation
@@ -695,7 +696,7 @@ def buildingload(
         solar_position = df.solar_position[current_index]
         # Solar altitude
         df.solar_altitude[current_index] = solar_position["apparent_elevation"]
-        # solar_altitude = df.solar_altitude[current_index]
+        solar_altitude = df.solar_altitude[current_index]
         # Solar azimuth
         df.solar_azimuth[current_index] = solar_position["azimuth"]
         solar_azimuth = df.solar_azimuth[current_index]
@@ -812,7 +813,7 @@ def buildingload(
                     globals()[f"phi_sol_{i}"] = 0
                 phi_sol_results.append(float(globals()[f"phi_sol_{i}"]))
             elif (i == "roof_1") | (i == "roof_2"):
-                # element_name_i_sol = "i_sol_" + i
+                element_name_i_sol = "i_sol_" + i
                 # i_sol_roof = element_name_i_sol
                 element_name_u = "u_" + i
                 element_u = pm[element_name_u]
@@ -940,11 +941,6 @@ def buildingload(
         phi_HC_nd_0 = 0
         H_tr_2_0 = H_tr_1 + H_tr_w
         H_tr_3_0 = 1 / (1 / H_tr_2_0 + 1 / H_tr_ms)
-        if current_index == 0:
-            theta_m_tp_0 = 0
-            theta_m_t_0 = 0
-        else:
-            theta_m_tp_0 = theta_m_t
         phi_mtot_0 = (
             phi_m
             + H_tr_em * theta_sup
@@ -971,7 +967,6 @@ def buildingload(
             H_tr_is * theta_s_0 + H_ve_adj * theta_sup + phi_ia + phi_HC_nd_0
         ) / (H_tr_is + H_ve_adj)
         theta_air_0 = float(df.theta_air_0[current_index])
-        # theta_op_0 = 0.3 * theta_air_0 + 0.7 * theta_s_0
 
         if (float(theta_air_0) >= theta_int_H_set) & (
             float(theta_air_0) <= theta_int_C_set
@@ -986,39 +981,28 @@ def buildingload(
             Qc_tuple = (current_index, df.Q_C_nd[current_index])
             Qh_results.append(Qh_tuple)
             Qc_results.append(Qc_tuple)
-            # Q_int = phi_int * 0.036
-            # Q_sol = phi_sol * 0.036
             df.theta_m_t[current_index] = theta_m_t_0
             theta_m_t = theta_m_t_0
             theta_m_tp_list.clear()  # EJW mtp
             theta_m_tp_list.append(theta_m_t)  # EJW mtp
             current_timestamp += delta
             current_index += 1
-            print("mark1")
             print("<<<End calculation for timestep, Case 3>>>")
             continue
         else:
             pass
-            print("mark2")
 
         # STEP 2
         # ------
         if float(theta_air_0) > theta_int_C_set:
             theta_air_set = theta_int_C_set
-            print("mark3")
         elif float(theta_air_0) < theta_int_H_set:
             theta_air_set = theta_int_H_set
-            print("mark4")
 
         # Apply heating factor of 10 W/m2:
         phi_HC_nd_10 = A_f * heating_power
         H_tr_2_10 = H_tr_1 + H_tr_w
         H_tr_3_10 = 1 / (1 / H_tr_2_10 + 1 / H_tr_ms)
-        if current_index == 0:
-            theta_m_tp_10 = 0
-            theta_m_t_10 = 0
-        else:
-            theta_m_tp_10 = theta_m_t
         phi_mtot_10 = (
             phi_m
             + H_tr_em * theta_sup
@@ -1045,7 +1029,6 @@ def buildingload(
             H_tr_is * theta_s_10 + H_ve_adj * theta_sup + phi_ia + phi_HC_nd_10
         ) / (H_tr_is + H_ve_adj)
         theta_air_10 = float(df.theta_air_10[current_index])
-        # theta_op_10 = 0.3 * theta_air_10 + 0.7 * theta_s_10
         # Unrestricted heating/cooling, phi_HC_nd_un,
         # is positive for heating and negative for cooling
         phi_HC_nd_un = (phi_HC_nd_10 * (theta_air_set - theta_air_0)) / (
@@ -1068,37 +1051,26 @@ def buildingload(
             Qc_tuple = (current_index, df.Q_C_nd[current_index])
             Qh_results.append(Qh_tuple)
             Qc_results.append(Qc_tuple)
-            # Q_int = phi_int * 0.036
-            # Q_sol = phi_sol * 0.036
             df.theta_m_t[current_index] = theta_m_t_10
             theta_m_t = theta_m_t_10
             theta_m_tp_list.clear()  # EJW mtp
             theta_m_tp_list.append(theta_m_t)  # EJW mtp
             current_timestamp += delta
             current_index += 1
-            print("mark5")
             print("<<<End calculation for timestep, Case 1 or 5>>>")
             continue
 
         # STEP 4
         # ------
         else:
-            print("mark6")
             if float(phi_HC_nd_un) > 0:
                 phi_HC_nd_ac = phi_H_max
-                print("mark7")
             elif float(phi_HC_nd_un) < 0:
                 phi_HC_nd_ac = phi_C_max
-                print("mark8")
         # Other combined heat conductances
         H_tr_2 = H_tr_1 + H_tr_w
         H_tr_3 = 1 / (1 / H_tr_2 + 1 / H_tr_ms)
         # Set theta_m_tp as theta_m_t from previous step
-        if current_index == 0:
-            theta_m_tp = 0
-            theta_m_t = 0
-        else:
-            theta_m_tp = theta_m_t
         phi_HC_nd = phi_HC_nd_ac
         phi_mtot = (
             phi_m
@@ -1130,7 +1102,6 @@ def buildingload(
         ) / (H_tr_is + H_ve_adj)
         # theta_air_ac = float(df.theta_air_ac[current_index])
         df.theta_air[current_index] = df.theta_air_ac[current_index]
-        # theta_op = 0.3 * theta_air_ac + 0.7 * theta_s
         # The energy need (kW) for heating or cooling for a given hour,
         # Q_HC_nd, is positive in the case of heating need
         # and negative in the case of cooling need
@@ -1144,10 +1115,6 @@ def buildingload(
         Qc_tuple = (current_index, df.Q_C_nd[current_index])
         Qh_results.append(Qh_tuple)
         Qc_results.append(Qc_tuple)
-        # Other (EJW: also add to unrestricted if statement)
-        # Internal and solar heat gains (MJ)
-        # Q_int = phi_int * 0.036
-        # Q_sol = phi_sol * 0.036
 
         print("<<<End calculation for timestep, Case 2 or 4>>>")
 
@@ -1156,24 +1123,8 @@ def buildingload(
 
     print("LOADING RESULTS")
     # Results
-    # results = {'Date': df.index.strftime('%d/%m %H:%M:%S'),
-    # 'Hour of day':df.hour_of_day,'Day of week':df.day_of_week,
-    # 'Outside temperature (DegC)':df.t_outside_t2m_degC,
-    # 'Actual internal temperature (DegC)':df.theta_air,
-    # 'Heating demand':df.Q_H_nd,'Cooling demand':df.Q_C_nd,
-    # 'phi_int':df.phi_int,'phi_sol':df.phi_sol,
-    # 'i_sol':df.i_sol,'theta_air_0':df.theta_air_0,
-    # 'theta_air_10':df.theta_air_10,'theta_m_tp':df.theta_m_tp,
-    # 'theta_m_t':df.theta_m_t}
-    # df_results = pd.DataFrame(results)
-    # df_results.to_csv('Output/output'+'_'+time.strftime("%Y%m%d-%H%M%S")+'.csv')
-    # daymonthtime = df.index.time().strftime('%H:%M:%S')
-    # results_lite = {"Date": df.dmt, "SH": df.Q_H_nd, "SC": df.Q_C_nd}
-    # df_results = pd.DataFrame(results_lite)
-    # df_results.to_csv('Output/output'+'_'+time.strftime("%Y%m%d-%H%M%S")+'.csv')
     Qh_sum = sum([pair[1] for pair in Qh_results])
     Qc_sum = sum([pair[1] for pair in Qc_results])
-    # list_results = [(k, v) for k, v in results_lite.items()]
 
     ret = dict()
     ret["values"] = {
@@ -1182,40 +1133,11 @@ def buildingload(
     }
     ret["graphs"] = [
         {
-            "Space Heating Demand": {"type": "line", "values": Qh_results},
+            "Space Heating Demand (kW)": {"type": "line", "values": Qh_results},
         },
-        {"Space Heating Demand": {"type": "line", "values": Qh_results}},
+        {"Space Cooling Demand (kW)": {"type": "line", "values": Qc_results}},
     ]
     ret["geofiles"] = {}
 
     validate(ret)
     return ret
-
-
-"""
-test = buildingload(
-            geojson=gj,
-            building_type="SFH",
-            construction_year=2020,
-            gfa_external=100.0,
-            n_stories=1,
-            t_set_min=20.0,
-            t_set_max=26.0,
-            user_month="January",
-            user_week="Week 1",
-            user_day="Monday",
-            user_model_length="Day",
-            roof_type_orientation="0",
-            user_roof_pitch=30.0,
-            w_f_r=1.3,
-            L=1,
-            W=1,
-            facade_orientation="north",
-            a_door=2.0,
-            window_front_proportion=10.0,
-            window_back_proportion=25.0,
-            window_side_1_proportion=25.0,
-            window_side_2_proportion=25.0
-        )
-print(test)
-"""
