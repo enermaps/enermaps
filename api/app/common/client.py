@@ -103,7 +103,11 @@ def get_areas():
 
 
 def get_geojson(
-    layer_name, ignore_intersecting=False, target_area=None, pretty_print=False
+    layer_name,
+    ignore_intersecting=False,
+    target_area=None,
+    pretty_print=False,
+    row_limit=1000,
 ):
     """
     Fetch a geojson dataset layer from the enermaps server with a given id.
@@ -111,7 +115,7 @@ def get_geojson(
     parameters = _parameters_from_layer_name(
         layer_name, ignore_intersecting=ignore_intersecting, target_area=target_area
     )
-    return _get_geojson(parameters, pretty_print)
+    return _get_geojson(parameters, pretty_print, row_limit=row_limit)
 
 
 def get_raster_file(dataset_id, feature_id):
@@ -215,7 +219,7 @@ def get_rasters(
     return data
 
 
-def _get_geojson(parameters, pretty_print=False):
+def _get_geojson(parameters, pretty_print=False, row_limit=1000):
     """
     Fetch a geofile (geojson or raster) dataset layer from the enermaps server
     with a given Id.
@@ -224,7 +228,6 @@ def _get_geojson(parameters, pretty_print=False):
 
     headers = {"Authorization": "Bearer {}".format(DATASETS_SERVER_API_KEY)}
 
-    row_limit = 1000
     row_offset = 0
     all_data = None
 
