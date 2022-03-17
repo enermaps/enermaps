@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
-import buildingload as cm
 from BaseCM import cm_base as cm_base
+
+import buildingload as cm
 
 # from BaseCM import cm_input as cm_input
 app = cm_base.get_default_app("buildingload")

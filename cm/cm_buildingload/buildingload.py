@@ -13,8 +13,8 @@ import pvlib
 import shapefile
 import xarray as xr
 from BaseCM.cm_output import validate
-from shapely.geometry import Point, Polygon
 from dateutil.relativedelta import relativedelta
+from shapely.geometry import Point, Polygon
 
 DECIMALS = 3
 CURRENT_FILE_DIR = Path(__file__).parent
@@ -509,7 +509,7 @@ def buildingload(
     h_r_gl = 4 * pm["epsilon_gl"] * pm["SB_constant"] * ((pm["theta_ss"] + 273) ** 3)
 
     # start_date = datetime.datetime(2017,1,1,0) #EJW change to 2017
-    #end_date = datetime.datetime(2017,1,31,23) #EJW change to 2017
+    # end_date = datetime.datetime(2017,1,31,23) #EJW change to 2017
 
     year_set = 2017
     month_lib = {
@@ -583,9 +583,7 @@ def buildingload(
         end_date = start_date + datetime.timedelta(days=6, hours=23)
     elif user_model_length == "Month":
         start_date = datetime.datetime(year_set, month_lib[user_month], 1, 0)
-        end_date = (
-            start_date + relativedelta(months=1) - datetime.timedelta(hours=1)
-        )
+        end_date = start_date + relativedelta(months=1) - datetime.timedelta(hours=1)
     else:
         start_date = datetime.datetime(year_set, month_lib["January"], 1, 0)
         end_date = datetime.datetime(year_set, month_lib["December"], 31, 23)
@@ -640,8 +638,8 @@ def buildingload(
     # Initial theta_m_t value
     theta_m_t = 0
     # Initial theta_air
-    #theta_air_ac = 12
-    #theta_air = theta_air_ac
+    # theta_air_ac = 12
+    # theta_air = theta_air_ac
     theta_m_tp_list = []
     theta_m_tp_list.append(theta_m_t)  # EJW mtp
     # RC simulation
@@ -696,7 +694,7 @@ def buildingload(
         solar_position = df.solar_position[current_index]
         # Solar altitude
         df.solar_altitude[current_index] = solar_position["apparent_elevation"]
-        solar_altitude = df.solar_altitude[current_index]
+        # solar_altitude = df.solar_altitude[current_index] # not variable used
         # Solar azimuth
         df.solar_azimuth[current_index] = solar_position["azimuth"]
         solar_azimuth = df.solar_azimuth[current_index]
@@ -813,7 +811,7 @@ def buildingload(
                     globals()[f"phi_sol_{i}"] = 0
                 phi_sol_results.append(float(globals()[f"phi_sol_{i}"]))
             elif (i == "roof_1") | (i == "roof_2"):
-                element_name_i_sol = "i_sol_" + i
+                # element_name_i_sol = "i_sol_" + i # not used variable
                 # i_sol_roof = element_name_i_sol
                 element_name_u = "u_" + i
                 element_u = pm[element_name_u]
