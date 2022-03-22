@@ -6,6 +6,7 @@ from BaseCM.cm_output import validate
 app = cm_base.get_default_app("empty")
 schema_path = cm_base.get_default_schema_path()
 input_layers_path = cm_base.get_default_input_layers_path()
+wiki = "https://enermaps-wiki.herokuapp.com/en/Home"
 
 
 @app.task(
@@ -13,6 +14,7 @@ input_layers_path = cm_base.get_default_input_layers_path()
     bind=True,
     schema_path=schema_path,
     input_layers_path=input_layers_path,
+    wiki=wiki,
 )
 def cm_empty(self, selection: dict, rasters: list, params: dict):
     ret = dict()

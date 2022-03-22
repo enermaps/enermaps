@@ -250,6 +250,17 @@
     color: rgb(0,100,200);
   }
 
+  .cm_wiki {
+    font-style: italic;
+    color: rgb(69, 69, 101);
+    margin-top: 4px;
+  }
+
+  .cm_wiki a {
+    cursor: pointer;
+    color: rgb(0,100,200);
+  }
+
   h3 {
     margin: 0;
   }
@@ -329,6 +340,14 @@
         {/if}
       </div>
     {/if}
+
+    <div class="cm_wiki">
+      <i>
+        For more information about the CM,
+        see <a href="{cm.wiki}" target="_blank">the wiki page</a>.
+      </i>
+    </div>
+
     <div class="cm_params" bind:this={formElement} />
     <div class="tasks">
       {#each [...tasks].reverse() as task (task.id)}

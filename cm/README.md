@@ -77,9 +77,16 @@ from cm_script import process
 app = cm_base.get_default_app(name="queue_name")
 schema_path = cm_base.get_default_schema_path()
 input_layers_path = cm_base.get_default_input_layers_path()
+wiki = "https://enermaps-wiki.herokuapp.com/en/Home"
 
 
-@app.task(base=cm_base.CMBase, bind=True, schema_path=schema_path, input_layers_path=input_layers_path)
+@app.task(
+    base=cm_base.CMBase,
+    bind=True,
+    schema_path=schema_path,
+    input_layers_path=input_layers_path,
+    wiki=wiki,
+)
 def fun(self, selection: dict, rasters: list, params: dict):
     """New cm description"""
     # Validate the raster used
@@ -108,6 +115,15 @@ A broker manages the requests made to the calculation module.
 The requests made to a calculation module are placed in a queue and each calculation
 module has its own queue.
 This queue is identified by a name given by the `get_default_app` function.
+
+The `app.task` decorator takes in particular the following parameters:
+- _input_layers_path_ :
+This parameter is obtained through the function `cm_base.get_default_input_layers_path()`. 
+This function returns the information contained in the `input_layers.json` file located in the CM directory. 
+This file lists the layers on which the CM can be applied. For more information, see the `input_layers.json` section.
+  
+- _wiki_ : This parameter is the link to the CM wiki page.
+It will be used by the frontend to create a direct link to the wiki.
 
 The selected area (a geojson file) and the selected raster (a geotiff file)
 are in the variable ```selection``` and ```rasters``` respectively.

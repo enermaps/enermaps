@@ -10,6 +10,7 @@ ADMISSIBLE_TILE_SIZES = [500, 300]
 app = cm_base.get_default_app("heatlearn")
 schema_path = cm_base.get_default_schema_path()
 input_layers_path = cm_base.get_default_input_layers_path()
+wiki = "https://enermaps-wiki.herokuapp.com/en/HeatLearn.md"
 
 
 @app.task(
@@ -17,6 +18,7 @@ input_layers_path = cm_base.get_default_input_layers_path()
     bind=True,
     schema_path=schema_path,
     input_layers_path=input_layers_path,
+    wiki=wiki,
 )
 def heat_learn(self, selection: dict, rasters: list, params: dict):
     """This is a calculation module that applies the HeatLearn model.

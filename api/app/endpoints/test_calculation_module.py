@@ -25,6 +25,7 @@ class MockCM:
         self.called_with_args = []
         self.status = status
         self.result = result
+        self.wiki = "https://enermaps-wiki.herokuapp.com/en/Home"
 
     def call(self, *args):
         self.called_with_args = args
@@ -63,7 +64,7 @@ class CMListTest(BaseApiTest):
             self.assertEqual(len(cms), 1)
 
             cm = cms[0]
-            self.assertEqual(len(cm), 5)
+            self.assertEqual(len(cm), 6)
 
             self.assertEqual(cm["name"], ref.name)
             self.assertEqual(cm["pretty_name"], ref.pretty_name)
