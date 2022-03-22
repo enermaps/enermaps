@@ -19,7 +19,7 @@ THUMBSIZE = (640, 360)
 
 # Parameters for processing screenshots
 # Change here depending on your source files
-SCREENSHOT_SIZE = (3582, 1960)
+SCREENSHOT_SIZE = (3584, 2240)
 RESIZED = (658, 360)
 CROP_AREA = (0, 0, 640, 360)  # left, upper, right, lower
 
@@ -27,8 +27,9 @@ datasets = pd.read_csv("../data-integration/datasets.csv", index_col=0)
 
 for i, ds in datasets.iterrows():
     pid = ds["shared_id"]
+    ds_id = i
     dest = os.path.join("web", "images", pid + ".png")
-    source = os.path.join("screenshots", pid + ".png")
+    source = os.path.join("screenshots", str(ds_id) + ".png")
     if os.path.exists(source):
         img = Image.open(source)
         if img.size == SCREENSHOT_SIZE:
