@@ -1136,6 +1136,10 @@ def buildingload(
         {"Space Cooling Demand (kW)": {"type": "line", "values": Qc_results}},
     ]
     ret["geofiles"] = {}
+    ret["warnings"] = {
+        "Zonal limitation": "This CM works only for the Bolzano region. "
+        "This limitation will be corrected in the next version."
+    }
 
     validate(ret)
     return ret
