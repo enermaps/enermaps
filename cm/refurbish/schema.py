@@ -25,7 +25,7 @@ def get_refurbish_schema(
         type="integer",
         title="Reference year",
         description="",
-        default=2050,
+        default=2040,
         minimum=min(yrs),
         maximum=max(yrs),
         enum=yrs,
