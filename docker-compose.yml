@@ -55,50 +55,6 @@ services:
     env_file:
       .env
 
-  cm-heat-demand:
-    build:
-      context: ./cm
-      dockerfile: cm_heat_demand/Dockerfile
-    environment:
-      WMS_CACHE_DIR: /wms_cache
-    depends_on:
-      - redis
-    restart: always
-    volumes:
-      - wms_cache:/wms_cache:ro
-    env_file:
-      .env
-
-  cm-hdd_cdd:
-    build:
-      context: ./cm
-      dockerfile: hdd_cdd/Dockerfile
-    environment:
-      WMS_CACHE_DIR: /wms_cache
-      INPUT_DATA_DIR: /cm_inputs
-    depends_on:
-      - redis
-    restart: always
-    volumes:
-      - wms_cache:/wms_cache:ro
-      - cm_inputs:/cm_inputs:rw
-    env_file:
-      .env
-
-  cm-multiply:
-    build:
-      context: ./cm
-      dockerfile: example_multiply/Dockerfile
-    environment:
-      WMS_CACHE_DIR: /wms_cache
-    depends_on:
-      - redis
-    restart: always
-    volumes:
-      - wms_cache:/wms_cache:ro
-    env_file:
-      .env
-
   cm-empty:
     build:
       context: ./cm
@@ -117,6 +73,21 @@ services:
     build:
       context: ./
       dockerfile: ./cm/heatlearn/Dockerfile
+    environment:
+      WMS_CACHE_DIR: /wms_cache
+    depends_on:
+      - redis
+    restart: always
+    volumes:
+      - wms_cache:/wms_cache:ro
+    env_file:
+      - .env
+      - .env-db-server
+
+  cm-dhexppot:
+    build:
+      context: ./cm
+      dockerfile: ./cm_dhexppot/Dockerfile
     environment:
       WMS_CACHE_DIR: /wms_cache
     depends_on:
