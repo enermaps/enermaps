@@ -1,10 +1,8 @@
 import json
-
 import unittest
 from copy import deepcopy
 
 import buildingload
-import pandas as pd
 
 GEOJSON = {
     "type": "FeatureCollection",
