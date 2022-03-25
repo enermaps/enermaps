@@ -115,10 +115,10 @@ def get(url: str) -> pd.DataFrame:
     """
     dfs = []
     for country_code in COUNTRIES:
-        url = url.format(country_code)
+        url_formatted = url.format(country_code)
         logging.info("Downloading {}".format(country_code))
         try:
-            sheets = pd.read_excel(url, sheet_name=None)
+            sheets = pd.read_excel(url_formatted, sheet_name=None)
             for sheet_name in list(sheets.keys())[2:]:
                 sheet = sheets[sheet_name]
                 if sheet.shape[0] > 0:
