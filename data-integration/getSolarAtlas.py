@@ -4,10 +4,10 @@ Prepare the SolarAtlas dataset for EnerMaps.
 
 Note that the annual monthly files must be downloaded from the SolarAtlas website
 and extracted in the data/24 directory
-Download the file from here: https://globalsolaratlas.info/download/europe-and-central-asia
-Gis data - LTAym_YearlyMonthlyTotals (GeoTIFF)
+Download the file from here: https://globalsolaratlas.info/download/world
+PVOUT - LTAm_AvgDailyTotals (GeoTIFF)
 Data format: GEOTIFF
-File size : 3.44 GB
+File size : 3.6 GB
 The data/24 directory should contain only the "monthly" directory from the download files.
 The original monthly files will be then translated and tiled.
 
@@ -28,9 +28,10 @@ from shapely.geometry import box
 
 ISRASTER = True
 UNIT = "kWh/kWp"
-VARIABLE = "Longterm monthly average of potential photovoltaic electricity production"
+VARIABLE = "Longterm monthly average of daily totals of potential photovoltaic electricity production"
 SRS = "EPSG:3035"
 DT = 720
+AREA = "2426378.0132 1528101.2618 6293974.6215 5446513.5222"
 logging.basicConfig(level=logging.INFO)
 
 
@@ -66,8 +67,11 @@ def convertFiles(directory: str):
                 os.path.basename(source_file),
             )
             os.system(  # nosec
-                "gdalwarp {source_file} {dest_file} -of GTIFF -s_srs EPSG:4326 -t_srs {outputSRS}  --config GDAL_PAM_ENABLED NO -co COMPRESS=DEFLATE -co BIGTIFF=YES".format(
-                    source_file=source_file, dest_file=dest_file, outputSRS=SRS
+                "gdalwarp {source_file} {dest_file} -of GTIFF -s_srs EPSG:4326 -t_srs {outputSRS} -te {area} --config GDAL_PAM_ENABLED NO -co COMPRESS=DEFLATE -co BIGTIFF=YES".format(
+                    source_file=source_file,
+                    dest_file=dest_file,
+                    outputSRS=SRS,
+                    area=AREA,
                 )
             )
     else:
@@ -137,7 +141,12 @@ if __name__ == "__main__":
 
         if os.path.exists(directory) and os.path.isdir(directory):
             # Convert
-            convertFiles(os.path.join(directory, "monthly"))
+            convertFiles(
+                os.path.join(
+                    directory,
+                    "World_PVOUT_GISdata_LTAm_DailySum_GlobalSolarAtlas_GEOTIFF",
+                )
+            )
 
             # Retile
             tiling(directory)
