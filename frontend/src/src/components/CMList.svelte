@@ -14,6 +14,7 @@
 
   onMount(async () => {
     cms = await getCMs();
+    cms = cms.sort((a, b) => (a.name > b.name) ? 1 : -1);
   });
 
 
