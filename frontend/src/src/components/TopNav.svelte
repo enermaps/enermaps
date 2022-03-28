@@ -144,7 +144,7 @@
   </div>
 
   <a href="https://enermaps-wiki.herokuapp.com" target="_blank" class="link">Wiki</a>
-  <a href="https://beta.enermaps.openaire.eu/" target="_blank" class="link">OpenAIRE</a>
+  <a href="https://enermaps.openaire.eu" target="_blank" class="link">OpenAIRE</a>
   <a href="https://www.kialo.com/" target="_blank" class="link">Kialo</a>
   <button class="link" title="Copy the URL of the WMS server to the clipboard"
           on:click={copyWMSUrlToClipboard} on:mouseleave={hideCopyPopup}>WMS</button>
