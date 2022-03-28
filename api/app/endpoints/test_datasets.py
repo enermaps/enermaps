@@ -36,7 +36,7 @@ class DatasetsTest(BaseApiTest):
             self.assertIn("openaireLink", data)
             self.assertTrue(
                 data["openaireLink"].startswith(
-                    "https://beta.enermaps.openaire.eu/search/dataset?datasetId=enermaps____"
+                    "https://enermaps.openaire.eu/search/dataset?datasetId=enermaps____"
                 )
             )
 
@@ -101,7 +101,7 @@ class DatasetsFullTest(BaseApiTest):
             self.assertIn("openaireLink", data)
             self.assertTrue(
                 data["openaireLink"].startswith(
-                    "https://beta.enermaps.openaire.eu/search/dataset?datasetId=enermaps____"
+                    "https://enermaps.openaire.eu/search/dataset?datasetId=enermaps____"
                 )
             )
 
