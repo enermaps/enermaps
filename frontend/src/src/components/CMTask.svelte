@@ -219,8 +219,10 @@
   {:else}
     <div class="container">
       <div class="tabs">
-        <span class="tab" class:selected={activeTab === 'parameters'} on:click={() => (activeTab = 'parameters')}>Parameters</span>
-        <span class="tab" class:last={!legend} class:selected={activeTab === 'result'} on:click={() => (activeTab = 'result')}>Result</span>
+        <span class="tab" class:selected={activeTab === 'parameters'} on:click={() => (activeTab = 'parameters')}>Description</span>
+        <span class="tab" class:last={!legend} class:selected={activeTab === 'result'} on:click={() => (activeTab = 'result')}>Stargtégie</span>
+        <span class="tab" class:last={!legend} class:selected={activeTab === 'impact'} on:click={() => (activeTab = 'impact')}>Impact</span>
+
         {#if legend}
           <span class="tab last" class:selected={activeTab === 'legend'} on:click={() => (activeTab = 'legend')}>Legend</span>
         {/if}
