@@ -1,9 +1,10 @@
 The EnerMaps project has received funding from the European Union’s Horizon 2020 research and innovation program under grant agreement N°884161.
 
-EnerMaps is a rewrite of Hotmaps Horizon 2020 project.
+EnerMaps is a rewrite of the Hotmaps Horizon 2020 project.
 
 # Development
-First you need to have docker installed on your machine.
+First you need to have docker installed on your machine. 
+Please sign into Docker, otherwise the docker compose will not work.
 Clone this repository.
 
 Then run
@@ -29,7 +30,7 @@ You can then access:
 * the broker (redis) is available on host 127.0.0.1 and port 6379 with a redis client.
 * the broker can also be monitored trough http://127.0.0.1:5555, which is running flower, a monitoring interface for long running tasks.
 
-The initial database schema will be created building the DB service (available in the `docker-compose-db.yml`.)
+The initial database schema will be created building the DB service (available in the `docker-compose-db.yml`).
 
 For updating a service, you will need to run:
 
@@ -98,7 +99,7 @@ Poitiers), do:
 $ docker-compose exec api /bin/bash -c 'flask update-dataset --center="48.8,2.33" --dimension=5 35'
 ```
 
-To download all the dataset, use the `--all` option (with caution!):
+To download all the dataset, use the `--all` option (with caution, it will take up a lot of space on your disk and will use bandwith on our servers!):
 
 ```
 $ docker-compose exec api /bin/bash -c 'flask update-dataset --all 35'
@@ -150,16 +151,9 @@ You can test those action locally using https://github.com/nektos/act. After hav
 act pull_request
 ```
 
-## Symlink on window
-
-This repository was previously using symlinks to unify all the setup.cfg. On windows, this required sometimes administrative
-rights (see https://github.community/t/git-bash-symbolic-links-on-windows/522), thus we manually updated each setup.cfg to
-be the same. When updating one setup.cfg, you will need to be carefull to update all of them.
-
-
 # Linting
 
-We run a series of linters which are listed in linter-requirements.txt with their version.
+We run a series of linters, which are listed in linter-requirements.txt with their version.
 
 You can either run them manually, automatically each time you do a commit, or both.
 
