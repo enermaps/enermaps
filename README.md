@@ -25,12 +25,11 @@ You can then access:
 
 * the frontend on http://127.0.0.1:7000
 * the api on http://127.0.0.1:7000/api
-* the database is available on host 127.0.0.1 and port 5433 with the psql
-client (see ![](db/README.md))
+* the database is available on host 127.0.0.1 and port 5433. See [the documentation in the DB directory](db/README.md).
 * the broker (redis) is available on host 127.0.0.1 and port 6379 with a redis client.
 * the broker can also be monitored trough http://127.0.0.1:5555, which is running flower, a monitoring interface for long running tasks.
 
-The initial database schema will be created following the step in ![](db/README.md).
+The initial database schema will be created building the DB service (available in the `docker-compose-db.yml`.)
 
 For updating a service, you will need to run:
 

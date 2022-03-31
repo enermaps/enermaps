@@ -1,6 +1,6 @@
-# Database for the enermaps project
+# Database for the EnerMaps project
 
-We use postgresql with postgis. The initial empty database schema can be found in db/add_dataset_db.sql
+We use postgresql with PostGIS. The initial empty database schema can be found in `db/add_dataset_db.sql`.
 
 The sql schema will be loaded only if the `db-data` volume is not already present.
 As a reminder, you would need to execute a `docker-compose down --volumes` before running the app to load the schema and start from an empty db.
@@ -8,7 +8,7 @@ As a reminder, you would need to execute a `docker-compose down --volumes` befor
 You can have an interactive session connected to psql with:
 
 ```
-docker exec -it enermaps2_db_1 psql -h 127.0.0.1 -p 5432 -U dataset dataset
+docker exec -it enermaps_db_1 psql -h 127.0.0.1 -p 5432 -U test dataset
 ```
 
 ## Sample queries
