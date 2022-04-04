@@ -149,11 +149,10 @@ def add_openaire_links(datasets):
     for dataset in datasets:
         shared_id = dataset.get("shared_id")
         if not shared_id:
-            dataset["openaireLink"] = "https://beta.openaire.eu/"
+            dataset["openaireLink"] = "https://enermaps.openaire.eu/"
         else:
             shared_id_hash = hashlib.md5(shared_id.encode())  # nosec
-            dataset[
-                "openaireLink"
-            ] = "https://beta.enermaps.openaire.eu/search/dataset?datasetId=enermaps____::{}".format(
-                shared_id_hash.hexdigest()
+            dataset["openaireLink"] = (
+                "https://enermaps.openaire.eu/search/dataset?datasetId=enermaps____::{}"
+                .format(shared_id_hash.hexdigest())
             )
