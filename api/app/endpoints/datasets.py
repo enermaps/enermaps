@@ -152,8 +152,7 @@ def add_openaire_links(datasets):
             dataset["openaireLink"] = "https://enermaps.openaire.eu/"
         else:
             shared_id_hash = hashlib.md5(shared_id.encode())  # nosec
-            dataset[
-                "openaireLink"
-            ] = "https://enermaps.openaire.eu/search/dataset?datasetId=enermaps____::{}".format(
-                shared_id_hash.hexdigest()
+            dataset["openaireLink"] = (
+                "https://enermaps.openaire.eu/search/dataset?datasetId=enermaps____::{}"
+                .format(shared_id_hash.hexdigest())
             )
