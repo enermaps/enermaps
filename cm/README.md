@@ -299,7 +299,7 @@ The dependencies below will be available for all cm.
 marshmallow==3.9.1
 marshmallow-union==0.1.15.post1
 jsonschema==3.2.0
-celery==5.0.2
+celery==5.2.2
 redis==3.5.3
 requests
 ````
