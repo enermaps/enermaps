@@ -244,7 +244,7 @@
   #layers_list {
     width: 240px;
     padding: 4px;
-    border: 1px solid #27275b;
+    border: 1px solid #293790;
     border-radius: 0px;
     background-color: #eff4fa;
     box-sizing: border-box;
@@ -271,7 +271,7 @@
     max-height: max(calc((100vh - 250px) / 2 - 70px), 200px);
     border : none;
     overflow-y: scroll;
-    scrollbar-color: #27275b;
+    scrollbar-color: #293790;
     scrollbar-width: thin;
   }
 

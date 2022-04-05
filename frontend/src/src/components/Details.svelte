@@ -27,7 +27,7 @@
 <style>
   #details {
     padding: 4px;
-    border: 1px solid #27275b;
+    border: 1px solid #293790;
     border-radius: 0px;
     background-color: #eff4fa;
     box-sizing: border-box;
@@ -49,7 +49,7 @@
   .scroll {
     max-height: max(calc((100vh - 250px) / 3 - 50px), 200px);
     overflow-y: scroll;
-    scrollbar-color: #27275b;
+    scrollbar-color: #293790;
     scrollbar-width: thin;
     margin-top: 4px;
     padding-right: 10px;
