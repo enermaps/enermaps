@@ -4,14 +4,14 @@ from functools import lru_cache
 from pathlib import Path
 from typing import Any, Dict, List, Tuple
 
-import download
 import geopandas as gpd
 import pandas as pd
+from BaseCM import cm_hddcdd
+from BaseCM.cm_output import validate
 from resutils import unit
 from shapely import geometry
 
-from BaseCM import cm_hddcdd
-from BaseCM.cm_output import validate
+import download
 
 logging = log.getLogger("cm-refurbish")
 logging.setLevel(log.DEBUG)

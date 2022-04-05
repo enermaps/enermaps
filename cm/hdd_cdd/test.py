@@ -5,9 +5,9 @@ import unittest
 from copy import deepcopy
 
 import geopandas as gpd
-import hddcdd as hc
-
 from BaseCM.cm_hddcdd import TESTDATA_DIR
+
+import hddcdd as hc
 
 GEOJSON = {
     "features": [
