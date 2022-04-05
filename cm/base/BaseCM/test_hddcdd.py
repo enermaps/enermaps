@@ -94,6 +94,49 @@ class TestHddCddSharedFunctions(unittest.TestCase):
             "myrepo/historical/hdd/18.0/monthly/average",
         )
 
+    def test__check_valid_path(self):
+        valid_path = (
+            hc.TESTDATA_DIR / "historical" / "hdd" / "15.0" / "monthly" / "average"
+        )
+        hc.check_valid_path(valid_path, "historical", "hdd", "15.0")
+
+        # check not valid temperature
+        no_temp_path = (
+            hc.TESTDATA_DIR / "historical" / "hdd" / "18.0" / "monthly" / "average"
+        )
+        with self.assertRaises(hc.BaseTemperatureError) as exc:
+            hc.check_valid_path(no_temp_path, "historical", "hdd", "18.0")
+        self.assertIn("Valid base temperature", str(exc.exception))
+        self.assertIn("['15.0']", str(exc.exception))
+
+        # check not dd_type
+        no_dd_path = (
+            hc.TESTDATA_DIR / "historical" / "Xdd" / "15.0" / "monthly" / "average"
+        )
+        with self.assertRaises(hc.DDTypeError) as exc:
+            hc.check_valid_path(no_dd_path, "historical", "Xdd", "15.0")
+        self.assertIn("Xdd", str(exc.exception))
+        self.assertIn("is not available at the moment", str(exc.exception))
+
+        # check not sym_type
+        no_sim_path = hc.TESTDATA_DIR / "wrong" / "hdd" / "15.0" / "monthly" / "average"
+        with self.assertRaises(hc.SimulationTypeError) as exc:
+            hc.check_valid_path(no_sim_path, "wrong", "hdd", "15.0")
+        self.assertIn("['historical']", str(exc.exception))
+
+        # check wrong repository
+        no_repo = (
+            hc.TESTDATA_DIR.parent
+            / "wrong_repo"
+            / "historical"
+            / "hdd"
+            / "15.0"
+            / "monthly"
+            / "average"
+        )
+        with self.assertRaises(ValueError) as exc:
+            hc.check_valid_path(no_repo, "wrong", "hdd", "15.0")
+
     def test__extract_by_dir(self):
         sr = hc.extract_by_dir(
             gdir=hc.TESTDATA_DIR

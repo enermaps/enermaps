@@ -207,6 +207,49 @@ def get_datadir(
     )
 
 
+class BaseTemperatureError(Exception):
+    pass
+
+
+class DDTypeError(Exception):
+    pass
+
+
+class SimulationTypeError(Exception):
+    pass
+
+
+def check_valid_path(path, sim_type, dd_type, Tb):
+    # check if path exists or raise an exception
+    if not path.exists():
+        msg = (
+            f"The selected set of simulation type ({sim_type}), "
+            f"degree days ({dd_type}) and base temperature ({Tb}). "
+        )
+        ddpath = path.parent.parent.parent
+        if ddpath.exists():
+            raise BaseTemperatureError(
+                msg + "Valid base temperature for this simulation type are:"
+                f"{[p.name for p in ddpath.iterdir()]}"
+            )
+        else:
+            simpath = ddpath.parent
+            if simpath.exists():
+                raise DDTypeError(
+                    msg
+                    + f"Degree Days type ({dd_type}) is not available at the moment."
+                )
+            else:
+                datarep = simpath.parent
+                if datarep.exists():
+                    raise SimulationTypeError(
+                        msg + f"Simulation type ({simpath.name}) is not available, use:"
+                        f"{[s.name for s in datarep.iterdir()]}"
+                    )
+                else:
+                    raise ValueError()
+
+
 def reproj(
     src_x: float, src_y: float, src_crs: str = "EPSG:4326", dst_crs: str = "EPSG:3035"
 ) -> Tuple[float, float]:

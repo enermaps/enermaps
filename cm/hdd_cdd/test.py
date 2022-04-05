@@ -5,9 +5,9 @@ import unittest
 from copy import deepcopy
 
 import geopandas as gpd
-from BaseCM.cm_hddcdd import TESTDATA_DIR
-
 import hddcdd as hc
+
+from BaseCM.cm_hddcdd import TESTDATA_DIR
 
 GEOJSON = {
     "features": [
@@ -45,6 +45,7 @@ GEOJSON = {
 
 class TestCM(unittest.TestCase):
     def test__hdd_cdd_stats(self):
+        self.maxDiff = None
         gj = deepcopy(GEOJSON)
         geo = gpd.GeoDataFrame.from_features(gj["features"], crs="EPSG:4326").geometry
         res = hc.hdd_cdd_stats(
@@ -130,6 +131,16 @@ class TestCM(unittest.TestCase):
             "geofiles": {},
             "graphs": [],
             "values": {
+                (
+                    "WARNING: The selected set of simulation type (historical), "
+                    "degree days (cdd) and base temperature (40.0). "
+                    "Valid base temperature for this simulation type are:['26.0']"
+                ): 0,
+                (
+                    "WARNING: The selected set of simulation type (historical), "
+                    "degree days (hdd) and base temperature (4.0). "
+                    "Valid base temperature for this simulation type are:['15.0']"
+                ): 0,
                 "Yearly CDDs: Dataset not available": 0,
                 "Yearly HDDs: Dataset not available": 0,
             },
@@ -168,6 +179,11 @@ class TestCM(unittest.TestCase):
             ],
             "geofiles": {},
             "values": {
+                (
+                    "WARNING: The selected set of simulation type (historical), "
+                    "degree days (hdd) and base temperature (4.0). "
+                    "Valid base temperature for this simulation type are:['15.0']"
+                ): 0,
                 "Yearly HDDs: Dataset not available": 0,
                 "Yearly CDDs count": "1.0",
                 "Yearly CDDs mean": "30.0",

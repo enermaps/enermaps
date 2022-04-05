@@ -31,7 +31,7 @@ def hdd_cdd_stats(
     * HDDs yearly statistics​;
     * CDDs yearly statistics;
     """
-
+    warnings = []
     msg = (
         f"    » ref. year: {refyear},"
         f" crp: {rcp}, Tbh: {t_base_h:.1f}, Tbc: {t_base_c:.1f}"
@@ -47,6 +47,12 @@ def hdd_cdd_stats(
         dd_type="hdd",
         Tb=t_base_h,
     )
+    # check if path exists or raise an exception
+    try:
+        cm_hddcdd.check_valid_path(hdd_path, sim_type=rcp, dd_type="hdd", Tb=t_base_h)
+    except Exception as exc:
+        warnings.append((f"WARNING: {exc}", 0))
+
     # extract, cast to int from uint8 and transform * 10
     avg_hdds = cm_hddcdd.extract_by_dir(gdir=hdd_path, lon=lon, lat=lat)
     hdds = avg_hdds.astype(int) * 10
@@ -57,6 +63,12 @@ def hdd_cdd_stats(
         dd_type="cdd",
         Tb=t_base_c,
     )
+    # check if path exists or raise an exception
+    try:
+        cm_hddcdd.check_valid_path(cdd_path, sim_type=rcp, dd_type="cdd", Tb=t_base_c)
+    except Exception as exc:
+        warnings.append((f"WARNING: {exc}", 0))
+
     # extract, cast to int from uint8 and transform * 10
     avg_cdds = cm_hddcdd.extract_by_dir(gdir=cdd_path, lon=lon, lat=lat)
     cdds = avg_cdds.astype(int) * 10
@@ -117,6 +129,7 @@ def hdd_cdd_stats(
     ret["geofiles"] = {}
 
     ret["values"] = {key: value for key, value in values}
+    ret["values"].update({k: v for k, v in warnings})
 
     validate(ret)
     logging.info(f"Result is:\n{ret}")

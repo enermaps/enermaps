@@ -4,14 +4,14 @@ from functools import lru_cache
 from pathlib import Path
 from typing import Any, Dict, List, Tuple
 
+import download
 import geopandas as gpd
 import pandas as pd
-from BaseCM import cm_hddcdd
-from BaseCM.cm_output import validate
 from resutils import unit
 from shapely import geometry
 
-import download
+from BaseCM import cm_hddcdd
+from BaseCM.cm_output import validate
 
 logging = log.getLogger("cm-refurbish")
 logging.setLevel(log.DEBUG)
@@ -137,6 +137,9 @@ def check_refyears(
         dd_type="hdd",
         Tb=t_base_h,
     )
+    # check if path exists or raise an exception
+    cm_hddcdd.check_valid_path(hdd_path, sim_type=rcp, dd_type="hdd", Tb=t_base_h)
+
     hdd_valid_refyears = cm_hddcdd.get_valid_years(hdd_path)
     if refyear not in hdd_valid_refyears:
         raise ValueError(
@@ -151,6 +154,9 @@ def check_refyears(
         dd_type="cdd",
         Tb=t_base_c,
     )
+    # check if path exists or raise an exception
+    cm_hddcdd.check_valid_path(cdd_path, sim_type=rcp, dd_type="cdd", Tb=t_base_c)
+
     cdd_valid_refyears = cm_hddcdd.get_valid_years(cdd_path)
     if refyear not in cdd_valid_refyears:
         raise ValueError(
