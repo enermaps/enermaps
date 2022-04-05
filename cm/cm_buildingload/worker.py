@@ -7,6 +7,7 @@ import buildingload as cm
 app = cm_base.get_default_app("buildingload")
 schema_path = cm_base.get_default_schema_path()
 input_layers_path = cm_base.get_default_input_layers_path()
+wiki = "https://enermaps-wiki.herokuapp.com/en/Home"  # TODO : To be updated
 
 
 @app.task(
@@ -14,8 +15,9 @@ input_layers_path = cm_base.get_default_input_layers_path()
     bind=True,
     schema_path=schema_path,
     input_layers_path=input_layers_path,
+    wiki=wiki,
 )
-def buildingload(self, selection: dict, rasters: list, params: dict):
+def building_load(self, selection: dict, rasters: list, params: dict):
     """This is a calculation module that simulates a building's
     space heating and cooling demand.
     If there is no raster, we raise a value error.
