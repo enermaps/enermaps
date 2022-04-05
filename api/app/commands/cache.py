@@ -64,7 +64,7 @@ def update_dataset(ds_id, all, center, dimension, prettyprint, rowlimit):
             ignore_intersecting=all,
             target_area=target_area,
             pretty_print=prettyprint,
-            row_limit=rowlimit,
+            # row_limit=rowlimit,
         )
     else:
         current_app.logger.info("Dataset not found")
