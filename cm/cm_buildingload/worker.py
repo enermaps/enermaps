@@ -7,7 +7,7 @@ import buildingload as cm
 app = cm_base.get_default_app("buildingload")
 schema_path = cm_base.get_default_schema_path()
 input_layers_path = cm_base.get_default_input_layers_path()
-wiki = "https://enermaps-wiki.herokuapp.com/en/Home"  # TODO : To be updated
+wiki = "https://enermaps-wiki.herokuapp.com/en/CM%20Building%20Heat%20Load.md"
 
 
 @app.task(
