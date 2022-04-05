@@ -71,7 +71,7 @@
 
 <style>
   #topnav {
-    background-color: #27275b;
+    background-color: #293790;
     overflow: visible;
     padding: 8px 20px;
     display: inline-block;
@@ -140,12 +140,12 @@
 <div id="topnav">
   <div class="top">
     <div id='logo'> <img src='images/logo.png' alt='EnerMaps'> </div>
-    <div id='title'>EnerMaps</div>
+    <div id='title'>Historeno</div>
   </div>
 
-  <a href="https://enermaps-wiki.herokuapp.com" target="_blank" class="link">Wiki</a>
-  <a href="https://enermaps.openaire.eu" target="_blank" class="link">OpenAIRE</a>
-  <a href="https://www.kialo.com/" target="_blank" class="link">Kialo</a>
+  <!--<a href="https://enermaps-wiki.herokuapp.com" target="_blank" class="link">Wiki</a>-->
+  <!--<a href="https://beta.enermaps.openaire.eu/" target="_blank" class="link">OpenAIRE</a>-->
+  <!--<a href="https://www.kialo.com/" target="_blank" class="link">Kialo</a>-->
   <button class="link" title="Copy the URL of the WMS server to the clipboard"
           on:click={copyWMSUrlToClipboard} on:mouseleave={hideCopyPopup}>WMS</button>
   <button id="btn_about" class="link">About</button>
