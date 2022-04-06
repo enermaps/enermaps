@@ -6,6 +6,7 @@ from BaseCM.cm_output import validate
 app = cm_base.get_default_app("historeno")
 schema_path = cm_base.get_default_schema_path()
 input_layers_path = cm_base.get_default_input_layers_path()
+wiki = "http://historeno.wppreviews.com/"
 
 
 @app.task(
@@ -13,8 +14,9 @@ input_layers_path = cm_base.get_default_input_layers_path()
     bind=True,
     schema_path=schema_path,
     input_layers_path=input_layers_path,
+    wiki=wiki,
 )
-def module_de_calcul(self, selection: dict, rasters: list, params: dict):
+def module_de_calcul_historeno(self, selection: dict, rasters: list, params: dict):
     ret = dict()
     ret["graphs"] = [
         {
