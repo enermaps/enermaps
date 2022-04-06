@@ -46,8 +46,8 @@
     position: relative;
     top: -10px;
     padding: 5px;
-    border-radius: 0px;
-    border: 1px solid #293790;
+    border-radius: 5px;
+    border: 3px solid #66ecba;
     background-color: #eff4fa;
     width: 30vw;
     min-width: 280px;
@@ -112,16 +112,15 @@
      on:click|stopPropagation on:dblclick|stopPropagation on:wheel|stopPropagation>
 
   <div id="calculation_modules_content">
-    <div id="cm_list_header">
+    <div id="tabs">
       <div id="close_button_cm_list" on:click={closeCMPanel}><img src='{BASE_URL}images/clear-icon.png' alt='close'></div>
-      <div id="header"><h2>Calculation Modules</h2></div>
-
+                <div id="tab"><h2>Consultation</h2></div>
       {#if !areaSelected}
-        <div class="warning">No area selected</div>
+        <div class="warning">Selectioner batiment</div>
       {/if}
 
       {#if !layerSelected}
-        <div class="warning">No layer selected</div>
+        <div class="warning">Selectioner données</div>
       {/if}
 
       <AreaSelection />
