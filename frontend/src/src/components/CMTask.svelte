@@ -220,7 +220,7 @@
     <div class="container">
       <div class="tabs">
         <span class="tab" class:selected={activeTab === 'parameters'} on:click={() => (activeTab = 'parameters')}>Description</span>
-        <span class="tab" class:last={!legend} class:selected={activeTab === 'result'} on:click={() => (activeTab = 'result')}>Stargtégie</span>
+        <span class="tab" class:last={!legend} class:selected={activeTab === 'result'} on:click={() => (activeTab = 'result')}>Stratégie</span>
         <span class="tab" class:last={!legend} class:selected={activeTab === 'impact'} on:click={() => (activeTab = 'impact')}>Impact</span>
 
         {#if legend}
