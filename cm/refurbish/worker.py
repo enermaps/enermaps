@@ -20,7 +20,7 @@ wiki = "https://enermaps-wiki.herokuapp.com/en/Refurbish.md"
     input_layers_path=input_layers_path,
     wiki=wiki,
 )
-def refurbish_rate(self, selection: dict, rasters: list, params: dict):
+def building_refurbishment_rate(self, selection: dict, rasters: list, params: dict):
     """This is a calculation module compute the centroid
     of the selected region and query a set of rasters with the
     Heating and Cooling Degree Days computed from the CORDEX
