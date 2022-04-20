@@ -92,13 +92,11 @@ if not os.path.exists(BREAKSDIR):
     os.mkdir(BREAKSDIR)
 if not os.path.exists(LAYERTABLE):
     raise FileNotFoundError(
-        "Layer list not found. Please check your .env file and the content of local"
-        " folders."
+        "Layer list not found."
     )
 if not os.path.exists(CLRTABLE):
     raise FileNotFoundError(
-        "Color list not found. Please check your .env file and the content of local"
-        " folders."
+        "Color list not found."
     )
 
 # read colors and layer names
