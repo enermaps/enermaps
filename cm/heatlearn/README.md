@@ -1,4 +1,4 @@
-# HeatLearn
+# AI-estimated Building Heat Demand ("HeatLearn")
 
 The *HeatLearn* CM is an implementation of a CNN model to predict aggregated building heating energy demand from ESM land-use maps.
 
