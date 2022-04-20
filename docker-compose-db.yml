@@ -28,6 +28,15 @@ services:
     env_file:
       .env-db
 
+  legends:
+    build:
+      context: ./legends
+    volumes:
+      - data:/legends/data
+    env_file:
+      .env-db
+      .env
+
   db-nginx:
     build:
       context: ./db-nginx
