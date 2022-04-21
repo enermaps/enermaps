@@ -18,7 +18,7 @@ wiki = "https://enermaps-wiki.herokuapp.com/en/HeatingCoolingScenarios.md"
     input_layers_path=input_layers_path,
     wiki=wiki,
 )
-def heating_and_cooling_degree_days(self, selection: dict, rasters: list, params: dict):
+def Scenarios_of_Heating_and_Cooling_Degree_Days(self, selection: dict, rasters: list, params: dict):
     """This is a calculation module that compute the centroid
     of the selected region and query a set of rasters with the
     Heating and Cooling Degree Days computed from the CORDEX

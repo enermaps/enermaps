@@ -18,7 +18,7 @@ wiki = "https://enermaps-wiki.herokuapp.com/en/Home"
     input_layers_path=input_layers_path,
     wiki=wiki,
 )
-def cm_multiply_raster(self, selection: dict, rasters: list, params: dict):
+def Rasters_Statistics(self, selection: dict, rasters: list, params: dict):
     """This is a calculation module that multiplies the raster by an factor.
     If there is no raster, we raise a value error.
     If there are many rasters, we select the first one.

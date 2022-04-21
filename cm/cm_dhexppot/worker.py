@@ -19,7 +19,7 @@ wiki = "https://enermaps-wiki.herokuapp.com/en/sample.md"
     input_layers_path=input_layers_path,
     wiki=wiki,
 )
-def dhn_economic_assessment(self, selection: dict, rasters: list, params: dict):
+def DH_Economic_Assessment(self, selection: dict, rasters: list, params: dict):
     """This calculation module calculates the DH potentials.
     If there is no raster, we raise a value error.
     If there are many rasters, we select the first one.

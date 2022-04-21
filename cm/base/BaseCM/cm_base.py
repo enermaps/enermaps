@@ -88,8 +88,9 @@ class CMBase(Task):
         format it to be human readable.
         """
         raw_name = function.__name__
-        spaced_name = raw_name.replace("_", " ").replace("-", " ")
-        return spaced_name.capitalize()
+        spaced_name = raw_name.replace("__", "-").replace("_", " ")
+        # return spaced_name.capitalize()
+        return spaced_name
 
     def validate_params(self, params):
         """Validate the dict parameters based on the schema.json declaration.
