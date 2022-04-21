@@ -20,7 +20,12 @@ wiki = "https://enermaps-wiki.herokuapp.com/en/HeatLearn.md"
     input_layers_path=input_layers_path,
     wiki=wiki,
 )
-def AI__estimated_Building_Heat_Demand(self, selection: dict, rasters: list, params: dict):
+def AI__estimated_Building_Heat_Demand(
+    self,
+    selection: dict,
+    rasters: list,
+    params: dict,
+):
     """This is a calculation module that applies the HeatLearn model.
     If there is no raster, we raise a value error.
     """
