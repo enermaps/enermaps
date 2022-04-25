@@ -55,7 +55,12 @@ def get_cdf_stats():
     return [to_percentile(percent) for percent in CDF_POINTS]
 
 
-def rasterstats(geojson: dict, raster_path: str, factor: int, stat_types: Optional[List[Text]] = None) -> dict:
+def rasterstats(
+    geojson: dict,
+    raster_path: str,
+    factor: int,
+    stat_types: Optional[List[Text]] = None,
+) -> dict:
     """
     Multiply the rasters values by a factor and return statistics about this new .
 
@@ -72,7 +77,7 @@ def rasterstats(geojson: dict, raster_path: str, factor: int, stat_types: Option
             * values mandatory for drawing de chart
     """
 
-    def rounded_statistics(statistics: dict, accuracy: int = OUTPUT_PRECISION ) -> dict:
+    def rounded_statistics(statistics: dict, accuracy: int = OUTPUT_PRECISION) -> dict:
         """
         Take statistical data and round it to a given precision.
 
