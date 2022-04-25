@@ -16,7 +16,7 @@
   let formElement = null;
   let form = undefined;
   let callCMTooltip = '';
-  let isCollapsed = false;
+  let isCollapsed = true;
   let layersText = null;
   let layersLinkText = null;
   let layersLinkDatasetId = null;
