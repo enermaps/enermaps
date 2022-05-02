@@ -6,7 +6,6 @@
   import CM from './CM.svelte';
   import AreaSelection from './AreaSelection.svelte';
 
-<!-- first commit-->
   let cms = [];
   let areaSelected = false;
   let layerSelected = false;
