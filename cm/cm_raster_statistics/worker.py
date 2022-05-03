@@ -8,7 +8,7 @@ from raster_statistics import rasterstats
 app = cm_base.get_default_app("stats")
 schema_path = cm_base.get_default_schema_path()
 input_layers_path = cm_base.get_default_input_layers_path()
-wiki = "https://enermaps-wiki.herokuapp.com/en/Home"
+wiki = "https://enermaps-wiki.herokuapp.com/en/Raster-Statistics.md"
 
 
 @app.task(
