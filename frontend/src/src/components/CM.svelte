@@ -343,7 +343,7 @@
 
     <div class="cm_wiki">
       <i>
-        For more information about the CM,
+        For more information about the analysis tool,
         see <a href="{cm.wiki}" target="_blank">the wiki page</a>.
       </i>
     </div>
