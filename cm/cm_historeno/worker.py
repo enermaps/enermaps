@@ -16,7 +16,7 @@ wiki = "http://www.historeno.eu/"
     input_layers_path=input_layers_path,
     wiki=wiki,
 )
-def historeno(self, selection: dict, rasters: list, params: dict):
+def Module_Historeno(self, selection: dict, rasters: list, params: dict):
     ret = dict()
     ret["graphs"] = [
         {
