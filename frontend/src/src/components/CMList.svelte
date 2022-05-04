@@ -10,6 +10,7 @@
   let cms = [];
   let areaSelected = false;
   let layerSelected = false;
+  let activeTab_test = 'un';
 
 
   onMount(async () => {
@@ -114,7 +115,7 @@
   <div id="calculation_modules_content">
     <div id="cm_list_header">
       <div id="close_button_cm_list" on:click={closeCMPanel}><img src='{BASE_URL}images/clear-icon.png' alt='close'></div>
-      <div id="header"><h2>Calculation Modules</h2></div>
+      <div id="header"><h2>Outils d'analyse : </h2></div>
 
       {#if !areaSelected}
         <div class="warning">No area selected</div>
@@ -127,6 +128,11 @@
       <AreaSelection />
     </div>
     <div id="list">
+      <div class="container-empty-cm">
+        Test for the tabs.
+        <dl> First tab </dl>
+        <dl> Second tab </dl>
+      </div>
       {#each cms as cm (cm.name)}
         <CM bind:cm />
       {/each}
