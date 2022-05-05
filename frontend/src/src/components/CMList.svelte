@@ -10,7 +10,7 @@
   let cms = [];
   let areaSelected = false;
   let layerSelected = false;
-  let activeTab_test = 'consultation';
+  let activeTabTest = 'consultation';
 
 
   onMount(async () => {
@@ -146,16 +146,16 @@
     <div id="list">
       <div class="container-empty-cm">
         <div class="tabs">
-          <span class="tab" class:selected={activeTab_test === 'consultation'} on:click={() => (activeTab_test = 'consultation')}>Consultation</span>
-          <span class="tab" class:selected={activeTab_test === 'analyse'} on:click={() => (activeTab_test = 'analyse')}>Analyse</span>
+          <span class="tab" class:selected={activeTabTest === 'consultation'} on:click={() => (activeTabTest = 'consultation')}>Consultation</span>
+          <span class="tab" class:selected={activeTabTest === 'analyse'} on:click={() => (activeTabTest = 'analyse')}>Analyse</span>
         </div>
       </div>
-      {#if activeTab_test ===  'analyse'}
+      {#if activeTabTest ===  'analyse'}
         <AreaSelection />
         {#each cms as cm (cm.name)}
           <CM bind:cm />
         {/each}
-      {:else if activeTab_test === 'consultation'}
+      {:else if activeTabTest === 'consultation'}
         <p> Information about the house. </p>
       {/if}
     </div>
