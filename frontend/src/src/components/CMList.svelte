@@ -150,7 +150,7 @@
           <span class="tab" class:selected={activeTab_test === 'analyse'} on:click={() => (activeTab_test = 'analyse')}>Analyse</span>
         </div>
       </div>
-      {#if activeTab_test === 'analyse'}
+      {#if activeTab_test ===  'analyse'}
         <AreaSelection />
         {#each cms as cm (cm.name)}
           <CM bind:cm />
