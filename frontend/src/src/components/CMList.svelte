@@ -10,7 +10,7 @@
   let cms = [];
   let areaSelected = false;
   let layerSelected = false;
-  let activeTab_test = 'un';
+  let activeTabTest = 'consultation';
 
 
   onMount(async () => {
@@ -106,6 +106,23 @@
     height:auto;
     cursor: pointer;
   }
+
+  div.tabs {
+    border-bottom: 1px solid black;
+    margin-top: 5px;
+    margin-bottom: 6px;
+    padding-bottom: 4px;
+  }
+
+  span.tab {
+    border: 1px solid black;
+    padding: 4px;
+    margin-left: 0;
+    margin-right: 0;
+    background-color: #f7f7f7;
+    cursor: pointer;
+  }
+
 </style>
 
 
@@ -125,17 +142,22 @@
         <div class="warning">No layer selected</div>
       {/if}
 
-      <AreaSelection />
     </div>
     <div id="list">
       <div class="container-empty-cm">
-        Test for the tabs.
-        <dl> First tab </dl>
-        <dl> Second tab </dl>
+        <div class="tabs">
+          <span class="tab" class:selected={activeTabTest === 'consultation'} on:click={() => (activeTabTest = 'consultation')}>Consultation</span>
+          <span class="tab" class:selected={activeTabTest === 'analyse'} on:click={() => (activeTabTest = 'analyse')}>Analyse</span>
+        </div>
       </div>
-      {#each cms as cm (cm.name)}
-        <CM bind:cm />
-      {/each}
+      {#if activeTabTest === 'analyse'}
+        <AreaSelection />
+        {#each cms as cm (cm.name)}
+          <CM bind:cm />
+        {/each}
+      {:else if activeTabTest === 'consultation'}
+        <p> Information about the house. </p>
+      {/if}
     </div>
   </div>
 </div>
