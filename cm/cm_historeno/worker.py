@@ -4,7 +4,7 @@ import requests
 from BaseCM import cm_base as cm_base
 from BaseCM.cm_output import validate
 
-app = cm_base.get_default_app("cm-historeno")
+app = cm_base.get_default_app("historeno")
 schema_path = cm_base.get_default_schema_path()
 input_layers_path = cm_base.get_default_input_layers_path()
 wiki = "http://www.historeno.eu/"
@@ -53,7 +53,7 @@ def Module_Historeno(self, selection: dict, rasters: list, params: dict):
             raise ConnectionError(error)
 
     res = post_parameters()
-
+    print(res)
     ret = dict()
     ret["graphs"] = [
         {
