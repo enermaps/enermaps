@@ -1,9 +1,169 @@
 {
   "type": "object",
   "properties": {
-    "my_input": {
+    "Typologie": {
       "type": "number",
-      "default": 1
+      "minimum": 1,
+      "maximum": 20,
+      "default": 1,
+      "required": true
+    },
+    "Type de chauffage": {
+      "type": "string",
+      "default": "Mazout",
+      "enum": [
+                "Mazout",
+                "Gas naturel",
+                "Pellets",
+                "Büches bois",
+                "Copeaux bois",
+                "PAC air-eau",
+                "PAC sol-eau",
+                "Électrique direct",
+                "Chauffage à distance"
+            ],
+      "required": true
+    },
+    "Année d'installation ou de remplacement du chauffage": {
+      "type": "number",
+      "minimum": 1900,
+      "default": 1990,
+      "required": true
+    },
+    "Type d'émetteurs": {
+      "type": "string",
+      "default": "Radiateurs",
+      "enum": [
+        "Radiateurs",
+        "Radiateurs devant fenêtres",
+        "Plancher(s) chauffant",
+        "Murs chauffants",
+        "Aucun (élec direct)"
+      ],
+      "required": true
+    },
+    "Régulation du chauffage": {
+      "type": "string",
+      "default": "Autre (+2°C)",
+      "enum": [
+        "Sondes de temp. par pièce ou vannes thermostatiques sur radiateurs (+0°C)",
+        "Sonde de température dans une pièce de référence (par ex séjour)  (+1°C)",
+        "Autre (+2°C)"
+      ],
+      "required": true
+    },
+    "Isolation des conduites de chauffage": {
+      "type": "string",
+      "default": "Non isolées",
+      "enum": [
+        "Non isolées",
+        "Partiellement isolées",
+        "Complètement isolées"
+      ],
+      "required": true
+    },
+    "Isolation des conduites d'ECS": {
+      "type": "string",
+      "default": "Non isolées",
+      "enum": [
+        "Non isolées",
+        "Partiellement isolées",
+        "Complètement isolées"
+      ],
+      "required": true
+    },
+    "Présence d'une installation solaire thermique": {
+      "type": "string",
+      "default": "Non",
+      "enum": [
+        "Non",
+        "Oui"
+      ],
+      "required": true
+    },
+    "Surface de capteurs solaires thermiques automatique": {
+      "type": "string",
+      "default": "Oui",
+      "enum": [
+        "Non",
+        "Oui"
+      ],
+      "required": true
+    },
+    "Surface de capteurs solaires thermiques": {
+      "type": "number",
+      "minimum": 0,
+      "default": 0,
+      "required": true
+    },
+    "Efficacité des appareils électriques": {
+      "type": "string",
+      "default": "Meilleurs appareils",
+      "enum": [
+        "Meilleurs appareils",
+        "Appareils neufs courants",
+        "Anciens appareils (env. 5 ans)",
+        "Très anciens appareils (>10 ans)"
+      ],
+      "required": true
+    },
+    "Présence d'une ventilation mécanique": {
+      "type": "string",
+      "default": "Aucune",
+      "enum": [
+        "Aucune",
+        "Double flux",
+        "Simple flux"
+      ],
+      "required": true
+    },
+    "Présence d'ascenseur(s)": {
+      "type": "string",
+      "default": "Non",
+      "enum": [
+        "Non",
+        "Simple flux",
+        "Double flux"
+      ],
+      "required": true
+    },
+    "Présence d'une instalaltion solaire PV": {
+      "type": "string",
+      "default": "Non",
+      "enum": [
+        "Non",
+        "Oui"
+      ],
+      "required": true
+    },
+    "Surface PV automatique": {
+      "type": "string",
+      "default": "Non",
+      "enum": [
+        "Non",
+        "Oui"
+      ],
+      "required": true
+    },
+    "Surface PV": {
+      "type": "number",
+      "default": 0,
+      "minimum" : 0,
+      "required": true
+    },
+    "Orientation PV": {
+      "type": "number",
+      "default": 0,
+      "minimum" : 0,
+      "maximum" : 360,
+      "required": true
+    },
+    "Présence de batteries de stockage": {
+      "type": "number",
+      "default": 0,
+      "minimum" : 0,
+      "maximum" : 360,
+      "required": true
     }
   }
 }
