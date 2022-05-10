@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 
 import requests
-
 from BaseCM import cm_base as cm_base
 from BaseCM.cm_output import validate
 
