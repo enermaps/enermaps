@@ -28,7 +28,9 @@ def Module_Historeno(self, selection: dict, rasters: list, params: dict):
         "tubeInsulH": params["Isolation des conduites de chauffage"],
         "tubeInsulW": params["Isolation des conduites d'ECS"],
         "solarThermal": params["Présence d'une installation solaire thermique"],
-        "solarThermalAreaAuto": params["Surface de capteurs solaires thermiques automatique"],
+        "solarThermalAreaAuto": params[
+            "Surface de capteurs solaires thermiques automatique"
+        ],
         "solarThermalArea": params["Surface de capteurs solaires thermiques"],
         "devEff": params["Efficacité des appareils électriques"],
         "ventMeca": params["Présence d'une ventilation mécanique"],
