@@ -21,6 +21,15 @@ wiki = "http://www.historeno.eu/"
 def Module_Historeno(self, selection: dict, rasters: list, params: dict):
     parameters = {
         "country": "CH",
+        "canton": "VS",
+        "altitude": 10,
+        "meteoParam": "jura",
+        "context": "urban",
+        "polygon": "[[0,0],[0,10],[10,10],[10,0]]",
+        "adjoining": "[0,0,0.5,0]",
+        "gable": "[0,0,1,0]",
+        "year": 1910,
+        "category": 1,
         "typo": params["Typologie"],
         "generator": params["Type de chauffage"],
         "generatorYear": params["Année d'installation ou de remplacement du chauffage"],
@@ -47,7 +56,7 @@ def Module_Historeno(self, selection: dict, rasters: list, params: dict):
         """Post fake parameters."""
         url_endpoint = "https://historeno.heig-vd.ch/tool/calcPTF.php"
         try:
-            resp = requests.post(url_endpoint, params=parameters)
+            resp = requests.post(url_endpoint, data=parameters)
             logging.info(f"RESULTS: {resp.status_code}")
             logging.info(f"URL: {resp.url}")
             logging.info(f"CONTENT: {resp.content}")
@@ -73,7 +82,7 @@ def Module_Historeno(self, selection: dict, rasters: list, params: dict):
     ret["geofiles"] = {}
     ret["values"] = {"Status code": res.status_code}
     ret["warnings"] = {
-        "Example CM": "This CM is under development.",
+        "Example CM": f"Response: {res.content}.",
     }
     return validate(ret)
 
