@@ -113,6 +113,7 @@ services:
       - "0.0.0.0:80:80"
     volumes:
       - data:/usr/share/nginx/html/raster
+
 volumes:
   wms_cache:
   cm_outputs:
