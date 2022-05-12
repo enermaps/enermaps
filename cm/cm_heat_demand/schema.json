@@ -3,6 +3,7 @@
   "type": "object",
   "properties": {
     "Heat demand in hectare (MWh/ha)": {
+      "title": "Heat demand in hectare [MWh/ha]",
       "type": "number",
       "default": 333,
       "minimum": 0,
@@ -10,6 +11,7 @@
       "description": "Minimum heat demand in each hectare (MWh/ha)."
     },
     "Heat demand in a DH zone (GWh/year)": {
+      "title": "Heat demand in a DH zone [GWh/year]",
       "type": "number",
       "default": 30,
       "minimum": 0,
