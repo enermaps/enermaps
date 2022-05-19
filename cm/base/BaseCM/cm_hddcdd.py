@@ -71,7 +71,7 @@ def get_hddcdd_schema(save: bool = False, schema_path: Path = None) -> Dict[str,
     htemps = get_base_temperature("hdd")
     htemp = odict(
         type="number",
-        title="Base temperature for HDD",
+        title="Base temperature for HDD [°C]",
         description="",
         default=htemps[int(len(htemps) / 2)],
         minimum=min(htemps),
@@ -82,7 +82,7 @@ def get_hddcdd_schema(save: bool = False, schema_path: Path = None) -> Dict[str,
     ctemps = get_base_temperature("cdd")
     ctemp = odict(
         type="number",
-        title="Base temperature for CDD",
+        title="Base temperature for CDD [°C]",
         description="",
         default=ctemps[int(len(ctemps) / 2)],
         minimum=min(ctemps),

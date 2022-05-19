@@ -19,7 +19,7 @@ wiki = "https://enermaps-wiki.herokuapp.com/en/HeatDemand.md"
     input_layers_path=input_layers_path,
     wiki=wiki,
 )
-def heat_demand(self, selection: dict, rasters: list, params: dict):
+def DH_Potential(self, selection: dict, rasters: list, params: dict):
     if not rasters:
         raise ValueError("Raster list must be non-empty.")
     if "features" not in selection:

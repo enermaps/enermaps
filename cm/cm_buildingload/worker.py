@@ -17,7 +17,12 @@ wiki = "https://enermaps-wiki.herokuapp.com/en/CM%20Building%20Heat%20Load.md"
     input_layers_path=input_layers_path,
     wiki=wiki,
 )
-def building_load(self, selection: dict, rasters: list, params: dict):
+def Building_Heating_and_Cooling_Load(
+    self,
+    selection: dict,
+    rasters: list,
+    params: dict,
+):
     """This is a calculation module that simulates a building's
     space heating and cooling demand.
     If there is no raster, we raise a value error.
