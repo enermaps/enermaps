@@ -39,22 +39,21 @@
   {{#has_editor}}
   {{#sprockets_javascript_tag}}editor{{/sprockets_javascript_tag}}
   {{/has_editor}}
-  {{#mathjax}}
   <script type="text/javascript">
+    // https://docs.mathjax.org/en/v2.7-latest/options/preprocessors/tex2jax.html
     window.MathJax = {
       tex2jax: {
         inlineMath:  [ ['$','$'], ['\\(','\\)'] ],
         displayMath: [ ['$$','$$'], ['\\[','\\]'] ],
-        processEscapes: true
+        processEscapes: true,
+        processEnvironments: true,
+        preview: ["[math]"],
       },
       TeX: { extensions: ["autoload-all.js"] }
     };
   </script>
-  {{#mathjax_config}}
   <script type="text/javascript" src="{{mathjax_config_path}}"></script>
-  {{/mathjax_config}}
   <script defer src="{{mathjax_js}}"></script>
-  {{/mathjax}}
   {{#js}}<script type="text/javascript" src="{{custom_js}}"></script>{{/js}}
 
   <title>{{title}}</title>

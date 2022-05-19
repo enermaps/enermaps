@@ -10,7 +10,6 @@ wiki_options = {
   :allow_editing => true,
   :css => true,
   :js => true,
-  :mathjax => true,
   :h1_title => true,
 }
 Precious::App.set(:wiki_options, wiki_options)
