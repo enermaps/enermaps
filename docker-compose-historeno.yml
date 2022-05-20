@@ -1,0 +1,127 @@
+version: "3.8"
+services:
+
+  frontend:
+    build:
+      context: ./frontend
+    ports:
+      - "127.0.0.1:7000:80"
+    restart: always
+    depends_on:
+      - "api"
+    volumes:
+      - caddy-data:/data
+      - caddy-config:/config
+      - ./stats/caddy-logs:/var/log
+    env_file:
+      .env
+
+  api:
+    build:
+      context: ./api
+    ports:
+      - "127.0.0.1:9000:80"
+    restart: always
+    environment:
+      WMS_CACHE_DIR: /wms_cache
+      CM_OUTPUTS_DIR: /cm_outputs
+      FILTER_DATASETS: 1
+    depends_on:
+      - redis
+    volumes:
+      - wms_cache:/wms_cache
+      - cm_outputs:/cm_outputs
+    env_file:
+      - .env
+      - .env-db-server
+
+  redis:
+    image: redis:6-alpine
+    ports:
+      - "127.0.0.1:6379:6379"
+    restart: always
+    volumes:
+      - redis-data:/data
+
+  flower:
+    image: mher/flower:0.9.4
+    ports:
+      - "127.0.0.1:5555:5555"
+    depends_on:
+      - redis
+    restart: always
+    volumes:
+      - flower-data:/data
+    env_file:
+      .env
+
+  cm-historeno:
+    build:
+      context: ./cm
+      dockerfile: cm_historeno/Dockerfile
+    environment:
+      WMS_CACHE_DIR: /wms_cache
+    depends_on:
+      - redis
+    restart: always
+    volumes:
+      - wms_cache:/wms_cache:ro
+    env_file:
+      .env
+
+  db:
+    build:
+      context: ./db
+    ports:
+      - "127.0.0.1:5433:5432"
+    restart: always
+    command: [ "-c", "config_file=postgresql.conf" ]
+    environment:
+      POSTGRES_PASSWORD: example
+      PGDATA: /var/lib/postgresql/data/historeno
+    # Fast Shutdown mode
+    # see https://github.com/docker-library/postgres/issues/714
+    stop_signal: SIGINT
+    volumes:
+      - db-data:/var/lib/postgresql/data
+      - ./stats/pg-logs:/var/lib/postgresql/data/pg_log
+      - ./:/db-backup
+    env_file:
+      .env-db
+
+  postgrest:
+    build:
+      context: ./postgrest
+    ports:
+      - "127.0.0.1:3000:3000"
+    env_file:
+      - .env
+      - .postgrest
+
+  data-integration:
+    build:
+      context: ./data-integration
+    volumes:
+      - data:/data-integration/data
+    env_file:
+      .env-db
+
+  db-nginx:
+    build:
+      context: ./db-nginx
+    ports:
+      - "0.0.0.0:80:80"
+    volumes:
+      - data:/usr/share/nginx/html/raster
+
+volumes:
+  wms_cache:
+  cm_outputs:
+  cm_inputs:
+  caddy-data:
+  caddy-config:
+  caddy-logs:
+  redis-data:
+  flower-data:
+  db-data:
+  data:
