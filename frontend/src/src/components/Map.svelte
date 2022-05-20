@@ -370,7 +370,7 @@
       url: 'https://nominatim.openstreetmap.org/search?format=json&q={s}',
       jsonpParam: 'json_callback',
       propertyName: 'display_name',
-      textPlaceholder: 'Search place...',
+      textPlaceholder: 'Entrer un lieu...',
       propertyLoc: ['lat', 'lon'],
       marker: false, // L.circleMarker([0, 0], { radius: 30 }),
       autoCollapse: false,
