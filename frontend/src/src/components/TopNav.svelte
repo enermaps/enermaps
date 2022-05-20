@@ -9,7 +9,7 @@
 
 
   let aboutDialog = null;
-  let copyPopup = null;
+  // let copyPopup = null;
 
 
   onMount(async () => {
