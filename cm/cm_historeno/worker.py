@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
 
+import logging
+
 import requests
 from BaseCM import cm_base as cm_base
 from BaseCM.cm_output import validate
@@ -19,6 +21,16 @@ wiki = "http://www.historeno.eu/"
 )
 def Module_Historeno(self, selection: dict, rasters: list, params: dict):
     parameters = {
+        "country": "CH",
+        "canton": "VS",
+        "altitude": 10,
+        "meteoParam": "jura",
+        "context": "urban",
+        "polygon": "[[0,0],[0,10],[10,10],[10,0]]",
+        "adjoining": "[0,0,0.5,0]",
+        "gable": "[0,0,1,0]",
+        "year": 1910,
+        "category": 1,
         "typo": params["Typologie"],
         "generator": params["Type de chauffage"],
         "generatorYear": params["Année d'installation ou de remplacement du chauffage"],
@@ -45,15 +57,17 @@ def Module_Historeno(self, selection: dict, rasters: list, params: dict):
         """Post fake parameters."""
         url_endpoint = "https://historeno.heig-vd.ch/tool/calcPTF.php"
         try:
-            resp = requests.post(url_endpoint, params=parameters)
-            print(f"RESULTS: {resp.status_code}")
+            resp = requests.post(url_endpoint, data=parameters)
+            logging.info(f"RESULTS: {resp.status_code}")
+            logging.info(f"URL: {resp.url}")
+            logging.info(f"CONTENT: {resp.content}")
             return resp
         except ConnectionError as error:
             print("Error during the post of the file.")
             raise ConnectionError(error)
 
     res = post_parameters()
-    print(res)
+
     ret = dict()
     ret["graphs"] = [
         {
@@ -69,7 +83,7 @@ def Module_Historeno(self, selection: dict, rasters: list, params: dict):
     ret["geofiles"] = {}
     ret["values"] = {"Status code": res.status_code}
     ret["warnings"] = {
-        "Example CM": "This CM is under development.",
+        "Example CM": f"Response: {res.content}.",
     }
     return validate(ret)
 
