@@ -11,4 +11,4 @@ export const selectedLayerStore = writable(null);
 
 export const tasksStore = writable([]);
 
-export const isCMPaneActiveStore = writable(false);
+export const isCMPaneActiveStore = writable(true);
