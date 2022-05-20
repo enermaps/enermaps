@@ -23,49 +23,49 @@
   });
 
 
-  function copyWMSUrlToClipboard(event) {
-    // Create new temporary text element containing the value to copy
-    const el = document.createElement('textarea');
-    el.value = document.URL + 'api/wms';
+  // function copyWMSUrlToClipboard(event) {
+  //   // Create new temporary text element containing the value to copy
+  //   const el = document.createElement('textarea');
+  //   el.value = document.URL + 'api/wms';
+  //
+  //   // Set non-editable to avoid focus and move outside of view
+  //   el.setAttribute('readonly', '');
+  //   el.style.position = 'absolute';
+  //   el.style.left = '-9999px';
+  //   document.body.appendChild(el);
+  //
+  //   // Select text inside element
+  //   el.select();
+  //
+  //   // Copy text to clipboard
+  //   document.execCommand('copy');
+  //
+  //   // Remove temporary element
+  //   document.body.removeChild(el);
+  //
+  //   // Show the popup
+  //   const rect = event.target.getBoundingClientRect();
+  //
+  //   if (copyPopup === null) {
+  //     copyPopup = document.createElement('div');
+  //     copyPopup.textContent = 'URL copied to the clipboard';
+  //     copyPopup.style.position = 'absolute';
+  //     copyPopup.style.left = (rect.left - 10) + 'px';
+  //     copyPopup.style.top = (rect.bottom + 6) + 'px';
+  //     copyPopup.style.backgroundColor = 'lightgoldenrodyellow';
+  //     copyPopup.style.fontSize = '14px';
+  //     copyPopup.style.padding = '4px';
+  //     document.body.appendChild(copyPopup);
+  //   }
+  // }
 
-    // Set non-editable to avoid focus and move outside of view
-    el.setAttribute('readonly', '');
-    el.style.position = 'absolute';
-    el.style.left = '-9999px';
-    document.body.appendChild(el);
 
-    // Select text inside element
-    el.select();
-
-    // Copy text to clipboard
-    document.execCommand('copy');
-
-    // Remove temporary element
-    document.body.removeChild(el);
-
-    // Show the popup
-    const rect = event.target.getBoundingClientRect();
-
-    if (copyPopup === null) {
-      copyPopup = document.createElement('div');
-      copyPopup.textContent = 'URL copied to the clipboard';
-      copyPopup.style.position = 'absolute';
-      copyPopup.style.left = (rect.left - 10) + 'px';
-      copyPopup.style.top = (rect.bottom + 6) + 'px';
-      copyPopup.style.backgroundColor = 'lightgoldenrodyellow';
-      copyPopup.style.fontSize = '14px';
-      copyPopup.style.padding = '4px';
-      document.body.appendChild(copyPopup);
-    }
-  }
-
-
-  function hideCopyPopup() {
-    if (copyPopup !== null) {
-      document.body.removeChild(copyPopup);
-      copyPopup = null;
-    }
-  }
+  // function hideCopyPopup() {
+  //   if (copyPopup !== null) {
+  //     document.body.removeChild(copyPopup);
+  //     copyPopup = null;
+  //   }
+  // }
 </script>
 
 
@@ -110,10 +110,10 @@
     vertical-align: middle;
   }
 
-  #title {
-    color: #eff4fa;
-    font-size: 22px;
-  }
+  /*#title {*/
+  /*  color: #eff4fa;*/
+  /*  font-size: 22px;*/
+  /*}*/
 
   img {
     vertical-align: middle;

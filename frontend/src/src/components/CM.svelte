@@ -22,7 +22,7 @@
   let layersLinkDatasetId = null;
   let layersDetails = null;
   let layersDetailsDisplayed = false;
-  let showCmInfo = false;
+  const showCmInfo = false;
 
 
   onMount(() => {
