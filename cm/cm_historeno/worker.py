@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 import logging
+from pprint import pprint
 
 import requests
 from BaseCM import cm_base as cm_base
@@ -23,34 +24,34 @@ def Module_Historeno(self, selection: dict, rasters: list, params: dict):
     parameters = {
         "country": "CH",
         "canton": "VS",
-        "altitude": 10,
-        "meteoParam": "jura",
+        "altitude": 10.0,
+        "meteoParam": "sud",
         "context": "urban",
         "polygon": "[[0,0],[0,10],[10,10],[10,0]]",
         "adjoining": "[0,0,0.5,0]",
         "gable": "[0,0,1,0]",
-        "year": 1910,
-        "category": 1,
         "typo": params["Typologie"],
-        "generator": params["Type de chauffage"],
+        "year": "1910",
+        "category": 1,
+        "height": 100.0,
+        "generator": "genTypOil",  # TODO : transalte it --> params["Type de chauffage"],
         "generatorYear": params["Année d'installation ou de remplacement du chauffage"],
-        "emettors": params["Type d'émetteurs"],
-        "regulation": params["Régulation du chauffage"],
-        "tubeInsulH": params["Isolation des conduites de chauffage"],
-        "tubeInsulW": params["Isolation des conduites d'ECS"],
-        "solarThermal": params["Présence d'une installation solaire thermique"],
-        "solarThermalAreaAuto": params[
-            "Surface de capteurs solaires thermiques automatique"
-        ],
-        "solarThermalArea": params["Surface de capteurs solaires thermiques"],
-        "devEff": params["Efficacité des appareils électriques"],
-        "ventMeca": params["Présence d'une ventilation mécanique"],
-        "elevator": params["Présence d'ascenseur(s)"],
-        "solarPV": params["Présence d'une instalaltion solaire PV"],
-        "pvAreaAuto": params["Surface PV automatique"],
-        "pvArea": params["Surface PV"],
-        "pvOri": params["Orientation PV"],
-        "pvBattery": params["Présence de batteries de stockage"],
+        "emettors": "emRadWall",  # TODO : transalte it --> params["Type d'émetteurs"],
+        "regulation": 0,  # TODO : transalte it -->  params["Régulation du chauffage"],
+        "tubeInsulH": "notInsulated",  # TODO : transalte it -->  params["Isolation des conduites de chauffage"],
+        "tubeInsulW": "notInsulated",  # TODO : transalte it --> params["Isolation des conduites d'ECS"],
+        "solarThermal": 1,  # TODO : transalte it --> params["Présence d'une installation solaire thermique"],
+        "solarThermalAreaAuto": 0,  # TODO : transalte it -->  params["Surface de capteurs solaires thermiques automatique"],
+        "solarThermalArea": 10,  # TODO : transalte it --> params["Surface de capteurs solaires thermiques"],
+        "nbAppart": 0,
+        "devEff": "best",  # TODO : transalte it --> params["Efficacité des appareils électriques"],
+        "ventMeca": "none",  # TODO : transalte it --> params["Présence d'une ventilation mécanique"],
+        "elevator": 0,  # TODO : transalte it -->  params["Présence d'ascenseur(s)"],
+        "solarPV": 1,  # TODO : transalte it --> params["Présence d'une instalaltion solaire PV"],
+        "pvAreaAuto": 0,  # TODO : transalte it --> params["Surface PV automatique"],
+        "pvArea": 5.0,  # TODO : transalte it --> params["Surface PV"],
+        "pvOri": 7.0,  # TODO : transalte it --> params["Orientation PV"],
+        "pvBattery": 1,  # TODO : transalte it --> params["Présence de batteries de stockage"],
     }
 
     def post_parameters():
@@ -61,6 +62,7 @@ def Module_Historeno(self, selection: dict, rasters: list, params: dict):
             logging.info(f"RESULTS: {resp.status_code}")
             logging.info(f"URL: {resp.url}")
             logging.info(f"CONTENT: {resp.content}")
+            pprint(f"CONTENT: {resp.content}")
             return resp
         except ConnectionError as error:
             print("Error during the post of the file.")
