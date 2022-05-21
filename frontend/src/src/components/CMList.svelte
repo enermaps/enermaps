@@ -48,11 +48,11 @@
     top: -10px;
     padding: 5px;
     border-radius: 0px;
-    border: 1px solid #27275b;
+    border: 1px solid #2B338C;
     background-color: #eff4fa;
-    width: 30vw;
+    width: 35vw;
     min-width: 280px;
-    max-width: 500px;
+    max-width: 700px;
     max-height: calc(100vh - 100px);
     overflow-y: scroll;
   }

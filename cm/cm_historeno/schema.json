@@ -46,11 +46,10 @@
       "type": "string",
       "default": "Autre (+2°C)",
       "enum": [
-        "Sondes de temp. par pièce ou vannes thermostatiques sur radiateurs (+0°C)",
-        "Sonde de température dans une pièce de référence (par ex séjour)  (+1°C)",
+        "Sonde de temp. - pièce/vannes thermostatiques (+0°C)",
+        "Sonde de temp. - pièce de réf. (+1°C)",
         "Autre (+2°C)"
-      ],
-      "required": true
+      ]
     },
     "Isolation des conduites de chauffage": {
       "type": "string",
