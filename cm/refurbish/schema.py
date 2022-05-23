@@ -35,7 +35,7 @@ def get_refurbish_schema(
     bstypes = sorted([bt for bt, tab in rf.BS2TABULA.items() if len(tab)])
     btype = odict(
         type="string",
-        title="building typology",
+        title="Building typology",
         description="Building typology class",
         default=bstypes[0],
         enum=bstypes,
@@ -44,7 +44,7 @@ def get_refurbish_schema(
 
     start_yr = odict(
         type="integer",
-        title="start epoch of construction",
+        title="Start epoch of construction",
         description=(
             "Start epoch of construction year for the building to be refurbished"
         ),
@@ -54,7 +54,7 @@ def get_refurbish_schema(
 
     end_yr = odict(
         type="integer",
-        title="end epoch of construction",
+        title="End epoch of construction",
         description="End epoch of construction year for the building to be refurbished",
         default=1969,
     )
@@ -62,7 +62,7 @@ def get_refurbish_schema(
 
     basic_ref_rate = odict(
         type="number",
-        title="Percentage of basic refurbished buildings",
+        title="Percentage of basic refurbished buildings [%]",
         description=(
             "The percentage of building that has received a basic refurbish "
             "by the selected reference reference year"
@@ -75,7 +75,7 @@ def get_refurbish_schema(
 
     advance_ref_rate = odict(
         type="number",
-        title="Percentage of advance refurbished buildings",
+        title="Percentage of advance refurbished buildings [%]",
         description=(
             "The percentage of building that has received an advance refurbish "
             "by the selected reference reference year"

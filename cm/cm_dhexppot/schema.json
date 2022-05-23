@@ -55,7 +55,7 @@
     },
     "distribution_grid_cost_ceiling": {
       "type": "number",
-      "title": "Grid cost ceiling [EUR/MWh] (min:10 - max:100)",
+      "title": "Grid cost ceiling [EUR/MWh]",
       "description": "The cost in EUR/MWh from which the average grid cost in each coherent area may not exceed.",
       "default": 30,
       "minimum": 10,
@@ -63,7 +63,7 @@
     },
     "pix_threshold": {
       "type": "number",
-      "title": "Minimum heat demand in hectare [MWh/(ha*year)] (min:20 - max:1000000000)",
+      "title": "Minimum heat demand in hectare [MWh/(ha*year)]",
       "description": "Minimum heat demand in each hectare of potential district heating area in MWh/(ha*year).",
       "default": 50,
       "minimum": 20,
@@ -71,7 +71,7 @@
     },
     "DH_threshold": {
       "type": "number",
-      "title": "Minimum heat demand in a potential district heating area [GWh/year] (min:1 - max:1000000000)",
+      "title": "Minimum heat demand in a potential district heating area [GWh/year]",
       "description": "Minimum heat demand in a potential district heating area in GWh/year.",
       "default": 30,
       "minimum": 1,
@@ -79,7 +79,7 @@
     },
     "start_year": {
       "type": "integer",
-      "title": "Start year of investment  [-] (integer, min:2000 - max:2100)",
+      "title": "Start year of investment  [-]",
       "description": "Start year for the investment on district heating grid.",
       "default": 2021,
       "minimum": 2000,
@@ -87,7 +87,7 @@
     },
     "last_year": {
       "type": "integer",
-      "title": "Last year of investment [-] (integer, min:2000 - max:2100)",
+      "title": "Last year of investment [-]",
       "description": "Start year for the investment on district heating grid.",
       "default": 2035,
       "minimum": 2000,
@@ -95,7 +95,7 @@
     },
     "st_dh_connection_rate": {
       "type": "number",
-      "title": "Starting district heating market share [-] (float, min:0 - max:1)",
+      "title": "Starting district heating market share [-]",
       "description": "District heating market share at the beginning of the investment period.",
       "default": 0.2,
       "minimum": 0,
@@ -103,7 +103,7 @@
     },
     "end_dh_connection_rate": {
       "type": "number",
-      "title": "Final district heating market share [-] (float, min:0 - max:1)",
+      "title": "Final district heating market share [-]",
       "description": "District heating market share at the end of the investment period.",
       "default": 0.2,
       "minimum": 0,
@@ -111,7 +111,7 @@
     },
     "depreciation_period": {
       "type": "integer",
-      "title": "Depreciation period [year(s)] (integer, min:1 - max:200)",
+      "title": "Depreciation period [year(s)]",
       "description": "Depreciation period referring to the lifetime of the distribution pipes in years",
       "default": 40,
       "minimum": 1,
@@ -119,7 +119,7 @@
     },
     "interest": {
       "type": "integer",
-      "title": "Interest rate [-] (float, min:0 - max:1)",
+      "title": "Interest rate [-]",
       "description": "Interest rate",
       "default": 0.03,
       "minimum": 0,
@@ -133,7 +133,7 @@
     },
     "c1": {
       "type": "number",
-      "title": "Construction cost constant [EUR/m] (float, min:0.1 - max:10000)",
+      "title": "Construction cost constant [EUR/m]",
       "description": "Construction cost constant in EUR/m.",
       "default": 349,
       "minimum": 0.1,
@@ -141,7 +141,7 @@
     },
     "c2": {
       "type": "number",
-      "title": "Construction cost coefficient [EUR/m2] (float, min:0.1 - max:100000)",
+      "title": "Construction cost coefficient [EUR/m2]",
       "description": "Construction cost coefficient in EUR/m2.",
       "default": 4213,
       "minimum": 0.1,
