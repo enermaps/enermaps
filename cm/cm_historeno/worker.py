@@ -6,6 +6,8 @@ from pprint import pprint
 import requests
 from BaseCM import cm_base as cm_base
 from BaseCM.cm_output import validate
+from lxml import etree
+
 from form import decoder
 
 app = cm_base.get_default_app("historeno")
@@ -42,7 +44,9 @@ def Module_Historeno(self, selection: dict, rasters: list, params: dict):
         "tubeInsulH": decoder.get("tubeInsulH").get(params["Region"]),
         "tubeInsulW": decoder.get("tubeInsulW").get(params["Region"]),
         "solarThermal": decoder.get("solarThermal").get(params["Region"]),
-        "solarThermalAreaAuto": decoder.get("solarThermalAreaAuto").get(params["Region"]),
+        "solarThermalAreaAuto": decoder.get("solarThermalAreaAuto").get(
+            params["Region"]
+        ),
         "solarThermalArea": 10,
         "nbAppart": 0,
         "devEff": decoder.get("devEff").get(params["Region"]),
@@ -57,7 +61,6 @@ def Module_Historeno(self, selection: dict, rasters: list, params: dict):
         "heatingWood": decoder.get("context").get(params["Region"]),
         "heatingProbes": decoder.get("context").get(params["Region"]),
         "solarRoof": decoder.get("context").get(params["Region"]),
-
     }
 
     def post_parameters():
@@ -90,7 +93,7 @@ def Module_Historeno(self, selection: dict, rasters: list, params: dict):
     ]
     ret["geofiles"] = {}
     ret["values"] = {"Status code": res.status_code}
-    from lxml import etree
+
     xml_str = res.content
     root = etree.fromstring(xml_str)
     print(etree.tostring(root, pretty_print=True))
