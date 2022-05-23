@@ -3,6 +3,7 @@
   "properties": {
     "Pays": {
       "type": "string",
+      "default": "France",
       "enum": [
         "France",
         "Suisse"
@@ -29,7 +30,7 @@
     "Altitude": {
       "type": "number",
       "minimum": 0,
-      "default": 0,
+      "default": 100,
       "required": true
     },
     "Météo": {
