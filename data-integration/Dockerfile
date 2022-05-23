@@ -16,7 +16,7 @@ ENV CPLUS_INCLUDE_PATH=/usr/include/gdal
 ENV C_INCLUDE_PATH=/usr/include/gdal
 
 # API key for Copernicus
-COPY .cdsapirc /root/.cdsapirc
+#COPY .cdsapirc /root/.cdsapirc
 
 COPY requirements.txt /data-integration/requirements.txt
 WORKDIR data-integration
@@ -29,6 +29,7 @@ RUN git clone https://github.com/enermaps/pandas-datapackage-reader.git && \
 
 COPY *.py /data-integration/
 COPY *.csv /data-integration/
+COPY data/ /data-integration/data/
 
 # Make pipelines executable
 RUN chmod u+x *.py
@@ -39,3 +40,6 @@ ENV PATH="${PWD}:${PATH}"
 # Future pipeline, keep commented for now (=manual integration)
 # CMD ["python3", "admin_units.py"]
 # CMD ["python3", "getHotMaps_raster.py"]
+
+# should be a cront job in the production phase
+CMD ["python3", "historeno_testdata.py"]

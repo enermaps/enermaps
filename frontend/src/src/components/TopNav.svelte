@@ -9,7 +9,7 @@
 
 
   let aboutDialog = null;
-  let copyPopup = null;
+  // let copyPopup = null;
 
 
   onMount(async () => {
@@ -23,55 +23,55 @@
   });
 
 
-  function copyWMSUrlToClipboard(event) {
-    // Create new temporary text element containing the value to copy
-    const el = document.createElement('textarea');
-    el.value = document.URL + 'api/wms';
+  // function copyWMSUrlToClipboard(event) {
+  //   // Create new temporary text element containing the value to copy
+  //   const el = document.createElement('textarea');
+  //   el.value = document.URL + 'api/wms';
+  //
+  //   // Set non-editable to avoid focus and move outside of view
+  //   el.setAttribute('readonly', '');
+  //   el.style.position = 'absolute';
+  //   el.style.left = '-9999px';
+  //   document.body.appendChild(el);
+  //
+  //   // Select text inside element
+  //   el.select();
+  //
+  //   // Copy text to clipboard
+  //   document.execCommand('copy');
+  //
+  //   // Remove temporary element
+  //   document.body.removeChild(el);
+  //
+  //   // Show the popup
+  //   const rect = event.target.getBoundingClientRect();
+  //
+  //   if (copyPopup === null) {
+  //     copyPopup = document.createElement('div');
+  //     copyPopup.textContent = 'URL copied to the clipboard';
+  //     copyPopup.style.position = 'absolute';
+  //     copyPopup.style.left = (rect.left - 10) + 'px';
+  //     copyPopup.style.top = (rect.bottom + 6) + 'px';
+  //     copyPopup.style.backgroundColor = 'lightgoldenrodyellow';
+  //     copyPopup.style.fontSize = '14px';
+  //     copyPopup.style.padding = '4px';
+  //     document.body.appendChild(copyPopup);
+  //   }
+  // }
 
-    // Set non-editable to avoid focus and move outside of view
-    el.setAttribute('readonly', '');
-    el.style.position = 'absolute';
-    el.style.left = '-9999px';
-    document.body.appendChild(el);
 
-    // Select text inside element
-    el.select();
-
-    // Copy text to clipboard
-    document.execCommand('copy');
-
-    // Remove temporary element
-    document.body.removeChild(el);
-
-    // Show the popup
-    const rect = event.target.getBoundingClientRect();
-
-    if (copyPopup === null) {
-      copyPopup = document.createElement('div');
-      copyPopup.textContent = 'URL copied to the clipboard';
-      copyPopup.style.position = 'absolute';
-      copyPopup.style.left = (rect.left - 10) + 'px';
-      copyPopup.style.top = (rect.bottom + 6) + 'px';
-      copyPopup.style.backgroundColor = 'lightgoldenrodyellow';
-      copyPopup.style.fontSize = '14px';
-      copyPopup.style.padding = '4px';
-      document.body.appendChild(copyPopup);
-    }
-  }
-
-
-  function hideCopyPopup() {
-    if (copyPopup !== null) {
-      document.body.removeChild(copyPopup);
-      copyPopup = null;
-    }
-  }
+  // function hideCopyPopup() {
+  //   if (copyPopup !== null) {
+  //     document.body.removeChild(copyPopup);
+  //     copyPopup = null;
+  //   }
+  // }
 </script>
 
 
 <style>
   #topnav {
-    background-color: #27275b;
+    background-color: #2B338C;
     overflow: visible;
     padding: 8px 20px;
     display: inline-block;
@@ -110,10 +110,10 @@
     vertical-align: middle;
   }
 
-  #title {
-    color: #eff4fa;
-    font-size: 22px;
-  }
+  /*#title {*/
+  /*  color: #eff4fa;*/
+  /*  font-size: 22px;*/
+  /*}*/
 
   img {
     vertical-align: middle;
@@ -139,16 +139,16 @@
 
 <div id="topnav">
   <div class="top">
-    <div id='logo'> <img src='images/logo.png' alt='EnerMaps'> </div>
-    <div id='title'>EnerMaps</div>
+    <div id='logo'> <img src='images/logo-historeno.svg' alt='EnerMaps'> </div>
+    <!--<div id='title'>Historeno</div>-->
   </div>
 
-  <a href="https://enermaps-wiki.herokuapp.com" target="_blank" class="link">Wiki</a>
-  <a href="https://enermaps.openaire.eu" target="_blank" class="link">OpenAIRE</a>
+  <!--<a href="https://enermaps-wiki.herokuapp.com" target="_blank" class="link">Wiki</a>-->
+  <!--<a href="https://enermaps.openaire.eu" target="_blank" class="link">OpenAIRE</a>-->
   <!--<a href="https://www.kialo.com/" target="_blank" class="link">Kialo</a>-->
-  <button class="link" title="Copy the URL of the WMS server to the clipboard"
-          on:click={copyWMSUrlToClipboard} on:mouseleave={hideCopyPopup}>WMS</button>
-  <button id="btn_about" class="link">About</button>
+  <!--<button class="link" title="Copy the URL of the WMS server to the clipboard"-->
+  <!--        on:click={copyWMSUrlToClipboard} on:mouseleave={hideCopyPopup}>WMS</button>-->
+  <button id="btn_about" class="link">À propos</button>
 
   <slot id='slot'></slot>
 

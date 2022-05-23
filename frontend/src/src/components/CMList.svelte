@@ -10,6 +10,7 @@
   let cms = [];
   let areaSelected = false;
   let layerSelected = false;
+  let activeTabTest = 'consultation';
 
 
   onMount(async () => {
@@ -47,11 +48,11 @@
     top: -10px;
     padding: 5px;
     border-radius: 0px;
-    border: 1px solid #27275b;
+    border: 1px solid #2B338C;
     background-color: #eff4fa;
-    width: 30vw;
+    width: 35vw;
     min-width: 280px;
-    max-width: 500px;
+    max-width: 700px;
     max-height: calc(100vh - 100px);
     overflow-y: scroll;
   }
@@ -105,6 +106,23 @@
     height:auto;
     cursor: pointer;
   }
+
+  div.tabs {
+    border-bottom: 1px solid black;
+    margin-top: 5px;
+    margin-bottom: 6px;
+    padding-bottom: 4px;
+  }
+
+  span.tab {
+    border: 1px solid black;
+    padding: 4px;
+    margin-left: 0;
+    margin-right: 0;
+    background-color: #f7f7f7;
+    cursor: pointer;
+  }
+
 </style>
 
 
@@ -114,7 +132,7 @@
   <div id="calculation_modules_content">
     <div id="cm_list_header">
       <div id="close_button_cm_list" on:click={closeCMPanel}><img src='{BASE_URL}images/clear-icon.png' alt='close'></div>
-      <div id="header"><h2>Calculation Modules</h2></div>
+      <div id="header"><h2>Outils d'analyse : </h2></div>
 
       {#if !areaSelected}
         <div class="warning">No area selected</div>
@@ -124,12 +142,22 @@
         <div class="warning">No layer selected</div>
       {/if}
 
-      <AreaSelection />
     </div>
     <div id="list">
-      {#each cms as cm (cm.name)}
-        <CM bind:cm />
-      {/each}
+      <div class="container-empty-cm">
+        <div class="tabs">
+          <span class="tab" class:selected={activeTabTest === 'consultation'} on:click={() => (activeTabTest = 'consultation')}>Consultation</span>
+          <span class="tab" class:selected={activeTabTest === 'analyse'} on:click={() => (activeTabTest = 'analyse')}>Analyse</span>
+        </div>
+      </div>
+      {#if activeTabTest === 'analyse'}
+        <AreaSelection />
+        {#each cms as cm (cm.name)}
+          <CM bind:cm />
+        {/each}
+      {:else if activeTabTest === 'consultation'}
+        <p> Information about the house. </p>
+      {/if}
     </div>
   </div>
 </div>

@@ -16,12 +16,13 @@
   let formElement = null;
   let form = undefined;
   let callCMTooltip = '';
-  let isCollapsed = true;
+  let isCollapsed = false;
   let layersText = null;
   let layersLinkText = null;
   let layersLinkDatasetId = null;
   let layersDetails = null;
   let layersDetailsDisplayed = false;
+  const showCmInfo = false;
 
 
   onMount(() => {
@@ -310,7 +311,8 @@
         {/if}
       </div>
     {:else}
-      <div class="cm_info">
+      {#if showCmInfo}
+        <div class="cm_info">
         {layersText}
         {#if layersLinkText}
           <span title="Display the list of supported datasets" on:click={toggleLayersDetails}>{layersLinkText}</span>
@@ -339,12 +341,13 @@
           </div>
         {/if}
       </div>
+      {/if}
     {/if}
 
     <div class="cm_wiki">
       <i>
-        For more information about the analysis tool,
-        see <a href="{cm.wiki}" target="_blank">the wiki page</a>.
+        Pour plus d'information concernant le projet,
+        voir <a href="{cm.wiki}" target="_blank">la page web du projet</a>.
       </i>
     </div>
 

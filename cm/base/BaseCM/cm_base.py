@@ -89,7 +89,6 @@ class CMBase(Task):
         """
         raw_name = function.__name__
         spaced_name = raw_name.replace("__", "-").replace("_", " ")
-        # return spaced_name.capitalize()
         return spaced_name
 
     def validate_params(self, params):
