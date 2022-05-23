@@ -12,7 +12,7 @@ DATA_DIR = join(CURRENT_DIR, "data")
 def get_engine() -> sqlalchemy.engine.Engine:
     # DB_URL = "postgresql://postgres:postgres@localhost:5432/dataset"
     _engine = sqla.create_engine(url=DB_URL)
-    print(DB_URL)
+    print(f"DATA BASE URL : {DB_URL}")
     try:
         connection = _engine.connect()
         connection.close()
@@ -32,11 +32,11 @@ def read_data() -> gpd.GeoDataFrame:
 def post_data(
     data: gpd.GeoDataFrame,
     engine_: sqlalchemy.engine.Engine,
-    schema: str,
+    table: str,
     **kwargs,
 ) -> None:
     data.to_postgis(
-        schema,
+        table,
         engine_,
         if_exists="append",
         index=False,
@@ -47,5 +47,5 @@ def post_data(
 if __name__ == "__main__":
     engine = get_engine()
     geo_dataframe = read_data()
-    post_data(data=geo_dataframe, engine_=engine, schema="cedric")
+    post_data(data=geo_dataframe, engine_=engine, table="historeno_test")
     print("done")
