@@ -84,8 +84,12 @@ def Module_Historeno(self, selection: dict, rasters: list, params: dict):
     ]
     ret["geofiles"] = {}
     ret["values"] = {"Status code": res.status_code}
+    from lxml import etree
+    xml_str = res.content
+    root = etree.fromstring(xml_str)
+    print(etree.tostring(root, pretty_print=True))
     ret["warnings"] = {
-        "Example CM": f"Response: {res.content}.",
+        "Example CM": f"Response: {etree.tostring(root, pretty_print=True)}.",
     }
     return validate(ret)
 
