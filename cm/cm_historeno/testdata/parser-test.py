@@ -14,9 +14,7 @@ def parse_xml(xml_string: str):
 
 
 if __name__ == "__main__":
-    with open(
-        file=r"default-response.xml"
-    ) as file:
+    with open(file=r"default-response.xml") as file:
         xml = file.read()
         parse_xml(xml_string=xml)
         print(xml)
