@@ -6,7 +6,6 @@ from pprint import pprint
 import requests
 from BaseCM import cm_base as cm_base
 from BaseCM.cm_output import validate
-from lxml import etree
 
 from form import decoder
 
@@ -93,12 +92,8 @@ def Module_Historeno(self, selection: dict, rasters: list, params: dict):
     ]
     ret["geofiles"] = {}
     ret["values"] = {"Status code": res.status_code}
-
-    xml_str = res.content
-    root = etree.fromstring(xml_str)
-    print(etree.tostring(root, pretty_print=True))
     ret["warnings"] = {
-        "Example CM": f"Response: {etree.tostring(root, pretty_print=True)}.",
+        "Example CM": f"Response: {res.content}.",
     }
     return validate(ret)
 
