@@ -39,26 +39,46 @@ def Module_Historeno(self, selection: dict, rasters: list, params: dict):
         "generatorYear": params["Année d'installation du chauffage"],
         "emettors": decoder.get("emettors").get(params["Type d'émetteurs"]),
         "regulation": decoder.get("regulation").get(params["Régulation du chauffage"]),
-        "tubeInsulH": decoder.get("tubeInsulH").get(params["Isolation des conduites de chauffage"]),
-        "tubeInsulW": decoder.get("tubeInsulW").get(params["Isolation des conduites d'ECS"]),
-        "solarThermal": decoder.get("solarThermal").get(params["Présence d'une installation solaire thermique"]),
+        "tubeInsulH": decoder.get("tubeInsulH").get(
+            params["Isolation des conduites de chauffage"]
+        ),
+        "tubeInsulW": decoder.get("tubeInsulW").get(
+            params["Isolation des conduites d'ECS"]
+        ),
+        "solarThermal": decoder.get("solarThermal").get(
+            params["Présence d'une installation solaire thermique"]
+        ),
         "solarThermalAreaAuto": decoder.get("solarThermalAreaAuto").get(
             params["Surface de capteurs solaires thermiques automatique"]
         ),
         "solarThermalArea": params["Surface de capteurs solaires thermiques"],
         "nbAppart": params["Nombre de logements"],
-        "devEff": decoder.get("devEff").get(params["Efficacité des appareils électriques"]),
-        "ventMeca": decoder.get("ventMeca").get(params["Présence d'une ventilation mécanique"]),
+        "devEff": decoder.get("devEff").get(
+            params["Efficacité des appareils électriques"]
+        ),
+        "ventMeca": decoder.get("ventMeca").get(
+            params["Présence d'une ventilation mécanique"]
+        ),
         "elevator": decoder.get("elevator").get(params["Présence d'ascenseur(s)"]),
-        "solarPV": decoder.get("solarPV").get(params["Présence d'une instalaltion solaire PV"]),
+        "solarPV": decoder.get("solarPV").get(
+            params["Présence d'une instalaltion solaire PV"]
+        ),
         "pvAreaAuto": decoder.get("pvAreaAuto").get(params["Surface PV automatique"]),
         "pvArea": params["Surface PV"],
         "pvOri": params["Orientation PV"],
-        "pvBattery": decoder.get("pvBattery").get(params["Présence de batteries de stockage"]),
+        "pvBattery": decoder.get("pvBattery").get(
+            params["Présence de batteries de stockage"]
+        ),
         "protectionGrade": params["Note de protection du patrimoine"],
-        "heatingWood": decoder.get("heatingWood").get(params["Possibilité d'utiliser un chauffage au bois"]),
-        "heatingProbes": decoder.get("heatingProbes").get(params["Possibilité de mettre des sondes géothermiques"]),
-        "solarRoof": decoder.get("solarRoof").get(params["Possibilité de mettre du solaire en toiture"]),
+        "heatingWood": decoder.get("heatingWood").get(
+            params["Possibilité d'utiliser un chauffage au bois"]
+        ),
+        "heatingProbes": decoder.get("heatingProbes").get(
+            params["Possibilité de mettre des sondes géothermiques"]
+        ),
+        "solarRoof": decoder.get("solarRoof").get(
+            params["Possibilité de mettre du solaire en toiture"]
+        ),
     }
 
     def post_parameters():
