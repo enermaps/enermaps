@@ -6,6 +6,7 @@ from pprint import pprint
 import requests
 from BaseCM import cm_base as cm_base
 from BaseCM.cm_output import validate
+from form import decoder
 
 app = cm_base.get_default_app("historeno")
 schema_path = cm_base.get_default_schema_path()
@@ -22,36 +23,41 @@ wiki = "http://www.historeno.eu/"
 )
 def Module_Historeno(self, selection: dict, rasters: list, params: dict):
     parameters = {
-        "country": "CH",
-        "canton": "VS",
+        "country": decoder.get("coutry").get(params["Pays"]),
+        "canton": decoder.get("canton").get(params["Region"]),
         "altitude": 10.0,
-        "meteoParam": "sud",
-        "context": "urban",
+        "meteoParam": decoder.get("meteoParam").get(params["Pays"]),
+        "context": decoder.get("context").get(params["Region"]),
         "polygon": "[[0,0],[0,10],[10,10],[10,0]]",
         "adjoining": "[0,0,0.5,0]",
-        "gable": "[0,0,1,0]",
+        # "gable": "[0,0,1,0]",
         "typo": params["Typologie"],
         "year": "1910",
         "category": 1,
         "height": 100.0,
-        "generator": "genTypOil",  # TODO : transalte it --> params["Type de chauffage"],
+        "generator": decoder.get("generator").get(params["Region"]),
         "generatorYear": params["Année d'installation ou de remplacement du chauffage"],
-        "emettors": "emRadWall",  # TODO : transalte it --> params["Type d'émetteurs"],
-        "regulation": 0,  # TODO : transalte it -->  params["Régulation du chauffage"],
-        "tubeInsulH": "notInsulated",  # TODO : transalte it -->  params["Isolation des conduites de chauffage"],
-        "tubeInsulW": "notInsulated",  # TODO : transalte it --> params["Isolation des conduites d'ECS"],
-        "solarThermal": 1,  # TODO : transalte it --> params["Présence d'une installation solaire thermique"],
-        "solarThermalAreaAuto": 0,  # TODO : transalte it -->  params["Surface de capteurs solaires thermiques automatique"],
-        "solarThermalArea": 10,  # TODO : transalte it --> params["Surface de capteurs solaires thermiques"],
+        "emettors": decoder.get("emettors").get(params["Region"]),
+        "regulation": decoder.get("regulation").get(params["Region"]),
+        "tubeInsulH": decoder.get("tubeInsulH").get(params["Region"]),
+        "tubeInsulW": decoder.get("tubeInsulW").get(params["Region"]),
+        "solarThermal": decoder.get("solarThermal").get(params["Region"]),
+        "solarThermalAreaAuto": decoder.get("solarThermalAreaAuto").get(params["Region"]),
+        "solarThermalArea": 10,
         "nbAppart": 0,
-        "devEff": "best",  # TODO : transalte it --> params["Efficacité des appareils électriques"],
-        "ventMeca": "none",  # TODO : transalte it --> params["Présence d'une ventilation mécanique"],
-        "elevator": 0,  # TODO : transalte it -->  params["Présence d'ascenseur(s)"],
-        "solarPV": 1,  # TODO : transalte it --> params["Présence d'une instalaltion solaire PV"],
-        "pvAreaAuto": 0,  # TODO : transalte it --> params["Surface PV automatique"],
-        "pvArea": 5.0,  # TODO : transalte it --> params["Surface PV"],
-        "pvOri": 7.0,  # TODO : transalte it --> params["Orientation PV"],
-        "pvBattery": 1,  # TODO : transalte it --> params["Présence de batteries de stockage"],
+        "devEff": decoder.get("devEff").get(params["Region"]),
+        "ventMeca": decoder.get("context").get(params["Region"]),
+        "elevator": decoder.get("context").get(params["Region"]),
+        "solarPV": decoder.get("context").get(params["Region"]),
+        "pvAreaAuto": decoder.get("context").get(params["Region"]),
+        "pvArea": 5.0,
+        "pvOri": 7.0,
+        "pvBattery": decoder.get("context").get(params["Region"]),
+        "protectionGrade": 0,
+        "heatingWood": decoder.get("context").get(params["Region"]),
+        "heatingProbes": decoder.get("context").get(params["Region"]),
+        "solarRoof": decoder.get("context").get(params["Region"]),
+
     }
 
     def post_parameters():

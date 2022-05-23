@@ -1,6 +1,72 @@
 {
   "type": "object",
   "properties": {
+    "Pays": {
+      "type": "string",
+      "enum": [
+        "France",
+        "Suisse"
+      ],
+      "required": true
+    },
+    "Region": {
+      "type": "string",
+      "enum": [
+        "Valais",
+        "Vaud",
+        "Fribourg",
+        "Bern",
+        "Neuchâtel",
+        "Jura-CH",
+        "Genève",
+        "Haute-Savoie",
+        "Ain",
+        "Jura-FR",
+        "Territoire de Belfort"
+      ],
+      "required": true
+    },
+    "Altitude": {
+      "type": "number",
+      "minimum": 0,
+      "default": 0,
+      "required": true
+    },
+    "Météo": {
+      "type": "string",
+      "enum": [
+        "Jura",
+        "Préalpes",
+        "Dégagé vers le sud",
+        "Bouché vers le sud"
+      ],
+      "required": true
+    },
+    "Context": {
+      "type": "string",
+      "enum": [
+        "Rural",
+        "Urban",
+        "Suburban"
+      ],
+      "required": true
+    },
+    "Empreinte au sol": {
+      "type": "string",
+      "default": "[[0,0],[0,10],[10,10],[10,0]]",
+      "enum": [
+        "[[0,0],[0,10],[10,10],[10,0]]"
+      ],
+      "required": true
+    },
+    "Mitoyenneté": {
+      "type": "string",
+      "default": "[0,0,0.5,0]",
+      "enum": [
+        "[0,0,0.5,0]"
+      ],
+      "required": true
+    },
     "Typologie": {
       "type": "number",
       "minimum": 1,
@@ -8,35 +74,52 @@
       "default": 1,
       "required": true
     },
-    "Type de chauffage": {
-      "type": "string",
-      "default": "Mazout",
-      "enum": [
-                "Mazout",
-                "Gas naturel",
-                "Pellets",
-                "Büches bois",
-                "Copeaux bois",
-                "PAC air-eau",
-                "PAC sol-eau",
-                "Électrique direct",
-                "Chauffage à distance"
-            ],
-      "required": true
-    },
-    "Année d'installation ou de remplacement du chauffage": {
+    "Années de construction": {
       "type": "number",
       "minimum": 1900,
-      "default": 1990,
+      "default": 1900,
+      "required": true
+    },
+    "Catégorie d'ouvrage": {
+      "type": "number",
+      "minimum": 1,
+      "maximum": 12,
+      "default": 1,
+      "required": true
+    },
+    "Hauteur du bâtiment": {
+      "type": "number",
+      "minimum": 5,
+      "default": 5,
+      "required": true
+    },
+    "Type de chauffage": {
+      "type": "string",
+      "enum":  [
+        "Mazout",
+        "Gas naturel",
+        "Pellets",
+        "Büches bois",
+        "Vopeaux bois",
+        "PAC air-eau",
+        "PAC sol-eau",
+        "Électrique direct",
+        "Chauffage à distance"
+      ],
+      "required": true
+    },
+    "Année d'installation du chauffage": {
+      "type": "number",
+      "minimum": 1900,
+      "default": 1900,
       "required": true
     },
     "Type d'émetteurs": {
       "type": "string",
-      "default": "Radiateurs",
-      "enum": [
+      "enum":  [
         "Radiateurs",
         "Radiateurs devant fenêtres",
-        "Plancher(s) chauffant",
+        "Plancher(s) chaffant(s)",
         "Murs chauffants",
         "Aucun (élec direct)"
       ],
@@ -44,17 +127,15 @@
     },
     "Régulation du chauffage": {
       "type": "string",
-      "default": "Autre (+2°C)",
-      "enum": [
+      "enum":  [
         "Sondes de temp. par pièce ou vannes thermostatiques sur radiateurs (+0°C)",
         "Sonde de température dans une pièce de référence (par ex séjour)  (+1°C)",
-        "Autre (+2°C)"
+        "autre (+2°C)"
       ],
       "required": true
     },
     "Isolation des conduites de chauffage": {
       "type": "string",
-      "default": "Non isolées",
       "enum": [
         "Non isolées",
         "Partiellement isolées",
@@ -64,7 +145,6 @@
     },
     "Isolation des conduites d'ECS": {
       "type": "string",
-      "default": "Non isolées",
       "enum": [
         "Non isolées",
         "Partiellement isolées",
@@ -72,7 +152,7 @@
       ],
       "required": true
     },
-    "Présence d'une installation solaire thermique": {
+    "Présence d'une installation solaire thermique":{
       "type": "string",
       "default": "Non",
       "enum": [
@@ -83,7 +163,7 @@
     },
     "Surface de capteurs solaires thermiques automatique": {
       "type": "string",
-      "default": "Oui",
+      "default": "Non",
       "enum": [
         "Non",
         "Oui"
@@ -91,9 +171,18 @@
       "required": true
     },
     "Surface de capteurs solaires thermiques": {
+      "type": "string",
+      "default": "Non",
+      "enum": [
+        "Non",
+        "Oui"
+      ],
+      "required": true
+    },
+    "Nombre de logements": {
       "type": "number",
-      "minimum": 0,
       "default": 0,
+      "minimum" : 0,
       "required": true
     },
     "Efficacité des appareils électriques": {
@@ -163,6 +252,40 @@
       "default": 0,
       "minimum" : 0,
       "maximum" : 360,
+      "required": true
+    },
+    "Note de protection du patrimoine": {
+      "type": "number",
+      "default": 1,
+      "minimum" : 1,
+      "maximum" : 12,
+      "required": true
+    },
+    "Possibilité d'utiliser un chauffage au bois": {
+      "type": "string",
+      "default": "Non",
+      "enum": [
+        "Non",
+        "Oui"
+      ],
+      "required": true
+    },
+    "Possibilité de mettre des sondes géothermiques": {
+      "type": "string",
+      "default": "Non",
+      "enum": [
+        "Non",
+        "Oui"
+      ],
+      "required": true
+    },
+    "Possibilité de mettre du solaire en toiture": {
+      "type": "string",
+      "default": "Non",
+      "enum": [
+        "Non",
+        "Oui"
+      ],
       "required": true
     }
   }
