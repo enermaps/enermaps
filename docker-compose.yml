@@ -175,67 +175,7 @@ services:
 #      - .env
 #      - .env-db-server
 
-  cm-heatlearn:
-    build:
-      context: ./
-      dockerfile: ./cm/heatlearn/Dockerfile
-    environment:
-      WMS_CACHE_DIR: /wms_cache
-    depends_on:
-      - redis
-    restart: always
-    volumes:
-      - wms_cache:/wms_cache:ro
-    env_file:
-      - .env
-      - .env-db-server
-
-  cm-dhexppot:
-    build:
-      context: ./cm
-      dockerfile: ./cm_dhexppot/Dockerfile
-    environment:
-      WMS_CACHE_DIR: /wms_cache
-    depends_on:
-      - redis
-    restart: always
-    volumes:
-      - wms_cache:/wms_cache:ro
-    env_file:
-      - .env
-      - .env-db-server
-
-  cm-buildingload:
-    build:
-      context: ./
-      dockerfile: ./cm/cm_buildingload/Dockerfile
-    environment:
-      WMS_CACHE_DIR: /wms_cache
-    depends_on:
-      - redis
-    restart: always
-    volumes:
-      - wms_cache:/wms_cache:ro
-    env_file:
-      - .env
-      - .env-db-server
-
-  cm-raster-statistics:
-    build:
-      context: ./cm
-      dockerfile: cm_raster_statistics/Dockerfile
-    environment:
-      WMS_CACHE_DIR: /wms_cache
-    depends_on:
-      - redis
-    restart: always
-    volumes:
-      - wms_cache:/wms_cache:ro
-    env_file:
-      - .env
-      - .env-db-server
-
-cm-historeno:
+  cm-historeno:
     build:
       context: ./cm
       dockerfile: cm_historeno/Dockerfile
@@ -248,7 +188,7 @@ cm-historeno:
       - wms_cache:/wms_cache:ro
     env_file:
       .env
-      
+
 volumes:
   wms_cache:
   cm_outputs:
