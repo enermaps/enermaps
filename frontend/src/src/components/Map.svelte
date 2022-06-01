@@ -136,7 +136,7 @@
         } else {
           title = layer.labels.primary;
         }
-
+// appel des data contenues dans l'objet showInfos
         if (layer.leaflet_layer.showInfos(title, event.latlng, data)) {
           layer.leaflet_layer.highlightArea(data);
           highlightedLayer = layer;

@@ -26,11 +26,15 @@ const BaseMethods = {
         });
   },
 
+// création de l'objet showInfos
+
   showInfos: function(title, latlng, content) {
     // Otherwise show the content in a popup, or something.
     if (!content || !content.features || (content.features.length == 0)) {
       return false;
     }
+
+// declare variable popupContent à l'interieur de l'objet showInfos
 
     let popupContent = '';
     const allFields = {};
@@ -71,6 +75,8 @@ const BaseMethods = {
           popupContent += td2.outerHTML;
 
           popupContent += '</tr>';
+
+// log pour observer dans le navigateur les données renvoyées par popupContent
           console.log(popupContent);
         }
       }
