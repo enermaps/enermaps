@@ -26,7 +26,7 @@ const BaseMethods = {
         });
   },
 
-   //  création de l'objet showInfos
+  //  création de l'objet showInfos
 
   showInfos: function(title, latlng, content) {
     // Otherwise show the content in a popup, or something.
@@ -76,7 +76,7 @@ const BaseMethods = {
 
           popupContent += '</tr>';
 
-        //log pour observer dans le navigateur les données renvoyées par popupContent
+          // log pour observer dans le navigateur les données renvoyées par popupContent
           console.log(popupContent);
         }
       }
