@@ -1,9 +1,11 @@
+import os
+
 import geopandas as gpd
 import sqlalchemy
 from historeno_settings import DB_URL
 import sqlalchemy as sqla
 # from sqlalchemy import create_engine
-from os.path import abspath, dirname, isfile, join
+from os.path import abspath, dirname, isfile, join, isdir
 
 CURRENT_DIR = dirname(abspath(__file__))
 DATA_DIR = join(CURRENT_DIR, "data")
@@ -22,8 +24,9 @@ def get_engine() -> sqlalchemy.engine.Engine:
 
 
 def read_data() -> gpd.GeoDataFrame:
-    file = join(DATA_DIR, "data_extraction.shp")
+    print(os.listdir(DATA_DIR))
     if not isfile(file):
+        print("ddata-integration\data\sample_bat_fr.shp")
         raise FileExistsError(file)
     dataframe = gpd.read_file(filename=file)
     return dataframe
