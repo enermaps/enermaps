@@ -8,7 +8,7 @@ import sqlalchemy as sqla
 from os.path import abspath, dirname, isfile, join, isdir
 
 CURRENT_DIR = dirname(abspath(__file__))
-DATA_DIR = join(CURRENT_DIR, "data")
+DATA_DIR = join(CURRENT_DIR, "inputs")
 
 
 def get_engine() -> sqlalchemy.engine.Engine:
@@ -24,9 +24,8 @@ def get_engine() -> sqlalchemy.engine.Engine:
 
 
 def read_data() -> gpd.GeoDataFrame:
-    print(os.listdir(DATA_DIR))
+    file = join(DATA_DIR, "datasets.shp")
     if not isfile(file):
-        print("ddata-integration\data\sample_bat_fr.shp")
         raise FileExistsError(file)
     dataframe = gpd.read_file(filename=file)
     return dataframe
