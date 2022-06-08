@@ -98,6 +98,7 @@ services:
       - .env
       - .postgrest
 
+
   data-integration:
     build:
       context: ./data-integration
