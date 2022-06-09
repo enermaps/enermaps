@@ -1,2 +1,5 @@
 PGRST_DB_URI=postgres://test:example@db:5432/dataset
 PGRST_DB_ANON_ROLE=api_anon
+PGRST_JWT_SECRET=N5PIx2rh1XNTtfd2WOHgK0FOLtMQxGev
+
+

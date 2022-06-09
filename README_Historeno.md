@@ -35,13 +35,29 @@ DB_PASSWORD : example (or see .env-db)
 # Postgrest
 ## Service
 ## Modification from EmerMaps
-- add .postgrest file
+1. generate the json web token, with this tutorial :
+  - https://postgrest.org/en/stable/tutorials/tut1.html#tut1
+  - https://jwt.io/#debugger-io
+
+2. add .postgrest file
 ```
 PGRST_DB_URI=postgres://test:example@db:5432/dataset
 PGRST_DB_ANON_ROLE=api_anon
-PGRST_JWT_SECRET={PASSWORD}
+PGRST_JWT_SECRET=N5PIx2rh1XNTtfd2WOHgK0FOLtMQxGev
 ```
 
+3. Test with simple request
+```python
+import requests
+API_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoiYXBpX3VzZXIifQ.Xwsd6m6h1kOEzU_atTKMI011ngRm6wNqLRWoOI1C1WI"
+r = requests.get(
+    'http://localhost:3000/datasets',
+     headers={'Authorization': 'Bearer {}'.format(API_KEY)}
+)
+print(r.url)
+response = r.json()
+pprint(response)
+```
 
 # Part
 ## Service
