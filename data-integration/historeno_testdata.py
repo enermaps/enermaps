@@ -58,7 +58,7 @@ def post_data(
     datasets.to_sql(
         "datasets",
         engine_,
-        if_exists="append",
+        if_exists="replace",
         index=False,
         **kwargs,
     )
@@ -78,7 +78,7 @@ def post_data(
     spatial_data.to_postgis(
         "spatial",
         engine_,
-        if_exists="append",
+        if_exists="replace",
         index=False,
         **kwargs,
     )
@@ -102,7 +102,7 @@ def post_data(
     data_data.to_sql(
         "data",
         engine_,
-        if_exists="append",
+        if_exists="replace",
         index=False,
         **kwargs,
     )
