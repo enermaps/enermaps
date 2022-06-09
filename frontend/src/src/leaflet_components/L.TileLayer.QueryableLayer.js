@@ -1,4 +1,4 @@
-import {writable} from 'svelte/store';
+// import {writable} from 'svelte/store';
 // export const popupContent  = writable(true);
 export const popupContent = '';
 
@@ -75,11 +75,8 @@ const BaseMethods = {
               td2.innerText += ' ' + unit;
             }
           }
-
           popupContent += td2.outerHTML;
-
           popupContent += '</tr>';
-
         }
       }
 
@@ -127,9 +124,8 @@ const BaseMethods = {
           .setLatLng(latlng)
           .setContent('<table><tbody>' + popupContent + '</tbody></<table>')
           .openOn(this._map);
-          console.log(popupContent);
+      console.log(popupContent);
     }
-
     return true;
   },
 

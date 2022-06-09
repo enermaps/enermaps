@@ -5,7 +5,7 @@
   import {areaSelectionLayerStore, selectedLayerStore, isCMPaneActiveStore} from '../stores.js';
   import CM from './CM.svelte';
   import AreaSelection from './AreaSelection.svelte';
-  import {popupContent} from '../leaflet_components/L.TileLayer.QueryableLayer.js';
+  // import {popupContent} from '../leaflet_components/L.TileLayer.QueryableLayer.js';
 
 
   let cms = [];
