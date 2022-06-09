@@ -112,9 +112,10 @@
       highlightedLayer = null;
     }
 
-    if ($isCMPaneActiveStore) {
-      return;
-    }
+    // allow to read console.log(popupContent) when CMPane is on
+    // if ($isCMPaneActiveStore) {
+    //   return;
+    // }
 
     const point = map.latLngToContainerPoint(event.latlng, map.getZoom());
 

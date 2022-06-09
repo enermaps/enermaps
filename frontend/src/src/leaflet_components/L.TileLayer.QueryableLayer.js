@@ -1,3 +1,7 @@
+import {writable} from 'svelte/store';
+// export const popupContent  = writable(true);
+export const popupContent = '';
+
 const BaseMethods = {
   onError: function(err) {
     console.log(err);
@@ -76,8 +80,6 @@ const BaseMethods = {
 
           popupContent += '</tr>';
 
-          // log pour observer dans le navigateur les données renvoyées par popupContent
-          console.log(popupContent);
         }
       }
 
@@ -125,6 +127,7 @@ const BaseMethods = {
           .setLatLng(latlng)
           .setContent('<table><tbody>' + popupContent + '</tbody></<table>')
           .openOn(this._map);
+          console.log(popupContent);
     }
 
     return true;
