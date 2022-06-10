@@ -47,18 +47,23 @@ def post_data(
         "metadata": [
             {
                 "Title": "Sample of bulding",
-                "parameters": {"is_raster": False, "is_tiled": False},
+                "parameters": {
+                    "is_raster": False,
+                    "is_tiled": False,
+                    "default_parameters": {"house": True}
+                },
+                # "end_at": "time-stamp",  # TODO : change the variable type into time stamp
                 "Group": "Building",
             }
         ],
-        "share_id": ["building_share_id"],
+        # "share_id": ["building_share_id"],
     }
     datasets = pd.DataFrame(data=d)
     datasets["metadata"] = datasets["metadata"].apply(json.dumps)
     datasets.to_sql(
         "datasets",
         engine_,
-        if_exists="replace",
+        if_exists="append",
         index=False,
         **kwargs,
     )
