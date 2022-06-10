@@ -1,5 +1,7 @@
 // import {writable} from 'svelte/store';
 // export const popupContent  = writable(true);
+import {popupInformation, isCMPaneActiveStore} from '../stores.js';
+
 export const popupContent = '';
 
 const BaseMethods = {
@@ -124,7 +126,8 @@ const BaseMethods = {
           .setLatLng(latlng)
           .setContent('<table><tbody>' + popupContent + '</tbody></<table>')
           .openOn(this._map);
-      console.log(popupContent);
+      popupInformation.set(popupContent);
+      isCMPaneActiveStore.set(true);
     }
     return true;
   },

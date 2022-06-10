@@ -2,7 +2,7 @@
   import {onMount} from 'svelte';
   import {BASE_URL} from '../settings.js';
   import {getCMs} from '../client.js';
-  import {areaSelectionLayerStore, selectedLayerStore, isCMPaneActiveStore} from '../stores.js';
+  import {areaSelectionLayerStore, selectedLayerStore, isCMPaneActiveStore, popupInformation} from '../stores.js';
   import CM from './CM.svelte';
   import AreaSelection from './AreaSelection.svelte';
   // import {popupContent} from '../leaflet_components/L.TileLayer.QueryableLayer.js';
@@ -158,9 +158,7 @@
         {/each}
       {:else if activeTabTest === 'consultation'}
         <p> Information about the house. </p>
-        <!-- try to plot popupContent here -->
-
-
+        {$popupInformation}
       {/if}
     </div>
   </div>
