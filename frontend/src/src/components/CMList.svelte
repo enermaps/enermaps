@@ -44,6 +44,8 @@
     height: 100%;
   }
 
+  #popupInformation {}
+
   #calculation_modules_pane {
     position: relative;
     top: -10px;
@@ -53,7 +55,7 @@
     background-color: #eff4fa;
     width: 35vw;
     min-width: 280px;
-    max-width: 700px;
+    max-width: 400px;
     max-height: calc(100vh - 100px);
     overflow-y: scroll;
   }
@@ -157,8 +159,11 @@
           <CM bind:cm />
         {/each}
       {:else if activeTabTest === 'consultation'}
-        <p> Information about the house. </p>
-        {$popupInformation}
+        <div class="popupInformation">
+            <table>
+                {@html $popupInformation}
+            </table>
+        </div>
       {/if}
     </div>
   </div>

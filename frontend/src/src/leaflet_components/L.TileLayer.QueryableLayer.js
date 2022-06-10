@@ -45,7 +45,7 @@ const BaseMethods = {
     let popupContent = '';
     const allFields = {};
 
-    popupContent += '<h1>' + title + '</h1>';
+    popupContent += '<h3>' + title + '</h3>';
 
     for (const feature of content.features) {
       const properties = feature.properties;
@@ -63,7 +63,7 @@ const BaseMethods = {
 
           const td1 = document.createElement('td');
           td1.className = 'name';
-          td1.innerText = key + ':';
+          td1.innerText = key + ' :';
           popupContent += td1.outerHTML;
 
 
@@ -103,7 +103,7 @@ const BaseMethods = {
 
         const td1 = document.createElement('td');
         td1.className = 'name';
-        td1.innerText = key + ':';
+        td1.innerText = key + ' :';
         popupContent += td1.outerHTML;
 
         const td2 = document.createElement('td');
