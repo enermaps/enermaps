@@ -1,5 +1,3 @@
-// import {writable} from 'svelte/store';
-// export const popupContent  = writable(true);
 import {popupInformation, isCMPaneActiveStore} from '../stores.js';
 
 export const popupContent = '';
@@ -32,20 +30,16 @@ const BaseMethods = {
         });
   },
 
-  //  création de l'objet showInfos
-
   showInfos: function(title, latlng, content) {
     // Otherwise show the content in a popup, or something.
     if (!content || !content.features || (content.features.length == 0)) {
       return false;
     }
 
-    //   declare variable popupContent à  l'interieur de l'objet showInfos
-
     let popupContent = '';
     const allFields = {};
 
-    popupContent += '<h3>' + title + '</h3>';
+    popupContent += '<h1>' + title + '</h1>';
 
     for (const feature of content.features) {
       const properties = feature.properties;
