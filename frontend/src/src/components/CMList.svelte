@@ -28,10 +28,10 @@
     layerSelected = ($selectedLayerStore !== null);
   }
 
-  function choosepopupvalue(){
-     if ($popupInformation.name == 'avg_annual_generation_GWh'){
-     return value;
-     }
+  function choosepopupvalue() {
+    if ($popupInformation.name == 'avg_annual_generation_GWh') {
+      return value;
+    }
   }
 
   function closeCMPanel() {
@@ -46,8 +46,6 @@
     flex-direction: column;
     height: 100%;
   }
-
-  #popupInformation {}
 
   #calculation_modules_pane {
     position: relative;
