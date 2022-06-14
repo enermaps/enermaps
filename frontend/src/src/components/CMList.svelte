@@ -29,10 +29,9 @@
   }
 
   function choosepopupvalue() {
-    if ($popupInformation.name == 'avg_annual_generation_GWh') {
-      return value;
-    }
+    $popupInformation = $popupInformation.filter(key == 'type');
   }
+
 
   function closeCMPanel() {
     isCMPaneActiveStore.update((n) => !n);
@@ -160,12 +159,9 @@
           <CM bind:cm />
         {/each}
       {:else if activeTabTest === 'consultation'}
-        <div class="popupInformation">
-            <table>
-                <!-- {@html $popupInformation} -->
-                {$choosepopupvalue}
-            </table>
-        </div>
+        <table>
+          {@html choosepopupvalue}
+        </table>
       {/if}
     </div>
   </div>
