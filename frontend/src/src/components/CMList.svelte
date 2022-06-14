@@ -28,6 +28,11 @@
     layerSelected = ($selectedLayerStore !== null);
   }
 
+  function choosepopupvalue(){
+     if ($popupInformation.name == 'avg_annual_generation_GWh'){
+     return value;
+     }
+  }
 
   function closeCMPanel() {
     isCMPaneActiveStore.update((n) => !n);
@@ -159,7 +164,8 @@
       {:else if activeTabTest === 'consultation'}
         <div class="popupInformation">
             <table>
-                {@html $popupInformation}
+                <!-- {@html $popupInformation} -->
+                {$choosepopupvalue}
             </table>
         </div>
       {/if}
