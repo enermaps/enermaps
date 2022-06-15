@@ -95,13 +95,13 @@ def post_data(
         "value": [value for value in range(rows)],
         "unit": ["m2" for _ in range(rows)],
         "start_at": [None for _ in range(rows)],
-        # "fields": [{"SRE": sre, "is_protected": False} for sre in range(rows)],
+        "fields": [{"SRE": str(sre)} for sre in range(rows)],
         "dt": [None for _ in range(rows)],
         "z": [None for _ in range(rows)],
         "israster": [False for _ in range(rows)],
     }
     data_data = pd.DataFrame(data=d)
-    # ["fields"] = data_data["fields"].apply(json.dumps)
+    data_data["fields"] = data_data["fields"].apply(json.dumps)
     data_data.to_sql(
         "data",
         engine_,
