@@ -1,5 +1,6 @@
 # CM - Refurbishment Rate Impact
 
+## Objective
 The objective of this CM is to Assess the impact of different building refurbishment scenarios​. With this calculation module you can determine the impact of different refurbish rates under diverse climatic scenarios on building energy demand. Inputs to the module are heating and cooling demand projections (HDD & CDD), RCP scenario, building stock features (U-values and surface areas per building sector, type and age class) and population.
 
 ## How it works
