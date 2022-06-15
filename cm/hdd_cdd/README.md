@@ -1,7 +1,5 @@
 # CM - Scenarios of Heating and Cooling Degree Days
 
-
-## Objective
 The objective of this CM is to assess the heating and cooling demand in Europe up to 2050, 2100.
 The CM returns the monthly and yearls Heating Degree Days (HDD) and Cooling Degree Days (CDD) for a user selected scenario from the [EURO CORDEX](https://euro-cordex.net/) repositories.
 
