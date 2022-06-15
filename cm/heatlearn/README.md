@@ -54,4 +54,5 @@ The API key of the PostgREST API must be placed in a text file `cm/heatlearn/API
 
 
 ## Wiki
+
 Further information on the calculation module methodology can be found [here](https://enermaps-wiki.herokuapp.com/en/HeatLearn.md).
