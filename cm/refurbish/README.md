@@ -6,7 +6,7 @@ The objective of this CM is to Assess the impact of different building refurbish
 
 This calculation module uses heating and cooling demand projections and building datasets to propose an algorithm-based method for determining building energy demand under diverse climatic scenarios. In the toolbox, user has the option to select the building characteristics, the climatic scenario and the refurbish rate. The building energy demands are determined via estimating the current energy demands based on mean U-values, HDD and CDD. The outputs are tables that show yearly and monthly building heating, cooling and overall demand per building characteristics, climatic scenario and refurbish rate. The calculation module can be used to study the impact of parameters like HDD, CDD and U-values on building energy demand.
 
-### Prerequisite
+## Prerequisite
 
 EnerMaps have to be launched.
 If this is not yet the case, see [the general README](../../README.md) to find out how to do so.
