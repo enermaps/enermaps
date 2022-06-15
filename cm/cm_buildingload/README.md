@@ -1,5 +1,7 @@
 # CM - Building Heating and Cooling Load
 
+
+## Objective
 This calculation module (CM) allows users to simulate hourly space heating and cooling demand profiles for a user-configured building in a user-defined location.
 
 

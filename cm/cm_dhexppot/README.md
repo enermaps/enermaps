@@ -1,5 +1,6 @@
 # CM - District Heating Economic Assessment
 
+## Objective
 With this calculation module, you can determine potential district heating areas based on a simplified assessment of the distribution and service pipeline costs. Inputs to the module are heat demand and gross floor area density maps, development of connection rates, depreciation time, interest rate and a threshold for the accepted heat distribution costs.
 
 ## How it works
