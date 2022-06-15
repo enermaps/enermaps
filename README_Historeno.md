@@ -1,26 +1,22 @@
-# Run the services
-
-## Run Historeno platform
+# Launch Historeno platform
+## Command
 ```
-docker-compose --file docker-compose-historeno.yml up --build
+docker-compose up --build
 ```
 
 # CM Historeno
-
-## Service
-service name : cm-historeno
+## Service name
+- cm-historeno
 
 # Database
-
-## Service
-service name : db
+## Service name 
+- db
 
 ## Modification from EmerMaps
-added variable environment in the docker-compose :
+- added variable environment in the docker-compose
 ```yml
 PGDATA: /var/lib/postgresql/data/historeno
 ```
-
 
 ## pgAdmin acess
 
@@ -33,7 +29,7 @@ DB_PASSWORD : example (or see .env-db)
 ```
 
 # Postgrest
-## Service
+
 ## Modification from EmerMaps
 1. generate the json web token, with this tutorial :
   - https://postgrest.org/en/stable/tutorials/tut1.html#tut1
@@ -58,3 +54,5 @@ print(r.url)
 response = r.json()
 print(response)
 ```
+
+
