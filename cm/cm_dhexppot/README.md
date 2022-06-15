@@ -1,13 +1,11 @@
 # CM - District Heating Economic Assessment
 
-## Objective
 With this calculation module, you can determine potential district heating areas based on a simplified assessment of the distribution and service pipeline costs. Inputs to the module are heat demand and gross floor area density maps, development of connection rates, depreciation time, interest rate and a threshold for the accepted heat distribution costs.
 
 ## How it works
 
 This calculation module (CM) uses a heat density map (HDM) and a gross floor area density map to propose a GIS-based method for determining potential DH areas with specific focus on district heating (DH) grid costs. In the EnerMaps Data Management Tool (EDMT), the default datasets used by the CM, namely [heat demand density map](https://gitlab.com/hotmaps/heat/heat_tot_curr_density) and the [gross floor area density map](https://gitlab.com/hotmaps/gfa_tot_curr_density) are provided.
 The DH areas are determined via performing sensitivity analyses on the HDM under consideration of predefined upper bound of the average distribution costs. The CM also calculates the length of distribution pipes as well as service pipes. Please note that services pipes are those pipes that connect distribution grid to the buildings. Therre is no dimension boundary for distinguishing between service pipes and distribution pipes. Distinguishing between these two is done emperically. The outputs are GIS layers that illustrate areas that are economically viable for the construction of DH system as well as a set of indicators. The calculation module can be used to study the impact of parameters like grid costs ceiling and market share on potential and on expansion and extension of the DH systems.
-
 
 ## Prerequisite
 
