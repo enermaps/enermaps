@@ -2,12 +2,9 @@
   import {onMount} from 'svelte';
   import {BASE_URL} from '../settings.js';
   import {getCMs} from '../client.js';
-  import {areaSelectionLayerStore, selectedLayerStore, isCMPaneActiveStore} from '../stores.js';
+  import {areaSelectionLayerStore, selectedLayerStore, isCMPaneActiveStore, popupInformation} from '../stores.js';
   import CM from './CM.svelte';
   import AreaSelection from './AreaSelection.svelte';
-// import PopupContent from '../leaflet_components/L.TileLayer.QueryableLayer.js';
-// import '../leaflet_components/L.TileLayer.QueryableLayer.css';
-
 
   let cms = [];
   let areaSelected = false;
@@ -29,6 +26,10 @@
     }
 
     layerSelected = ($selectedLayerStore !== null);
+  }
+
+  function choosepopupvalue() {
+    $popupInformation = $popupInformation.filter(key == 'type');
   }
 
 
@@ -54,7 +55,7 @@
     background-color: #eff4fa;
     width: 35vw;
     min-width: 280px;
-    max-width: 700px;
+    max-width: 400px;
     max-height: calc(100vh - 100px);
     overflow-y: scroll;
   }
@@ -158,9 +159,7 @@
           <CM bind:cm />
         {/each}
       {:else if activeTabTest === 'consultation'}
-        <p> Information about the house. </p>
-        // plot popupContent here
-
+        {$popupInformation}
       {/if}
     </div>
   </div>

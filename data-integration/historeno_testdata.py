@@ -49,9 +49,19 @@ def post_data(
                 "Group": "Bâtiment",
                 "Title": "Bâtiments protégés",
                 "parameters": {
+                    "end_at": "2015-12-31 23:00",
+                    "fields": [],
+                    "levels": [], # mandatory
                     "is_raster": False,
+                    "start_at": "2021-06-30 12:00:00",
                     "is_tiled": False,
-                }
+                    "variables": [  # mandatory
+                        "SRE"
+                    ],
+                    "time_periods": [],  # mandatory
+                    "temporal_granularity": "hour"
+                },
+                # "Level": "EU27 + UK plus Iceland, Balkans countries",
             }
         ],
     }
@@ -76,7 +86,7 @@ def post_data(
     spatial_data["levl_code"] = ["geometry" for fid in range(spatial_data.shape[0])]
     spatial_data["cntr_code"] = [None for _ in range(spatial_data.shape[0])]
     spatial_data["name_engl"] = [None for _ in range(spatial_data.shape[0])]
-    spatial_data["name"] = ["name" for _ in range(spatial_data.shape[0])]
+    spatial_data["name"] = [None for _ in range(spatial_data.shape[0])]
     spatial_data.to_postgis(
         "spatial",
         engine_,
@@ -94,7 +104,7 @@ def post_data(
         "variable": ["SRE" for _ in range(rows)],
         "value": [value for value in range(rows)],
         "unit": ["m2" for _ in range(rows)],
-        "start_at": [None for _ in range(rows)],
+        "start_at": ["2022-06-30 12:00:00" for _ in range(rows)],
         "fields": [{"SRE": str(sre)} for sre in range(rows)],
         "dt": [None for _ in range(rows)],
         "z": [None for _ in range(rows)],

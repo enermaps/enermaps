@@ -1,3 +1,5 @@
+import {popupInformation, isCMPaneActiveStore} from '../stores.js';
+
 const BaseMethods = {
   onError: function(err) {
     console.log(err);
@@ -55,7 +57,7 @@ const BaseMethods = {
           td1.className = 'name';
           td1.innerText = key + ':';
           popupContent += td1.outerHTML;
-          console.log(popupContent);
+          // console.log(popupContent);
 
           const td2 = document.createElement('td');
           td2.className = 'value';
@@ -119,7 +121,8 @@ const BaseMethods = {
           .setContent('<table><tbody>' + popupContent + '</tbody></<table>')
           .openOn(this._map);
     }
-
+    popupInformation.set(popupContent);
+    isCMPaneActiveStore.set(true);
     return true;
   },
 
