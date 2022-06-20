@@ -16,7 +16,8 @@ export const REFRESHING_STATUS = 'REFRESHING';
 // Create a new task
 export async function createTask(cm, parameters) {
   const params = {};
-  params['selection'] = get(areaSelectionLayerStore).getSelection();
+  // params['selection'] = get(areaSelectionLayerStore).getSelection();
+  params['selection'] = '';
   params['layer'] = get(selectedLayerStore);
   params['parameters'] = parameters;
 
