@@ -23,6 +23,7 @@
   let layersDetails = null;
   let layersDetailsDisplayed = false;
   const showCmInfo = false;
+  let isHistorenoCmDisabled = false;
 
 
   onMount(() => {
@@ -102,6 +103,7 @@
 
     // Update the form elements
     if (formElement != null) {
+      isDisabled = false;
       const inputs = formElement.getElementsByTagName('input');
       for (let i = 0; i < inputs.length; i++) {
         inputs[i].disabled = (isDisabled ? 'disabled' : undefined);
@@ -287,14 +289,14 @@
 </style>
 
 
-<div class="cm_container" class:disabled={isDisabled}>
+<div class="cm_container" class:disabled={isHistorenoCmDisabled}>
   <div class="cm_header">
     <div>
       <h3 class="cm_run">{cm.pretty_name}</h3>
       <div style="float: right;" class="cm_run">
         <div class="cm_run" style="cursor: pointer;" class:open_menu="{isCollapsed}" class:close_menu="{!isCollapsed}" on:click="{toggleCollapse}"></div>
         <span class="cm_run"></span>
-        <button class="cm_run" type=submit on:click={() => createTask(cm, form.getData())} disabled={isDisabled} title={callCMTooltip}>Run CM</button>
+        <button class="cm_run" type=submit on:click={() => createTask(cm, form.getData())} disabled={isHistorenoCmDisabled} title={callCMTooltip}>Run CM</button>
       </div>
     </div>
   </div>

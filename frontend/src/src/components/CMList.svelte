@@ -7,8 +7,8 @@
   import AreaSelection from './AreaSelection.svelte';
 
   let cms = [];
-  let areaSelected = false;
-  let layerSelected = false;
+  let areaSelected = true;
+  let layerSelected = true;
   let activeTabTest = 'consultation';
 
 
@@ -23,9 +23,12 @@
     if ($areaSelectionLayerStore !== null) {
       const selection = $areaSelectionLayerStore.getSelection();
       areaSelected = (selection != null) && (selection.features.length > 0);
+      areaSelected = true;
     }
 
     layerSelected = ($selectedLayerStore !== null);
+    layerSelected = true;
+
   }
 
 
@@ -152,7 +155,7 @@
         </div>
       </div>
       {#if activeTabTest === 'analyse'}
-        <AreaSelection />
+<!--        <AreaSelection />-->
         {#each cms as cm (cm.name)}
           <CM bind:cm />
         {/each}
