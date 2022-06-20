@@ -28,11 +28,6 @@
     layerSelected = ($selectedLayerStore !== null);
   }
 
-  function choosepopupvalue() {
-    $popupInformation = $popupInformation.filter(key == 'type');
-  }
-
-
   function closeCMPanel() {
     isCMPaneActiveStore.update((n) => !n);
   }
@@ -125,8 +120,6 @@
     background-color: #f7f7f7;
     cursor: pointer;
   }
-
-  #popupInformation {}
 
 </style>
 
