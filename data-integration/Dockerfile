@@ -30,6 +30,7 @@ RUN git clone https://github.com/enermaps/pandas-datapackage-reader.git && \
 COPY *.py /data-integration/
 COPY *.csv /data-integration/
 COPY data/ /data-integration/data/
+COPY inputs/ /data-integration/inputs/
 
 # Make pipelines executable
 RUN chmod u+x *.py

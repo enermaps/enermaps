@@ -1,5 +1,6 @@
 import {popupInformation, isCMPaneActiveStore} from '../stores.js';
 
+
 export const popupContent = '';
 
 const BaseMethods = {
@@ -59,7 +60,6 @@ const BaseMethods = {
           td1.className = 'name';
           td1.innerText = key + ' :';
           popupContent += td1.outerHTML;
-
 
           const td2 = document.createElement('td');
           td2.className = 'value';
@@ -123,6 +123,8 @@ const BaseMethods = {
       popupInformation.set(popupContent);
       isCMPaneActiveStore.set(true);
     }
+    popupInformation.set(popupContent);
+    isCMPaneActiveStore.set(true);
     return true;
   },
 

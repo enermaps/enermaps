@@ -25,8 +25,9 @@ def get_ttl_hash(seconds=10):
 def get_dataset_list(disable_filtering=False, pretty_print=False):
     """Retrieve the list of all available datasets on the enermaps server"""
     url = DATASETS_SERVER_URL + "dataset_list"
-
+    logging.error("1")
     try:
+        logging.error("2")
         with requests.get(url) as resp:
             if pretty_print:
                 _pretty_print_request(resp)
@@ -35,7 +36,7 @@ def get_dataset_list(disable_filtering=False, pretty_print=False):
                 resp.raise_for_status()
 
             datasets = resp.json()
-
+        logging.error("3")
         # If necessary: filter out datasets that don't exist in the cache
         if not (disable_filtering) and current_app.config["FILTER_DATASETS"]:
             datasets = [x for x in datasets if _dataset_is_on_disk(x)]

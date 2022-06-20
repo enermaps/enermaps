@@ -112,8 +112,8 @@
       highlightedLayer = null;
     }
 
-    // allow to read console.log(popupContent) when CMPane is on
     // if ($isCMPaneActiveStore) {
+    //   console.log("onMapClicked isCMPaneActiveStore");
     //   return;
     // }
 

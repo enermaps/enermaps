@@ -126,6 +126,8 @@
     cursor: pointer;
   }
 
+  #popupInformation {}
+
 </style>
 
 
@@ -159,9 +161,11 @@
           <CM bind:cm />
         {/each}
       {:else if activeTabTest === 'consultation'}
-        <table>
-          {@html choosepopupvalue}
-        </table>
+        <div class="popupInformation">
+            <table>
+                {@html $popupInformation}
+            </table>
+        </div>
       {/if}
     </div>
   </div>
