@@ -112,9 +112,10 @@
       highlightedLayer = null;
     }
 
-    if ($isCMPaneActiveStore) {
-      return;
-    }
+    // if ($isCMPaneActiveStore) {
+    //   console.log("onMapClicked isCMPaneActiveStore");
+    //   return;
+    // }
 
     const point = map.latLngToContainerPoint(event.latlng, map.getZoom());
 
