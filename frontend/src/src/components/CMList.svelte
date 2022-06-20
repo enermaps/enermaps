@@ -28,10 +28,6 @@
     layerSelected = ($selectedLayerStore !== null);
   }
 
-  function choosepopupvalue() {
-    $popupInformation = $popupInformation.filter(key == 'type');
-  }
-
 
   function closeCMPanel() {
     isCMPaneActiveStore.update((n) => !n);
