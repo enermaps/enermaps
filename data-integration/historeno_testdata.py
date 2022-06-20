@@ -105,7 +105,7 @@ def post_data(
         "value": [value for value in range(rows)],
         "unit": ["m2" for _ in range(rows)],
         "start_at": ["2022-06-30 12:00:00" for _ in range(rows)],
-        "fields": [{"SRE": str(sre)} for sre in range(rows)],
+        "fields": [{"Besoin": str(sre) + " kWh", "Demande": str(sre) + " kWh"} for sre in range(rows)],
         "dt": [None for _ in range(rows)],
         "z": [None for _ in range(rows)],
         "israster": [False for _ in range(rows)],
