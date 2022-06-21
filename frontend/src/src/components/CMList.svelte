@@ -4,11 +4,11 @@
   import {getCMs} from '../client.js';
   import {areaSelectionLayerStore, selectedLayerStore, isCMPaneActiveStore, popupInformation} from '../stores.js';
   import CM from './CM.svelte';
-  import AreaSelection from './AreaSelection.svelte';
+  // import AreaSelection from './AreaSelection.svelte';
 
   let cms = [];
-  let areaSelected = false;
-  let layerSelected = false;
+  let areaSelected = true;
+  let layerSelected = true;
   let activeTabTest = 'consultation';
 
 
@@ -23,9 +23,11 @@
     if ($areaSelectionLayerStore !== null) {
       const selection = $areaSelectionLayerStore.getSelection();
       areaSelected = (selection != null) && (selection.features.length > 0);
+      areaSelected = true;
     }
 
     layerSelected = ($selectedLayerStore !== null);
+    layerSelected = true;
   }
 
 
@@ -122,7 +124,10 @@
     cursor: pointer;
   }
 
-  #popupInformation {}
+  #popupInformation {
+    margin-left: 0;
+    margin-right: 0;
+  }
 
 </style>
 
@@ -152,7 +157,7 @@
         </div>
       </div>
       {#if activeTabTest === 'analyse'}
-        <AreaSelection />
+<!--        <AreaSelection />-->
         {#each cms as cm (cm.name)}
           <CM bind:cm />
         {/each}
