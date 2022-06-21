@@ -4,7 +4,7 @@
   import {getCMs} from '../client.js';
   import {areaSelectionLayerStore, selectedLayerStore, isCMPaneActiveStore, popupInformation} from '../stores.js';
   import CM from './CM.svelte';
-  import AreaSelection from './AreaSelection.svelte';
+  // import AreaSelection from './AreaSelection.svelte';
 
   let cms = [];
   let areaSelected = true;
@@ -28,7 +28,6 @@
 
     layerSelected = ($selectedLayerStore !== null);
     layerSelected = true;
-
   }
 
 
@@ -125,7 +124,10 @@
     cursor: pointer;
   }
 
-  #popupInformation {}
+  #popupInformation {
+    margin-left: 0;
+    margin-right: 0;
+  }
 
 </style>
 

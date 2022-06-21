@@ -1,7 +1,7 @@
 // CM tasks related functions
 
 import {get} from 'svelte/store';
-import {areaSelectionLayerStore, selectedLayerStore, tasksStore, layersStore} from './stores.js';
+import {selectedLayerStore, tasksStore, layersStore} from './stores.js';
 import {postCMTask, deleteTaskResult, getTaskResult} from './client.js';
 import {createLayer, getLayer} from './layers.js';
 

@@ -23,7 +23,7 @@
   let layersDetails = null;
   let layersDetailsDisplayed = false;
   const showCmInfo = false;
-  let isHistorenoCmDisabled = false;
+  const isHistorenoCmDisabled = false;
 
 
   onMount(() => {
