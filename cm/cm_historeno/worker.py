@@ -23,7 +23,6 @@ wiki = "http://www.historeno.eu/"
     wiki=wiki,
 )
 def Module_Historeno(self, selection: dict, rasters: list, params: dict):
-
     def post_parameters():
         """Post on calculator to create task."""
         parameters = {
@@ -41,7 +40,9 @@ def Module_Historeno(self, selection: dict, rasters: list, params: dict):
             "generator": decoder.get("generator").get(params["Type de chauffage"]),
             "generatorYear": params["Année d'installation du chauffage"],
             "emettors": decoder.get("emettors").get(params["Type d'émetteurs"]),
-            "regulation": decoder.get("regulation").get(params["Régulation du chauffage"]),
+            "regulation": decoder.get("regulation").get(
+                params["Régulation du chauffage"]
+            ),
             "tubeInsulH": decoder.get("tubeInsulH").get(
                 params["Isolation des conduites de chauffage"]
             ),
@@ -66,7 +67,9 @@ def Module_Historeno(self, selection: dict, rasters: list, params: dict):
             "solarPV": decoder.get("solarPV").get(
                 params["Présence d'une instalaltion solaire PV"]
             ),
-            "pvAreaAuto": decoder.get("pvAreaAuto").get(params["Surface PV automatique"]),
+            "pvAreaAuto": decoder.get("pvAreaAuto").get(
+                params["Surface PV automatique"]
+            ),
             "pvArea": params["Surface PV"],
             "pvOri": params["Orientation PV"],
             "pvBattery": decoder.get("pvBattery").get(
