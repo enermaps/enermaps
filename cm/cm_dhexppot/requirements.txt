@@ -4,7 +4,7 @@ pyproj==3.0.0.post1
 geopandas
 urllib3==1.26.5
 jenkspy==0.2.0
-numpy==1.21.0
+numpy==1.22.0
 scipy==1.6.3
 rasterstats==0.14.0
 jenkspy==0.2.0
