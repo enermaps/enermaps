@@ -1,3 +1,5 @@
+numpy==1.22.0
+protobuf<=3.20.1
 shapely==1.8.0
 rasterstats==0.15.0
 rasterio==1.1.8
@@ -7,5 +9,4 @@ matplotlib==3.4.2
 tensorflow==2.7.2
 urllib3==1.26.5
 jenkspy==0.2.0
-numpy==1.21.0
 scipy==1.6.3
