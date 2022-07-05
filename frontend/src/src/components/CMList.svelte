@@ -21,15 +21,16 @@
   popupInformation.subscribe((value) => {
     const doc = parser.parseFromString(value, 'text/html');
     const titles = doc.getElementsByTagName('h1');
-    let rows = doc.getElementsByTagName('td');
+    const rows = doc.getElementsByTagName('tr');
+    console.log(doc.getElementsByTagName('tr'));
     let content = '';
     if (titles.length === 1) {
       const title = titles[0];
-      const row = rows[1];
-      console.log(row);
+      const row = rows[0];
       content += title.outerHTML;
       content += '<h2>sous-titre générique</h2>';
       console.log(content);
+      console.log(row);
     }
 
     popupInformation2.set(content);
