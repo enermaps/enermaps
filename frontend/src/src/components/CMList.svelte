@@ -12,19 +12,19 @@
   let activeTabTest = 'consultation';
 
   // declare DOMParser
-  let parser = new DOMParser();
+  const parser = new DOMParser();
   // let popup = {$popupInformation};
   // quelle classe d'objet ? que renvoi parser ?
   // Document objetc meaning
 
   // console.log(JSON.stringify(doc));
   popupInformation.subscribe((value) => {
-    let doc = parser.parseFromString(value, 'text/html');
-    var titles = doc.getElementsByTagName('h1');
+    const doc = parser.parseFromString(value, 'text/html');
+    const titles = doc.getElementsByTagName('h1');
     // let rows = doc.getElementsByTagName('td');
     let content = '';
     if (titles.length === 1) {
-      var title = titles[0];
+      const title = titles[0];
       console.log(title);
       content += title.outerHTML;
       content += '<h2>sous-titre générique</h2>';
