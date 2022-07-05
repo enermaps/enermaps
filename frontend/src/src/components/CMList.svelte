@@ -41,7 +41,7 @@
   });
 
 
-   $: {
+  $: {
     areaSelected = false;
     if ($areaSelectionLayerStore !== null) {
       const selection = $areaSelectionLayerStore.getSelection();
