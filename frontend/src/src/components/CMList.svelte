@@ -2,7 +2,7 @@
   import {onMount} from 'svelte';
   import {BASE_URL} from '../settings.js';
   import {getCMs} from '../client.js';
-  import {areaSelectionLayerStore, selectedLayerStore, isCMPaneActiveStore, popupInformation} from '../stores.js';
+  import {areaSelectionLayerStore, selectedLayerStore, isCMPaneActiveStore, popupInformation, popupInformation2} from '../stores.js';
   import CM from './CM.svelte';
   import AreaSelection from './AreaSelection.svelte';
 
@@ -11,6 +11,31 @@
   let layerSelected = false;
   let activeTabTest = 'consultation';
 
+  // declare DOMParser
+  var parser = new DOMParser();
+  var popup = {$popupInformation};
+    // quelle classe d'objet ? que renvoi parser ?
+    // Document objetc meaning
+
+  // console.log(JSON.stringify(doc));
+  popupInformation.subscribe(value => {
+    var doc = parser.parseFromString(value, "text/html");
+    var titles = doc.getElementsByTagName("h1");
+    var rows = doc.getElementsByTagName("td");
+    var content = "";
+    if (titles.length === 1){
+        var title = titles[0];
+        console.log(title);
+        content += title.outerHTML;
+        content += "<h2>sous-titre générique</h2>";
+        console.log(content);
+        }
+
+    popupInformation2.set(content);
+    });
+
+
+
 
   onMount(async () => {
     cms = await getCMs();
@@ -18,7 +43,7 @@
   });
 
 
-  $: {
+   $: {
     areaSelected = false;
     if ($areaSelectionLayerStore !== null) {
       const selection = $areaSelectionLayerStore.getSelection();
@@ -31,6 +56,7 @@
   function closeCMPanel() {
     isCMPaneActiveStore.update((n) => !n);
   }
+
 </script>
 
 
@@ -156,7 +182,7 @@
       {:else if activeTabTest === 'consultation'}
         <div class="popupInformation">
             <table>
-                {@html $popupInformation}
+                {@html $popupInformation2}
             </table>
         </div>
       {/if}
