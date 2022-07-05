@@ -1,7 +1,7 @@
 // CM tasks related functions
 
 import {get} from 'svelte/store';
-import {areaSelectionLayerStore, selectedLayerStore, tasksStore, layersStore} from './stores.js';
+import {selectedLayerStore, tasksStore, layersStore} from './stores.js';
 import {postCMTask, deleteTaskResult, getTaskResult} from './client.js';
 import {createLayer, getLayer} from './layers.js';
 
@@ -16,7 +16,8 @@ export const REFRESHING_STATUS = 'REFRESHING';
 // Create a new task
 export async function createTask(cm, parameters) {
   const params = {};
-  params['selection'] = get(areaSelectionLayerStore).getSelection();
+  // params['selection'] = get(areaSelectionLayerStore).getSelection();
+  params['selection'] = '';
   params['layer'] = get(selectedLayerStore);
   params['parameters'] = parameters;
 
