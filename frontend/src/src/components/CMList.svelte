@@ -14,24 +14,26 @@
   // declare DOMParser
   const parser = new DOMParser();
   // let popup = {$popupInformation};
-  // quelle classe d'objet ? que renvoi parser ?
-  // Document objetc meaning
 
+  // $('parser').ready(function(){
   // console.log(JSON.stringify(doc));
   popupInformation.subscribe((value) => {
     const doc = parser.parseFromString(value, 'text/html');
     const titles = doc.getElementsByTagName('h1');
-    const rows = doc.getElementsByTagName('tr');
-    console.log(doc.getElementsByTagName('tr'));
+
+    // console.log(JSON.stringify(doc.getElementsByTagName('tr'));
     let content = '';
     if (titles.length === 1) {
       const title = titles[0];
-      const row = rows[0];
+
+      const rows = doc.getElementsByTagName('tr');
+      // const row = rows[0];
       content += title.outerHTML;
       content += '<h2>sous-titre générique</h2>';
       console.log(content);
       console.log(row);
     }
+
 
     popupInformation2.set(content);
   });
