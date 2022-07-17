@@ -11,32 +11,7 @@
   let layerSelected = true;
   let activeTabTest = 'consultation';
 
-  // declare DOMParser
-  const parser = new DOMParser();
-  // let popup = {$popupInformation};
 
-  // $('parser').ready(function(){
-  // console.log(JSON.stringify(doc));
-  popupInformation.subscribe((value) => {
-    const doc = parser.parseFromString(value, 'text/html');
-    const titles = doc.getElementsByTagName('h1');
-
-    // console.log(JSON.stringify(doc.getElementsByTagName('tr'));
-    let content = '';
-    if (titles.length === 1) {
-      const title = titles[0];
-
-      const rows = doc.getElementsByTagName('tr');
-      // const row = rows[0];
-      content += title.outerHTML;
-      content += '<h2>sous-titre générique</h2>';
-      console.log(content);
-      console.log(row);
-    }
-
-
-    popupInformation2.set(content);
-  });
 
 
   onMount(async () => {
@@ -187,7 +162,7 @@
       {:else if activeTabTest === 'consultation'}
         <div class="popupInformation">
             <table>
-                {@html $popupInformation2}
+                {@html $popupInformation}
             </table>
         </div>
       {/if}
