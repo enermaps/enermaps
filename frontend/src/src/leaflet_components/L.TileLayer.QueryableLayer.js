@@ -92,7 +92,7 @@ const BaseMethods = {
     for (const key of fieldNames) {
       const value = allFields[key];
 
-      if ((value !== null) && (key == 'Demande')){
+      if ((value !== null) && (key == 'Demande')) {
         popupContent += '<tr>';
 
         const td1 = document.createElement('td');

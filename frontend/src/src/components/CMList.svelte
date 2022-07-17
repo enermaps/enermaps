@@ -2,7 +2,7 @@
   import {onMount} from 'svelte';
   import {BASE_URL} from '../settings.js';
   import {getCMs} from '../client.js';
-  import {areaSelectionLayerStore, selectedLayerStore, isCMPaneActiveStore, popupInformation, popupInformation2} from '../stores.js';
+  import {areaSelectionLayerStore, selectedLayerStore, isCMPaneActiveStore, popupInformation} from '../stores.js';
   import CM from './CM.svelte';
   // import AreaSelection from './AreaSelection.svelte';
 
@@ -10,8 +10,6 @@
   let areaSelected = true;
   let layerSelected = true;
   let activeTabTest = 'consultation';
-
-
 
 
   onMount(async () => {
