@@ -66,11 +66,11 @@ jobs:
         run: find . -name setup.cfg -exec sha256sum {} \; | cut -d ' ' -f 1 | uniq -u | test -z
       - name: verify npm license
         run: npx license-checker --onlyAllow MIT\;BSD-3-Clause\;ISC\;Apache-2.0\;BSD-2-Clause\;Public\ Domain\;AFLV2,BSD\;AFLv2.1\;WTFPL\;Custom:\ https://rollupjs.org\;Unlicense\;
-#  build-stack:
-#    runs-on: 'ubuntu-18.04'
-#    steps:
-#      - uses: actions/checkout@v2
-#      - name: Create an empty file for CDS API that should be kept only locally
-#        run: touch data-integration/.cdsapirc
-#      - name: Run docker-compose stack
-#        run: docker-compose build --parallel
+  build-stack:
+    runs-on: 'ubuntu-18.04'
+    steps:
+      - uses: actions/checkout@v2
+      - name: Create an empty file for CDS API that should be kept only locally
+        run: touch data-integration/.cdsapirc
+      - name: Run docker-compose stack
+        run: docker-compose build --parallel
