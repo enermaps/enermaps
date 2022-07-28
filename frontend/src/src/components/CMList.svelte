@@ -38,10 +38,20 @@
 
 
 <style>
+
+  table {
+    font-weight: bold;
+  }
+
   #calculation_modules_content {
     display: flex;
     flex-direction: column;
     height: 100%;
+  }
+
+  :global(#hdata) {
+    color: white;
+    background-color: blue;
   }
 
   #calculation_modules_pane {

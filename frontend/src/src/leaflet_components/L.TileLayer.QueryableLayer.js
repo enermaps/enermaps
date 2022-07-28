@@ -54,7 +54,7 @@ const BaseMethods = {
         const value = variables[key];
 
         if (value !== null) {
-          popupContent += '<tr>';
+          popupContent += '<tr id="hdata">';
 
           const td1 = document.createElement('td');
           td1.className = 'name';
@@ -93,7 +93,7 @@ const BaseMethods = {
       const value = allFields[key];
 
       if ((value !== null) && (key == 'Demande')) {
-        popupContent += '<tr>';
+        popupContent += '<tr id="pdata">';
 
         const td1 = document.createElement('td');
         td1.className = 'name';
@@ -121,6 +121,7 @@ const BaseMethods = {
           .setContent('<table><tbody>' + popupContent + '</tbody></<table>')
           .openOn(this._map);
       popupInformation.set(popupContent);
+      console.log(popupContent);
       isCMPaneActiveStore.set(true);
     }
     popupInformation.set(popupContent);
