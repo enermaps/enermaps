@@ -5,7 +5,6 @@
   import {areaSelectionLayerStore, selectedLayerStore, isCMPaneActiveStore, popupInformation, popupInformationtitle} from '../stores.js';
   import CM from './CM.svelte';
   // import AreaSelection from './AreaSelection.svelte';
-  import { CollapsibleCard } from 'svelte-collapsible';
 
   let cms = [];
   let areaSelected = true;
@@ -184,16 +183,7 @@
     max-height: 350px;
   }
 
-  .toggle:checked + .lbl-toggle2 + .collapsible-content {
-    max-height: 350px;
-  }
-
   .toggle:checked+.lbl-toggle {
-    border-bottom-right-radius: 0;
-    border-bottom-left-radius: 0;
-  }
-
-  .toggle:checked+.lbl-toggle2 {
     border-bottom-right-radius: 0;
     border-bottom-left-radius: 0;
   }
@@ -205,11 +195,6 @@
     border-bottom-right-radius: 7px;
     padding: .5rem 1rem;
   }
-
-  .collapsible-content p {
-    margin-bottom: 0;
-  }
-
 
 
 </style>

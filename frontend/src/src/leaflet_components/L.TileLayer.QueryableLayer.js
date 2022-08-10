@@ -44,7 +44,7 @@ const BaseMethods = {
     const allFields = {};
 
     // popupContenttitle += '<h1>' + title + '</h1>';
-    popupContenttitle += title ;
+    popupContenttitle += title;
 
 
     for (const feature of content.features) {
