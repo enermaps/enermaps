@@ -2,9 +2,10 @@
   import {onMount} from 'svelte';
   import {BASE_URL} from '../settings.js';
   import {getCMs} from '../client.js';
-  import {areaSelectionLayerStore, selectedLayerStore, isCMPaneActiveStore, popupInformation} from '../stores.js';
+  import {areaSelectionLayerStore, selectedLayerStore, isCMPaneActiveStore, popupInformation, popupInformationtitle} from '../stores.js';
   import CM from './CM.svelte';
   // import AreaSelection from './AreaSelection.svelte';
+  import { CollapsibleCard } from 'svelte-collapsible';
 
   let cms = [];
   let areaSelected = true;
@@ -50,8 +51,6 @@
   }
 
   :global(#hdata) {
-    color: white;
-    background-color: blue;
   }
 
   #calculation_modules_pane {
@@ -134,6 +133,84 @@
     cursor: pointer;
   }
 
+  input[type='checkbox'] {
+    display: none;
+  }
+
+  .wrap-collabsible {
+    margin: 1.2rem 0;
+  }
+
+  .lbl-toggle {
+    display: block;
+    font-weight: bold;
+    font-size: 1.1rem;
+    text-transform: uppercase;
+    text-align: center;
+    padding: 1rem;
+    color: #DDD;
+    background: #2B338C;
+    cursor: pointer;
+    border-radius: 0px;
+    transition: all 0.25s ease-out;
+  }
+
+  .lbl-toggle:hover {
+    color: #FFF;
+  }
+
+  .lbl-toggle::before {
+    content: ' ';
+    display: inline-block;
+    border-top: 5px solid transparent;
+    border-bottom: 5px solid transparent;
+    border-left: 5px solid currentColor;
+    vertical-align: middle;
+    margin-right: .7rem;
+    transform: translateY(-2px);
+    transition: transform .2s ease-out;
+  }
+
+  .toggle:checked+.lbl-toggle::before {
+    transform: rotate(90deg) translateX(-3px);
+  }
+
+  .collapsible-content {
+    max-height: 0px; overflow: hidden;
+    transition: max-height .25s ease-in-out;
+  }
+
+  .toggle:checked + .lbl-toggle + .collapsible-content {
+    max-height: 350px;
+  }
+
+  .toggle:checked + .lbl-toggle2 + .collapsible-content {
+    max-height: 350px;
+  }
+
+  .toggle:checked+.lbl-toggle {
+    border-bottom-right-radius: 0;
+    border-bottom-left-radius: 0;
+  }
+
+  .toggle:checked+.lbl-toggle2 {
+    border-bottom-right-radius: 0;
+    border-bottom-left-radius: 0;
+  }
+
+  .collapsible-content .content-inner {
+    background: rgba(0, 105, 255, .2);
+    border-bottom: 1px solid rgba(0, 105, 255, .45);
+    border-bottom-left-radius: 7px;
+    border-bottom-right-radius: 7px;
+    padding: .5rem 1rem;
+  }
+
+  .collapsible-content p {
+    margin-bottom: 0;
+  }
+
+
 
 </style>
 
@@ -169,9 +246,18 @@
         {/each}
       {:else if activeTabTest === 'consultation'}
         <div class="popupInformation">
-            <table>
-                {@html $popupInformation}
-            </table>
+            <div class="wrap-collabsible">
+                <input id="collapsible" class="toggle" type="checkbox">
+                <label for="collapsible" class="lbl-toggle">{@html $popupInformationtitle}</label>
+                    <div class="collapsible-content">
+                        <div class="content-inner">
+                            <table>
+                                {@html $popupInformation}
+                            </table>
+                        </div>
+                    </div>
+            </div>
+
         </div>
       {/if}
     </div>

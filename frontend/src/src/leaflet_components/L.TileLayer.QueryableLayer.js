@@ -1,7 +1,9 @@
-import {popupInformation, isCMPaneActiveStore} from '../stores.js';
+import {popupInformation, popupInformationtitle, isCMPaneActiveStore} from '../stores.js';
 
 
 export const popupContent = '';
+export const popupContenttitle = '';
+
 
 const BaseMethods = {
   onError: function(err) {
@@ -38,9 +40,12 @@ const BaseMethods = {
     }
 
     let popupContent = '';
+    let popupContenttitle = '';
     const allFields = {};
 
-    popupContent += '<h1>' + title + '</h1>';
+    // popupContenttitle += '<h1>' + title + '</h1>';
+    popupContenttitle += title ;
+
 
     for (const feature of content.features) {
       const properties = feature.properties;
@@ -121,10 +126,12 @@ const BaseMethods = {
           .setContent('<table><tbody>' + popupContent + '</tbody></<table>')
           .openOn(this._map);
       popupInformation.set(popupContent);
+      popupInformationtitle.set(popupContenttitle);
       console.log(popupContent);
       isCMPaneActiveStore.set(true);
     }
     popupInformation.set(popupContent);
+    popupInformationtitle.set(popupContenttitle);
     isCMPaneActiveStore.set(true);
     return true;
   },
