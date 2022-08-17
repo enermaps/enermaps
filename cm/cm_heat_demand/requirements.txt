@@ -1,11 +1,11 @@
 geojson==2.5.0
-numpy==1.21.0
+numpy==1.22.2
 scipy==1.6.2
 rasterio==1.1.8
 varname==0.6.3
 requests==2.25.1
 shapely==1.8.0
 pyproj==3.0.0.post1
-rasterstats==0.15.0
+rasterstats==0.16.0
 jenkspy==0.2.0
 matplotlib==3.4.2
