@@ -3,9 +3,16 @@ The EnerMaps project has received funding from the European Union’s Horizon 20
 EnerMaps is a rewrite of the Hotmaps Horizon 2020 project.
 
 # Development
+
 First you need to have docker installed on your machine. 
 Please sign into Docker, otherwise the docker compose will not work.
 Clone this repository.
+
+**Notes for the Mac M1 & M2 users:** Some of the libraries used by the project aren't available yet on your platform, so you'll need to:
+
+  - Set the following environment variable before trying to build the images: ```export DOCKER_DEFAULT_PLATFORM=linux/amd64```
+  - Comment the ```cm-heatlearn``` container in the file ```docker-compose.yml```
+
 
 Then run
 

@@ -1,5 +1,5 @@
 numpy==1.22.2
-shapely~=1.7.1
+shapely==1.8.0
 rasterio~=1.2.10
 pyproj~=3.2.1
 geopandas==0.10.2
