@@ -1,6 +1,6 @@
 flask==2.0.3
 flask-restx==0.5.1
-lxml==4.6.5
+lxml==4.9.1
 Pillow==9.0.1
 requests==2.25.1
 celery==5.2.2
