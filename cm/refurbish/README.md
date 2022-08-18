@@ -1,12 +1,13 @@
-# CM REFURBISH SCENARIOS BUILDER
+# CM - Refurbishment Rate Impact
 
 ## Objective
-
-The objective of this CM is to Assess the impact of different building refurbishment scenarios​.
+The objective of this CM is to Assess the impact of different building refurbishment scenarios​. With this calculation module you can determine the impact of different refurbish rates under diverse climatic scenarios on building energy demand. Inputs to the module are heating and cooling demand projections (HDD & CDD), RCP scenario, building stock features (U-values and surface areas per building sector, type and age class) and population.
 
 ## How it works
 
-### Prerequisite
+This calculation module uses heating and cooling demand projections and building datasets to propose an algorithm-based method for determining building energy demand under diverse climatic scenarios. In the toolbox, user has the option to select the building characteristics, the climatic scenario and the refurbish rate. The building energy demands are determined via estimating the current energy demands based on mean U-values, HDD and CDD. The outputs are tables that show yearly and monthly building heating, cooling and overall demand per building characteristics, climatic scenario and refurbish rate. The calculation module can be used to study the impact of parameters like HDD, CDD and U-values on building energy demand.
+
+## Prerequisite
 
 EnerMaps have to be launched.
 If this is not yet the case, see [the general README](../../README.md) to find out how to do so.
@@ -15,57 +16,31 @@ Once EnerMaps launched, the frontend should be available on this adress : http:/
 
 ## Inputs
 
-### Data used by the CM
+- Parameters:
+  - HDD base temperature [_**°C**_]
+  - CDD base temperature [_**°C**_]
+  - RCP scenario
+  - reference year
+  - building typology
+  - start epoch of construction
+  - end epoch of construction
+  - percentage of basic refurbished buildings [_**%**_]
+  - percentage of advance refurbished buildings [_**%**_]
+- Layers:
+  - the country-based dataset with the main [building stock data](https://gitlab.com/hotmaps/building-stock/) characteristics for different energy sector provided by the [Hotmaps project](https://www.hotmaps-project.eu/);
+  - the [Tabula dataset](https://webtool.building-typology.eu/) is used to assess the [thermal trasmittance](https://gitlab.inf.unibz.it/URS/enermaps/tabula) before and after the basic/advance refurbish activities based on differet building stock archetypes identified on the different building typologies and epoch of construction;
+  - the [European population](https://ec.europa.eu/eurostat/web/gisco/geodata/reference-data/administrative-units-statistical-units/lau) at municipality level provided by GISCO – the Geographic Information System of the Commission.
 
-* HDD from EnerMaps CM​
-* CDD from Enermaps CM
-* Building stock dataset from HotMaps (at national level)​
-* EU population or EU buildings footprint (as spatial proxy to scale down from NUTS0 to LAU2)
-
-To download the data sets execute:
-
-```bash
-$ python3 download.py
-```
-
-### User inputs
-
-* Select the target year (e.g., 2050)​
-* Select the refurbish rate per sector, epoch of construction and building typology​
-* Select the location (from LAU2 up to EU27)
 
 ## Ouputs
 
-As an output, we get the following data :
-* the whole heating energy demand
-* the whole cooling energy demand
-* the yearly heating demand
-* the monthly heating demand
-* the yearly cooling demand
-* the monthly cooling demand
+* Monthly building heating demand per building characteristics, climatic scenario and refurbish rate [_**kWh/m2**_]
+* Monthly building cooling demand per building characteristics, climatic scenario and refurbish rate [_**kWh/m2**_]
+* Monthly building overall demand per building characteristics, climatic scenario and refurbish rate [_**kWh/m2**_]
+* Yearly building heating demand per building characteristics, climatic scenario and refurbish rate [_**kWh/m2**_]
+* Yearly building cooling demand per building characteristics, climatic scenario and refurbish rate [_**kWh/m2**_]
+* Yearly building overall demand per building characteristics, climatic scenario and refurbish rate [_**kWh/m2**_]
 
+## Wiki
 
-## How to test
-
-```bash
-$ PYTHONPATH="../base" \
-    CM_HDD_CDD_REPOSITORY="../hdd_cdd/data" \
-    CM_HDD_CDD_DIR="data/" \
-    CM_REFURBISH_DIR="data" \
-    BUILSTK="building_stock.csv" \
-    POPGJSN="LAU_RG_01M_2020_4326.geojson" \
-    TABULAX="tabula-umean.csv" \
-    python download.py
-
-```
-
-```bash
-$ PYTHONBREAKPOINT="ipdb.set_trace" \
-    PYTHONPATH="../base" \
-    CM_HDD_CDD_REPOSITORY="../hdd_cdd/data" \
-    CM_HDD_CDD_DIR="data/" \
-    CM_REFURBISH_DIR="data" \
-    BUILSTK="building_stock.csv" \
-    POPGJSN="LAU_RG_01M_2020_4326.geojson" \
-    python test.py
-```
+Further information on the calculation module methodology can be found [here](https://enermaps-wiki.herokuapp.com/en/Refurbish.md).
