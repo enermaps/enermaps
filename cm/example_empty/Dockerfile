@@ -4,22 +4,23 @@ FROM ubuntu:20.04
 ENV TZ=Europe/Zurich
 RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 
+# Install Python
 RUN apt-get update && \
     apt-get --yes install \
         python3 \
         python3-pip \
-        libgdal-dev \
         && \
     rm -rf /var/cache/apt/archives/
 
-# choose the same name as the Docker service (by convention)
-WORKDIR example-empty
-# replace [example_empty] by your CM folder name
-COPY example_empty/requirements.txt requirements.txt
-RUN pip3 install -r requirements.txt
+# Install the base library for CMs
 COPY base /tmp/base
-RUN cd /tmp/base && pip3 install . && python3 test.py
-# replace [example_empty] by your CM folder name
+RUN cd /tmp/base && \
+    pip3 install . && \
+    python3 test.py
+
+# Install this CM specific files
+WORKDIR cm-example
 COPY example_empty .
+RUN pip3 install -r requirements.txt
 RUN python3 test.py
 CMD ["python3", "worker.py"]

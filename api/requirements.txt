@@ -13,3 +13,4 @@ seaborn==0.11.1
 gdal==3.0.4
 numpy==1.22.1
 click==7.1.1
+Werkzeug==2.1.2

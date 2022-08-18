@@ -1,22 +1,35 @@
 FROM ubuntu:20.04
 
-## ------------
-## Set timezone
-## ------------
+## -------------------------
+## Setup common to all CMs
+## -------------------------
+
+# set timezone
 ENV TZ=Europe/Zurich
 RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
+
+# Install Python
+RUN apt-get update && \
+    apt-get --yes install \
+        python3 \
+        python3-pip \
+        && \
+    rm -rf /var/cache/apt/archives/
+
+# Install the base library for CMs
+COPY base /tmp/base
+RUN cd /tmp/base && \
+    pip3 install . && \
+    python3 test.py
 
 
 ## -------------------------
 ## Install required software
 ## -------------------------
-RUN apt-get update \
-    && apt-get --yes install \
-    git \
-    python3 \
-    python3-pip \
-    gdal-bin \
-    libgdal-dev \
+RUN apt-get --yes install \
+        git \
+        gdal-bin \
+        libgdal-dev \
     && rm -rf /var/cache/apt/archives/
 
 
@@ -43,18 +56,6 @@ RUN echo "/cm_input: ${INPUT_DATA_DIR}" \
 WORKDIR refurbish
 COPY refurbish .
 RUN pip3 install -r requirements.txt
-
-COPY base /tmp/base
-## the lines bellow where use to check that the we were using the latest version
-## sometime the docker cache might create some issues, if it is the case use:
-## docker-compose --file docker-compose-cm-test.yml build --no-cache cm-hdd_cdd
-# RUN echo "-----" && head -n 50 /tmp/base/BaseCM/cm_hddcdd.py && echo "-----"
-# RUN echo "-----" && head -n 50 /tmp/base/BaseCM/test_hddcdd.py && echo "-----"
-RUN echo "-----\nInstalling BaseCM" \
-    && cd /tmp/base && pip3 install . \
-    && python3 test.py \
-    && echo "-----\n"
-
 
 ## ---------------------------------
 ## Download required data and layers
