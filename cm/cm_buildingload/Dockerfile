@@ -1,12 +1,27 @@
 FROM ubuntu:20.04
+
+# set timezone
+ENV TZ=Europe/Zurich
+RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
+
+# Install Python
 RUN apt-get update && \
-    apt-get --yes install python3 python3-pip &&\
+    apt-get --yes install \
+        python3 \
+        python3-pip \
+        && \
     rm -rf /var/cache/apt/archives/
-COPY cm/cm_buildingload/requirements.txt requirements.txt
+
+# Install the base library for CMs
+COPY base /tmp/base
+RUN cd /tmp/base && \
+    pip3 install . && \
+    python3 test.py
+
+# Install this CM specific files
+WORKDIR cm-buildingload
+COPY cm_buildingload .
 RUN pip3 install -r requirements.txt
-COPY cm/base /tmp/base
-RUN cd /tmp/base && pip3 install . && python3 test.py
-COPY cm/cm_buildingload .
 RUN mkdir -p tmp
 RUN python3 test.py
 CMD ["python3", "worker.py"]

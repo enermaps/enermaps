@@ -131,8 +131,8 @@ services:
 
   cm-heatlearn:
     build:
-      context: ./
-      dockerfile: ./cm/heatlearn/Dockerfile
+      context: ./cm
+      dockerfile: heatlearn/Dockerfile
     environment:
       WMS_CACHE_DIR: /wms_cache
     depends_on:
@@ -147,7 +147,7 @@ services:
   cm-dhexppot:
     build:
       context: ./cm
-      dockerfile: ./cm_dhexppot/Dockerfile
+      dockerfile: cm_dhexppot/Dockerfile
     environment:
       WMS_CACHE_DIR: /wms_cache
     depends_on:
@@ -161,8 +161,8 @@ services:
 
   cm-buildingload:
     build:
-      context: ./
-      dockerfile: ./cm/cm_buildingload/Dockerfile
+      context: ./cm
+      dockerfile: cm_buildingload/Dockerfile
     environment:
       WMS_CACHE_DIR: /wms_cache
     depends_on:

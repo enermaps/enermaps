@@ -4,27 +4,31 @@ FROM ubuntu:20.04
 ENV TZ=Europe/Zurich
 RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 
-WORKDIR cm-heat-demand
-
-COPY cm_heat_demand/requirements.txt requirements.txt
-
-# Note: if we install python3-gdal before the requirements, we are stuck with an old
-# numpy version
+# Install Python
 RUN apt-get update && \
-    apt-get install --yes \
+    apt-get --yes install \
         python3 \
         python3-pip \
         && \
-    pip3 install -r requirements.txt && \
-    apt-get install --yes \
+    rm -rf /var/cache/apt/archives/
+
+# Install the base library for CMs
+COPY base /tmp/base
+RUN cd /tmp/base && \
+    pip3 install . && \
+    python3 test.py
+
+# Install additional dependencies (note: we do it after the above steps to take advantage of the cache during builds)
+RUN apt-get install --yes \
         libgdal-dev \
         gdal-bin \
         python3-gdal \
         && \
     rm -rf /var/cache/apt/archives/
 
-COPY base /tmp/base
-RUN cd /tmp/base && pip3 install . && python3 test.py
+# Install this CM specific files
+WORKDIR cm-heat-demand
 COPY cm_heat_demand .
+RUN pip3 install -r requirements.txt
 RUN python3 test.py
 CMD ["python3", "worker.py"]

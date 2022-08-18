@@ -1,0 +1,3 @@
+# The dependencies in the file '../base/requirements.txt' are installed before those,
+# avoid repeating or overriding them in this file
+

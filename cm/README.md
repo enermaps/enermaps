@@ -30,7 +30,7 @@ Below is an example of the tree structure :
 
 ```bash
 ─── cm
-    └── new_cm
+    └── cm_new
         ├── setup.cfg
         ├── worker.py
         ├── test.py
@@ -47,7 +47,7 @@ The name of the calculation module that appears depends on the function name dec
 
 For example:
 * for the example_multiply module, the function name is "multiply_raster" and becomes "Multiply raster" at the front-end.
-* for the example_empty module, the function name is "new_cm" and becomes "New cm" on the front-end.
+* for the example_empty module, the function name is "cm_new" and becomes "New cm" on the front-end.
 
 ## `setup.cfg`
 
@@ -184,7 +184,7 @@ raster = "raster.tif"
 params = 10
 
 class TestNewCM(unittest.TestCase):
-    def test_new_cm_feature(self):
+    def test_cm_new_feature(self):
         result = process(selection, rasters, params)
         self.assertIsNotNone(result)
 
@@ -284,46 +284,58 @@ CM. If not specified, all the variables of the dataset are considered valid.
 
 ## `requirements.txt`
 
-Below is an example of the dependencies used by a cm.
+Below is an example of the dependencies used by a CM.
 
 ```
+# The dependencies in the file '../base/requirements.txt' are installed before those,
+# avoid repeating or overriding them in this file
+
 lxml==4.6.2
 GDAL==3.0.4
 ```
 
 Only the dependencies specific to the cm are to be mentioned in the requirements.txt.
 
-The dependencies below will be available for all cm.
+The dependencies in the file ```base/requirements.txt``` will be available for all CMs. Do not repeat them
+in your own ```requirements.txt``` file!
 
-````
-marshmallow==3.9.1
-marshmallow-union==0.1.15.post1
-jsonschema==3.2.0
-celery==5.2.2
-redis==3.5.3
-requests
-````
-
-Whenever possible, it is preferable to specify
-the version of the dependency used.
+Whenever possible, it is preferable to specify the version of the dependency used.
 
 ## Docker
 
 ### Dockerfile
 
-Below is an example of a Dockerfile
+Below is an example of a Dockerfile. To take advantage of the cache of Docker to speed-up build times,
+dont change anything before the ```# Install this CM specific files``` line.
+
+If you need to install other system libraries with ```apt-get```, do it there. See
+```cm_heat_demand/Dockerfile``` for an example.
 
 ```
 FROM ubuntu:20.04
+
+# set timezone
+ENV TZ=Europe/Zurich
+RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
+
+# Install Python
 RUN apt-get update && \
-    apt-get --yes install python3 python3-pip &&\
+    apt-get --yes install \
+        python3 \
+        python3-pip \
+        && \
     rm -rf /var/cache/apt/archives/
-WORKDIR cm-new_cm
-COPY new_cm/requirements.txt requirements.txt
-RUN pip3 install -r requirements.txt
+
+# Install the base library for CMs
 COPY base /tmp/base
-RUN cd /tmp/base && pip3 install . && python3 test.py
-COPY new_cm .
+RUN cd /tmp/base && \
+    pip3 install . && \
+    python3 test.py
+
+# Install this CM specific files
+WORKDIR cm-new
+COPY cm_new .
+RUN pip3 install -r requirements.txt
 RUN python3 test.py
 CMD ["python3", "worker.py"]
 ```
@@ -336,10 +348,10 @@ After adding those entrypoint, you can add your calculation module in the docker
 Below is an example of the creation of the new service.
 
 ```
-cm-new_cm:
+cm-cm_new:
   build:
     context: ./cm
-    dockerfile: new_cm/Dockerfile
+    dockerfile: cm_new/Dockerfile
   env_file:
     .env
 ```

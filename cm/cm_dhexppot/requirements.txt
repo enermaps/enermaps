@@ -1,11 +1,5 @@
-shapely==1.8.0
-rasterio==1.1.8
-pyproj==3.0.0.post1
-geopandas
-urllib3==1.26.5
-jenkspy==0.2.0
-numpy==1.22.2
-scipy==1.6.3
-rasterstats==0.16.0
+# The dependencies in the file '../base/requirements.txt' are installed before those,
+# avoid repeating or overriding them in this file
+
 jenkspy==0.2.0
 matplotlib==3.4.2

@@ -1,8 +1,5 @@
-numpy==1.22.2
-shapely==1.8.0
-rasterio~=1.2.10
-pyproj~=3.2.1
-geopandas==0.10.2
-pandas==1.3.4
+# The dependencies in the file '../base/requirements.txt' are installed before those,
+# avoid repeating or overriding them in this file
+
 openpyxl==3.0.9
 git+https://github.com/HotMaps/resutils.git
