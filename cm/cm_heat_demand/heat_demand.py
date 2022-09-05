@@ -57,9 +57,6 @@ def processing(task, region: dict, raster: str, parameters: dict):
 
         raster_name = "areas.tif"
 
-        with open(dst_raster, mode="rb") as raster_fd:
-            task.post_raster(raster_name=raster_name, raster_fd=raster_fd)
-
         response = get_response(
             map_array=filtered_map,
             total_potential=total_potential,
@@ -67,6 +64,9 @@ def processing(task, region: dict, raster: str, parameters: dict):
             areas_potential=areas_potential,
             raster_name=raster_name,
         )
+
+        with open(dst_raster, mode="rb") as raster_fd:
+            task.post_raster(raster_name=raster_name, raster_fd=raster_fd)
 
     validate(response)
 
