@@ -4,7 +4,7 @@ const BaseMethods = {
   onError: function(err) {
     console.log(err);
   },
-
+//fonction getFeatureInfo
   getFeatureInfo: async function(point) {
     const url = this._getFeatureInfoUrl(point);
 
