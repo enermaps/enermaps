@@ -1,4 +1,9 @@
-import {popupInformation, isCMPaneActiveStore} from '../stores.js';
+import {popupInformation, popupInformationtitle, isCMPaneActiveStore} from '../stores.js';
+
+
+export const popupContent = '';
+export const popupContenttitle = '';
+
 
 const BaseMethods = {
   onError: function(err) {
@@ -35,9 +40,12 @@ const BaseMethods = {
     }
 
     let popupContent = '';
+    let popupContenttitle = '';
     const allFields = {};
 
-    popupContent += '<h1>' + title + '</h1>';
+    // popupContenttitle += '<h1>' + title + '</h1>';
+    popupContenttitle += title;
+
 
     for (const feature of content.features) {
       const properties = feature.properties;
@@ -51,13 +59,12 @@ const BaseMethods = {
         const value = variables[key];
 
         if (value !== null) {
-          popupContent += '<tr>';
+          popupContent += '<tr id="hdata">';
 
           const td1 = document.createElement('td');
           td1.className = 'name';
-          td1.innerText = key + ':';
+          td1.innerText = key + ' :';
           popupContent += td1.outerHTML;
-          // console.log(popupContent);
 
           const td2 = document.createElement('td');
           td2.className = 'value';
@@ -69,9 +76,7 @@ const BaseMethods = {
               td2.innerText += ' ' + unit;
             }
           }
-
           popupContent += td2.outerHTML;
-
           popupContent += '</tr>';
         }
       }
@@ -92,12 +97,12 @@ const BaseMethods = {
     for (const key of fieldNames) {
       const value = allFields[key];
 
-      if (value !== null) {
-        popupContent += '<tr>';
+      if ((value !== null) && (key == 'Demande')) {
+        popupContent += '<tr id="pdata">';
 
         const td1 = document.createElement('td');
         td1.className = 'name';
-        td1.innerText = key + ':';
+        td1.innerText = key + ' :';
         popupContent += td1.outerHTML;
 
         const td2 = document.createElement('td');
@@ -120,8 +125,13 @@ const BaseMethods = {
           .setLatLng(latlng)
           .setContent('<table><tbody>' + popupContent + '</tbody></<table>')
           .openOn(this._map);
+      popupInformation.set(popupContent);
+      popupInformationtitle.set(popupContenttitle);
+      console.log(popupContent);
+      isCMPaneActiveStore.set(true);
     }
     popupInformation.set(popupContent);
+    popupInformationtitle.set(popupContenttitle);
     isCMPaneActiveStore.set(true);
     return true;
   },
