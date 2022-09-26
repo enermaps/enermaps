@@ -93,6 +93,47 @@ def post_data(
 
     # DATA TABLE
     rows = spatial_data.shape[0]
+    fields = [
+        {
+            "Besoin": str(sre) + " kWh",
+            "Demande": str(sre) + " kWh",
+            "Pays": "France",
+            "Region": "Jura-FR",
+            "Altitude": 1000,
+            "Météo": "Jura",
+            "Context": "Urban",
+            "Empreinte au sol": "[[0,0],[0,10],[10,10],[10,0]]",
+            "Mitoyenneté": "[0,0,0.5,0]",
+            "Typologie": 3,
+            "Années de construction": 1950,
+            "Catégorie d'ouvrage": 4,
+            "Hauteur du bâtiment": 6,
+            "Type de chauffage": "Pellets",
+            "Année d'installation du chauffage": 1950,
+            "Type d'émetteurs": "Murs chauffants",
+            "Régulation du chauffage": "autre (+2°C)",
+            "Isolation des conduites de chauffage": "Non isolées",
+            "Isolation des conduites d'ECS": "Non isolées",
+            "Présence d'une installation solaire thermique": "Oui",
+            "Surface de capteurs solaires thermiques automatique": "Oui",
+            "Surface de capteurs solaires thermiques": "Oui",
+            "Nombre de logements": 10,
+            "Efficacité des appareils électriques": "Meilleurs appareils",
+            "Présence d'une ventilation mécanique": "Double flux",
+            "Présence d'ascenseur(s)": "Simple flux",
+            "Présence d'une instalaltion solaire PV": "Oui",
+            "Surface PV automatique": "Oui",
+            "Surface PV": "5",
+            "Orientation PV": "70",
+            "Présence de batteries de stockage": "Oui",
+            "Note de protection du patrimoine": 10,
+            "Possibilité d'utiliser un chauffage au bois": "Oui",
+            "Possibilité de mettre des sondes géothermiques": "Oui",
+            "Possibilité de mettre du solaire en toiture": "Oui",
+        }
+        for sre in range(rows)
+    ]
+
     d = {
         "index": [index for index in range(rows)],
         "ds_id": [ds_id for _ in range(rows)],
@@ -101,10 +142,7 @@ def post_data(
         "value": [value for value in range(rows)],
         "unit": ["m2" for _ in range(rows)],
         "start_at": ["2022-06-30 12:00:00" for _ in range(rows)],
-        "fields": [
-            {"Besoin": str(sre) + " kWh", "Demande": str(sre) + " kWh"}
-            for sre in range(rows)
-        ],
+        "fields": fields,
         "dt": [None for _ in range(rows)],
         "z": [None for _ in range(rows)],
         "israster": [False for _ in range(rows)],
