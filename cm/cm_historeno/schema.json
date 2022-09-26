@@ -249,10 +249,12 @@
       "required": true
     },
     "Présence de batteries de stockage": {
-      "type": "number",
-      "default": 0,
-      "minimum" : 0,
-      "maximum" : 360,
+      "type": "string",
+      "default": "Non",
+      "enum": [
+        "Non",
+        "Oui"
+      ],
       "required": true
     },
     "Note de protection du patrimoine": {
