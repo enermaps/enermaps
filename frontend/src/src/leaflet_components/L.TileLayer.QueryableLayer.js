@@ -62,6 +62,7 @@ const BaseMethods = {
         const id = elem.id.substring(0, elem.id.length-1);
         // remplit le champ Altitude (indice 2) avec la valeur de la variable SRE
         document.querySelector('[id="'+id+'2"]').value = variables['SRE'];
+        document.querySelector('[id="'+id+'8"]').value = variables['SRE'];
       }
 
       for (const key of variableNames) {
