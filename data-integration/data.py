@@ -1,5 +1,4 @@
-from utilities import get_engine, read_data, post_data
-
+from utilities import get_engine, post_data, read_data
 
 if __name__ == "__main__":
     engine = get_engine()
