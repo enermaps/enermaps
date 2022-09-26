@@ -13,8 +13,9 @@ import sys
 
 import geopandas as gpd
 import pandas as pd
-import utilities
 from pyproj import CRS
+
+import utilities
 
 # GISCO datasets GEOJSON EPSG:4326 1:1milion
 GISCO_DATASETS = {
