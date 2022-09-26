@@ -5,7 +5,7 @@ services:
     build:
       context: ./frontend
     ports:
-      - "127.0.0.1:7000:80"
+      - "0.0.0.0:7000:80"
     restart: always
     depends_on:
       - "api"
