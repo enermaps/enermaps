@@ -157,6 +157,21 @@ const BaseMethods = {
 
         popupContent += '</tr>';
       }
+      if ((value !== null) && (key == 'Empreinte au sol')) {
+        popupContent += '<tr id="pdata">';
+
+        const td1 = document.createElement('td');
+        td1.className = 'name';
+        td1.innerText = key + ' :';
+        popupContent += td1.outerHTML;
+
+        const td2 = document.createElement('td');
+        td2.className = 'value';
+        td2.innerText = value;
+        popupContent += td2.outerHTML;
+
+        popupContent += '</tr>';
+      }
     }
 
     if (popupContent.length != 0) {
