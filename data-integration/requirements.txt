@@ -1,7 +1,8 @@
 gdal==3.0.4
 xarray==0.16.2
 netcdf4==1.5.5.1
-geopandas==0.8.2
+geopandas==0.10.2
+numpy>=1.19
 sqlalchemy==1.4.36
 requests==2.24.0
 psycopg2==2.8.6
