@@ -97,7 +97,52 @@ const BaseMethods = {
     for (const key of fieldNames) {
       const value = allFields[key];
 
-      if ((value !== null) && (key == 'Demande')) {
+      if ((value !== null) && (key == 'Pays')) {
+        popupContent += '<tr id="pdata">';
+
+        const td1 = document.createElement('td');
+        td1.className = 'name';
+        td1.innerText = key + ' :';
+        popupContent += td1.outerHTML;
+
+        const td2 = document.createElement('td');
+        td2.className = 'value';
+        td2.innerText = value;
+        popupContent += td2.outerHTML;
+
+        popupContent += '</tr>';
+      }
+      if ((value !== null) && (key == 'Region')) {
+        popupContent += '<tr id="pdata">';
+
+        const td1 = document.createElement('td');
+        td1.className = 'name';
+        td1.innerText = key + ' :';
+        popupContent += td1.outerHTML;
+
+        const td2 = document.createElement('td');
+        td2.className = 'value';
+        td2.innerText = value;
+        popupContent += td2.outerHTML;
+
+        popupContent += '</tr>';
+      }
+      if ((value !== null) && (key == 'Context')) {
+        popupContent += '<tr id="pdata">';
+
+        const td1 = document.createElement('td');
+        td1.className = 'name';
+        td1.innerText = key + ' :';
+        popupContent += td1.outerHTML;
+
+        const td2 = document.createElement('td');
+        td2.className = 'value';
+        td2.innerText = value;
+        popupContent += td2.outerHTML;
+
+        popupContent += '</tr>';
+      }
+      if ((value !== null) && (key == 'Météo')) {
         popupContent += '<tr id="pdata">';
 
         const td1 = document.createElement('td');
