@@ -22,24 +22,25 @@ COPY requirements.txt /data-integration/requirements.txt
 WORKDIR data-integration
 RUN pip3 install -r requirements.txt
 
-# PROVISIONAL: Installed a forked version of pandas-datapackage-reader
-RUN git clone https://github.com/enermaps/pandas-datapackage-reader.git && \
-    cd pandas-datapackage-reader && \
-    pip3 install -e .
+## PROVISIONAL: Installed a forked version of pandas-datapackage-reader
+#RUN git clone https://github.com/enermaps/pandas-datapackage-reader.git && \
+#    cd pandas-datapackage-reader && \
+#    pip3 install -e .
 
 COPY *.py /data-integration/
-COPY *.csv /data-integration/
+# COPY *.csv /data-integration/
 COPY data/ /data-integration/data/
+COPY inputs/ /data-integration/inputs/
 
 # Make pipelines executable
 RUN chmod u+x *.py
 
 #add the pipeline command in the path
-ENV PATH="${PWD}:${PATH}"
+# ENV PATH="${PWD}:${PATH}"
 
 # Future pipeline, keep commented for now (=manual integration)
 # CMD ["python3", "admin_units.py"]
 # CMD ["python3", "getHotMaps_raster.py"]
 
 # should be a cront job in the production phase
-CMD ["python3", "historeno_testdata.py"]
+CMD ["python3", "data.py"]

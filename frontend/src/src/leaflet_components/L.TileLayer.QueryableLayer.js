@@ -1,3 +1,10 @@
+import {popupInformation, popupInformationtitle, isCMPaneActiveStore, allFormData} from '../stores.js';
+
+
+export const popupContent = '';
+export const popupContenttitle = '';
+
+
 const BaseMethods = {
   onError: function(err) {
     console.log(err);
@@ -33,9 +40,12 @@ const BaseMethods = {
     }
 
     let popupContent = '';
+    let popupContenttitle = '';
     const allFields = {};
 
-    popupContent += '<h1>' + title + '</h1>';
+    // popupContenttitle += '<h1>' + title + '</h1>';
+    popupContenttitle += title;
+
 
     for (const feature of content.features) {
       const properties = feature.properties;
@@ -45,15 +55,25 @@ const BaseMethods = {
 
       const variableNames = Object.keys(variables).sort();
 
+      // recherche le 1er élément du formulaire CM
+      const elem = document.querySelector('[id*="BrutusinForms#"]');
+      if (elem) { // s'il existe
+        // enlève le dernier chr correspondant à l'indice du chmp dans le form
+        const id = elem.id.substring(0, elem.id.length-1);
+        // remplit le champ Altitude (indice 2) avec la valeur de la variable SRE
+        document.querySelector('[id="'+id+'2"]').value = variables['SRE'];
+        document.querySelector('[id="'+id+'8"]').value = variables['SRE'];
+      }
+
       for (const key of variableNames) {
         const value = variables[key];
 
         if (value !== null) {
-          popupContent += '<tr>';
+          popupContent += '<tr id="hdata">';
 
           const td1 = document.createElement('td');
           td1.className = 'name';
-          td1.innerText = key + ':';
+          td1.innerText = key + ' :';
           popupContent += td1.outerHTML;
 
           const td2 = document.createElement('td');
@@ -66,9 +86,7 @@ const BaseMethods = {
               td2.innerText += ' ' + unit;
             }
           }
-
           popupContent += td2.outerHTML;
-
           popupContent += '</tr>';
         }
       }
@@ -85,16 +103,78 @@ const BaseMethods = {
     }
 
     const fieldNames = Object.keys(allFields).sort();
+    allFormData.set(allFields);
+    // console.log(allFormData);
 
     for (const key of fieldNames) {
       const value = allFields[key];
 
-      if (value !== null) {
-        popupContent += '<tr>';
+      if ((value !== null) && (key == 'Pays')) {
+        popupContent += '<tr id="pdata">';
 
         const td1 = document.createElement('td');
         td1.className = 'name';
-        td1.innerText = key + ':';
+        td1.innerText = key + ' :';
+        popupContent += td1.outerHTML;
+
+        const td2 = document.createElement('td');
+        td2.className = 'value';
+        td2.innerText = value;
+        popupContent += td2.outerHTML;
+
+        popupContent += '</tr>';
+      }
+      if ((value !== null) && (key == 'Region')) {
+        popupContent += '<tr id="pdata">';
+
+        const td1 = document.createElement('td');
+        td1.className = 'name';
+        td1.innerText = key + ' :';
+        popupContent += td1.outerHTML;
+
+        const td2 = document.createElement('td');
+        td2.className = 'value';
+        td2.innerText = value;
+        popupContent += td2.outerHTML;
+
+        popupContent += '</tr>';
+      }
+      if ((value !== null) && (key == 'Context')) {
+        popupContent += '<tr id="pdata">';
+
+        const td1 = document.createElement('td');
+        td1.className = 'name';
+        td1.innerText = key + ' :';
+        popupContent += td1.outerHTML;
+
+        const td2 = document.createElement('td');
+        td2.className = 'value';
+        td2.innerText = value;
+        popupContent += td2.outerHTML;
+
+        popupContent += '</tr>';
+      }
+      if ((value !== null) && (key == 'Météo')) {
+        popupContent += '<tr id="pdata">';
+
+        const td1 = document.createElement('td');
+        td1.className = 'name';
+        td1.innerText = key + ' :';
+        popupContent += td1.outerHTML;
+
+        const td2 = document.createElement('td');
+        td2.className = 'value';
+        td2.innerText = value;
+        popupContent += td2.outerHTML;
+
+        popupContent += '</tr>';
+      }
+      if ((value !== null) && (key == 'Empreinte au sol')) {
+        popupContent += '<tr id="pdata">';
+
+        const td1 = document.createElement('td');
+        td1.className = 'name';
+        td1.innerText = key + ' :';
         popupContent += td1.outerHTML;
 
         const td2 = document.createElement('td');
@@ -117,8 +197,13 @@ const BaseMethods = {
           .setLatLng(latlng)
           .setContent('<table><tbody>' + popupContent + '</tbody></<table>')
           .openOn(this._map);
+      popupInformation.set(popupContent);
+      popupInformationtitle.set(popupContenttitle);
+      isCMPaneActiveStore.set(true);
     }
-
+    popupInformation.set(popupContent);
+    popupInformationtitle.set(popupContenttitle);
+    isCMPaneActiveStore.set(true);
     return true;
   },
 

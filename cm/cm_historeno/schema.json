@@ -30,7 +30,7 @@
     "Altitude": {
       "type": "number",
       "minimum": 0,
-      "default": 100,
+      "default": 0,
       "required": true
     },
     "Météo": {
@@ -249,10 +249,12 @@
       "required": true
     },
     "Présence de batteries de stockage": {
-      "type": "number",
-      "default": 0,
-      "minimum" : 0,
-      "maximum" : 360,
+      "type": "string",
+      "default": "Non",
+      "enum": [
+        "Non",
+        "Oui"
+      ],
       "required": true
     },
     "Note de protection du patrimoine": {

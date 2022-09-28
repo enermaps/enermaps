@@ -2,14 +2,13 @@
   import {onMount} from 'svelte';
   import {BASE_URL} from '../settings.js';
   import {getCMs} from '../client.js';
-  import {areaSelectionLayerStore, selectedLayerStore, isCMPaneActiveStore} from '../stores.js';
+  import {areaSelectionLayerStore, selectedLayerStore, isCMPaneActiveStore, popupInformation, popupInformationtitle} from '../stores.js';
   import CM from './CM.svelte';
-  import AreaSelection from './AreaSelection.svelte';
-
+  // import AreaSelection from './AreaSelection.svelte';
 
   let cms = [];
-  let areaSelected = false;
-  let layerSelected = false;
+  let areaSelected = true;
+  let layerSelected = true;
   let activeTabTest = 'consultation';
 
 
@@ -20,27 +19,37 @@
 
 
   $: {
-    areaSelected = false;
+    areaSelected = true;
     if ($areaSelectionLayerStore !== null) {
       const selection = $areaSelectionLayerStore.getSelection();
       areaSelected = (selection != null) && (selection.features.length > 0);
+      areaSelected = true;
     }
 
     layerSelected = ($selectedLayerStore !== null);
+    layerSelected = true;
   }
-
 
   function closeCMPanel() {
     isCMPaneActiveStore.update((n) => !n);
   }
+
 </script>
 
 
 <style>
+
+  table {
+    font-weight: bold;
+  }
+
   #calculation_modules_content {
     display: flex;
     flex-direction: column;
     height: 100%;
+  }
+
+  :global(#hdata) {
   }
 
   #calculation_modules_pane {
@@ -52,7 +61,7 @@
     background-color: #eff4fa;
     width: 35vw;
     min-width: 280px;
-    max-width: 700px;
+    max-width: 400px;
     max-height: calc(100vh - 100px);
     overflow-y: scroll;
   }
@@ -123,6 +132,71 @@
     cursor: pointer;
   }
 
+  input[type='checkbox'] {
+    display: none;
+  }
+
+  .wrap-collabsible {
+    margin: 1.2rem 0;
+  }
+
+  .lbl-toggle {
+    display: block;
+    font-weight: bold;
+    font-size: 1.1rem;
+    text-transform: uppercase;
+    text-align: center;
+    padding: 1rem;
+    color: #DDD;
+    background: #2B338C;
+    cursor: pointer;
+    border-radius: 0px;
+    transition: all 0.25s ease-out;
+  }
+
+  .lbl-toggle:hover {
+    color: #FFF;
+  }
+
+  .lbl-toggle::before {
+    content: ' ';
+    display: inline-block;
+    border-top: 5px solid transparent;
+    border-bottom: 5px solid transparent;
+    border-left: 5px solid currentColor;
+    vertical-align: middle;
+    margin-right: .7rem;
+    transform: translateY(-2px);
+    transition: transform .2s ease-out;
+  }
+
+  .toggle:checked+.lbl-toggle::before {
+    transform: rotate(90deg) translateX(-3px);
+  }
+
+  .collapsible-content {
+    max-height: 0px; overflow: hidden;
+    transition: max-height .25s ease-in-out;
+  }
+
+  .toggle:checked + .lbl-toggle + .collapsible-content {
+    max-height: 350px;
+  }
+
+  .toggle:checked+.lbl-toggle {
+    border-bottom-right-radius: 0;
+    border-bottom-left-radius: 0;
+  }
+
+  .collapsible-content .content-inner {
+    background: rgba(0, 105, 255, .2);
+    border-bottom: 1px solid rgba(0, 105, 255, .45);
+    border-bottom-left-radius: 7px;
+    border-bottom-right-radius: 7px;
+    padding: .5rem 1rem;
+  }
+
+
 </style>
 
 
@@ -151,12 +225,25 @@
         </div>
       </div>
       {#if activeTabTest === 'analyse'}
-        <AreaSelection />
+<!--        <AreaSelection />-->
         {#each cms as cm (cm.name)}
           <CM bind:cm />
         {/each}
       {:else if activeTabTest === 'consultation'}
-        <p> Information about the house. </p>
+        <div class="popupInformation">
+            <div class="wrap-collabsible">
+                <input id="collapsible" class="toggle" type="checkbox">
+                <label for="collapsible" class="lbl-toggle">{@html $popupInformationtitle}</label>
+                    <div class="collapsible-content">
+                        <div class="content-inner">
+                            <table>
+                                {@html $popupInformation}
+                            </table>
+                        </div>
+                    </div>
+            </div>
+
+        </div>
       {/if}
     </div>
   </div>

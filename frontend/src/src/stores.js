@@ -11,4 +11,9 @@ export const selectedLayerStore = writable(null);
 
 export const tasksStore = writable([]);
 
-export const isCMPaneActiveStore = writable(true);
+export const isCMPaneActiveStore = writable(false);
+
+export const popupInformation = writable('Pas de données');
+
+export const popupInformationtitle = writable('Pas de données');
+export const allFormData = writable(null);
