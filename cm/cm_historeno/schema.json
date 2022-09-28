@@ -30,7 +30,7 @@
     "Altitude": {
       "type": "number",
       "minimum": 0,
-      "default": 100,
+      "default": 0,
       "required": true
     },
     "Météo": {

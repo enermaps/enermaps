@@ -55,6 +55,16 @@ const BaseMethods = {
 
       const variableNames = Object.keys(variables).sort();
 
+      // recherche le 1er élément du formulaire CM
+      const elem = document.querySelector('[id*="BrutusinForms#"]');
+      if (elem) { // s'il existe
+        // enlève le dernier chr correspondant à l'indice du chmp dans le form
+        const id = elem.id.substring(0, elem.id.length-1);
+        // remplit le champ Altitude (indice 2) avec la valeur de la variable SRE
+        document.querySelector('[id="'+id+'2"]').value = variables['SRE'];
+        document.querySelector('[id="'+id+'8"]').value = variables['SRE'];
+      }
+
       for (const key of variableNames) {
         const value = variables[key];
 
