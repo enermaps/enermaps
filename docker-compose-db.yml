@@ -1,60 +1,14 @@
 version: "3.8"
 services:
 
-  db:
+#  should be launched apart
+  data-integration:
     build:
-      context: ./db
-    ports:
-      - "127.0.0.1:5433:5432"
-    restart: always
-    command: ["-c", "config_file=postgresql.conf"]
-    environment:
-      POSTGRES_PASSWORD: example
-      PGDATA: /var/lib/postgresql/data/historeno
-    # Fast Shutdown mode
-    # see https://github.com/docker-library/postgres/issues/714
-    stop_signal: SIGINT
+      context: ./data-integration
     volumes:
-      - db-data:/var/lib/postgresql/data
-      - ./stats/pg-logs:/var/lib/postgresql/data/pg_log
-      - ./:/db-backup
+      - data:/data-integration/data
     env_file:
       .env-db
-
-#  data-integration:
-#    build:
-#      context: ./data-integration
-#    volumes:
-#      - data:/data-integration/data
-#    env_file:
-#      .env-db
-
-#  db-nginx:
-#    build:
-#      context: ./db-nginx
-#    ports:
-#      - "0.0.0.0:80:80"
-#    volumes:
-#      - data:/usr/share/nginx/html/raster
-
-#  postgrest:
-#    build:
-#      context: ./postgrest
-#    ports:
-#      - "127.0.0.1:3000:3000"
-#    env_file:
-#      - .env
-#      - .postgrest
-
-#  stats:
-#    build:
-#      context: ./stats
-#    volumes:
-#      - ./stats/pg-logs:/stats/pg-logs
-#      - ./stats/caddy-logs:/stats/caddy-logs
-#      - ./stats/parsed-logs:/stats/parsed-logs
-#    env_file:
-#      .env-db
 
 volumes:
   db-data:
