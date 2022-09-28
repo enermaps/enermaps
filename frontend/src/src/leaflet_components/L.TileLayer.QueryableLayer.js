@@ -1,4 +1,4 @@
-import {popupInformation, popupInformationtitle, isCMPaneActiveStore} from '../stores.js';
+import {popupInformation, popupInformationtitle, isCMPaneActiveStore, allFormData} from '../stores.js';
 
 
 export const popupContent = '';
@@ -93,6 +93,8 @@ const BaseMethods = {
     }
 
     const fieldNames = Object.keys(allFields).sort();
+    allFormData.set(allFields);
+    // console.log(allFormData);
 
     for (const key of fieldNames) {
       const value = allFields[key];
@@ -187,7 +189,6 @@ const BaseMethods = {
           .openOn(this._map);
       popupInformation.set(popupContent);
       popupInformationtitle.set(popupContenttitle);
-      console.log(popupContent);
       isCMPaneActiveStore.set(true);
     }
     popupInformation.set(popupContent);

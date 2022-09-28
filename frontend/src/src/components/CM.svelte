@@ -3,7 +3,7 @@
   import {createTask} from '../tasks.js';
   import {createLayerSimple, getLayer} from '../layers.js';
   import CMTask from './CMTask.svelte';
-  import {areaSelectionLayerStore, selectedLayerStore, tasksStore, datasetsStore} from '../stores.js';
+  import {areaSelectionLayerStore, selectedLayerStore, tasksStore, datasetsStore, allFormData} from '../stores.js';
   import {getDataset} from '../datasets.js';
   import 'brutusin-json-forms';
 
@@ -349,7 +349,7 @@
     <div class="cm_wiki">
       <i>
         Pour plus d'information concernant le projet,
-        voir <a href="{cm.wiki}" target="_blank">la page web du projet</a>.
+        voir <a href="{cm.wiki}" target="_blank">la page web du projet</a> {JSON.stringify($allFormData)}.
       </i>
     </div>
 
