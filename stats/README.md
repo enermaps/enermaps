@@ -25,7 +25,7 @@ A parsed CSV will be saved in the `/stats/parsed_logs` directory.
 This command is meant to be run as a `cronjob` with these arguments:
 
 ```bash
-docker-compose -f docker-compose-db.yml run stats python3 parseLog.py --skip_last --sql --remove
+docker-compose -f ../docker-compose-db.yml run stats python3 parseLogs.py --skip_last --sql --remove
 ```
 
 Using `--skip_last`  the parsing will not be run on the last modified file, as this might still be written by PostGRES.
