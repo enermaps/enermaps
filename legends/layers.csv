@@ -1,0 +1,583 @@
+ds_id,Dataset title,variable,unit,israster,unit_mod,type_of_data,class_of_data
+1,PVGIS: Solar Radiation Data,"Monthly average global irradiance on a horizontal surface (W/m2), period 2005-2015",W/m2,TRUE,W/m2,irradiance,environmental
+1,PVGIS: Solar Radiation Data,"Monthly average global irradiance on an optimally inclined surface (W/m2), period 2005-2015",W/m2,TRUE,W/m2,irradiance,environmental
+1,PVGIS: Solar Radiation Data,"Monthly average global irradiance on a two-axis sun-tracking surface (W/m2), period 2005-2015",W/m2,TRUE,W/m2,irradiance,environmental
+2,JRC: Geothermal Power Plant Dataset,gross_cap_ele,MW,FALSE,MW,en_power,energy_cap
+2,JRC: Geothermal Power Plant Dataset,gross_cap_th,MW,FALSE,MW,en_power,energy_cap
+2,JRC: Geothermal Power Plant Dataset,ini_cap_ele,MW,FALSE,MW,en_power,energy_cap
+3,JRC: Hydro-power plants database,avg_annual_generation_GWh,GWh,FALSE,GWh,en_production,energy_prod
+3,JRC: Hydro-power plants database,installed_capacity_MW,MW,FALSE,MW,en_power,energy_cap
+3,JRC: Hydro-power plants database,pumping_MW,MW,FALSE,MW,en_power,energy_cap
+3,JRC: Hydro-power plants database,storage_capacity_MWh,MWh,FALSE,MWh,en_production,energy_prod
+4,JRC: Open Power Plants Database,capacity_g,MW,FALSE,MW,en_power,energy_cap
+4,JRC: Open Power Plants Database,capacity_p,MW,FALSE,MW,en_power,energy_cap
+5,EEA: Share of gross final consumption of renewable energy sources,Electricity,%,FALSE,%,share_en_consumption,energy_cons
+5,EEA: Share of gross final consumption of renewable energy sources,GFEC,ktoe,FALSE,ktoe,share_en_consumption,energy_cons
+5,EEA: Share of gross final consumption of renewable energy sources,Heating and Cooling,%,FALSE,%,share_en_consumption,energy_cons
+5,EEA: Share of gross final consumption of renewable energy sources,Total,%,FALSE,%,share_en_consumption,energy_cons
+5,EEA: Share of gross final consumption of renewable energy sources,Transport,%,FALSE,%,share_en_consumption,energy_cons
+6,Energy consumption in households,Electricity : Final consumption - other sectors - households - energy use,Gigawatt-hour,FALSE,GWh,en_consumption,energy_cons
+6,Energy consumption in households,Electricity : Final consumption - other sectors - households - energy use - cooking,Gigawatt-hour,FALSE,GWh,en_consumption,energy_cons
+6,Energy consumption in households,Electricity : Final consumption - other sectors - households - energy use - lighting and electrical appliances,Gigawatt-hour,FALSE,GWh,en_consumption,energy_cons
+6,Energy consumption in households,Electricity : Final consumption - other sectors - households - energy use - other end use,Gigawatt-hour,FALSE,GWh,en_consumption,energy_cons
+6,Energy consumption in households,Electricity : Final consumption - other sectors - households - energy use - space cooling,Gigawatt-hour,FALSE,GWh,en_consumption,energy_cons
+6,Energy consumption in households,Electricity : Final consumption - other sectors - households - energy use - space heating,Gigawatt-hour,FALSE,GWh,en_consumption,energy_cons
+6,Energy consumption in households,Electricity : Final consumption - other sectors - households - energy use - water heating,Gigawatt-hour,FALSE,GWh,en_consumption,energy_cons
+7,Electricitymap,Electricity production capacity,MW,FALSE,MW,en_power,energy_cap
+8,GISCO Population,Inhabitants,[-],FALSE,Number,inhabitants,socio_economic
+9,Eurostat: Degree days,Cooling degree days,Number,FALSE,Number,climate,environmental
+9,Eurostat: Degree days,Heating degree days,Number,FALSE,Number,climate,environmental
+11,SETIS: Private R&I investment in energy technologies,inventions,-,FALSE,Number,R&I,socio_economic
+11,SETIS: Private R&I investment in energy technologies,inventions_eu_share,%,FALSE,%,R&I,socio_economic
+11,SETIS: Private R&I investment in energy technologies,private_ri_investment,EUR million,FALSE,M€,R&I,socio_economic
+11,SETIS: Private R&I investment in energy technologies,private_ri_investment_eu_share,%,FALSE,%,R&I,socio_economic
+11,SETIS: Private R&I investment in energy technologies,public_ri_investment,EUR million,FALSE,M€,R&I,socio_economic
+11,SETIS: Private R&I investment in energy technologies,public_ri_investment_eu_share,%,FALSE,%,R&I,socio_economic
+11,SETIS: Private R&I investment in energy technologies,specialisation_index_inventions,-,FALSE,dimensionless,R&I,socio_economic
+14,Climate Extreme Indices,Amount of cold nights,%,TRUE,%,climate,environmental
+14,Climate Extreme Indices,Amount of cool days,%,TRUE,%,climate,environmental
+14,Climate Extreme Indices,Amount of hot days,%,TRUE,%,climate,environmental
+14,Climate Extreme Indices,Amount of warm nights,%,TRUE,%,climate,environmental
+14,Climate Extreme Indices,Annual total wet-day PR,mm,TRUE,mm,climate_prec,environmental
+14,Climate Extreme Indices,Consecutive Dry Days,NULL,TRUE,Number,climate,environmental
+14,Climate Extreme Indices,Consecutive Wet Days,NULL,TRUE,Number,climate,environmental
+14,Climate Extreme Indices,Daily Temperature Range,°C,TRUE,°C,climate_temp,environmental
+14,Climate Extreme Indices,Fraction of days with above average temperature,%,TRUE,%,climate,environmental
+14,Climate Extreme Indices,Frost Days,NULL,TRUE,Number,climate,environmental
+14,Climate Extreme Indices,Ice Days,NULL,TRUE,Number,climate,environmental
+14,Climate Extreme Indices,Max 1-day PR,mm,TRUE,mm,climate_prec,environmental
+14,Climate Extreme Indices,Max 5-day PR,mm,TRUE,mm,climate_prec,environmental
+14,Climate Extreme Indices,Max TN,°C,TRUE,°C,climate_temp,environmental
+14,Climate Extreme Indices,Max TX,°C,TRUE,°C,climate_temp,environmental
+14,Climate Extreme Indices,Mean TM,°C,TRUE,°C,climate_temp,environmental
+14,Climate Extreme Indices,Mean TN,°C,TRUE,°C,climate_temp,environmental
+14,Climate Extreme Indices,Mean TX,°C,TRUE,°C,climate_temp,environmental
+14,Climate Extreme Indices,"Measure of drought using the Standardised Precipitation Evapotranspiration Index on time scales of 24, 36 and 48 months",unitless,TRUE,dimensionless,climate,environmental
+14,Climate Extreme Indices,"Measure of drought using the Standardised Precipitation Evapotranspiration Index on time scales of 3, 6 and 12 months",unitless,TRUE,dimensionless,climate,environmental
+14,Climate Extreme Indices,"Measure of drought using the Standardised Precipitation Index on time scales of 24, 36 and 48 months",unitless,TRUE,dimensionless,climate,environmental
+14,Climate Extreme Indices,"Measure of drought using the Standardised Precipitation Index on time scales of 3, 6 and 12 months",unitless,TRUE,dimensionless,climate,environmental
+14,Climate Extreme Indices,Min TN,°C,TRUE,°C,climate_temp,environmental
+14,Climate Extreme Indices,Min TX,°C,TRUE,°C,climate_temp,environmental
+14,Climate Extreme Indices,Number of customised rain days,NULL,TRUE,Number,climate,environmental
+14,Climate Extreme Indices,Number of heavy rain days,NULL,TRUE,Number,climate,environmental
+14,Climate Extreme Indices,Number of very heavy rain days,NULL,TRUE,Number,climate,environmental
+14,Climate Extreme Indices,Summer days,NULL,TRUE,Number,climate,environmental
+14,Climate Extreme Indices,TM below 10°C,NULL,TRUE,Number,climate,environmental
+14,Climate Extreme Indices,TM below 5°C,NULL,TRUE,Number,climate,environmental
+14,Climate Extreme Indices,TM of at least 5°C,NULL,TRUE,Number,climate,environmental
+14,Climate Extreme Indices,TN below -20°C,NULL,TRUE,Number,climate,environmental
+14,Climate Extreme Indices,TN below -2°C,NULL,TRUE,Number,climate,environmental
+14,Climate Extreme Indices,TN below 2°C,NULL,TRUE,Number,climate,environmental
+14,Climate Extreme Indices,Tropical nights,NULL,TRUE,Number,climate,environmental
+14,Climate Extreme Indices,TX of at least 10°C,NULL,TRUE,Number,climate,environmental
+14,Climate Extreme Indices,TX of at least 30°C,NULL,TRUE,Number,climate,environmental
+14,Climate Extreme Indices,TX of at least 35°C,NULL,TRUE,Number,climate,environmental
+14,Climate Extreme Indices,User-defined consecutive days PR amount,mm,TRUE,mm,climate_prec,environmental
+15,Copernicus: hourly global climate and weather data,10m_u_component_of_wind,m s**-1,TRUE,m/s,climate,environmental
+15,Copernicus: hourly global climate and weather data,10m_v_component_of_wind,m s**-1,TRUE,m/s,climate,environmental
+15,Copernicus: hourly global climate and weather data,2m_dewpoint_temperature,K,TRUE,K,climate_temp,environmental
+15,Copernicus: hourly global climate and weather data,2m_temperature,K,TRUE,K,climate_temp,environmental
+15,Copernicus: hourly global climate and weather data,mean_sea_level_pressure,Pa,TRUE,Pa,climate,environmental
+15,Copernicus: hourly global climate and weather data,mean_wave_direction,Degree true,TRUE,degree,climate,environmental
+15,Copernicus: hourly global climate and weather data,mean_wave_period,s,TRUE,s,climate,environmental
+15,Copernicus: hourly global climate and weather data,sea_surface_temperature,K,TRUE,K,climate_temp,environmental
+15,Copernicus: hourly global climate and weather data,significant_height_of_combined_wind_waves_and_swell,m,TRUE,m,climate,environmental
+15,Copernicus: hourly global climate and weather data,surface_pressure,Pa,TRUE,Pa,climate,environmental
+15,Copernicus: hourly global climate and weather data,total_precipitation,m,TRUE,m,climate_prec,environmental
+16,EMHIRES: Wind power generation,installed wind power capacity,MW,FALSE,MW,en_power,energy_cap
+17,EMHIRES: Solar power generation,installed PV power capacity,MW,FALSE,MW,en_power,energy_cap
+18,Energy Efficiency Indicator,Energy intensity level of primary energy ,MJ/2011 USD PPP,FALSE,MJ/$2011,energy,socio_economic
+19,EDGAR CO_ emissions,Emissions,Mt CO2/year,FALSE,Mt CO2,emissions,environmental
+20,Copernicus: hourly data on pressure levels,relative_humidity,%,TRUE,%,climate,environmental
+21,European Digital Elevation Model (EU-DEM),Elevation,m,TRUE,m,elevation,environmental
+22,Eurostat: Energy efficiency indicator,Final energy consumption - distance to 2020 target,Million tonnes of oil equivalent,FALSE,Mktoe,en_consumption,energy_cons
+22,Eurostat: Energy efficiency indicator,Final energy consumption - distance to 2030 target,Million tonnes of oil equivalent,FALSE,Mktoe,en_consumption,energy_cons
+22,Eurostat: Energy efficiency indicator,Final energy consumption (Europe 2020-2030),Million tonnes of oil equivalent,FALSE,Mktoe,en_consumption,energy_cons
+22,Eurostat: Energy efficiency indicator,Primary energy consumption - distance to 2020 target,Million tonnes of oil equivalent,FALSE,Mktoe,en_consumption,energy_cons
+22,Eurostat: Energy efficiency indicator,Primary energy consumption - distance to 2030 target,Million tonnes of oil equivalent,FALSE,Mktoe,en_consumption,energy_cons
+22,Eurostat: Energy efficiency indicator,Primary energy consumption (Europe 2020-2030),Million tonnes of oil equivalent,FALSE,Mktoe,en_consumption,energy_cons
+23,Projected fresh water use from the European energy sector,Gross El. Gen (GWh) Biomass Wst,million m3,FALSE,Mm3,?,environmental
+23,Projected fresh water use from the European energy sector,Gross El. Gen (GWh) Gas Fired,million m3,FALSE,Mm3,?,environmental
+23,Projected fresh water use from the European energy sector,Gross El. Gen (GWh) Geothermal,million m3,FALSE,Mm3,?,environmental
+23,Projected fresh water use from the European energy sector,Gross El. Gen (GWh) Nuclear,million m3,FALSE,Mm3,?,environmental
+23,Projected fresh water use from the European energy sector,Gross El. Gen (GWh) Oil Fired,million m3,FALSE,Mm3,?,environmental
+23,Projected fresh water use from the European energy sector,Gross El. Gen (GWh) SolidsFired,million m3,FALSE,Mm3,?,environmental
+23,Projected fresh water use from the European energy sector,Production (ktoe) NGas- NoOfshr,million m3,FALSE,Mm3,?,environmental
+23,Projected fresh water use from the European energy sector,Production (ktoe)Oil- NO OFFSHR,million m3,FALSE,Mm3,?,environmental
+23,Projected fresh water use from the European energy sector,Production (ktoe) Solids,million m3,FALSE,Mm3,?,environmental
+23,Projected fresh water use from the European energy sector,Refineries,million m3,FALSE,Mm3,?,environmental
+23,Projected fresh water use from the European energy sector,Total energy production,million m3,FALSE,Mm3,?,environmental
+23,Projected fresh water use from the European energy sector,Total energy system,million m3,FALSE,Mm3,?,environmental
+23,Projected fresh water use from the European energy sector,Total energy transformation,million m3,FALSE,Mm3,?,environmental
+23,Projected fresh water use from the European energy sector,Total power generation,million m3,FALSE,Mm3,?,environmental
+24,Photovoltaic power potential,Longterm monthly average of potential photovoltaic electricity production,kWh/kWp,TRUE,kWh/kWp,en_production,energy_prod
+25,HotMaps: Wind potential,Wind potential at 100 m,GWh,TRUE,GWh,en_production,energy_prod
+25,HotMaps: Wind potential,Wind potential at 200 m,GWh,TRUE,GWh,en_production,energy_prod
+25,HotMaps: Wind potential,Wind potential at 50 m,GWh,TRUE,GWh,en_production,energy_prod
+27,S2BIOM: Biomass supply,Base potential : 4212,kton dry mass,FALSE,kt,biomass,environmental
+27,S2BIOM: Biomass supply,Base potential : Bark residues from pulp and paper industry,kton dry mass,FALSE,kt,biomass,environmental
+27,S2BIOM: Biomass supply,Base potential : Biowaste as part of integrally collected municipal waste: Biodegradable waste of not separately collected municipal  waste (excluding textile and paper),kton dry mass,FALSE,kt,biomass,environmental
+27,S2BIOM: Biomass supply,Base potential : Black liquor,kton dry mass,FALSE,kt,biomass,environmental
+27,S2BIOM: Biomass supply,Base potential : Cardoon (Perennial crop),kton dry mass,FALSE,kt,biomass,environmental
+27,S2BIOM: Biomass supply,Base potential : Cereal bran,kton dry mass,FALSE,kt,biomass,environmental
+27,S2BIOM: Biomass supply,Base potential : Cereals straw,kton dry mass,FALSE,kt,biomass,environmental
+27,S2BIOM: Biomass supply,Base potential : Giant reed (Perennial grass),kton dry mass,FALSE,kt,biomass,environmental
+27,S2BIOM: Biomass supply,Base potential : Grassy biomass from road side verges,kton dry mass,FALSE,kt,biomass,environmental
+27,S2BIOM: Biomass supply,Base potential : Hazardous post consumer wood,kton dry mass,FALSE,kt,biomass,environmental
+27,S2BIOM: Biomass supply,Base potential : Logging residues from final fellings originating from conifer trees,kton dry mass,FALSE,kt,biomass,environmental
+27,S2BIOM: Biomass supply,Base potential : Logging residues from final fellings originating from nonconifer trees,kton dry mass,FALSE,kt,biomass,environmental
+27,S2BIOM: Biomass supply,Base potential : Logging residues from thinnings from conifer trees,kton dry mass,FALSE,kt,biomass,environmental
+27,S2BIOM: Biomass supply,Base potential : Logging residues from thinnings from nonconifer trees,kton dry mass,FALSE,kt,biomass,environmental
+27,S2BIOM: Biomass supply,Base potential : Maize stover,kton dry mass,FALSE,kt,biomass,environmental
+27,S2BIOM: Biomass supply,Base potential : Miscanthus (Perennial grass),kton dry mass,FALSE,kt,biomass,environmental
+27,S2BIOM: Biomass supply,Base potential : Non hazardous post consumer wood,kton dry mass,FALSE,kt,biomass,environmental
+27,S2BIOM: Biomass supply,Base potential : Oil seed rape straw,kton dry mass,FALSE,kt,biomass,environmental
+27,S2BIOM: Biomass supply,Base potential : Olive-stones,kton dry mass,FALSE,kt,biomass,environmental
+27,S2BIOM: Biomass supply,Base potential : Other SRC,kton dry mass,FALSE,kt,biomass,environmental
+27,S2BIOM: Biomass supply,Base potential : Pressed grapes dregs,kton dry mass,FALSE,kt,biomass,environmental
+27,S2BIOM: Biomass supply,Base potential : Reed Canary Grass (Perennial grass),kton dry mass,FALSE,kt,biomass,environmental
+27,S2BIOM: Biomass supply,Base potential : Residues from citrus tree plantations,kton dry mass,FALSE,kt,biomass,environmental
+27,S2BIOM: Biomass supply,"Base potential : Residues from fruit tree plantations (apples, pears and soft fruit)",kton dry mass,FALSE,kt,biomass,environmental
+27,S2BIOM: Biomass supply,Base potential : Residues from further woodprocessing,kton dry mass,FALSE,kt,biomass,environmental
+27,S2BIOM: Biomass supply,Base potential : Residues from olives tree plantations,kton dry mass,FALSE,kt,biomass,environmental
+27,S2BIOM: Biomass supply,Base potential : Residues from vineyards,kton dry mass,FALSE,kt,biomass,environmental
+27,S2BIOM: Biomass supply,Base potential : Residues industries producing semi finished wood based panels ,kton dry mass,FALSE,kt,biomass,environmental
+27,S2BIOM: Biomass supply,Base potential : Rice husk,kton dry mass,FALSE,kt,biomass,environmental
+27,S2BIOM: Biomass supply,Base potential : Rice straw,kton dry mass,FALSE,kt,biomass,environmental
+27,S2BIOM: Biomass supply,Base potential : Sawdust from sawmills from conifers,kton dry mass,FALSE,kt,biomass,environmental
+27,S2BIOM: Biomass supply,Base potential : Sawdust from sawmills from nonconifers,kton dry mass,FALSE,kt,biomass,environmental
+27,S2BIOM: Biomass supply,"Base potential : Sawmill residues: excluding sawdust, conifers",kton dry mass,FALSE,kt,biomass,environmental
+27,S2BIOM: Biomass supply,"Base potential : Sawmill residues: excluding sawdust, nonconifers",kton dry mass,FALSE,kt,biomass,environmental
+27,S2BIOM: Biomass supply,Base potential : Separately collected biowaste: Biodegradable waste of separately collected municipal  waste (excluding textile and paper),kton dry mass,FALSE,kt,biomass,environmental
+27,S2BIOM: Biomass supply,Base potential : SRC Poplar,kton dry mass,FALSE,kt,biomass,environmental
+27,S2BIOM: Biomass supply,Base potential : SRC Willow,kton dry mass,FALSE,kt,biomass,environmental
+27,S2BIOM: Biomass supply,Base potential : Stemwood from final fellings originating from conifer trees,kton dry mass,FALSE,kt,biomass,environmental
+27,S2BIOM: Biomass supply,Base potential : Stemwood from final fellings originating from nonconifer trees,kton dry mass,FALSE,kt,biomass,environmental
+27,S2BIOM: Biomass supply,Base potential : Stemwood from thinnings originating from conifer trees,kton dry mass,FALSE,kt,biomass,environmental
+27,S2BIOM: Biomass supply,Base potential : Stemwood from thinnings originating from nonconifer trees,kton dry mass,FALSE,kt,biomass,environmental
+27,S2BIOM: Biomass supply,Base potential : Stumps from final fellings originating from conifer trees,kton dry mass,FALSE,kt,biomass,environmental
+27,S2BIOM: Biomass supply,Base potential : Stumps from final fellings originating from nonconifer trees,kton dry mass,FALSE,kt,biomass,environmental
+27,S2BIOM: Biomass supply,Base potential : Sugarbeet leaves,kton dry mass,FALSE,kt,biomass,environmental
+27,S2BIOM: Biomass supply,Base potential : Sunflower straw,kton dry mass,FALSE,kt,biomass,environmental
+27,S2BIOM: Biomass supply,Base potential : Switchgrass (Perennial grass),kton dry mass,FALSE,kt,biomass,environmental
+27,S2BIOM: Biomass supply,"Base potential : Unused grassland cuttings (abandoned grassland, managed grasslands not used for feed)  ",kton dry mass,FALSE,kt,biomass,environmental
+27,S2BIOM: Biomass supply,cost : 2225,Euro/ton dry mass,FALSE,€/t,cost,socio_economic
+27,S2BIOM: Biomass supply,cost : Cardoon (Perennial crop),Euro/ton dry mass,FALSE,€/t,cost,socio_economic
+27,S2BIOM: Biomass supply,cost : Cereals straw,Euro/ton dry mass,FALSE,€/t,cost,socio_economic
+27,S2BIOM: Biomass supply,cost : Giant reed (Perennial grass),Euro/ton dry mass,FALSE,€/t,cost,socio_economic
+27,S2BIOM: Biomass supply,cost : Grassy biomass from road side verges,Euro/ton dry mass,FALSE,€/t,cost,socio_economic
+27,S2BIOM: Biomass supply,cost : Logging residues from final fellings originating from conifer trees,Euro/ton dry mass,FALSE,€/t,cost,socio_economic
+27,S2BIOM: Biomass supply,cost : Logging residues from final fellings originating from nonconifer trees,Euro/ton dry mass,FALSE,€/t,cost,socio_economic
+27,S2BIOM: Biomass supply,cost : Logging residues from thinnings from conifer trees,Euro/ton dry mass,FALSE,€/t,cost,socio_economic
+27,S2BIOM: Biomass supply,cost : Logging residues from thinnings from nonconifer trees,Euro/ton dry mass,FALSE,€/t,cost,socio_economic
+27,S2BIOM: Biomass supply,cost : Maize stover,Euro/ton dry mass,FALSE,€/t,cost,socio_economic
+27,S2BIOM: Biomass supply,cost : Miscanthus (Perennial grass),Euro/ton dry mass,FALSE,€/t,cost,socio_economic
+27,S2BIOM: Biomass supply,cost : Oil seed rape straw,Euro/ton dry mass,FALSE,€/t,cost,socio_economic
+27,S2BIOM: Biomass supply,cost : Other SRC,Euro/ton dry mass,FALSE,€/t,cost,socio_economic
+27,S2BIOM: Biomass supply,cost : Reed Canary Grass (Perennial grass),Euro/ton dry mass,FALSE,€/t,cost,socio_economic
+27,S2BIOM: Biomass supply,"cost : Residues from fruit tree plantations (apples, pears and soft fruit)",Euro/ton dry mass,FALSE,€/t,cost,socio_economic
+27,S2BIOM: Biomass supply,cost : Residues from vineyards,Euro/ton dry mass,FALSE,€/t,cost,socio_economic
+27,S2BIOM: Biomass supply,cost : Rice straw,Euro/ton dry mass,FALSE,€/t,cost,socio_economic
+27,S2BIOM: Biomass supply,cost : SRC Poplar,Euro/ton dry mass,FALSE,€/t,cost,socio_economic
+27,S2BIOM: Biomass supply,cost : SRC Willow,Euro/ton dry mass,FALSE,€/t,cost,socio_economic
+27,S2BIOM: Biomass supply,cost : Stemwood from final fellings originating from conifer trees,Euro/ton dry mass,FALSE,€/t,cost,socio_economic
+27,S2BIOM: Biomass supply,cost : Stemwood from final fellings originating from nonconifer trees,Euro/ton dry mass,FALSE,€/t,cost,socio_economic
+27,S2BIOM: Biomass supply,cost : Stemwood from thinnings originating from conifer trees,Euro/ton dry mass,FALSE,€/t,cost,socio_economic
+27,S2BIOM: Biomass supply,cost : Stemwood from thinnings originating from nonconifer trees,Euro/ton dry mass,FALSE,€/t,cost,socio_economic
+27,S2BIOM: Biomass supply,cost : Stumps from final fellings originating from conifer trees,Euro/ton dry mass,FALSE,€/t,cost,socio_economic
+27,S2BIOM: Biomass supply,cost : Stumps from final fellings originating from nonconifer trees,Euro/ton dry mass,FALSE,€/t,cost,socio_economic
+27,S2BIOM: Biomass supply,cost : Sugarbeet leaves,Euro/ton dry mass,FALSE,€/t,cost,socio_economic
+27,S2BIOM: Biomass supply,cost : Sunflower straw,Euro/ton dry mass,FALSE,€/t,cost,socio_economic
+27,S2BIOM: Biomass supply,cost : Switchgrass (Perennial grass),Euro/ton dry mass,FALSE,€/t,cost,socio_economic
+27,S2BIOM: Biomass supply,High potential : Logging residues from final fellings originating from conifer trees,kton dry mass,FALSE,kt,biomass,environmental
+27,S2BIOM: Biomass supply,High potential : Logging residues from final fellings originating from nonconifer trees,kton dry mass,FALSE,kt,biomass,environmental
+27,S2BIOM: Biomass supply,High potential : Logging residues from thinnings from conifer trees,kton dry mass,FALSE,kt,biomass,environmental
+27,S2BIOM: Biomass supply,High potential : Logging residues from thinnings from nonconifer trees,kton dry mass,FALSE,kt,biomass,environmental
+27,S2BIOM: Biomass supply,High potential : Stemwood from final fellings originating from conifer trees,kton dry mass,FALSE,kt,biomass,environmental
+27,S2BIOM: Biomass supply,High potential : Stemwood from final fellings originating from nonconifer trees,kton dry mass,FALSE,kt,biomass,environmental
+27,S2BIOM: Biomass supply,High potential : Stemwood from thinnings originating from conifer trees,kton dry mass,FALSE,kt,biomass,environmental
+27,S2BIOM: Biomass supply,High potential : Stemwood from thinnings originating from nonconifer trees,kton dry mass,FALSE,kt,biomass,environmental
+27,S2BIOM: Biomass supply,High potential : Stumps from final fellings originating from conifer trees,kton dry mass,FALSE,kt,biomass,environmental
+27,S2BIOM: Biomass supply,High potential : Stumps from final fellings originating from nonconifer trees,kton dry mass,FALSE,kt,biomass,environmental
+27,S2BIOM: Biomass supply,Technical potential : 4212,kton dry mass,FALSE,kt,biomass,environmental
+27,S2BIOM: Biomass supply,Technical potential : Bark residues from pulp and paper industry,kton dry mass,FALSE,kt,biomass,environmental
+27,S2BIOM: Biomass supply,Technical potential : Biowaste as part of integrally collected municipal waste: Biodegradable waste of not separately collected municipal  waste (excluding textile and paper),kton dry mass,FALSE,kt,biomass,environmental
+27,S2BIOM: Biomass supply,Technical potential : Black liquor,kton dry mass,FALSE,kt,biomass,environmental
+27,S2BIOM: Biomass supply,Technical potential : Cardoon (Perennial crop),kton dry mass,FALSE,kt,biomass,environmental
+27,S2BIOM: Biomass supply,Technical potential : Cereal bran,kton dry mass,FALSE,kt,biomass,environmental
+27,S2BIOM: Biomass supply,Technical potential : Cereals straw,kton dry mass,FALSE,kt,biomass,environmental
+27,S2BIOM: Biomass supply,Technical potential : Giant reed (Perennial grass),kton dry mass,FALSE,kt,biomass,environmental
+27,S2BIOM: Biomass supply,Technical potential : Grassy biomass from road side verges,kton dry mass,FALSE,kt,biomass,environmental
+27,S2BIOM: Biomass supply,Technical potential : Hazardous post consumer wood,kton dry mass,FALSE,kt,biomass,environmental
+27,S2BIOM: Biomass supply,Technical potential : Logging residues from final fellings originating from conifer trees,kton dry mass,FALSE,kt,biomass,environmental
+27,S2BIOM: Biomass supply,Technical potential : Logging residues from final fellings originating from nonconifer trees,kton dry mass,FALSE,kt,biomass,environmental
+27,S2BIOM: Biomass supply,Technical potential : Logging residues from thinnings from conifer trees,kton dry mass,FALSE,kt,biomass,environmental
+27,S2BIOM: Biomass supply,Technical potential : Logging residues from thinnings from nonconifer trees,kton dry mass,FALSE,kt,biomass,environmental
+27,S2BIOM: Biomass supply,Technical potential : Maize stover,kton dry mass,FALSE,kt,biomass,environmental
+27,S2BIOM: Biomass supply,Technical potential : Miscanthus (Perennial grass),kton dry mass,FALSE,kt,biomass,environmental
+27,S2BIOM: Biomass supply,Technical potential : Non hazardous post consumer wood,kton dry mass,FALSE,kt,biomass,environmental
+27,S2BIOM: Biomass supply,Technical potential : Oil seed rape straw,kton dry mass,FALSE,kt,biomass,environmental
+27,S2BIOM: Biomass supply,Technical potential : Olive-stones,kton dry mass,FALSE,kt,biomass,environmental
+27,S2BIOM: Biomass supply,Technical potential : Other SRC,kton dry mass,FALSE,kt,biomass,environmental
+27,S2BIOM: Biomass supply,Technical potential : Pressed grapes dregs,kton dry mass,FALSE,kt,biomass,environmental
+27,S2BIOM: Biomass supply,Technical potential : Reed Canary Grass (Perennial grass),kton dry mass,FALSE,kt,biomass,environmental
+27,S2BIOM: Biomass supply,Technical potential : Residues from citrus tree plantations,kton dry mass,FALSE,kt,biomass,environmental
+27,S2BIOM: Biomass supply,"Technical potential : Residues from fruit tree plantations (apples, pears and soft fruit)",kton dry mass,FALSE,kt,biomass,environmental
+27,S2BIOM: Biomass supply,Technical potential : Residues from further woodprocessing,kton dry mass,FALSE,kt,biomass,environmental
+27,S2BIOM: Biomass supply,Technical potential : Residues from olives tree plantations,kton dry mass,FALSE,kt,biomass,environmental
+27,S2BIOM: Biomass supply,Technical potential : Residues from vineyards,kton dry mass,FALSE,kt,biomass,environmental
+27,S2BIOM: Biomass supply,Technical potential : Residues industries producing semi finished wood based panels ,kton dry mass,FALSE,kt,biomass,environmental
+27,S2BIOM: Biomass supply,Technical potential : Rice husk,kton dry mass,FALSE,kt,biomass,environmental
+27,S2BIOM: Biomass supply,Technical potential : Rice straw,kton dry mass,FALSE,kt,biomass,environmental
+27,S2BIOM: Biomass supply,Technical potential : Sawdust from sawmills from conifers,kton dry mass,FALSE,kt,biomass,environmental
+27,S2BIOM: Biomass supply,Technical potential : Sawdust from sawmills from nonconifers,kton dry mass,FALSE,kt,biomass,environmental
+27,S2BIOM: Biomass supply,"Technical potential : Sawmill residues: excluding sawdust, conifers",kton dry mass,FALSE,kt,biomass,environmental
+27,S2BIOM: Biomass supply,"Technical potential : Sawmill residues: excluding sawdust, nonconifers",kton dry mass,FALSE,kt,biomass,environmental
+27,S2BIOM: Biomass supply,Technical potential : Separately collected biowaste: Biodegradable waste of separately collected municipal  waste (excluding textile and paper),kton dry mass,FALSE,kt,biomass,environmental
+27,S2BIOM: Biomass supply,Technical potential : SRC Poplar,kton dry mass,FALSE,kt,biomass,environmental
+27,S2BIOM: Biomass supply,Technical potential : SRC Willow,kton dry mass,FALSE,kt,biomass,environmental
+27,S2BIOM: Biomass supply,Technical potential : Stemwood from final fellings originating from conifer trees,kton dry mass,FALSE,kt,biomass,environmental
+27,S2BIOM: Biomass supply,Technical potential : Stemwood from final fellings originating from nonconifer trees,kton dry mass,FALSE,kt,biomass,environmental
+27,S2BIOM: Biomass supply,Technical potential : Stemwood from thinnings originating from conifer trees,kton dry mass,FALSE,kt,biomass,environmental
+27,S2BIOM: Biomass supply,Technical potential : Stemwood from thinnings originating from nonconifer trees,kton dry mass,FALSE,kt,biomass,environmental
+27,S2BIOM: Biomass supply,Technical potential : Stumps from final fellings originating from conifer trees,kton dry mass,FALSE,kt,biomass,environmental
+27,S2BIOM: Biomass supply,Technical potential : Stumps from final fellings originating from nonconifer trees,kton dry mass,FALSE,kt,biomass,environmental
+27,S2BIOM: Biomass supply,Technical potential : Sugarbeet leaves,kton dry mass,FALSE,kt,biomass,environmental
+27,S2BIOM: Biomass supply,Technical potential : Sunflower straw,kton dry mass,FALSE,kt,biomass,environmental
+27,S2BIOM: Biomass supply,Technical potential : Switchgrass (Perennial grass),kton dry mass,FALSE,kt,biomass,environmental
+27,S2BIOM: Biomass supply,"Technical potential : Unused grassland cuttings (abandoned grassland, managed grasslands not used for feed)  ",kton dry mass,FALSE,kt,biomass,environmental
+27,S2BIOM: Biomass supply,UD01 : Bark residues from pulp and paper industry,kton dry mass,FALSE,kt,biomass,environmental
+27,S2BIOM: Biomass supply,UD01 : Biowaste as part of integrally collected municipal waste: Biodegradable waste of not separately collected municipal  waste (excluding textile and paper),kton dry mass,FALSE,kt,biomass,environmental
+27,S2BIOM: Biomass supply,UD01 : Black liquor,kton dry mass,FALSE,kt,biomass,environmental
+27,S2BIOM: Biomass supply,UD01 : Cardoon (Perennial crop),kton dry mass,FALSE,kt,biomass,environmental
+27,S2BIOM: Biomass supply,UD01 : Cereal bran,kton dry mass,FALSE,kt,biomass,environmental
+27,S2BIOM: Biomass supply,UD01 : Cereals straw,kton dry mass,FALSE,kt,biomass,environmental
+27,S2BIOM: Biomass supply,UD01 : Giant reed (Perennial grass),kton dry mass,FALSE,kt,biomass,environmental
+27,S2BIOM: Biomass supply,UD01 : Hazardous post consumer wood,kton dry mass,FALSE,kt,biomass,environmental
+27,S2BIOM: Biomass supply,UD01 : Logging residues from final fellings originating from conifer trees,kton dry mass,FALSE,kt,biomass,environmental
+27,S2BIOM: Biomass supply,UD01 : Logging residues from final fellings originating from nonconifer trees,kton dry mass,FALSE,kt,biomass,environmental
+27,S2BIOM: Biomass supply,UD01 : Logging residues from thinnings from conifer trees,kton dry mass,FALSE,kt,biomass,environmental
+27,S2BIOM: Biomass supply,UD01 : Logging residues from thinnings from nonconifer trees,kton dry mass,FALSE,kt,biomass,environmental
+27,S2BIOM: Biomass supply,UD01 : Maize stover,kton dry mass,FALSE,kt,biomass,environmental
+27,S2BIOM: Biomass supply,UD01 : Miscanthus (Perennial grass),kton dry mass,FALSE,kt,biomass,environmental
+27,S2BIOM: Biomass supply,UD01 : Non hazardous post consumer wood,kton dry mass,FALSE,kt,biomass,environmental
+27,S2BIOM: Biomass supply,UD01 : Oil seed rape straw,kton dry mass,FALSE,kt,biomass,environmental
+27,S2BIOM: Biomass supply,UD01 : Other SRC,kton dry mass,FALSE,kt,biomass,environmental
+27,S2BIOM: Biomass supply,UD01 : Reed Canary Grass (Perennial grass),kton dry mass,FALSE,kt,biomass,environmental
+27,S2BIOM: Biomass supply,UD01 : Residues from further woodprocessing,kton dry mass,FALSE,kt,biomass,environmental
+27,S2BIOM: Biomass supply,UD01 : Residues industries producing semi finished wood based panels ,kton dry mass,FALSE,kt,biomass,environmental
+27,S2BIOM: Biomass supply,UD01 : Rice straw,kton dry mass,FALSE,kt,biomass,environmental
+27,S2BIOM: Biomass supply,UD01 : Sawdust from sawmills from conifers,kton dry mass,FALSE,kt,biomass,environmental
+27,S2BIOM: Biomass supply,UD01 : Sawdust from sawmills from nonconifers,kton dry mass,FALSE,kt,biomass,environmental
+27,S2BIOM: Biomass supply,"UD01 : Sawmill residues: excluding sawdust, conifers",kton dry mass,FALSE,kt,biomass,environmental
+27,S2BIOM: Biomass supply,"UD01 : Sawmill residues: excluding sawdust, nonconifers",kton dry mass,FALSE,kt,biomass,environmental
+27,S2BIOM: Biomass supply,UD01 : Separately collected biowaste: Biodegradable waste of separately collected municipal  waste (excluding textile and paper),kton dry mass,FALSE,kt,biomass,environmental
+27,S2BIOM: Biomass supply,UD01 : SRC Willow,kton dry mass,FALSE,kt,biomass,environmental
+27,S2BIOM: Biomass supply,UD01 : Stemwood from final fellings originating from conifer trees,kton dry mass,FALSE,kt,biomass,environmental
+27,S2BIOM: Biomass supply,UD01 : Stemwood from final fellings originating from nonconifer trees,kton dry mass,FALSE,kt,biomass,environmental
+27,S2BIOM: Biomass supply,UD01 : Stemwood from thinnings originating from conifer trees,kton dry mass,FALSE,kt,biomass,environmental
+27,S2BIOM: Biomass supply,UD01 : Stemwood from thinnings originating from nonconifer trees,kton dry mass,FALSE,kt,biomass,environmental
+27,S2BIOM: Biomass supply,UD01 : Stumps from final fellings originating from conifer trees,kton dry mass,FALSE,kt,biomass,environmental
+27,S2BIOM: Biomass supply,UD01 : Stumps from final fellings originating from nonconifer trees,kton dry mass,FALSE,kt,biomass,environmental
+27,S2BIOM: Biomass supply,UD01 : Sugarbeet leaves,kton dry mass,FALSE,kt,biomass,environmental
+27,S2BIOM: Biomass supply,UD01 : Sunflower straw,kton dry mass,FALSE,kt,biomass,environmental
+27,S2BIOM: Biomass supply,UD01 : Switchgrass (Perennial grass),kton dry mass,FALSE,kt,biomass,environmental
+27,S2BIOM: Biomass supply,UD02 : Logging residues from final fellings originating from conifer trees,kton dry mass,FALSE,kt,biomass,environmental
+27,S2BIOM: Biomass supply,UD02 : Logging residues from final fellings originating from nonconifer trees,kton dry mass,FALSE,kt,biomass,environmental
+27,S2BIOM: Biomass supply,UD02 : Logging residues from thinnings from conifer trees,kton dry mass,FALSE,kt,biomass,environmental
+27,S2BIOM: Biomass supply,UD02 : Logging residues from thinnings from nonconifer trees,kton dry mass,FALSE,kt,biomass,environmental
+27,S2BIOM: Biomass supply,UD02 : Residues industries producing semi finished wood based panels ,kton dry mass,FALSE,kt,biomass,environmental
+27,S2BIOM: Biomass supply,UD02 : Sawdust from sawmills from conifers,kton dry mass,FALSE,kt,biomass,environmental
+27,S2BIOM: Biomass supply,UD02 : Sawdust from sawmills from nonconifers,kton dry mass,FALSE,kt,biomass,environmental
+27,S2BIOM: Biomass supply,"UD02 : Sawmill residues: excluding sawdust, conifers",kton dry mass,FALSE,kt,biomass,environmental
+27,S2BIOM: Biomass supply,"UD02 : Sawmill residues: excluding sawdust, nonconifers",kton dry mass,FALSE,kt,biomass,environmental
+27,S2BIOM: Biomass supply,UD02 : Stemwood from final fellings originating from conifer trees,kton dry mass,FALSE,kt,biomass,environmental
+27,S2BIOM: Biomass supply,UD02 : Stemwood from final fellings originating from nonconifer trees,kton dry mass,FALSE,kt,biomass,environmental
+27,S2BIOM: Biomass supply,UD02 : Stemwood from thinnings originating from conifer trees,kton dry mass,FALSE,kt,biomass,environmental
+27,S2BIOM: Biomass supply,UD02 : Stemwood from thinnings originating from nonconifer trees,kton dry mass,FALSE,kt,biomass,environmental
+27,S2BIOM: Biomass supply,UD02 : Stumps from final fellings originating from conifer trees,kton dry mass,FALSE,kt,biomass,environmental
+27,S2BIOM: Biomass supply,UD02 : Stumps from final fellings originating from nonconifer trees,kton dry mass,FALSE,kt,biomass,environmental
+27,S2BIOM: Biomass supply,UD03 : Logging residues from final fellings originating from conifer trees,kton dry mass,FALSE,kt,biomass,environmental
+27,S2BIOM: Biomass supply,UD03 : Logging residues from final fellings originating from nonconifer trees,kton dry mass,FALSE,kt,biomass,environmental
+27,S2BIOM: Biomass supply,UD03 : Logging residues from thinnings from conifer trees,kton dry mass,FALSE,kt,biomass,environmental
+27,S2BIOM: Biomass supply,UD03 : Logging residues from thinnings from nonconifer trees,kton dry mass,FALSE,kt,biomass,environmental
+27,S2BIOM: Biomass supply,UD03 : Stemwood from final fellings originating from conifer trees,kton dry mass,FALSE,kt,biomass,environmental
+27,S2BIOM: Biomass supply,UD03 : Stemwood from final fellings originating from nonconifer trees,kton dry mass,FALSE,kt,biomass,environmental
+27,S2BIOM: Biomass supply,UD03 : Stemwood from thinnings originating from conifer trees,kton dry mass,FALSE,kt,biomass,environmental
+27,S2BIOM: Biomass supply,UD03 : Stemwood from thinnings originating from nonconifer trees,kton dry mass,FALSE,kt,biomass,environmental
+27,S2BIOM: Biomass supply,UD04 : Logging residues from final fellings originating from conifer trees,kton dry mass,FALSE,kt,biomass,environmental
+27,S2BIOM: Biomass supply,UD04 : Logging residues from final fellings originating from nonconifer trees,kton dry mass,FALSE,kt,biomass,environmental
+27,S2BIOM: Biomass supply,UD04 : Logging residues from thinnings from conifer trees,kton dry mass,FALSE,kt,biomass,environmental
+27,S2BIOM: Biomass supply,UD04 : Logging residues from thinnings from nonconifer trees,kton dry mass,FALSE,kt,biomass,environmental
+27,S2BIOM: Biomass supply,UD04 : Stemwood from final fellings originating from conifer trees,kton dry mass,FALSE,kt,biomass,environmental
+27,S2BIOM: Biomass supply,UD04 : Stemwood from final fellings originating from nonconifer trees,kton dry mass,FALSE,kt,biomass,environmental
+27,S2BIOM: Biomass supply,UD04 : Stemwood from thinnings originating from conifer trees,kton dry mass,FALSE,kt,biomass,environmental
+27,S2BIOM: Biomass supply,UD04 : Stemwood from thinnings originating from nonconifer trees,kton dry mass,FALSE,kt,biomass,environmental
+27,S2BIOM: Biomass supply,UD05 : Logging residues from final fellings originating from conifer trees,kton dry mass,FALSE,kt,biomass,environmental
+27,S2BIOM: Biomass supply,UD05 : Logging residues from final fellings originating from nonconifer trees,kton dry mass,FALSE,kt,biomass,environmental
+27,S2BIOM: Biomass supply,UD05 : Logging residues from thinnings from conifer trees,kton dry mass,FALSE,kt,biomass,environmental
+27,S2BIOM: Biomass supply,UD05 : Logging residues from thinnings from nonconifer trees,kton dry mass,FALSE,kt,biomass,environmental
+27,S2BIOM: Biomass supply,UD05 : Stemwood from final fellings originating from conifer trees,kton dry mass,FALSE,kt,biomass,environmental
+27,S2BIOM: Biomass supply,UD05 : Stemwood from final fellings originating from nonconifer trees,kton dry mass,FALSE,kt,biomass,environmental
+27,S2BIOM: Biomass supply,UD05 : Stemwood from thinnings originating from conifer trees,kton dry mass,FALSE,kt,biomass,environmental
+27,S2BIOM: Biomass supply,UD05 : Stemwood from thinnings originating from nonconifer trees,kton dry mass,FALSE,kt,biomass,environmental
+27,S2BIOM: Biomass supply,UD05 : Stumps from final fellings originating from conifer trees,kton dry mass,FALSE,kt,biomass,environmental
+27,S2BIOM: Biomass supply,UD05 : Stumps from final fellings originating from nonconifer trees,kton dry mass,FALSE,kt,biomass,environmental
+27,S2BIOM: Biomass supply,UD06 : Logging residues from final fellings originating from conifer trees,kton dry mass,FALSE,kt,biomass,environmental
+27,S2BIOM: Biomass supply,UD06 : Logging residues from final fellings originating from nonconifer trees,kton dry mass,FALSE,kt,biomass,environmental
+27,S2BIOM: Biomass supply,UD06 : Logging residues from thinnings from conifer trees,kton dry mass,FALSE,kt,biomass,environmental
+27,S2BIOM: Biomass supply,UD06 : Logging residues from thinnings from nonconifer trees,kton dry mass,FALSE,kt,biomass,environmental
+27,S2BIOM: Biomass supply,UD06 : Stemwood from final fellings originating from conifer trees,kton dry mass,FALSE,kt,biomass,environmental
+27,S2BIOM: Biomass supply,UD06 : Stemwood from final fellings originating from nonconifer trees,kton dry mass,FALSE,kt,biomass,environmental
+27,S2BIOM: Biomass supply,UD06 : Stemwood from thinnings originating from conifer trees,kton dry mass,FALSE,kt,biomass,environmental
+27,S2BIOM: Biomass supply,UD06 : Stemwood from thinnings originating from nonconifer trees,kton dry mass,FALSE,kt,biomass,environmental
+27,S2BIOM: Biomass supply,UD06 : Stumps from final fellings originating from conifer trees,kton dry mass,FALSE,kt,biomass,environmental
+27,S2BIOM: Biomass supply,UD06 : Stumps from final fellings originating from nonconifer trees,kton dry mass,FALSE,kt,biomass,environmental
+27,S2BIOM: Biomass supply,UD07 : Logging residues from final fellings originating from conifer trees,kton dry mass,FALSE,kt,biomass,environmental
+27,S2BIOM: Biomass supply,UD07 : Logging residues from final fellings originating from nonconifer trees,kton dry mass,FALSE,kt,biomass,environmental
+27,S2BIOM: Biomass supply,UD07 : Logging residues from thinnings from conifer trees,kton dry mass,FALSE,kt,biomass,environmental
+27,S2BIOM: Biomass supply,UD07 : Logging residues from thinnings from nonconifer trees,kton dry mass,FALSE,kt,biomass,environmental
+27,S2BIOM: Biomass supply,UD07 : Stemwood from final fellings originating from conifer trees,kton dry mass,FALSE,kt,biomass,environmental
+27,S2BIOM: Biomass supply,UD07 : Stemwood from final fellings originating from nonconifer trees,kton dry mass,FALSE,kt,biomass,environmental
+27,S2BIOM: Biomass supply,UD07 : Stemwood from thinnings originating from conifer trees,kton dry mass,FALSE,kt,biomass,environmental
+27,S2BIOM: Biomass supply,UD07 : Stemwood from thinnings originating from nonconifer trees,kton dry mass,FALSE,kt,biomass,environmental
+27,S2BIOM: Biomass supply,UD08 : Logging residues from final fellings originating from conifer trees,kton dry mass,FALSE,kt,biomass,environmental
+27,S2BIOM: Biomass supply,UD08 : Logging residues from final fellings originating from nonconifer trees,kton dry mass,FALSE,kt,biomass,environmental
+27,S2BIOM: Biomass supply,UD08 : Logging residues from thinnings from conifer trees,kton dry mass,FALSE,kt,biomass,environmental
+27,S2BIOM: Biomass supply,UD08 : Logging residues from thinnings from nonconifer trees,kton dry mass,FALSE,kt,biomass,environmental
+27,S2BIOM: Biomass supply,UD08 : Stemwood from final fellings originating from conifer trees,kton dry mass,FALSE,kt,biomass,environmental
+27,S2BIOM: Biomass supply,UD08 : Stemwood from final fellings originating from nonconifer trees,kton dry mass,FALSE,kt,biomass,environmental
+27,S2BIOM: Biomass supply,UD08 : Stemwood from thinnings originating from conifer trees,kton dry mass,FALSE,kt,biomass,environmental
+27,S2BIOM: Biomass supply,UD08 : Stemwood from thinnings originating from nonconifer trees,kton dry mass,FALSE,kt,biomass,environmental
+28,HotMaps: Building stock analysis,BUILDING | Area | Constructed area [Mm²],Mm²,FALSE,Mm2,built_env,buildings
+28,HotMaps: Building stock analysis,BUILDING | Area | Cooled area [Mm²],Mm²,FALSE,Mm2,built_env,buildings
+28,HotMaps: Building stock analysis,BUILDING | Area | Covered area: heated  [Mm²],Mm²,FALSE,Mm2,built_env,buildings
+28,HotMaps: Building stock analysis,BUILDING | Area | Heated area [Mm²],Mm²,FALSE,Mm2,built_env,buildings
+28,HotMaps: Building stock analysis,BUILDING | Area | Number of buildings [Mil.],1e6 dimensionless,FALSE,Number,built_env,buildings
+28,HotMaps: Building stock analysis,BUILDING | Area | Number of dwellings/units [Mil.],1e6 dimensionless,FALSE,Number,built_env,buildings
+28,HotMaps: Building stock analysis,BUILDING | Construction features (U-value) | Floor,dimensionless,FALSE,W/(m2 K),built_env,buildings
+28,HotMaps: Building stock analysis,BUILDING | Construction features (U-value) | Roof,dimensionless,FALSE,W/(m2 K),built_env,buildings
+28,HotMaps: Building stock analysis,BUILDING | Construction features (U-values) | Floor,dimensionless,FALSE,W/(m2 K),built_env,buildings
+28,HotMaps: Building stock analysis,BUILDING | Construction features (U-values) | Floor ,dimensionless,FALSE,W/(m2 K),built_env,buildings
+28,HotMaps: Building stock analysis,BUILDING | Construction features (U-values) | Roof,dimensionless,FALSE,W/(m2 K),built_env,buildings
+28,HotMaps: Building stock analysis,BUILDING | Construction features (U-values) | Roof ,dimensionless,FALSE,W/(m2 K),built_env,buildings
+28,HotMaps: Building stock analysis,BUILDING | Construction features (U-values) | Walls,dimensionless,FALSE,W/(m2 K),built_env,buildings
+28,HotMaps: Building stock analysis,BUILDING | Construction features (U-values) | Walls ,dimensionless,FALSE,W/(m2 K),built_env,buildings
+28,HotMaps: Building stock analysis,BUILDING | Construction features (U-values) | Windows,dimensionless,FALSE,W/(m2 K),built_env,buildings
+28,HotMaps: Building stock analysis,BUILDING | Construction features (U-values) | Windows ,dimensionless,FALSE,W/(m2 K),built_env,buildings
+28,HotMaps: Building stock analysis,BUILDING | Construction features (U-value) | Walls,dimensionless,FALSE,W/(m2 K),built_env,buildings
+28,HotMaps: Building stock analysis,BUILDING | Construction features (U-value) | Windows,dimensionless,FALSE,W/(m2 K),built_env,buildings
+28,HotMaps: Building stock analysis,BUILDING | Occupancy | Occupied [Mil.],1e6 dimensionless,FALSE,Number,built_env,buildings
+28,HotMaps: Building stock analysis,BUILDING | Occupancy | Secondary dwellings/ units and others [Mil.],1e6 dimensionless,FALSE,Number,built_env,buildings
+28,HotMaps: Building stock analysis,BUILDING | Occupancy | Vacant [Mil.],1e6 dimensionless,FALSE,Number,built_env,buildings
+28,HotMaps: Building stock analysis,BUILDING | Tenure/ownership status and distribution | Owner occupied -  dwellings/units  [Mil.],1e6 dimensionless,FALSE,Number,built_env,buildings
+28,HotMaps: Building stock analysis,BUILDING | Tenure/ownership status and distribution | Private rented  -  dwellings/units [Mil.],1e6 dimensionless,FALSE,Number,built_env,buildings
+28,HotMaps: Building stock analysis,BUILDING | Tenure/ownership status and distribution | Social housing  -  dwellings/units [Mil.],1e6 dimensionless,FALSE,Number,built_env,buildings
+28,HotMaps: Building stock analysis,BUILDING | Tenure/ownership status and distribution | Social housing  -  dwellings/units [MIl.],1e6 dimensionless,FALSE,Number,built_env,buildings
+28,HotMaps: Building stock analysis,DHW | boiler | condensing,dimensionless,FALSE,dimensionless,built_env,buildings
+28,HotMaps: Building stock analysis,DHW | boiler | non-condensing,dimensionless,FALSE,dimensionless,built_env,buildings
+28,HotMaps: Building stock analysis,DHW | central | None,dimensionless,FALSE,dimensionless,built_env,buildings
+28,HotMaps: Building stock analysis,DHW | Combined | None,dimensionless,FALSE,dimensionless,built_env,buildings
+28,HotMaps: Building stock analysis,DHW |  district heating | None,dimensionless,FALSE,dimensionless,built_env,buildings
+28,HotMaps: Building stock analysis,DHW | electricity | None,dimensionless,FALSE,dimensionless,built_env,buildings
+28,HotMaps: Building stock analysis,DHW | fossil fuels | gas,dimensionless,FALSE,dimensionless,built_env,buildings
+28,HotMaps: Building stock analysis,DHW | fossil fuels | liquid,dimensionless,FALSE,dimensionless,built_env,buildings
+28,HotMaps: Building stock analysis,DHW | heat pump | None,dimensionless,FALSE,dimensionless,built_env,buildings
+28,HotMaps: Building stock analysis,DHW | individual | None,dimensionless,FALSE,dimensionless,built_env,buildings
+28,HotMaps: Building stock analysis,DHW | Solar collectors | None,dimensionless,FALSE,dimensionless,built_env,buildings
+28,HotMaps: Building stock analysis,ENERGY | Final energy consumption | Domestic hot water [kWh/m² year],kWh/m²/year,FALSE,kWh/m2,en_consumption,energy_cons
+28,HotMaps: Building stock analysis,ENERGY | Final energy consumption | Space cooling [kWh/m² year],kWh/m²/year,FALSE,kWh/m2,en_consumption,energy_cons
+28,HotMaps: Building stock analysis,ENERGY | Final energy consumption | Space heating [kWh/m² year],kWh/m²/year,FALSE,kWh/m2,en_consumption,energy_cons
+28,HotMaps: Building stock analysis,ENERGY | Total final energy consumption | Space cooling [TWh/year],TWh/year,FALSE,TWh,en_consumption,energy_cons
+28,HotMaps: Building stock analysis,ENERGY | Total final energy consumption | Space heating+Domestic hot water [TWh/year],TWh/year,FALSE,TWh,en_consumption,energy_cons
+28,HotMaps: Building stock analysis,ENERGY | Total useful energy demand | Space cooling [TWh/year],TWh/year,FALSE,TWh,en_demand,energy_dem
+28,HotMaps: Building stock analysis,ENERGY | Total useful energy demand | Space heating+Domestic hot water [TWh/year],TWh/year,FALSE,TWh,en_demand,energy_dem
+28,HotMaps: Building stock analysis,ENERGY | Useful energy demand | Domestic hot water  [kWh/m² year],kWh/m²/year,FALSE,kWh/m2,en_demand,energy_dem
+28,HotMaps: Building stock analysis,ENERGY | Useful energy demand | Space cooling [kWh/m² year],kWh/m²/year,FALSE,kWh/m2,en_demand,energy_dem
+28,HotMaps: Building stock analysis,ENERGY | Useful energy demand | Space heating [kWh/m² year],kWh/m²/year,FALSE,kWh/m2,en_demand,energy_dem
+28,HotMaps: Building stock analysis,FLOOR | construction material | concrete,dimensionless,FALSE,%,built_env,buildings
+28,HotMaps: Building stock analysis,FLOOR | construction material | concrete + bricks,dimensionless,FALSE,%,built_env,buildings
+28,HotMaps: Building stock analysis,FLOOR | construction material | other,dimensionless,FALSE,%,built_env,buildings
+28,HotMaps: Building stock analysis,FLOOR | construction material | wood,dimensionless,FALSE,%,built_env,buildings
+28,HotMaps: Building stock analysis,FLOOR | construction methodology | concrete slab,dimensionless,FALSE,%,built_env,buildings
+28,HotMaps: Building stock analysis,FLOOR | construction methodology | None,dimensionless,FALSE,%,built_env,buildings
+28,HotMaps: Building stock analysis,FLOOR | construction methodology | other,dimensionless,FALSE,%,built_env,buildings
+28,HotMaps: Building stock analysis,FLOOR | construction methodology | wooden floor (rafters + boards),dimensionless,FALSE,%,built_env,buildings
+28,HotMaps: Building stock analysis,ROOF | construction material | concrete,dimensionless,FALSE,%,built_env,buildings
+28,HotMaps: Building stock analysis,ROOF | construction material | concrete + bricks,dimensionless,FALSE,%,built_env,buildings
+28,HotMaps: Building stock analysis,ROOF | construction material | flat roof,dimensionless,FALSE,%,built_env,buildings
+28,HotMaps: Building stock analysis,ROOF | construction material | None,dimensionless,FALSE,%,built_env,buildings
+28,HotMaps: Building stock analysis,ROOF | construction material | tilted roof,dimensionless,FALSE,%,built_env,buildings
+28,HotMaps: Building stock analysis,ROOF | construction material | wood,dimensionless,FALSE,%,built_env,buildings
+28,HotMaps: Building stock analysis,SPACE COOLING | no space cooling | None,dimensionless,FALSE,dimensionless,built_env,buildings
+28,HotMaps: Building stock analysis,SPACE COOLING | space cooling | None,dimensionless,FALSE,dimensionless,built_env,buildings
+28,HotMaps: Building stock analysis,SPACE HEATING | biomass | None,dimensionless,FALSE,dimensionless,built_env,buildings
+28,HotMaps: Building stock analysis,SPACE HEATING | boiler | condensing,dimensionless,FALSE,dimensionless,built_env,buildings
+28,HotMaps: Building stock analysis,SPACE HEATING | boiler | non-condensing,dimensionless,FALSE,dimensionless,built_env,buildings
+28,HotMaps: Building stock analysis,SPACE HEATING | central | None,dimensionless,FALSE,dimensionless,built_env,buildings
+28,HotMaps: Building stock analysis,SPACE HEATING | combined | None,dimensionless,FALSE,dimensionless,built_env,buildings
+28,HotMaps: Building stock analysis,SPACE HEATING |  district heating | None,dimensionless,FALSE,dimensionless,built_env,buildings
+28,HotMaps: Building stock analysis,SPACE HEATING | electric heating | None,dimensionless,FALSE,dimensionless,built_env,buildings
+28,HotMaps: Building stock analysis,SPACE HEATING | electricity | None,dimensionless,FALSE,dimensionless,built_env,buildings
+28,HotMaps: Building stock analysis,SPACE HEATING | fossil fuels | gas,dimensionless,FALSE,dimensionless,built_env,buildings
+28,HotMaps: Building stock analysis,SPACE HEATING | fossil fuels | liquid,dimensionless,FALSE,dimensionless,built_env,buildings
+28,HotMaps: Building stock analysis,SPACE HEATING | fossil fuels | solid,dimensionless,FALSE,dimensionless,built_env,buildings
+28,HotMaps: Building stock analysis,SPACE HEATING | heat pump | None,dimensionless,FALSE,dimensionless,built_env,buildings
+28,HotMaps: Building stock analysis,SPACE HEATING | individual | None,dimensionless,FALSE,dimensionless,built_env,buildings
+28,HotMaps: Building stock analysis,SPACE HEATING | stove | None,dimensionless,FALSE,dimensionless,built_env,buildings
+28,HotMaps: Building stock analysis,WALLS | construction material | brick,dimensionless,FALSE,%,built_env,buildings
+28,HotMaps: Building stock analysis,WALLS | construction material | concrete,dimensionless,FALSE,%,built_env,buildings
+28,HotMaps: Building stock analysis,WALLS | construction material | other,dimensionless,FALSE,%,built_env,buildings
+28,HotMaps: Building stock analysis,WALLS | construction material | wood,dimensionless,FALSE,%,built_env,buildings
+28,HotMaps: Building stock analysis,WALLS | construction methodology | cavity wall,dimensionless,FALSE,%,built_env,buildings
+28,HotMaps: Building stock analysis,WALLS | construction methodology | honeycomb bricks / hollow blocks wall,dimensionless,FALSE,%,built_env,buildings
+28,HotMaps: Building stock analysis,WALLS | construction methodology | None,dimensionless,FALSE,%,built_env,buildings
+28,HotMaps: Building stock analysis,WALLS | construction methodology | other,dimensionless,FALSE,%,built_env,buildings
+28,HotMaps: Building stock analysis,WALLS | construction methodology | solid wall,dimensionless,FALSE,%,built_env,buildings
+28,HotMaps: Building stock analysis,WINDOWS | construction material | aluminium,dimensionless,FALSE,%,built_env,buildings
+28,HotMaps: Building stock analysis,WINDOWS | construction material | synthetic / pvc,dimensionless,FALSE,%,built_env,buildings
+28,HotMaps: Building stock analysis,WINDOWS | construction material | wood,dimensionless,FALSE,%,built_env,buildings
+28,HotMaps: Building stock analysis,WINDOWS | construction methodology | double glazing,dimensionless,FALSE,%,built_env,buildings
+28,HotMaps: Building stock analysis,WINDOWS | construction methodology | None,dimensionless,FALSE,%,built_env,buildings
+28,HotMaps: Building stock analysis,WINDOWS | construction methodology | single glazing,dimensionless,FALSE,%,built_env,buildings
+28,HotMaps: Building stock analysis,WINDOWS | construction methodology | triple glazing,dimensionless,FALSE,%,built_env,buildings
+29,H2020 SET-Nav: Detailed scenario results for energy demand by the INVERT/EE-Lab model ,final energy demand,GWh,FALSE,GWh,en_demand,energy_dem
+30,Fuel consumption and technologies used in the heating/cooling sector,Final Energy | Cooling,TWh,FALSE,TWh,en_consumption,energy_cons
+30,Fuel consumption and technologies used in the heating/cooling sector,Final Energy | Heating,TWh,FALSE,TWh,en_consumption,energy_cons
+30,Fuel consumption and technologies used in the heating/cooling sector,Final Energy | Process cooling,TWh,FALSE,TWh,en_consumption,energy_cons
+30,Fuel consumption and technologies used in the heating/cooling sector,Final Energy | Process heating,TWh,FALSE,TWh,en_consumption,energy_cons
+30,Fuel consumption and technologies used in the heating/cooling sector,Final Energy | Space cooling,TWh,FALSE,TWh,en_consumption,energy_cons
+30,Fuel consumption and technologies used in the heating/cooling sector,Final Energy | Space heating,TWh,FALSE,TWh,en_consumption,energy_cons
+30,Fuel consumption and technologies used in the heating/cooling sector,Final Energy | Total Heating and Cooling,TWh,FALSE,TWh,en_consumption,energy_cons
+30,Fuel consumption and technologies used in the heating/cooling sector,Final Energy | Water heating,TWh,FALSE,TWh,en_consumption,energy_cons
+30,Fuel consumption and technologies used in the heating/cooling sector,Primary Energy | Cooling,TWh,FALSE,TWh,en_consumption,energy_cons
+30,Fuel consumption and technologies used in the heating/cooling sector,Primary Energy | Heating,TWh,FALSE,TWh,en_consumption,energy_cons
+30,Fuel consumption and technologies used in the heating/cooling sector,Primary Energy | Process cooling,TWh,FALSE,TWh,en_consumption,energy_cons
+30,Fuel consumption and technologies used in the heating/cooling sector,Primary Energy | Process heating,TWh,FALSE,TWh,en_consumption,energy_cons
+30,Fuel consumption and technologies used in the heating/cooling sector,Primary Energy | Space cooling,TWh,FALSE,TWh,en_consumption,energy_cons
+30,Fuel consumption and technologies used in the heating/cooling sector,Primary Energy | Space heating,TWh,FALSE,TWh,en_consumption,energy_cons
+30,Fuel consumption and technologies used in the heating/cooling sector,Primary Energy | Total Heating and Cooling,TWh,FALSE,TWh,en_consumption,energy_cons
+30,Fuel consumption and technologies used in the heating/cooling sector,Primary Energy | Water heating,TWh,FALSE,TWh,en_consumption,energy_cons
+30,Fuel consumption and technologies used in the heating/cooling sector,Useful Energy | Cooling,TWh,FALSE,TWh,en_consumption,energy_cons
+30,Fuel consumption and technologies used in the heating/cooling sector,Useful Energy | Heating,TWh,FALSE,TWh,en_consumption,energy_cons
+30,Fuel consumption and technologies used in the heating/cooling sector,Useful Energy | Process cooling,TWh,FALSE,TWh,en_consumption,energy_cons
+30,Fuel consumption and technologies used in the heating/cooling sector,Useful Energy | Process heating,TWh,FALSE,TWh,en_consumption,energy_cons
+30,Fuel consumption and technologies used in the heating/cooling sector,Useful Energy | Space cooling,TWh,FALSE,TWh,en_consumption,energy_cons
+30,Fuel consumption and technologies used in the heating/cooling sector,Useful Energy | Space heating,TWh,FALSE,TWh,en_consumption,energy_cons
+30,Fuel consumption and technologies used in the heating/cooling sector,Useful Energy | Total Heating and Cooling,TWh,FALSE,TWh,en_consumption,energy_cons
+30,Fuel consumption and technologies used in the heating/cooling sector,Useful Energy | Water heating,TWh,FALSE,TWh,en_consumption,energy_cons
+31,INTERREG GRETA,Climate zones,-,TRUE,dimensionless,climate,environmental
+31,INTERREG GRETA,Geothermal energy potential,MWh/year,TRUE,MWh,en_production,energy_prod
+31,INTERREG GRETA,Geothermal power potential,W,TRUE,W,en_power,energy_cap
+31,INTERREG GRETA,Ground conductivity,W/(m K),TRUE,W/(m K),conductivity,environmental
+31,INTERREG GRETA,Land surface temperature,°C,TRUE,°C,climate_temp,environmental
+31,INTERREG GRETA,length of the heating season,hours,TRUE,h,time,environmental
+33,Building Height,Building height,m,NULL,m,built_env,buildings
+35,European Settlement Map,Land use,,TRUE,dimensionless,land_use,environmental
+42,National Housing Census: type of living quarter by country,Non-residential buildings : Conventional dwellings,Number,FALSE,Number,built_env,buildings
+42,National Housing Census: type of living quarter by country,Non-residential buildings : Occupied conventional dwellings,Number,FALSE,Number,built_env,buildings
+42,National Housing Census: type of living quarter by country,Non-residential buildings : Unknown,Number,FALSE,Number,built_env,buildings
+42,National Housing Census: type of living quarter by country,Non-residential buildings : Unoccupied conventional dwellings,Number,FALSE,Number,built_env,buildings
+42,National Housing Census: type of living quarter by country,One-dwelling residential buildings : Conventional dwellings,Number,FALSE,Number,built_env,buildings
+42,National Housing Census: type of living quarter by country,One-dwelling residential buildings : Occupied conventional dwellings,Number,FALSE,Number,built_env,buildings
+42,National Housing Census: type of living quarter by country,One-dwelling residential buildings : Unknown,Number,FALSE,Number,built_env,buildings
+42,National Housing Census: type of living quarter by country,One-dwelling residential buildings : Unoccupied conventional dwellings,Number,FALSE,Number,built_env,buildings
+42,National Housing Census: type of living quarter by country,Residential buildings : Conventional dwellings,Number,FALSE,Number,built_env,buildings
+42,National Housing Census: type of living quarter by country,Residential buildings : Occupied conventional dwellings,Number,FALSE,Number,built_env,buildings
+42,National Housing Census: type of living quarter by country,Residential buildings : Unknown,Number,FALSE,Number,built_env,buildings
+42,National Housing Census: type of living quarter by country,Residential buildings : Unoccupied conventional dwellings,Number,FALSE,Number,built_env,buildings
+42,National Housing Census: type of living quarter by country,Three or more dwelling residential buildings : Conventional dwellings,Number,FALSE,Number,built_env,buildings
+42,National Housing Census: type of living quarter by country,Three or more dwelling residential buildings : Occupied conventional dwellings,Number,FALSE,Number,built_env,buildings
+42,National Housing Census: type of living quarter by country,Three or more dwelling residential buildings : Unknown,Number,FALSE,Number,built_env,buildings
+42,National Housing Census: type of living quarter by country,Three or more dwelling residential buildings : Unoccupied conventional dwellings,Number,FALSE,Number,built_env,buildings
+42,National Housing Census: type of living quarter by country,Total : Conventional dwellings,Number,FALSE,Number,built_env,buildings
+42,National Housing Census: type of living quarter by country,Total : Occupied conventional dwellings,Number,FALSE,Number,built_env,buildings
+42,National Housing Census: type of living quarter by country,Total : Unknown,Number,FALSE,Number,built_env,buildings
+42,National Housing Census: type of living quarter by country,Total : Unoccupied conventional dwellings,Number,FALSE,Number,built_env,buildings
+42,National Housing Census: type of living quarter by country,Two-dwelling residential buildings : Conventional dwellings,Number,FALSE,Number,built_env,buildings
+42,National Housing Census: type of living quarter by country,Two-dwelling residential buildings : Occupied conventional dwellings,Number,FALSE,Number,built_env,buildings
+42,National Housing Census: type of living quarter by country,Two-dwelling residential buildings : Unknown,Number,FALSE,Number,built_env,buildings
+42,National Housing Census: type of living quarter by country,Two-dwelling residential buildings : Unoccupied conventional dwellings,Number,FALSE,Number,built_env,buildings
+42,National Housing Census: type of living quarter by country,Unknown : Conventional dwellings,Number,FALSE,Number,built_env,buildings
+42,National Housing Census: type of living quarter by country,Unknown : Occupied conventional dwellings,Number,FALSE,Number,built_env,buildings
+42,National Housing Census: type of living quarter by country,Unknown : Unknown,Number,FALSE,Number,built_env,buildings
+42,National Housing Census: type of living quarter by country,Unknown : Unoccupied conventional dwellings,Number,FALSE,Number,built_env,buildings
+43,HotMaps: Heat demand density,"Heat density map (final energy demand for heating and DHW) of buildings in EU28 + Switzerland, Norway and Iceland for the year 2015",MWh/ha (MWh/10.000 m2),TRUE,MWh/ha,en_demand,energy_dem
+45,HotMaps: Heated gross floor area density,"Heated gross floor area density map of buildings in EU28 + Switzerland, Norway and Iceland for the year 2015",m2/ha (m2/10.000 m2),TRUE,m2/ha,built_env,buildings
+46,OECD: Greenhouse gas emissions,1A1 - Energy Industries | Greenhouse gases,Percentage | Units,FALSE,%,emissions,environmental
+46,OECD: Greenhouse gas emissions,1A1 - Energy Industries | Greenhouse gases,Tonnes of CO2 equivalent | Thousands,FALSE,kt CO2_eq,emissions,environmental
+46,OECD: Greenhouse gas emissions,1A2 - Manufacturing industries and construction | Greenhouse gases,Percentage | Units,FALSE,%,emissions,environmental
+46,OECD: Greenhouse gas emissions,1A2 - Manufacturing industries and construction | Greenhouse gases,Tonnes of CO2 equivalent | Thousands,FALSE,kt CO2_eq,emissions,environmental
+46,OECD: Greenhouse gas emissions,1A3 - Transport | Greenhouse gases,Percentage | Units,FALSE,%,emissions,environmental
+46,OECD: Greenhouse gas emissions,1A3 - Transport | Greenhouse gases,Tonnes of CO2 equivalent | Thousands,FALSE,kt CO2_eq,emissions,environmental
+46,OECD: Greenhouse gas emissions,1A4 - Residential and other sectors | Greenhouse gases,Tonnes of CO2 equivalent | Thousands,FALSE,kt CO2_eq,emissions,environmental
+46,OECD: Greenhouse gas emissions,1A4 - Residential and other sectors | Greenhouse gases,Percentage | Units,FALSE,%,emissions,environmental
+46,OECD: Greenhouse gas emissions,1A5 - Energy - Other | Greenhouse gases,Percentage | Units,FALSE,%,emissions,environmental
+46,OECD: Greenhouse gas emissions,1A5 - Energy - Other | Greenhouse gases,Tonnes of CO2 equivalent | Thousands,FALSE,kt CO2_eq,emissions,environmental
+46,OECD: Greenhouse gas emissions,1B - Fugitive Emissions from Fuels | Greenhouse gases,Percentage | Units,FALSE,%,emissions,environmental
+46,OECD: Greenhouse gas emissions,1B - Fugitive Emissions from Fuels | Greenhouse gases,Tonnes of CO2 equivalent | Thousands,FALSE,kt CO2_eq,emissions,environmental
+46,OECD: Greenhouse gas emissions,1C - CO2 from Transport and Storage | Greenhouse gases,Percentage | Units,FALSE,%,emissions,environmental
+46,OECD: Greenhouse gas emissions,1C - CO2 from Transport and Storage | Greenhouse gases,Tonnes of CO2 equivalent | Thousands,FALSE,kt CO2_eq,emissions,environmental
+46,OECD: Greenhouse gas emissions,1 - Energy | Greenhouse gases,Percentage | Units,FALSE,%,emissions,environmental
+46,OECD: Greenhouse gas emissions,1 - Energy | Greenhouse gases,Tonnes of CO2 equivalent | Thousands,FALSE,kt CO2_eq,emissions,environmental
+46,OECD: Greenhouse gas emissions,2- Industrial processes and product use | Greenhouse gases,Percentage | Units,FALSE,%,emissions,environmental
+46,OECD: Greenhouse gas emissions,2- Industrial processes and product use | Greenhouse gases,Tonnes of CO2 equivalent | Thousands,FALSE,kt CO2_eq,emissions,environmental
+46,OECD: Greenhouse gas emissions,3 - Agriculture | Greenhouse gases,Percentage | Units,FALSE,%,emissions,environmental
+46,OECD: Greenhouse gas emissions,3 - Agriculture | Greenhouse gases,Tonnes of CO2 equivalent | Thousands,FALSE,kt CO2_eq,emissions,environmental
+46,OECD: Greenhouse gas emissions,5 - Waste | Greenhouse gases,Percentage | Units,FALSE,%,emissions,environmental
+46,OECD: Greenhouse gas emissions,5 - Waste | Greenhouse gases,Tonnes of CO2 equivalent | Thousands,FALSE,kt CO2_eq,emissions,environmental
+46,OECD: Greenhouse gas emissions,6 - Other | Greenhouse gases,Percentage | Units,FALSE,%,emissions,environmental
+46,OECD: Greenhouse gas emissions,6 - Other | Greenhouse gases,Tonnes of CO2 equivalent | Thousands,FALSE,kt CO2_eq,emissions,environmental
+46,OECD: Greenhouse gas emissions,"Agriculture, Forestry and Other Land Use (AFOLU) | Greenhouse gases",Tonnes of CO2 equivalent | Units,FALSE,t CO2_eq,emissions,environmental
+46,OECD: Greenhouse gas emissions,"Land use, land-use change and forestry (LULUCF) | Greenhouse gases",Tonnes of CO2 equivalent | Thousands,FALSE,kt CO2_eq,emissions,environmental
+46,OECD: Greenhouse gas emissions,Total  emissions excluding LULUCF | Carbon dioxide,Tonnes of CO2 equivalent | Thousands,FALSE,kt CO2_eq,emissions,environmental
+46,OECD: Greenhouse gas emissions,Total  emissions excluding LULUCF | Greenhouse gases,Tonnes of CO2 equivalent | Thousands,FALSE,kt CO2_eq,emissions,environmental
+46,OECD: Greenhouse gas emissions,Total  emissions excluding LULUCF | Hydrofluorocarbons,Tonnes of CO2 equivalent | Thousands,FALSE,kt CO2_eq,emissions,environmental
+46,OECD: Greenhouse gas emissions,Total  emissions excluding LULUCF | Methane,Tonnes of CO2 equivalent | Thousands,FALSE,kt CO2_eq,emissions,environmental
+46,OECD: Greenhouse gas emissions,Total  emissions excluding LULUCF | Nitrogen trifluoride,Tonnes of CO2 equivalent | Thousands,FALSE,kt CO2_eq,emissions,environmental
+46,OECD: Greenhouse gas emissions,Total  emissions excluding LULUCF | Nitrous oxide,Tonnes of CO2 equivalent | Thousands,FALSE,kt CO2_eq,emissions,environmental
+46,OECD: Greenhouse gas emissions,Total  emissions excluding LULUCF | Perfluorocarbons,Tonnes of CO2 equivalent | Thousands,FALSE,kt CO2_eq,emissions,environmental
+46,OECD: Greenhouse gas emissions,Total  emissions excluding LULUCF | Sulphur hexafluoride,Tonnes of CO2 equivalent | Thousands,FALSE,kt CO2_eq,emissions,environmental
+46,OECD: Greenhouse gas emissions,Total  emissions excluding LULUCF | Unspecified mix of HFCs and PFCs,Tonnes of CO2 equivalent | Thousands,FALSE,kt CO2_eq,emissions,environmental
+46,OECD: Greenhouse gas emissions,Total  emissions including LULUCF | Greenhouse gases,Tonnes of CO2 equivalent | Thousands,FALSE,kt CO2_eq,emissions,environmental
+46,OECD: Greenhouse gas emissions,"Total GHG excl. LULUCF, Index 1990=100 | Carbon dioxide",Index | Units,FALSE,dimensionless,emissions,environmental
+46,OECD: Greenhouse gas emissions,"Total GHG excl. LULUCF, Index 1990=100 | Greenhouse gases",Index | Units,FALSE,dimensionless,emissions,environmental
+46,OECD: Greenhouse gas emissions,"Total GHG excl. LULUCF, Index 1990=100 | Hydrofluorocarbons",Index | Units,FALSE,dimensionless,emissions,environmental
+46,OECD: Greenhouse gas emissions,"Total GHG excl. LULUCF, Index 1990=100 | Methane",Index | Units,FALSE,dimensionless,emissions,environmental
+46,OECD: Greenhouse gas emissions,"Total GHG excl. LULUCF, Index 1990=100 | Nitrogen trifluoride",Index | Units,FALSE,dimensionless,emissions,environmental
+46,OECD: Greenhouse gas emissions,"Total GHG excl. LULUCF, Index 1990=100 | Nitrous oxide",Index | Units,FALSE,dimensionless,emissions,environmental
+46,OECD: Greenhouse gas emissions,"Total GHG excl. LULUCF, Index 1990=100 | Perfluorocarbons",Index | Units,FALSE,dimensionless,emissions,environmental
+46,OECD: Greenhouse gas emissions,"Total GHG excl. LULUCF, Index 1990=100 | Sulphur hexafluoride",Index | Units,FALSE,dimensionless,emissions,environmental
+46,OECD: Greenhouse gas emissions,"Total GHG excl. LULUCF, Index 1990=100 | Unspecified mix of HFCs and PFCs",Index | Units,FALSE,dimensionless,emissions,environmental
+46,OECD: Greenhouse gas emissions,"Total GHG excl. LULUCF, Index 2000=100 | Carbon dioxide",Index | Units,FALSE,dimensionless,emissions,environmental
+46,OECD: Greenhouse gas emissions,"Total GHG excl. LULUCF, Index 2000=100 | Greenhouse gases",Index | Units,FALSE,dimensionless,emissions,environmental
+46,OECD: Greenhouse gas emissions,"Total GHG excl. LULUCF, Index 2000=100 | Hydrofluorocarbons",Index | Units,FALSE,dimensionless,emissions,environmental
+46,OECD: Greenhouse gas emissions,"Total GHG excl. LULUCF, Index 2000=100 | Methane",Index | Units,FALSE,dimensionless,emissions,environmental
+46,OECD: Greenhouse gas emissions,"Total GHG excl. LULUCF, Index 2000=100 | Nitrogen trifluoride",Index | Units,FALSE,dimensionless,emissions,environmental
+46,OECD: Greenhouse gas emissions,"Total GHG excl. LULUCF, Index 2000=100 | Nitrous oxide",Index | Units,FALSE,dimensionless,emissions,environmental
+46,OECD: Greenhouse gas emissions,"Total GHG excl. LULUCF, Index 2000=100 | Perfluorocarbons",Index | Units,FALSE,dimensionless,emissions,environmental
+46,OECD: Greenhouse gas emissions,"Total GHG excl. LULUCF, Index 2000=100 | Sulphur hexafluoride",Index | Units,FALSE,dimensionless,emissions,environmental
+46,OECD: Greenhouse gas emissions,"Total GHG excl. LULUCF, Index 2000=100 | Unspecified mix of HFCs and PFCs",Index | Units,FALSE,dimensionless,emissions,environmental
+46,OECD: Greenhouse gas emissions,Total GHG excl. LULUCF per capita | Greenhouse gases,Kilograms per capita | Thousands,FALSE,kg per capita,emissions,environmental
+46,OECD: Greenhouse gas emissions,Total GHG excl. LULUCF per unit of GDP | Greenhouse gases,Kilograms per 1 000 US dollars | Thousands,FALSE,kg per 1000$,emissions,environmental
+47,Electricity prices for household consumers,Band DA : Consumption < 1 000 kWh : All taxes and levies included,Kilowatt-hour,FALSE,kWh,en_consumption,energy_cons
+47,Electricity prices for household consumers,Band DA : Consumption < 1 000 kWh : Excluding taxes and levies,Kilowatt-hour,FALSE,kWh,en_consumption,energy_cons
+47,Electricity prices for household consumers,Band DA : Consumption < 1 000 kWh : Excluding VAT and other recoverable taxes and levies,Kilowatt-hour,FALSE,kWh,en_consumption,energy_cons
+47,Electricity prices for household consumers,Band DB : 1 000 kWh < Consumption < 2 500 kWh : All taxes and levies included,Kilowatt-hour,FALSE,kWh,en_consumption,energy_cons
+47,Electricity prices for household consumers,Band DB : 1 000 kWh < Consumption < 2 500 kWh : Excluding taxes and levies,Kilowatt-hour,FALSE,kWh,en_consumption,energy_cons
+47,Electricity prices for household consumers,Band DB : 1 000 kWh < Consumption < 2 500 kWh : Excluding VAT and other recoverable taxes and levies,Kilowatt-hour,FALSE,kWh,en_consumption,energy_cons
+47,Electricity prices for household consumers,Band DC : 2 500 kWh < Consumption < 5 000 kWh : All taxes and levies included,Kilowatt-hour,FALSE,kWh,en_consumption,energy_cons
+47,Electricity prices for household consumers,Band DC : 2 500 kWh < Consumption < 5 000 kWh : Excluding taxes and levies,Kilowatt-hour,FALSE,kWh,en_consumption,energy_cons
+47,Electricity prices for household consumers,Band DC : 2 500 kWh < Consumption < 5 000 kWh : Excluding VAT and other recoverable taxes and levies,Kilowatt-hour,FALSE,kWh,en_consumption,energy_cons
+47,Electricity prices for household consumers,Band DD : 5 000 kWh < Consumption < 15 000 kWh : All taxes and levies included,Kilowatt-hour,FALSE,kWh,en_consumption,energy_cons
+47,Electricity prices for household consumers,Band DD : 5 000 kWh < Consumption < 15 000 kWh : Excluding taxes and levies,Kilowatt-hour,FALSE,kWh,en_consumption,energy_cons
+47,Electricity prices for household consumers,Band DD : 5 000 kWh < Consumption < 15 000 kWh : Excluding VAT and other recoverable taxes and levies,Kilowatt-hour,FALSE,kWh,en_consumption,energy_cons
+47,Electricity prices for household consumers,Band DE : Consumption > 15 000 kWh : All taxes and levies included,Kilowatt-hour,FALSE,kWh,en_consumption,energy_cons
+47,Electricity prices for household consumers,Band DE : Consumption > 15 000 kWh : Excluding taxes and levies,Kilowatt-hour,FALSE,kWh,en_consumption,energy_cons
+47,Electricity prices for household consumers,Band DE : Consumption > 15 000 kWh : Excluding VAT and other recoverable taxes and levies,Kilowatt-hour,FALSE,kWh,en_consumption,energy_cons
+48,Expenditure per household on energy,"Electricity, gas and other fuels","Current prices, million euro",FALSE,M€,cost,socio_economic
+49,Energy dependence,Natural gas,Percentage,FALSE,%,energy,energy_cons
+49,Energy dependence,Oil and petroleum products (excluding biofuel portion),Percentage,FALSE,%,energy,energy_cons
+49,Energy dependence,Solid fossil fuels,Percentage,FALSE,%,energy,energy_cons
+49,Energy dependence,Total,Percentage,FALSE,%,energy,energy_cons
+50,Regional GDP,default,"Million purchasing power standards (PPS, EU27 from 2020)",FALSE,MPPS,GDP,socio_economic
