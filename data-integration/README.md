@@ -45,7 +45,7 @@ You can manually execute the available pipelines witn the following commands:
 
   - 15: ERA5 reanalysis-era5-single-levels
     Note that the CDS API key is required. See [here](#cdsapirc).
-    `docker-compose  -f ../docker-compose-db.yml run data-integration getERA5.py --select_ds_ids 15`
+    `docker-compose  -f ../docker-compose-db.yml run data-integration getEra5.py --select_ds_ids 15`
 
   - 16: EMHIRES: Wind power generation
     `docker-compose -f ../docker-compose-db.yml run data-integration getEMHIRES.py --select_ds_ids 16`
