@@ -95,9 +95,12 @@ def get_response(
             * base_dictionary : updated dictionary.
         """
 
-        base_dictionary["geofiles"] = dict()
-        base_dictionary["geofiles"]["areas"] = layer_name
-
+        if base_dictionary.get("legend") is None:
+            base_dictionary["geofiles"] = dict()
+            return base_dictionary
+        else:
+            base_dictionary["geofiles"] = dict()
+            base_dictionary["geofiles"]["areas"] = layer_name
         return base_dictionary
 
     def get_legend(
@@ -139,16 +142,21 @@ def get_response(
                 )
                 # if enum == 0:
                 #     legend["symbology"][0]["value"] = 1**-6
+            base_dictionary["legend"] = legend
+            return base_dictionary
         else:
-            legend = {}
+            logging.error(nb_class)
             print("No legend was created.", flush=True)
-        base_dictionary["legend"] = legend
         return base_dictionary
 
     response = dict()
     response = get_graphs(base_dictionary=response, areas_potential=areas_potential)
     response = get_indicators(base_dictionary=response)
-    response = get_geofiles(base_dictionary=response, layer_name=raster_name)
     response = get_legend(base_dictionary=response, map_array=map_array)
+    response = get_geofiles(base_dictionary=response, layer_name=raster_name)
+    logging.error(response)
+    logging.error(response)
+    logging.error(response)
+    logging.error(response)
 
     return response
