@@ -24,7 +24,7 @@ The API users and custom functions are initialized in the db service.
 If you don't want to rebuild the db, you can just execute postgrest custom sql:
 
 ```
-docker-compose -f docker-compose_db.yml up --build -d db
+docker-compose -f docker-compose-db.yml up --build -d db
 docker-compose exec db psql postgres://test:example@db:5432/dataset -f /docker-entrypoint-initdb.d/postgrest.sql
 ```
 
