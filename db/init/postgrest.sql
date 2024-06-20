@@ -262,12 +262,20 @@ SELECT shared_id AS id, row_to_json((
  SELECT x from (SELECT
     json_build_array(json_build_object('title',metadata->>'Title')) as titles,
     json_build_array(
-        json_build_object('identifier',metadata->>'Identifier',
-        'identifierType', (CASE metadata->>'Identifier Type'
-                                            WHEN 'Digital Object Identifier (DOI)' THEN 'DOI'
-                                            WHEN 'Uniform Resource Locator (URL)' THEN 'URL'
-                                            ELSE '?' END)
-                                            )) as identifiers,
+        json_build_object('identifier',
+                            -- Set identifier: use DOI column in case the Identifier Type is set as such
+                            CASE datasets.metadata ->> 'Identifier Type'::text
+                                WHEN 'Digital Object Identifier (DOI)'::text THEN datasets.metadata ->> 'DOI'::text
+                                WHEN 'Uniform Resource Locator (URL)'::text THEN datasets.metadata ->> 'Identifier'::text
+                                ELSE 'Other identifier'::text
+                            END,
+                            'identifierType',
+                            -- Set identifierType: Use acronyms
+                            CASE datasets.metadata ->> 'Identifier Type'::text
+                                WHEN 'Digital Object Identifier (DOI)'::text THEN 'DOI'::text
+                                WHEN 'Uniform Resource Locator (URL)'::text THEN 'URL'::text
+                                ELSE 'Other identifier'::text
+                            END)) AS identifiers,
     array_to_json_with_key(string_to_array(metadata->>'Creator','; '),'name') as creators,
     json_build_array(
         json_build_object('rights', text('OPEN'),
