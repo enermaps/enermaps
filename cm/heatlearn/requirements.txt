@@ -4,4 +4,4 @@
 matplotlib==3.4.2
 tensorflow==2.7.2
 jenkspy==0.2.0
-protobuf==3.20.1
+protobuf==3.20.2
